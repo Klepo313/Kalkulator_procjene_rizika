@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+* {
+    font-family: "DM Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-size: 14px;
+
+    transition: all 100ms ease-in-out;
+    scroll-behavior: smooth;
+    text-wrap: wrap;
+}
+
+:root {
+    --primary-color: #14521C;
+    --primary-color-hover: #176221;
+    --primary-color-focus: #1a7225;
+    --text-color: #1e1e1e;
+    --white-color: #ffffff;
+    --bg-color: #F1F5F1;
+    --input-color: rgba(20, 82, 28, 0.05);
+    --input-hover-color: rgba(20, 82, 28, 0.1);
+    --input-focus-color: rgba(20, 82, 28, 0.2);
+    --bg-layout-color: white;
+    --border: 1px solid rgba(30, 30, 30, 0.5);
+    --border-line-sidebar: 1px solid rgba(30, 30, 30, 0.2);
+    --border-form-radius: 5px;
+    --border-layout-radius: 20px;
+    --red: #A32B2B;
+    --red-hover: #8d2828;
+    --red-focus: #461919;
+}
+
+body {
+    background-color: var(--bg-color);
+}
+
+/* .p-inputtext {
+    background-color: var(--input-color) !important;
+} */
+
+input {
+    height: 38px;
+    width: 100%;
+    background-color: var(--input-color) !important;
+    border: var(--border);
+    padding: 0px 20px;
+    border-radius: var(--border-form-radius);
+}
+
+input:hover {
+    background-color: var(--input-hover-color) !important;
+    outline: none;
+}
+
+input:focus {
+    background-color: var(--input-focus-color) !important;
+    outline: none;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    border: none;
+    border-radius: var(--border-form-radius);
+    font-weight: normal;
+    text-align: center;
+
+    width: 100%;
+    height: 38px;
+    padding: 0px 20px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: var(--primary-color-hover);
+    outline: none;
+}
+
+button:active {
+    background-color: var(--primary-color-focus);
+    outline: none;
+}
