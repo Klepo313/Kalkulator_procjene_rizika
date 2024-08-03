@@ -15,7 +15,8 @@ const MyPreset = definePreset(Aura, {
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   modules: [
-    '@primevue/nuxt-module'
+    '@primevue/nuxt-module',
+    '@pinia/nuxt',
   ],
   primevue: {
     options: {
