@@ -5,14 +5,14 @@
             <div class="main-grid">
                 <div class="grid-item header">Datum</div>
                 <div class="grid-item">
-                    <DatePicker v-model="icondisplay" showIcon fluid iconDisplay="input" inputId="icondisplay"
-                        dateFormat="dd.mm.yy" class="form-input" placeholder="Odaberi datum" />
+                    <DatePicker v-model="datumDate" @blur="updateDatum" showIcon fluid iconDisplay="input"
+                        inputId="icondisplay" dateFormat="dd.mm.yy" class="form-input" placeholder="Odaberi datum" />
                 </div>
 
                 <div class="grid-item header">Vrsta izračuna</div>
                 <div class="grid-item">
                     <Select v-model="odabranaVrstaIzracuna" :options="vrsteIzracuna" optionLabel="name"
-                        placeholder="Odaberi vrstu izračuna" class="form-input">
+                        placeholder="Odaberi vrstu izračuna" class="form-input" @change="updateVrstuIzracuna">
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
                                 <div>{{ slotProps.value.name }}</div>
@@ -32,21 +32,23 @@
                 <div class="grid-item header">Katastarska općina</div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaKatastarskaOpcina" :suggestions="filtriraneKatastarskeOpcine"
-                        @complete="searchKatastarskeOpcine" placeholder="Unesi katastarsku općinu"
-                        :virtualScrollerOptions="{ itemSize: 38 }" optionLabel="name" class="form-input" />
+                        @complete="searchKatastarskeOpcine" @blur="updateKatastarskaOpcina"
+                        placeholder="Unesi katastarsku općinu" :virtualScrollerOptions="{ itemSize: 38 }"
+                        optionLabel="name" class="form-input" />
                 </div>
 
                 <div class="grid-item header">Katastarska čestica</div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaKatastarskaCestica" :suggestions="filtriraneKatastarskeCestice"
-                        @complete="searchKatastarskeCestice" placeholder="Unesi katastarsku česticu"
-                        :virtualScrollerOptions="{ itemSize: 38 }" optionLabel="name" class="form-input" />
+                        @complete="searchKatastarskeCestice" @blur="updateKatastarskaCestica"
+                        placeholder="Unesi katastarsku česticu" :virtualScrollerOptions="{ itemSize: 38 }"
+                        optionLabel="name" class="form-input" />
                 </div>
 
                 <div class="grid-item header">Vrsta objekta</div>
                 <div class="grid-item">
                     <Select v-model="odabranaVrstaObjekta" :options="vrsteObjekta" optionLabel="name"
-                        placeholder="Odaberi vrstu objekta" class="form-input">
+                        placeholder="Odaberi vrstu objekta" class="form-input" @change="updateVrstaObjekta">
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
                                 <div>{{ slotProps.value.name }}</div>
@@ -66,7 +68,7 @@
                 <div class="grid-item header">Djelatnost</div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaDjelatnost" :suggestions="filtriraneDjelatnosti"
-                        @complete="searchDjelatnosti" placeholder="Unesi djelatnost"
+                        @complete="searchDjelatnosti" @blur="updateDjelatnost" placeholder="Unesi djelatnost"
                         :virtualScrollerOptions="{ itemSize: 38 }" :optionLabel="formatOption" class="form-input">
                     </AutoComplete>
                 </div>
@@ -116,8 +118,13 @@
 
 <script setup>
 import { ref } from "vue"
+import { useOpciStore } from '~/stores/main-store';
 
-const icondisplay = ref();
+// Kreiramo instancu storea
+const opciStore = useOpciStore();
+
+// Kreiramo ref za `Date` objekt datuma
+const datumDate = ref(new Date());
 
 const odabranaVrstaIzracuna = ref();
 const odabranaKatastarskaOpcina = ref();
@@ -126,40 +133,140 @@ const odabranaVrstaObjekta = ref();
 const odabranaDjelatnost = ref();
 const odabranaSkupinaDjelatnosti = ref();
 
+
+// Kreiramo computed property za datum, koji je povezan s storeom
+const datum = computed({
+    get: () => opciStore.opci_podaci.datum,
+    set: (value) => {
+        opciStore.setOpciPodaci({ datum: value });
+    },
+});
+
+// Kreiramo ref za formatirani datum
+const formattedDatum = computed({
+    get: () => formatDateToDDMMYYYY(datum.value),
+    set: (value) => {
+        const [day, month, year] = value.split('.').map(Number);
+        datum.value = new Date(year, month - 1, day).toISOString();
+    },
+});
+
+// Funkcija za formatiranje datuma
+function formatDateToDDMMYYYY(date) {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // Mjeseci su 0-indeksirani
+    const year = d.getFullYear();
+    return `${day}.${month}.${year}`;
+}
+
+// Funkcija za postavljanje datuma u store
+const updateDatum = () => {
+    opciStore.setOpciPodaci({ datum: datumDate.value.toISOString() });
+};
+
+// Metoda za ažuriranje vrste izračuna
+const updateVrstuIzracuna = () => {
+    opciStore.setOpciPodaci({ vrsta_izracuna: odabranaVrstaIzracuna.value });
+};
+
+const updateKatastarskaOpcina = () => {
+    opciStore.setOpciPodaci({ katastarska_opcina: odabranaKatastarskaOpcina.value });
+
+}
+
+const updateKatastarskaCestica = () => {
+    opciStore.setOpciPodaci({ katastarska_cestica: odabranaKatastarskaCestica.value });
+};
+
+const updateVrstaObjekta = () => {
+    opciStore.setOpciPodaci({ vrsta_objekta: odabranaVrstaObjekta.value });
+};
+
+const updateDjelatnost = () => {
+    opciStore.setOpciPodaci({ djelatnost: odabranaDjelatnost.value });
+};
+
+// Metoda za inicijalizaciju podataka iz kolačića
+const initFromCookies = () => {
+    opciStore.initFromCookies();
+
+    const initialDate = new Date(opciStore.opci_podaci.datum);
+    if (!isNaN(initialDate.getTime())) {
+        datumDate.value = initialDate;
+    }
+
+    const savedVrstaIzracuna = opciStore.opci_podaci.vrsta_izracuna;
+    if (savedVrstaIzracuna) {
+        odabranaVrstaIzracuna.value = vrsteIzracuna.value.find(
+            (option) => option.name === savedVrstaIzracuna.name
+        );
+    }
+
+    const savedKatastarskaOpcina = opciStore.opci_podaci.katastarska_opcina
+    if (savedKatastarskaOpcina) {
+        odabranaKatastarskaOpcina.value = katastarskeOpcine.value.find(
+            (option) => option.name === savedKatastarskaOpcina.name
+        );
+    }
+
+    const savedKatastarskaCestica = opciStore.opci_podaci.katastarska_cestica
+    if (savedKatastarskaCestica) {
+        odabranaKatastarskaCestica.value = katastarskeCestice.value.find(
+            (option) => option.name === savedKatastarskaCestica.name
+        );
+    }
+
+    const savedVrstaObjekta = opciStore.opci_podaci.vrsta_objekta
+    if (savedVrstaObjekta) {
+        odabranaVrstaObjekta.value = vrsteObjekta.value.find(
+            (option) => option.name === savedVrstaObjekta.name
+        );
+    }
+
+    const savedDjelatnost = opciStore.opci_podaci.djelatnost
+    if (savedDjelatnost) {
+        odabranaDjelatnost.value = djelatnosti.value.find(
+            (option) => option.name === savedDjelatnost.name
+        );
+    }
+};
+
+onMounted(() => {
+    initFromCookies();
+})
+
+const icondisplay = ref();
 const filtriraneKatastarskeOpcine = ref();
 const filtriraneKatastarskeCestice = ref();
 const filtriraneVrsteObjekta = ref();
 const filtriraneDjelatnosti = ref();
 const filtriraneSkupineDjelatnosti = ref();
 
-const vrsteIzracuna = ref([
-    { name: "Proces" },
-    { name: "Imovina" }
-]);
-const katastarskeOpcine = ref([
-    { name: "Šišljavić" },
-    { name: "Mladićić" },
-    { name: "Kaštela" }
-]);
-const katastarskeCestice = ref([
-    { name: "337/12" },
-    { name: "337/14" },
-    { name: "327/13" },
-    { name: "347/15" },
-])
-const vrsteObjekta = ref([
-    { name: "Zgrada" },
-    { name: "Poljoprivredno zemljište" },
-    { name: "Ostalo" },
-])
-const djelatnosti = ref([
-    { id: "01.11.", name: "Uzgoj žitarica (osim riže), mahunarki i uljanog sjemena" },
-    { id: "02.15.", name: "Uzgoj ribe" },
-])
-const skupineDjelatnosti = ref([
-    { id: "1.11.", name: "Uzgoj jednogodišnjih usjeva" },
-    { id: "2.22.", name: "Uzgoj dvogodišnjih usjeva" },
-])
+const vrsteIzracuna = computed(() => {
+    const niz = opciStore.vrste_izracuna;
+    return niz;
+})
+const katastarskeOpcine = computed(() => {
+    const niz = opciStore.katastarske_opcine;
+    return niz;
+})
+const katastarskeCestice = computed(() => {
+    const niz = opciStore.katastarske_cestice;
+    return niz;
+})
+const vrsteObjekta = computed(() => {
+    const niz = opciStore.vrsta_objekta;
+    return niz;
+})
+const djelatnosti = computed(() => {
+    const niz = opciStore.djelatnosti;
+    return niz;
+})
+const skupineDjelatnosti = computed(() => {
+    const niz = opciStore.skupina_djelatnosti;
+    return niz;
+})
 
 const searchKatastarskeOpcine = (event) => {
     //in a real application, make a request to a remote url with the query and return filtered results, for demo we filter at client side

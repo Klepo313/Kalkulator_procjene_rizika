@@ -1,7 +1,7 @@
 <template>
     <div class="body">
         <main>
-            <h1>Rizik sažetak</h1>
+            <h1>Tablice rizika</h1>
             <Tabs value="0">
                 <TabList>
                     <Tab class="reset-style" value="0">

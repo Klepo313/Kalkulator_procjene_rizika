@@ -58,27 +58,22 @@
 </template>
 
 <script setup>
-
 import { ref } from 'vue'
 import { navigateTo } from '#app';
+import { useAdaptStore } from '~/stores/main-store';
+
+const adaptStore = useAdaptStore()
 
 const toRizikSazetak = () => {
     navigateTo('/rizik-sazetak');
 };
 
 const selectedMjera = ref(null);
-const mjere = ref([
-    { id: 4234, name: 'Neki neki naziv' },
-    { id: 4235, name: 'Neki drugi neki naziv' },
-    { id: 4236, name: 'Neki treći neki naziv' },
-    { id: 4237, name: 'Neki četvrti neki naziv' },
-    { id: 4238, name: 'Neki peti neki naziv' },
-    { id: 4239, name: 'Neki šesti neki naziv' },
-    { id: 4240, name: 'Neki sedmi neki naziv' },
-    { id: 4241, name: 'Neki osmi neki naziv' },
-    { id: 4242, name: 'Neki deveti neki naziv' },
-    { id: 4243, name: 'Neki deseti neki naziv' },
-]);
+
+const mjere = computed(() => {
+    const niz = adaptStore.adaptacijske_mjere;
+    return niz;
+})
 
 const mjeraList = ref([]);
 const addMjera = () => {
@@ -118,13 +113,6 @@ main {
     flex-direction: column;
     gap: 34px;
 }
-
-/* .main-grid {
-    width: 60%;
-    display: grid;
-    grid-template-columns: 1fr 50px;
-    gap: 5px;
-} */
 
 .main-content {
     width: 50%;
