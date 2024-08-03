@@ -26,7 +26,7 @@
     --input-hover-color: rgba(20, 82, 28, 0.1);
     --input-focus-color: rgba(20, 82, 28, 0.2);
     --bg-layout-color: white;
-    --border: 1px solid rgba(30, 30, 30, 0.5);
+    --border: 1px solid rgba(30, 30, 30, 0.2);
     --border-line-sidebar: 1px solid rgba(30, 30, 30, 0.2);
     --border-form-radius: 5px;
     --border-layout-radius: 20px;
@@ -47,18 +47,20 @@ input {
     height: 38px;
     width: 100%;
     background-color: var(--input-color) !important;
-    border: var(--border);
+    border: var(--border) !important;
     padding: 0px 20px;
-    border-radius: var(--border-form-radius);
+    border-radius: var(--border-form-radius) !important;
 }
 
 input:hover {
     background-color: var(--input-hover-color) !important;
+    border-color: var(--primary-color) !important;
     outline: none;
 }
 
 input:focus {
     background-color: var(--input-focus-color) !important;
+    border-color: var(--primary-color) !important;
     outline: none;
 }
 
@@ -84,4 +86,32 @@ button:hover {
 button:active {
     background-color: var(--primary-color-focus);
     outline: none;
+}
+
+h1 {
+    font-size: 26px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-link {
+    color: var(--text-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-link:hover {
+    transform: translateX(3px);
+}
+
+.footer-btn {
+    width: auto;
 }

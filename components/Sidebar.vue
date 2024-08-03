@@ -40,10 +40,10 @@
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Rizik sažetak</h3>
                     </nuxt-link>
                     <nuxt-link
-                        :class="['nuxtlink-form', 'opci', isActiveRoute('/tablica-rizika') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
-                        to="/tablica-rizika">
+                        :class="['nuxtlink-form', 'opci', isActiveRoute('/tablice-rizika') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
+                        to="/tablice-rizika">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-columns" />
-                        <h3 :class="isCollapsed ? 'collapsed' : ''">Tablica rizika</h3>
+                        <h3 :class="isCollapsed ? 'collapsed' : ''">Tablice rizika</h3>
                     </nuxt-link>
                 </div>
             </div>
