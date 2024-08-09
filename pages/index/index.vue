@@ -161,11 +161,11 @@ const odabraniPodrucniUred = ref();
 
 onBeforeMount(async () => {
     await opciStore.fetchCalculation(idIzracuna);
+    await opciStore.fetchCalculationTypes();
+    await opciStore.fetchObjectTypes();
+    await opciStore.fetchActivities();
+    await opciStore.fetchMunicipalities();
     if (opciStore.opci_podaci.length <= 0) {
-        await opciStore.fetchCalculationTypes();
-        await opciStore.fetchObjectTypes();
-        await opciStore.fetchActivities();
-        await opciStore.fetchMunicipalities();
     }
     fillFormData();
 })
