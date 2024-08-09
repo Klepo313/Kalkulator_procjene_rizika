@@ -14,6 +14,13 @@ const MyPreset = definePreset(Aura, {
 
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
+  app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
+    layoutTransition: { name: 'layout', mode: 'out-in' },
+  },
+  router: {
+    middleware: ['auth'],
+  },
   modules: [
     '@primevue/nuxt-module',
     '@pinia/nuxt',
