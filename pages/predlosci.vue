@@ -7,7 +7,7 @@
                     <font-awesome-icon icon="plus" class="plus-icon" />
                     Novi predložak
                 </button>
-                <button class="logout">
+                <button class="logout" @click="doLogout">
                     <font-awesome-icon icon="arrow-right-from-bracket" class="logout-icon" />
                     Odjava
                 </button>
@@ -17,18 +17,17 @@
             <div class="main-content">
                 <h1>Prethodni predlošci</h1>
                 <div class="table">
-                    <DataTable v-model:filters="filters" :value="customers" paginator showGridlines :rows="10"
-                        dataKey="id" filterDisplay="menu" :loading="loading"
-                        :globalFilterFields="['name', 'country.name', 'representative.name', 'balance', 'status']">
+                    <DataTable v-model:filters="filters" :value="customers" selectionMode="single" paginator :rows="10"
+                        dataKey="id" filterDisplay="row" :loading="loading"
+                        :globalFilterFields="['name', 'country.name', 'representative.name', 'status']">
                         <template #header>
-                            <div class="flex justify-between">
-                                <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined
-                                    @click="clearFilter()" />
+                            <div class="flex justify-end">
                                 <IconField>
                                     <InputIcon>
-                                        <i class="pi pi-search" />
+                                        <font-awesome-icon icon="search" />
                                     </InputIcon>
-                                    <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
+                                    <InputText v-model="filters['global'].value" placeholder="Pretraži predloške"
+                                        class="search-field max" />
                                 </IconField>
                             </div>
                         </template>
@@ -38,8 +37,9 @@
                             <template #body="{ data }">
                                 {{ data.name }}
                             </template>
-                            <template #filter="{ filterModel }">
-                                <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+                            <template #filter="{ filterModel, filterCallback }">
+                                <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
+                                    placeholder="Pretraži po nazivu" class="search-field max" />
                             </template>
                         </Column>
                         <Column header="Country" filterField="country.name" style="min-width: 12rem">
@@ -51,23 +51,13 @@
                                     <span>{{ data.country.name }}</span>
                                 </div>
                             </template>
-                            <template #filter="{ filterModel }">
-                                <InputText v-model="filterModel.value" type="text" placeholder="Search by country" />
-                            </template>
-                            <template #filterclear="{ filterCallback }">
-                                <Button type="button" icon="pi pi-times" @click="filterCallback()"
-                                    severity="secondary"></Button>
-                            </template>
-                            <template #filterapply="{ filterCallback }">
-                                <Button type="button" icon="pi pi-check" @click="filterCallback()"
-                                    severity="success"></Button>
-                            </template>
-                            <template #filterfooter>
-                                <div class="px-4 pt-0 pb-4 text-center">Customized Buttons</div>
+                            <template #filter="{ filterModel, filterCallback }">
+                                <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
+                                    placeholder="Search by country" class="search-field max" />
                             </template>
                         </Column>
-                        <Column header="Agent" filterField="representative" :showFilterMatchModes="false"
-                            :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
+                        <Column header="Agent" filterField="representative" :showFilterMenu="false"
+                            style="min-width: 14rem">
                             <template #body="{ data }">
                                 <div class="flex items-center gap-2">
                                     <img :alt="data.representative.name"
@@ -76,9 +66,10 @@
                                     <span>{{ data.representative.name }}</span>
                                 </div>
                             </template>
-                            <template #filter="{ filterModel }">
-                                <MultiSelect v-model="filterModel.value" :options="representatives" optionLabel="name"
-                                    placeholder="Any">
+                            <template #filter="{ filterModel, filterCallback }">
+                                <MultiSelect v-model="filterModel.value" @change="filterCallback()"
+                                    :options="representatives" optionLabel="name" placeholder="Any"
+                                    style="min-width: 14rem" :maxSelectedLabels="1">
                                     <template #option="slotProps">
                                         <div class="flex items-center gap-2">
                                             <img :alt="slotProps.option.name"
@@ -90,62 +81,27 @@
                                 </MultiSelect>
                             </template>
                         </Column>
-                        <Column header="Date" filterField="date" dataType="date" style="min-width: 10rem">
-                            <template #body="{ data }">
-                                {{ formatDate(data.date) }}
-                            </template>
-                            <template #filter="{ filterModel }">
-                                <DatePicker v-model="filterModel.value" dateFormat="mm/dd/yy"
-                                    placeholder="mm/dd/yyyy" />
-                            </template>
-                        </Column>
-                        <Column header="Balance" filterField="balance" dataType="numeric" style="min-width: 10rem">
-                            <template #body="{ data }">
-                                {{ formatCurrency(data.balance) }}
-                            </template>
-                            <template #filter="{ filterModel }">
-                                <InputNumber v-model="filterModel.value" mode="currency" currency="USD"
-                                    locale="en-US" />
-                            </template>
-                        </Column>
-                        <Column header="Status" field="status" :filterMenuStyle="{ width: '14rem' }"
-                            style="min-width: 12rem">
+                        <Column field="status" header="Status" :showFilterMenu="false" style="min-width: 12rem">
                             <template #body="{ data }">
                                 <Tag :value="data.status" :severity="getSeverity(data.status)" />
                             </template>
-                            <template #filter="{ filterModel }">
-                                <Select v-model="filterModel.value" :options="statuses" placeholder="Select One"
-                                    showClear>
+                            <template #filter="{ filterModel, filterCallback }">
+                                <Select v-model="filterModel.value" @change="filterCallback()" :options="statuses"
+                                    placeholder="Select One" style="min-width: 12rem" :showClear="true">
                                     <template #option="slotProps">
                                         <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
                                     </template>
                                 </Select>
                             </template>
                         </Column>
-                        <Column field="activity" header="Activity" :showFilterMatchModes="false"
-                            style="min-width: 12rem">
-                            <template #body="{ data }">
-                                <ProgressBar :value="data.activity" :showValue="false" style="height: 6px">
-                                </ProgressBar>
-                            </template>
-                            <template #filter="{ filterModel }">
-                                <Slider v-model="filterModel.value" range class="m-4"></Slider>
-                                <div class="flex items-center justify-between px-2">
-                                    <span>{{ filterModel.value ? filterModel.value[0] : 0 }}</span>
-                                    <span>{{ filterModel.value ? filterModel.value[1] : 100 }}</span>
-                                </div>
-                            </template>
-                        </Column>
-                        <Column field="verified" header="Verified" dataType="boolean" bodyClass="text-center"
-                            style="min-width: 8rem">
+                        <Column field="verified" header="Verified" dataType="boolean" style="min-width: 6rem">
                             <template #body="{ data }">
                                 <i class="pi"
-                                    :class="{ 'pi-check-circle text-green-500 ': data.verified, 'pi-times-circle text-red-500': !data.verified }"></i>
+                                    :class="{ 'pi-check-circle text-green-500': data.verified, 'pi-times-circle text-red-400': !data.verified }"></i>
                             </template>
-                            <template #filter="{ filterModel }">
-                                <label for="verified-filter" class="font-bold"> Verified </label>
+                            <template #filter="{ filterModel, filterCallback }">
                                 <Checkbox v-model="filterModel.value" :indeterminate="filterModel.value === null" binary
-                                    inputId="verified-filter" />
+                                    @change="filterCallback()" />
                             </template>
                         </Column>
                     </DataTable>
@@ -166,6 +122,7 @@ import { ref, onMounted } from 'vue';
 import { CustomerService } from '@/service/CustomerService';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { navigateTo } from '#app';
+import { logout } from '@/service/logout';
 
 const customers = ref();
 const filters = ref();
@@ -191,6 +148,10 @@ onMounted(() => {
     });
 });
 
+const doLogout = async () => {
+    await logout();
+    navigateTo('/login')
+}
 
 const initFilters = () => {
     filters.value = {
@@ -254,10 +215,53 @@ const toDashboard = () => {
 </script>
 
 <style scoped>
+.p-paginator .p-paginator-content button {
+    outline: auto !important;
+    width: auto !important;
+}
+
+.ukloni-btn,
+.dodaj-btn,
+.p-datatable-filter-apply-button {
+    width: auto !important;
+    padding: 0px 10px;
+}
+
+.dodaj-btn {
+    border: none;
+}
+
+.table-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.clear-filter-btn {
+    width: auto;
+    color: var(--text-color);
+    border: var(--border);
+}
+
+.clear-filter-btn:hover {
+    color: white !important;
+    background-color: var(--text-color) !important;
+    border: var(--border) !important;
+}
+
+.search-field {
+    width: auto;
+    background: none !important;
+}
+
+.max {
+    width: 100% !important;
+}
+
 .body {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     gap: 26px;
     width: 100%;
     min-height: 100vh;
@@ -323,6 +327,7 @@ main {
 
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 20px;
 }

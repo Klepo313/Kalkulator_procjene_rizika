@@ -5,17 +5,17 @@
             <div class="main-grid">
                 <div class="grid-item header">Datum</div>
                 <div class="grid-item">
-                    <DatePicker v-model="datumDate" @blur="updateDatum" showIcon fluid iconDisplay="input"
-                        inputId="icondisplay" dateFormat="dd.mm.yy" class="form-input" placeholder="Odaberi datum" />
+                    <DatePicker v-model="datumDate" @blur="" showIcon fluid iconDisplay="input" inputId="icondisplay"
+                        dateFormat="dd.mm.yy" class="form-input" placeholder="Odaberi datum" />
                 </div>
 
                 <div class="grid-item header">Vrsta izračuna</div>
                 <div class="grid-item">
-                    <Select v-model="odabranaVrstaIzracuna" :options="vrsteIzracuna" optionLabel="name"
-                        placeholder="Odaberi vrstu izračuna" class="form-input" @change="updateVrstuIzracuna">
+                    <Select v-model="odabranaVrstaIzracuna" :options="vrsteIzracuna" optionLabel="tvz_naziv"
+                        placeholder="Odaberi vrstu izračuna" class="form-input" @change="">
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
-                                <div>{{ slotProps.value.name }}</div>
+                                <div>{{ slotProps.value.tvz_naziv }}</div>
                             </div>
                             <span v-else>
                                 {{ slotProps.placeholder }}
@@ -23,7 +23,7 @@
                         </template>
                         <template #option="slotProps">
                             <div class="flex items-center">
-                                <div>{{ slotProps.option.name }}</div>
+                                <div>{{ slotProps.option.tvz_naziv }}</div>
                             </div>
                         </template>
                     </Select>
@@ -32,26 +32,27 @@
                 <div class="grid-item header">Katastarska općina</div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaKatastarskaOpcina" :suggestions="filtriraneKatastarskeOpcine"
-                        @complete="searchKatastarskeOpcine" @blur="updateKatastarskaOpcina"
+                        @complete="searchKatastarskeOpcine"
+                        @blur="fetchParticles(parseInt(odabranaKatastarskaOpcina?.kop_id))"
                         placeholder="Unesi katastarsku općinu" :virtualScrollerOptions="{ itemSize: 38 }"
-                        optionLabel="name" class="form-input" />
+                        optionLabel="kop_naziv" class="form-input" />
                 </div>
 
                 <div class="grid-item header">Katastarska čestica</div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaKatastarskaCestica" :suggestions="filtriraneKatastarskeCestice"
-                        @complete="searchKatastarskeCestice" @blur="updateKatastarskaCestica"
-                        placeholder="Unesi katastarsku česticu" :virtualScrollerOptions="{ itemSize: 38 }"
-                        optionLabel="name" class="form-input" />
+                        @complete="searchKatastarskeCestice" @blur="" placeholder="Unesi katastarsku česticu"
+                        :virtualScrollerOptions="{ itemSize: 38 }" optionLabel="kcs_sif" class="form-input"
+                        :disabled="!odabranaKatastarskaOpcina" />
                 </div>
 
                 <div class="grid-item header">Vrsta objekta</div>
                 <div class="grid-item">
-                    <Select v-model="odabranaVrstaObjekta" :options="vrsteObjekta" optionLabel="name"
-                        placeholder="Odaberi vrstu objekta" class="form-input" @change="updateVrstaObjekta">
+                    <Select v-model="odabranaVrstaObjekta" :options="vrsteObjekta" optionLabel="tvo_naziv"
+                        placeholder="Odaberi vrstu objekta" class="form-input" @change="">
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
-                                <div>{{ slotProps.value.name }}</div>
+                                <div>{{ slotProps.value.tvo_naziv }}</div>
                             </div>
                             <span v-else>
                                 {{ slotProps.placeholder }}
@@ -59,7 +60,7 @@
                         </template>
                         <template #option="slotProps">
                             <div class="flex items-center">
-                                <div>{{ slotProps.option.name }}</div>
+                                <div>{{ slotProps.option.tvo_naziv }}</div>
                             </div>
                         </template>
                     </Select>
@@ -68,7 +69,7 @@
                 <div class="grid-item header">Djelatnost</div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaDjelatnost" :suggestions="filtriraneDjelatnosti"
-                        @complete="searchDjelatnosti" @blur="updateDjelatnost" placeholder="Unesi djelatnost"
+                        @complete="searchDjelatnosti" @blur="" placeholder="Unesi djelatnost"
                         :virtualScrollerOptions="{ itemSize: 38 }" :optionLabel="formatOption" class="form-input">
                     </AutoComplete>
                 </div>
@@ -95,6 +96,10 @@
                         placeholder="Popuni podatke na formi za prikaz područnog ureda">
                 </div>
             </div>
+            <button type="button" id="saveBtn">
+                <font-awesome-icon icon="save" class="save-icon" />
+                Spremi
+            </button>
             <span class="map-link" @click="openMapPopUp">
                 <font-awesome-icon icon="arrow-up-right-from-square"></font-awesome-icon>
                 <span>
@@ -110,14 +115,21 @@
         </footer>
         <div class="pop-up">
             <div class="pop-up-content">
-
+                Da
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from "vue"
+
+// definePageMeta({
+//     middleware: [
+//         'auth',
+//     ],
+// });
+
+import { ref, onMounted } from "vue"
 import { useOpciStore } from '~/stores/main-store';
 
 // Kreiramo instancu storea
@@ -127,12 +139,18 @@ const opciStore = useOpciStore();
 const datumDate = ref(new Date());
 
 const odabranaVrstaIzracuna = ref();
-const odabranaKatastarskaOpcina = ref();
-const odabranaKatastarskaCestica = ref();
+const odabranaKatastarskaOpcina = ref(null);
+const odabranaKatastarskaCestica = ref(null);
 const odabranaVrstaObjekta = ref();
 const odabranaDjelatnost = ref();
 const odabranaSkupinaDjelatnosti = ref();
 
+onMounted(() => {
+    opciStore.fetchCalculationTypes();
+    opciStore.fetchObjectTypes();
+    opciStore.fetchActivities();
+    opciStore.fetchMunicipalities();
+})
 
 // Kreiramo computed property za datum, koji je povezan s storeom
 const datum = computed({
@@ -166,75 +184,75 @@ const updateDatum = () => {
 };
 
 // Metoda za ažuriranje vrste izračuna
-const updateVrstuIzracuna = () => {
-    opciStore.setOpciPodaci({ vrsta_izracuna: odabranaVrstaIzracuna.value });
-};
+// const updateVrstuIzracuna = () => {
+//     opciStore.setOpciPodaci({ vrsta_izracuna: odabranaVrstaIzracuna.value });
+// };
 
-const updateKatastarskaOpcina = () => {
-    opciStore.setOpciPodaci({ katastarska_opcina: odabranaKatastarskaOpcina.value });
+// const updateKatastarskaOpcina = () => {
+//     opciStore.setOpciPodaci({ katastarska_opcina: odabranaKatastarskaOpcina.value });
 
-}
+// }
 
-const updateKatastarskaCestica = () => {
-    opciStore.setOpciPodaci({ katastarska_cestica: odabranaKatastarskaCestica.value });
-};
+// const updateKatastarskaCestica = () => {
+//     opciStore.setOpciPodaci({ katastarska_cestica: odabranaKatastarskaCestica.value });
+// };
 
-const updateVrstaObjekta = () => {
-    opciStore.setOpciPodaci({ vrsta_objekta: odabranaVrstaObjekta.value });
-};
+// const updateVrstaObjekta = () => {
+//     opciStore.setOpciPodaci({ vrsta_objekta: odabranaVrstaObjekta.value });
+// };
 
-const updateDjelatnost = () => {
-    opciStore.setOpciPodaci({ djelatnost: odabranaDjelatnost.value });
-};
+// const updateDjelatnost = () => {
+//     opciStore.setOpciPodaci({ djelatnost: odabranaDjelatnost.value });
+// };
 
 // Metoda za inicijalizaciju podataka iz kolačića
-const initFromCookies = () => {
-    opciStore.initFromCookies();
+// const initFromCookies = () => {
+//     opciStore.initFromCookies();
 
-    const initialDate = new Date(opciStore.opci_podaci.datum);
-    if (!isNaN(initialDate.getTime())) {
-        datumDate.value = initialDate;
-    }
+//     const initialDate = new Date(opciStore.opci_podaci.datum);
+//     if (!isNaN(initialDate.getTime())) {
+//         datumDate.value = initialDate;
+//     }
 
-    const savedVrstaIzracuna = opciStore.opci_podaci.vrsta_izracuna;
-    if (savedVrstaIzracuna) {
-        odabranaVrstaIzracuna.value = vrsteIzracuna.value.find(
-            (option) => option.name === savedVrstaIzracuna.name
-        );
-    }
+//     const savedVrstaIzracuna = opciStore.opci_podaci.vrsta_izracuna;
+//     if (savedVrstaIzracuna) {
+//         odabranaVrstaIzracuna.value = vrsteIzracuna.value.find(
+//             (option) => option.name === savedVrstaIzracuna.name
+//         );
+//     }
 
-    const savedKatastarskaOpcina = opciStore.opci_podaci.katastarska_opcina
-    if (savedKatastarskaOpcina) {
-        odabranaKatastarskaOpcina.value = katastarskeOpcine.value.find(
-            (option) => option.name === savedKatastarskaOpcina.name
-        );
-    }
+//     const savedKatastarskaOpcina = opciStore.opci_podaci.katastarska_opcina
+//     if (savedKatastarskaOpcina) {
+//         odabranaKatastarskaOpcina.value = katastarskeOpcine.value.find(
+//             (option) => option.name === savedKatastarskaOpcina.name
+//         );
+//     }
 
-    const savedKatastarskaCestica = opciStore.opci_podaci.katastarska_cestica
-    if (savedKatastarskaCestica) {
-        odabranaKatastarskaCestica.value = katastarskeCestice.value.find(
-            (option) => option.name === savedKatastarskaCestica.name
-        );
-    }
+//     const savedKatastarskaCestica = opciStore.opci_podaci.katastarska_cestica
+//     if (savedKatastarskaCestica) {
+//         odabranaKatastarskaCestica.value = katastarskeCestice.value.find(
+//             (option) => option.name === savedKatastarskaCestica.name
+//         );
+//     }
 
-    const savedVrstaObjekta = opciStore.opci_podaci.vrsta_objekta
-    if (savedVrstaObjekta) {
-        odabranaVrstaObjekta.value = vrsteObjekta.value.find(
-            (option) => option.name === savedVrstaObjekta.name
-        );
-    }
+//     const savedVrstaObjekta = opciStore.opci_podaci.vrsta_objekta
+//     if (savedVrstaObjekta) {
+//         odabranaVrstaObjekta.value = vrsteObjekta.value.find(
+//             (option) => option.name === savedVrstaObjekta.name
+//         );
+//     }
 
-    const savedDjelatnost = opciStore.opci_podaci.djelatnost
-    if (savedDjelatnost) {
-        odabranaDjelatnost.value = djelatnosti.value.find(
-            (option) => option.name === savedDjelatnost.name
-        );
-    }
-};
+//     const savedDjelatnost = opciStore.opci_podaci.djelatnost
+//     if (savedDjelatnost) {
+//         odabranaDjelatnost.value = djelatnosti.value.find(
+//             (option) => option.name === savedDjelatnost.name
+//         );
+//     }
+// };
 
-onMounted(() => {
-    initFromCookies();
-})
+// onMounted(() => {
+//     initFromCookies();
+// })
 
 const icondisplay = ref();
 const filtriraneKatastarskeOpcine = ref();
@@ -256,7 +274,7 @@ const katastarskeCestice = computed(() => {
     return niz;
 })
 const vrsteObjekta = computed(() => {
-    const niz = opciStore.vrsta_objekta;
+    const niz = opciStore.vrste_objekta;
     return niz;
 })
 const djelatnosti = computed(() => {
@@ -268,6 +286,19 @@ const skupineDjelatnosti = computed(() => {
     return niz;
 })
 
+const fetchParticles = (id) => {
+    if (!id) return; // Ensure ID is valid
+    console.log('odabranaKatastarskaOpcina:', odabranaKatastarskaOpcina.value);
+    console.log('Id:', id);
+
+    // Assuming fetchParticlesForMunicipalities returns a promise or updated value
+    opciStore.fetchParticlesForMunicipalities(id).then(response => {
+        katastarskeCestice.value = response; // Update computed value
+    }).catch(error => {
+        console.error('Error fetching particles:', error);
+    });
+};
+
 const searchKatastarskeOpcine = (event) => {
     //in a real application, make a request to a remote url with the query and return filtered results, for demo we filter at client side
     let query = event.query;
@@ -276,7 +307,7 @@ const searchKatastarskeOpcine = (event) => {
     for (let i = 0; i < katastarskeOpcine.value.length; i++) {
         let item = katastarskeOpcine.value[i];
 
-        if (item.name.toLowerCase().indexOf(query.toLowerCase()) === 0) {
+        if (item.kop_naziv.toLowerCase().indexOf(query.toLowerCase()) === 0) {
             _filteredItems.push(item);
         }
     }
@@ -292,7 +323,7 @@ const searchKatastarskeCestice = (event) => {
     for (let i = 0; i < katastarskeCestice.value.length; i++) {
         let item = katastarskeCestice.value[i];
 
-        if (item.name.toLowerCase().indexOf(query.toLowerCase()) === 0) {
+        if (item.kcs_sif.toLowerCase().indexOf(query.toLowerCase()) === 0) {
             _filteredItems.push(item);
         }
     }
@@ -301,14 +332,14 @@ const searchKatastarskeCestice = (event) => {
 };
 
 const formatOption = (option) => {
-    return `${option.id} - ${option.name}`;
+    return `${option.djl_sif} - ${option.djl_naziv}`;
 };
 
 const searchDjelatnosti = (event) => {
     // Normalizacija upita za pretragu
     let query = event.query.toLowerCase();
     let _filteredItems = djelatnosti.value.filter((item) =>
-        item.name.toLowerCase().includes(query) || item.id.toLowerCase().includes(query)
+        item.djl_naziv.toLowerCase().includes(query) || item.djl_sif.toLowerCase().includes(query)
     );
     filtriraneDjelatnosti.value = _filteredItems;
 };
@@ -321,7 +352,6 @@ const searchSkupineDjelatnosti = (event) => {
     );
     filtriraneSkupineDjelatnosti.value = _filteredItems;
 };
-
 
 </script>
 
@@ -372,6 +402,31 @@ main {
 .map-link>span {
     margin-left: 5px;
     text-decoration: underline;
+}
+
+#saveBtn {
+    width: 150px;
+    background: none;
+    border: var(--border);
+    font-weight: 500;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+#saveBtn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+#saveBtn:hover>.save-icon {
+    color: white;
+}
+
+#saveBtn:active {
+    background-color: var(--primary-color-focus);
 }
 
 .header {

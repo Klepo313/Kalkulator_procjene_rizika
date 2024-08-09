@@ -56,7 +56,7 @@
                     <span :class="isCollapsed ? 'collapsed' : ''">ante.antic@gmail.com</span>
                 </div>
             </div>
-            <div :class="['logout-container', isCollapsed ? 'collapsed' : '']">
+            <div :class="['logout-container', isCollapsed ? 'collapsed' : '']" @click="doLogout">
                 <font-awesome-icon :class="['logout-icon', isCollapsed ? 'collapsed' : '']"
                     icon="arrow-right-from-bracket" />
             </div>
@@ -68,6 +68,8 @@
 <script setup>
 import { computed, defineEmits } from 'vue';
 import { useRoute } from 'vue-router';
+import { navigateTo } from '#app';
+import { logout } from '@/service/logout';
 
 // Koristite useRoute za dobivanje trenutne rute
 const route = useRoute();
@@ -88,6 +90,12 @@ const toggleSidebar = () => {
 const isActiveRoute = (path) => {
     return computed(() => route.path === path).value;
 };
+
+const doLogout = async () => {
+    await logout();
+    window.location.reaload();
+    // navigateTo('/login')
+}
 </script>
 
 <style scoped>
