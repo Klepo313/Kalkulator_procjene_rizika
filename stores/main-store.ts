@@ -1,6 +1,11 @@
 // stores/main-store.ts
 import { defineStore } from 'pinia';
 import { useCookie } from '#app';
+import { getCalculationTypes } from '@/service/fetchCalculationTypes'
+import { getObjectTypes } from '~/service/fetchObjectTypes';
+import { getActivities } from '~/service/fetchActivities';
+import { getMunicipalities } from '~/service/fetchMunicipalities';
+import { getParticlesForMunicipalities } from '~/service/fetchParticlesForMunicipalities';
 
 export const useOpciStore = defineStore('opci-podaci', {
     state: () => ({
@@ -18,102 +23,36 @@ export const useOpciStore = defineStore('opci-podaci', {
             ispostava: '',
             podrucni_ured: ''
         },
-        vrste_izracuna: [
-            { name: 'Proces' },
-            { name: 'Imovina' },
-        ],
+        vrste_izracuna: [],
 
-        katastarske_opcine: [
-            { name: "Šišljavić" },
-            { name: "Mladićić" },
-            { name: "Kaštela" },
-            { name: "Dubrovnik" },
-            { name: "Split" },
-            { name: "Zagreb" },
-            { name: "Rijeka" },
-            { name: "Osijek" },
-            { name: "Zadar" },
-            { name: "Pula" },
-            { name: "Šibenik" },
-            { name: "Varaždin" },
-            { name: "Koprivnica" },
-            { name: "Čakovec" },
-            { name: "Sisak" },
-            { name: "Karlovac" },
-            { name: "Vukovar" },
-            { name: "Slavonski Brod" },
-            { name: "Vinkovci" },
-            { name: "Požega" }
-        ],
+        katastarske_opcine: [],
 
         katastarske_cestice: [
-            { name: "337/12" },
-            { name: "337/14" },
-            { name: "327/13" },
-            { name: "347/15" },
-            { name: "357/16" },
-            { name: "367/17" },
-            { name: "377/18" },
-            { name: "387/19" },
-            { name: "397/20" },
-            { name: "407/21" },
-            { name: "417/22" },
-            { name: "427/23" },
-            { name: "437/24" },
-            { name: "447/25" },
-            { name: "457/26" },
-            { name: "467/27" },
-            { name: "477/28" },
-            { name: "487/29" },
-            { name: "497/30" },
-            { name: "507/31" }
+            // { name: "337/12" },
+            // { name: "337/14" },
+            // { name: "327/13" },
+            // { name: "347/15" },
+            // { name: "357/16" },
+            // { name: "367/17" },
+            // { name: "377/18" },
+            // { name: "387/19" },
+            // { name: "397/20" },
+            // { name: "407/21" },
+            // { name: "417/22" },
+            // { name: "427/23" },
+            // { name: "437/24" },
+            // { name: "447/25" },
+            // { name: "457/26" },
+            // { name: "467/27" },
+            // { name: "477/28" },
+            // { name: "487/29" },
+            // { name: "497/30" },
+            // { name: "507/31" }
         ],
 
-        vrsta_objekta: [
-            { name: "Zgrada" },
-            { name: "Poljoprivredno zemljište" },
-            { name: "Ostalo" },
-            { name: "Industrijski objekt" },
-            { name: "Stambena kuća" },
-            { name: "Poslovni prostor" },
-            { name: "Garaža" },
-            { name: "Skadište" },
-            { name: "Vikendica" },
-            { name: "Vrt" },
-            { name: "Šuma" },
-            { name: "Ribnjak" },
-            { name: "Plaža" },
-            { name: "Jezero" },
-            { name: "Planina" },
-            { name: "Livada" },
-            { name: "Vinograd" },
-            { name: "Voćnjak" },
-            { name: "Sportski teren" },
-            { name: "Zoološki vrt" }
-        ],
+        vrste_objekta: [],
 
-        djelatnosti: [
-            { id: "01.11.", name: "Uzgoj žitarica (osim riže), mahunarki i uljanog sjemena" },
-            { id: "02.15.", name: "Uzgoj ribe" },
-            { id: "03.21.", name: "Proizvodnja mlijeka" },
-            { id: "04.30.", name: "Uzgoj peradi" },
-            { id: "05.40.", name: "Ribolov" },
-            { id: "06.50.", name: "Proizvodnja vina" },
-            { id: "07.60.", name: "Uzgajanje cvijeća" },
-            { id: "08.70.", name: "Proizvodnja piva" },
-            { id: "09.80.", name: "Proizvodnja obuće" },
-            { id: "10.90.", name: "Građevinarstvo" },
-            { id: "11.10.", name: "Transport" },
-            { id: "12.20.", name: "Telekomunikacije" },
-            { id: "13.30.", name: "Energetika" },
-            { id: "14.40.", name: "Konzalting" },
-            { id: "15.50.", name: "Informatika" },
-            { id: "16.60.", name: "Edukacija" },
-            { id: "17.70.", name: "Zdravstvo" },
-            { id: "18.80.", name: "Turizam" },
-            { id: "19.90.", name: "Kultura i umjetnost" },
-            { id: "20.10.", name: "Poljoprivreda" }
-        ],
+        djelatnosti: [],
 
         skupina_djelatnosti: [
             { id: "1.11.", name: "Uzgoj jednogodišnjih usjeva" },
@@ -140,37 +79,62 @@ export const useOpciStore = defineStore('opci-podaci', {
 
     }),
     actions: {
-        // Inicijalizacija podataka iz kolačića
-        initFromCookies() {
-            const cookie = useCookie('opci_podaci');
-            const savedData = cookie.value;
-            if (savedData && typeof savedData === 'object') {
-                this.opci_podaci = savedData;
+        initializeData() {
+
+        },
+        clearData() {
+
+        },
+
+        async fetchCalculationTypes() {
+            const items = await getCalculationTypes();
+
+            if (items?.status == 200) {
+                this.vrste_izracuna = items.data;
             } else {
-                console.log('Kolačić je prazan, nije pronađen ili podaci nisu objekt.');
+                console.error('Error fetching calculation types:', items?.status);
             }
+        },
+        async fetchObjectTypes() {
+            const items = await getObjectTypes();
 
+            if (items?.status == 200) {
+                this.vrste_objekta = items.data;
+            } else {
+                console.error('Error fetching calculation types:', items?.status);
+            }
+        },
+        async fetchActivities() {
+            const items = await getActivities();
+
+            if (items?.status == 200) {
+                this.djelatnosti = items.data;
+            } else {
+                console.error('Error fetching calculation types:', items?.status);
+            }
+        },
+        async fetchMunicipalities() {
+            const items = await getMunicipalities();
+
+            if (items?.status == 200) {
+                this.katastarske_opcine = items.data;
+            } else {
+                console.error('Error fetching calculation types:', items?.status);
+            }
+        },
+        async fetchParticlesForMunicipalities(id: number) {
+            const items = await getParticlesForMunicipalities(id);
+
+            if (items?.status == 200) {
+                this.katastarske_cestice = items.data;
+            } else {
+                console.error('Error fetching calculation types:', items?.status);
+            }
         },
 
-        // Metoda za postavljanje podataka i pohranjivanje u kolačiće
-        setOpciPodaci(podaci: Partial<typeof this.opci_podaci>) {
-            this.opci_podaci = { ...this.opci_podaci, ...podaci };
-            const cookie = useCookie('opci_podaci');
-            cookie.value = JSON.stringify(this.opci_podaci);
-        },
 
-        // Metoda za provjeru je li string valjan JSON
-        isJsonString(str: string) {
-            try {
-                JSON.parse(str);
-            } catch (e) {
-                return false;
-            }
-            return true;
-        }
     },
 });
-
 
 export const useAdaptStore = defineStore('adaptacijske-mjere', {
     state: () => ({
@@ -199,3 +163,33 @@ export const useAdaptStore = defineStore('adaptacijske-mjere', {
         ]
     })
 });
+
+
+// Inicijalizacija podataka iz kolačića
+// initFromCookies() {
+//     const cookie = useCookie('opci_podaci');
+//     const savedData = cookie.value;
+//     if (savedData && typeof savedData === 'object') {
+//         this.opci_podaci = savedData;
+//     } else {
+//         console.log('Kolačić je prazan, nije pronađen ili podaci nisu objekt.');
+//     }
+
+// },
+
+// Metoda za postavljanje podataka i pohranjivanje u kolačiće
+// setOpciPodaci(podaci: Partial<typeof this.opci_podaci>) {
+//     this.opci_podaci = { ...this.opci_podaci, ...podaci };
+//     const cookie = useCookie('opci_podaci');
+//     cookie.value = JSON.stringify(this.opci_podaci);
+// },
+
+// Metoda za provjeru je li string valjan JSON
+// isJsonString(str: string) {
+//     try {
+//         JSON.parse(str);
+//     } catch (e) {
+//         return false;
+//     }
+//     return true;
+// }
