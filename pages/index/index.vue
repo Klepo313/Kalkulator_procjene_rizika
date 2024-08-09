@@ -2,11 +2,11 @@
     <div class="body">
         <main>
             <h1>Opći podaci</h1>
-            <div class="main-grid">
+            <div v-if="opciStore.opci_podaci.length > 0" class="main-grid">
                 <div class="grid-item header">Datum</div>
                 <div class="grid-item">
-                    <DatePicker v-model="datumDate" @blur="" showIcon fluid iconDisplay="input" inputId="icondisplay"
-                        dateFormat="dd.mm.yy" class="form-input" placeholder="Odaberi datum" />
+                    <DatePicker v-model="odabraniDatum" @blur="" showIcon fluid iconDisplay="input"
+                        inputId="icondisplay" dateFormat="dd.mm.yy" class="form-input" placeholder="Odaberi datum" />
                 </div>
 
                 <div class="grid-item header">Vrsta izračuna</div>
@@ -49,7 +49,9 @@
                 <div class="grid-item header">Vrsta objekta</div>
                 <div class="grid-item">
                     <Select v-model="odabranaVrstaObjekta" :options="vrsteObjekta" optionLabel="tvo_naziv"
-                        placeholder="Odaberi vrstu objekta" class="form-input" @change="">
+                        placeholder="Odaberi vrstu objekta" class="form-input" @change=""
+                        :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Proces'"
+                        :style="{ opacity: odabranaVrstaIzracuna.tvz_naziv === 'Proces' ? 0.6 : 1 }">
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
                                 <div>{{ slotProps.value.tvo_naziv }}</div>
@@ -70,7 +72,8 @@
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaDjelatnost" :suggestions="filtriraneDjelatnosti"
                         @complete="searchDjelatnosti" @blur="" placeholder="Unesi djelatnost"
-                        :virtualScrollerOptions="{ itemSize: 38 }" :optionLabel="formatOption" class="form-input">
+                        :virtualScrollerOptions="{ itemSize: 38 }" :optionLabel="formatOption" class="form-input"
+                        :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Imovina'">
                     </AutoComplete>
                 </div>
 
@@ -80,22 +83,26 @@
                         @complete="searchSkupineDjelatnosti" placeholder="Unesi djelatnost"
                         :virtualScrollerOptions="{ itemSize: 38 }" :optionLabel="formatOption" class="form-input">
                     </AutoComplete> -->
-                    <input class="dataInput" type="text" disabled
+                    <input class="dataInput" type="text" disabled :value="odabranaSkupinaDjelatnosti"
                         placeholder="Popuni podatke na formi za prikaz skupine djelatnosti">
                 </div>
 
                 <div class="grid-item header">Ispostava</div>
                 <div class="grid-item">
-                    <input class="dataInput" type="text" disabled
+                    <input class="dataInput" type="text" disabled :value="odabranaIspostava"
                         placeholder="Popuni podatke na formi za prikaz ispostave">
                 </div>
 
                 <div class="grid-item header">Područni ured</div>
                 <div class="grid-item">
-                    <input class="dataInput" type="text" disabled
+                    <input class="dataInput" type="text" disabled :value="odabraniPodrucniUred"
                         placeholder="Popuni podatke na formi za prikaz područnog ureda">
                 </div>
             </div>
+            <span v-else style="font-style: italic;">
+                Učitavanje podataka
+                <font-awesome-icon icon="spinner" spin />
+            </span>
             <button type="button" id="saveBtn">
                 <font-awesome-icon icon="save" class="save-icon" />
                 Spremi
@@ -129,59 +136,98 @@
 //     ],
 // });
 
-import { ref, onMounted } from "vue"
+import { ref, onMounted, onBeforeMount } from "vue"
 import { useOpciStore } from '~/stores/main-store';
+import { formatDateToDMY } from '~/utils/dateFormatter'
+
+var idIzracuna = parseInt(useCookie('id_izracuna').value);
+console.log("idIzracuna: ", idIzracuna)
 
 // Kreiramo instancu storea
 const opciStore = useOpciStore();
 
 // Kreiramo ref za `Date` objekt datuma
-const datumDate = ref(new Date());
-
-const odabranaVrstaIzracuna = ref();
+const odabraniDatum = ref(); // new Date()
+const odabranaVrstaIzracuna = ref({
+    tvz_naziv: '',
+});
 const odabranaKatastarskaOpcina = ref(null);
 const odabranaKatastarskaCestica = ref(null);
 const odabranaVrstaObjekta = ref();
 const odabranaDjelatnost = ref();
 const odabranaSkupinaDjelatnosti = ref();
+const odabranaIspostava = ref();
+const odabraniPodrucniUred = ref();
 
-onMounted(() => {
-    opciStore.fetchCalculationTypes();
-    opciStore.fetchObjectTypes();
-    opciStore.fetchActivities();
-    opciStore.fetchMunicipalities();
+onBeforeMount(async () => {
+    await opciStore.fetchCalculation(idIzracuna);
+    if (opciStore.opci_podaci.length <= 0) {
+        await opciStore.fetchCalculationTypes();
+        await opciStore.fetchObjectTypes();
+        await opciStore.fetchActivities();
+        await opciStore.fetchMunicipalities();
+    }
+    fillFormData();
 })
 
-// Kreiramo computed property za datum, koji je povezan s storeom
-const datum = computed({
-    get: () => opciStore.opci_podaci.datum,
-    set: (value) => {
-        opciStore.setOpciPodaci({ datum: value });
-    },
-});
+const fillFormData = () => {
+    console.log("Velicina: ", opciStore.opci_podaci.length)
+    if (opciStore.opci_podaci.length > 0) {
+        const data = opciStore.opci_podaci[0];
 
-// Kreiramo ref za formatirani datum
-const formattedDatum = computed({
-    get: () => formatDateToDDMMYYYY(datum.value),
-    set: (value) => {
-        const [day, month, year] = value.split('.').map(Number);
-        datum.value = new Date(year, month - 1, day).toISOString();
-    },
-});
+        // Ensure these values match the data structure
+        odabraniDatum.value = formatDateToDMY(data.aiz_datum) || null;
+        odabranaVrstaIzracuna.value = { tvz_naziv: data.tvz_naziv } || null;
+        odabranaKatastarskaOpcina.value = { kop_naziv: data.kop_naziv } || null;
+        odabranaKatastarskaCestica.value = data.kcs_sif || null;
+        odabranaVrstaObjekta.value = { tvo_naziv: data.tvo_naziv } || null;
+        odabranaDjelatnost.value = { djl_sif: data.djl_sif, djl_naziv: data.djl_naziv } || null;
+        odabranaSkupinaDjelatnosti.value = data.djl_naziv_sk || null;
+        odabranaIspostava.value = data.isp_naziv || null;
+        odabraniPodrucniUred.value = data.puk_naziv || null;
 
-// Funkcija za formatiranje datuma
-function formatDateToDDMMYYYY(date) {
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0'); // Mjeseci su 0-indeksirani
-    const year = d.getFullYear();
-    return `${day}.${month}.${year}`;
+        console.log("Odabrani datum: ", odabraniDatum.value);
+        console.log("Odabrana vrsta izračuna: ", odabranaVrstaIzracuna.value);
+        console.log("Odabrana katastarska opcina: ", odabranaKatastarskaOpcina.value);
+        console.log("Odabrana katastarska čestica: ", odabranaKatastarskaCestica.value);
+        console.log("Odabrana vrsta objekta: ", odabranaVrstaObjekta.value);
+        console.log("Odabrana djelatnost: ", odabranaDjelatnost.value);
+        console.log("Odabrana skupina djelatnosti: ", odabranaSkupinaDjelatnosti.value);
+        console.log("Odabrana ispostava: ", odabranaIspostava.value);
+        console.log("Odabrani podrucni ured: ", odabraniPodrucniUred.value);
+    }
 }
 
+// Kreiramo computed property za datum, koji je povezan s storeom
+// const datum = computed({
+//     get: () => opciStore.opci_podaci.datum,
+//     set: (value) => {
+//         opciStore.setOpciPodaci({ datum: value });
+//     },
+// });
+
+// Kreiramo ref za formatirani datum
+// const formattedDatum = computed({
+//     get: () => formatDateToDDMMYYYY(datum.value),
+//     set: (value) => {
+//         const [day, month, year] = value.split('.').map(Number);
+//         datum.value = new Date(year, month - 1, day).toISOString();
+//     },
+// });
+
+// // Funkcija za formatiranje datuma
+// function formatDateToDDMMYYYY(date) {
+//     const d = new Date(date);
+//     const day = String(d.getDate()).padStart(2, '0');
+//     const month = String(d.getMonth() + 1).padStart(2, '0'); // Mjeseci su 0-indeksirani
+//     const year = d.getFullYear();
+//     return `${day}.${month}.${year}`;
+// }
+
 // Funkcija za postavljanje datuma u store
-const updateDatum = () => {
-    opciStore.setOpciPodaci({ datum: datumDate.value.toISOString() });
-};
+// const updateDatum = () => {
+//     opciStore.setOpciPodaci({ datum: odabraniDatum.value.toISOString() });
+// };
 
 // Metoda za ažuriranje vrste izračuna
 // const updateVrstuIzracuna = () => {
@@ -211,7 +257,7 @@ const updateDatum = () => {
 
 //     const initialDate = new Date(opciStore.opci_podaci.datum);
 //     if (!isNaN(initialDate.getTime())) {
-//         datumDate.value = initialDate;
+//         odabraniDatum.value = initialDate;
 //     }
 
 //     const savedVrstaIzracuna = opciStore.opci_podaci.vrsta_izracuna;

@@ -12,8 +12,18 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
+import { useOpciStore } from '~/stores/main-store';
+
+var idIzracuna = parseInt(useCookie('id_izracuna').value);
+console.log("idIzracuna: ", idIzracuna)
+
+const opciStore = useOpciStore();
+
+onMounted(async () => {
+    await opciStore.fetchCalculation(idIzracuna);
+})
 
 // Reaktivna varijabla za praćenje stanja bočne trake
 const isCollapsed = ref(false)
@@ -29,7 +39,6 @@ const toggleSidebar = () => {
 // Reaktivno praćenje promjena u isCollapsed za ažuriranje širine sidebarWidth
 watch(isCollapsed, (newValue) => {
     sidebarWidth.value = newValue ? '70px' : '275px'
-    console.log(sidebarWidth.value);
 })
 
 // Kompjuterana vrijednost za stilove main elementa
