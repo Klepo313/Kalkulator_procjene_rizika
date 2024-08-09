@@ -6,76 +6,23 @@ import { getObjectTypes } from '~/service/fetchObjectTypes';
 import { getActivities } from '~/service/fetchActivities';
 import { getMunicipalities } from '~/service/fetchMunicipalities';
 import { getParticlesForMunicipalities } from '~/service/fetchParticlesForMunicipalities';
+import { getCalculation } from '~/service/fetchCalculation';
 
 export const useOpciStore = defineStore('opci-podaci', {
     state: () => ({
-        opci_podaci: {
-            datum: '',
-            vrsta_izracuna: '',
-            katastarska_opcina: '',
-            katastarska_cestica: '',
-            vrsta_objekta: '',
-            djelatnost: {
-                id: 0,
-                name: '',
-            },
-            skupina_djelatnosti: '',
-            ispostava: '',
-            podrucni_ured: ''
-        },
+        opci_podaci: {},
+
         vrste_izracuna: [],
 
         katastarske_opcine: [],
 
-        katastarske_cestice: [
-            // { name: "337/12" },
-            // { name: "337/14" },
-            // { name: "327/13" },
-            // { name: "347/15" },
-            // { name: "357/16" },
-            // { name: "367/17" },
-            // { name: "377/18" },
-            // { name: "387/19" },
-            // { name: "397/20" },
-            // { name: "407/21" },
-            // { name: "417/22" },
-            // { name: "427/23" },
-            // { name: "437/24" },
-            // { name: "447/25" },
-            // { name: "457/26" },
-            // { name: "467/27" },
-            // { name: "477/28" },
-            // { name: "487/29" },
-            // { name: "497/30" },
-            // { name: "507/31" }
-        ],
+        katastarske_cestice: [],
 
         vrste_objekta: [],
 
         djelatnosti: [],
 
-        skupina_djelatnosti: [
-            { id: "1.11.", name: "Uzgoj jednogodišnjih usjeva" },
-            { id: "2.22.", name: "Uzgoj dvogodišnjih usjeva" },
-            { id: "3.33.", name: "Ribarstvo" },
-            { id: "4.44.", name: "Pčelarstvo" },
-            { id: "5.55.", name: "Sakupljanje šumskih plodova" },
-            { id: "6.66.", name: "Lovstvo" },
-            { id: "7.77.", name: "Ekologija" },
-            { id: "8.88.", name: "Vodoprivreda" },
-            { id: "9.99.", name: "Veterinarstvo" },
-            { id: "10.10.", name: "Morsko ribarstvo" },
-            { id: "11.11.", name: "Skladištenje" },
-            { id: "12.12.", name: "Distribucija" },
-            { id: "13.13.", name: "Logistika" },
-            { id: "14.14.", name: "Financijske usluge" },
-            { id: "15.15.", name: "Pravno savjetovanje" },
-            { id: "16.16.", name: "Revizija" },
-            { id: "17.17.", name: "Prevođenje" },
-            { id: "18.18.", name: "Dizajn" },
-            { id: "19.19.", name: "Oglašavanje" },
-            { id: "20.20.", name: "Menadžment" }
-        ]
+        skupina_djelatnosti: []
 
     }),
     actions: {
@@ -91,6 +38,14 @@ export const useOpciStore = defineStore('opci-podaci', {
 
             if (items?.status == 200) {
                 this.vrste_izracuna = items.data;
+            } else {
+                console.error('Error fetching calculation types:', items?.status);
+            }
+        },
+        async fetchCalculation(id: number) {
+            const items = await getCalculation(id);
+            if (items?.status == 200) {
+                this.opci_podaci = items.data;
             } else {
                 console.error('Error fetching calculation types:', items?.status);
             }
@@ -164,32 +119,83 @@ export const useAdaptStore = defineStore('adaptacijske-mjere', {
     })
 });
 
+// const customers = ref();
+// const representatives = ref([
+//     { name: 'Amy Elsner', image: 'amyelsner.png' },
+//     { name: 'Anna Fali', image: 'annafali.png' },
+//     { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
+//     { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
+//     { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
+//     { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
+//     { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
+//     { name: 'Onyama Limba', image: 'onyamalimba.png' },
+//     { name: 'Stephen Shaw', image: 'stephenshaw.png' },
+//     { name: 'XuXue Feng', image: 'xuxuefeng.png' }
+// ]);
+// const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
+// const loading = ref(true);
 
-// Inicijalizacija podataka iz kolačića
-// initFromCookies() {
-//     const cookie = useCookie('opci_podaci');
-//     const savedData = cookie.value;
-//     if (savedData && typeof savedData === 'object') {
-//         this.opci_podaci = savedData;
-//     } else {
-//         console.log('Kolačić je prazan, nije pronađen ili podaci nisu objekt.');
+// onMounted(() => {
+//     CustomerService.getCustomersMedium().then((data) => {
+//         customers.value = getCustomers(data);
+//         loading.value = false;
+//     });
+// });
+
+
+// const initFilters = () => {
+//     filters.value = {
+//         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+//         name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+//         'country.name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+//         representative: { value: null, matchMode: FilterMatchMode.IN },
+//         date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
+//         balance: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+//         status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+//         activity: { value: [0, 100], matchMode: FilterMatchMode.BETWEEN },
+//         verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+//     };
+// };
+
+// initFilters();
+
+// const formatDate = (value) => {
+//     return value.toLocaleDateString('en-US', {
+//         day: '2-digit',
+//         month: '2-digit',
+//         year: 'numeric'
+//     });
+// };
+// const formatCurrency = (value) => {
+//     return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+// };
+// const clearFilter = () => {
+//     initFilters();
+// };
+// const getCustomers = (data) => {
+//     return [...(data || [])].map((d) => {
+//         d.date = new Date(d.date);
+
+//         return d;
+//     });
+// };
+// const getSeverity = (status) => {
+//     switch (status) {
+//         case 'unqualified':
+//             return 'danger';
+
+//         case 'qualified':
+//             return 'success';
+
+//         case 'new':
+//             return 'info';
+
+//         case 'negotiation':
+//             return 'warn';
+
+//         case 'renewal':
+//             return null;
 //     }
+// };
 
-// },
 
-// Metoda za postavljanje podataka i pohranjivanje u kolačiće
-// setOpciPodaci(podaci: Partial<typeof this.opci_podaci>) {
-//     this.opci_podaci = { ...this.opci_podaci, ...podaci };
-//     const cookie = useCookie('opci_podaci');
-//     cookie.value = JSON.stringify(this.opci_podaci);
-// },
-
-// Metoda za provjeru je li string valjan JSON
-// isJsonString(str: string) {
-//     try {
-//         JSON.parse(str);
-//     } catch (e) {
-//         return false;
-//     }
-//     return true;
-// }

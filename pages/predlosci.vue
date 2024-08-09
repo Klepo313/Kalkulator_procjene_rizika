@@ -1,7 +1,7 @@
 <template>
     <div class="body">
         <header>
-            <img src="../images/sidebar_logo.svg" alt="logo">
+            <img src="../images/sidebar_logo.svg" alt="logo" />
             <div class="header-buttons">
                 <button class="novi-predlozak" @click="toDashboard">
                     <font-awesome-icon icon="plus" class="plus-icon" />
@@ -15,95 +15,49 @@
         </header>
         <main>
             <div class="main-content">
-                <h1>Prethodni predlošci</h1>
+                <h1>Prethodni izračuni</h1>
                 <div class="table">
-                    <DataTable v-model:filters="filters" :value="customers" selectionMode="single" paginator :rows="10"
-                        dataKey="id" filterDisplay="row" :loading="loading"
-                        :globalFilterFields="['name', 'country.name', 'representative.name', 'status']">
+                    <DataTable v-model:filters="filters" v-model:selection="odabraniIzracun" :value="izracuni"
+                        selectionMode="single" :metaKeySelection="false" paginator @rowSelect="onRowSelect"
+                        removableSort :rows="10" dataKey="aiz_id" filterDisplay="row" :loading="loading"
+                        :globalFilterFields="['aiz_opis', 'aiz_datum', 'tvz_naziv', 'kcs_sif', 'kop_sif', 'kop_naziv', 'puk_naziv', 'objekt_djel']">
                         <template #header>
                             <div class="flex justify-end">
                                 <IconField>
                                     <InputIcon>
                                         <font-awesome-icon icon="search" />
                                     </InputIcon>
-                                    <InputText v-model="filters['global'].value" placeholder="Pretraži predloške"
-                                        class="search-field max" />
+                                    <InputText v-model="filters['global'].value"
+                                        placeholder="Pretraži prethodne izračune" class="search-field max" />
                                 </IconField>
                             </div>
                         </template>
-                        <template #empty> No customers found. </template>
-                        <template #loading> Loading customers data. Please wait. </template>
-                        <Column field="name" header="Name" style="min-width: 12rem">
-                            <template #body="{ data }">
-                                {{ data.name }}
-                            </template>
-                            <template #filter="{ filterModel, filterCallback }">
-                                <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
-                                    placeholder="Pretraži po nazivu" class="search-field max" />
+                        <template #empty> Nisu pronađeni izračuni </template>
+                        <template #loading> Učitavanje prethodnih izračuna. Molimo pričekajte. </template>
+
+                        <Column field="aiz_opis" header="Naziv" sortable style="width: 12.5%">
+                            <template #body="slotProps">
+                                {{ slotProps.data.aiz_opis || '--' }}
                             </template>
                         </Column>
-                        <Column header="Country" filterField="country.name" style="min-width: 12rem">
-                            <template #body="{ data }">
-                                <div class="flex items-center gap-2">
-                                    <img alt="flag"
-                                        src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png"
-                                        :class="`flag flag-${data.country.code}`" style="width: 24px" />
-                                    <span>{{ data.country.name }}</span>
-                                </div>
-                            </template>
-                            <template #filter="{ filterModel, filterCallback }">
-                                <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
-                                    placeholder="Search by country" class="search-field max" />
+                        <Column field="aiz_datum" header="Datum" sortable style="width: 12.5%">
+                            <template #body="slotProps">
+                                {{ formatDateToDMY(slotProps.data.aiz_datum) }}
                             </template>
                         </Column>
-                        <Column header="Agent" filterField="representative" :showFilterMenu="false"
-                            style="min-width: 14rem">
-                            <template #body="{ data }">
-                                <div class="flex items-center gap-2">
-                                    <img :alt="data.representative.name"
-                                        :src="`https://primefaces.org/cdn/primevue/images/avatar/${data.representative.image}`"
-                                        style="width: 32px" />
-                                    <span>{{ data.representative.name }}</span>
-                                </div>
-                            </template>
-                            <template #filter="{ filterModel, filterCallback }">
-                                <MultiSelect v-model="filterModel.value" @change="filterCallback()"
-                                    :options="representatives" optionLabel="name" placeholder="Any"
-                                    style="min-width: 14rem" :maxSelectedLabels="1">
-                                    <template #option="slotProps">
-                                        <div class="flex items-center gap-2">
-                                            <img :alt="slotProps.option.name"
-                                                :src="`https://primefaces.org/cdn/primevue/images/avatar/${slotProps.option.image}`"
-                                                style="width: 32px" />
-                                            <span>{{ slotProps.option.name }}</span>
-                                        </div>
-                                    </template>
-                                </MultiSelect>
+                        <Column field="tvz_naziv" header="Vrsta izračuna" sortable style="width: 12.5%"></Column>
+                        <Column field="kop_sif" header="Katastarska općina (šifra)" sortable style="width: 12.5%">
+                        </Column>
+                        <Column field="kop_naziv" header="Katastarska općina (naziv)" sortable style="width: 12.5%">
+                        </Column>
+                        <Column field="kcs_sif" header="Katastarska čestica" sortable style="width: 12.5%">
+                            <template #body="slotProps">
+                                {{ slotProps.data.kcs_sif || '--' }}
                             </template>
                         </Column>
-                        <Column field="status" header="Status" :showFilterMenu="false" style="min-width: 12rem">
-                            <template #body="{ data }">
-                                <Tag :value="data.status" :severity="getSeverity(data.status)" />
-                            </template>
-                            <template #filter="{ filterModel, filterCallback }">
-                                <Select v-model="filterModel.value" @change="filterCallback()" :options="statuses"
-                                    placeholder="Select One" style="min-width: 12rem" :showClear="true">
-                                    <template #option="slotProps">
-                                        <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
-                                    </template>
-                                </Select>
-                            </template>
-                        </Column>
-                        <Column field="verified" header="Verified" dataType="boolean" style="min-width: 6rem">
-                            <template #body="{ data }">
-                                <i class="pi"
-                                    :class="{ 'pi-check-circle text-green-500': data.verified, 'pi-times-circle text-red-400': !data.verified }"></i>
-                            </template>
-                            <template #filter="{ filterModel, filterCallback }">
-                                <Checkbox v-model="filterModel.value" :indeterminate="filterModel.value === null" binary
-                                    @change="filterCallback()" />
-                            </template>
-                        </Column>
+                        <Column field="puk_naziv" header="Područni ured" sortable style="width: 12.5%"></Column>
+                        <Column field="objekt_djel" header="Objekt/djelatnost" sortable style="width: 12.5%"></Column>
+
                     </DataTable>
                 </div>
             </div>
@@ -119,99 +73,58 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { CustomerService } from '@/service/CustomerService';
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
-import { navigateTo } from '#app';
+import { navigateTo, useCookie } from '#app';
 import { logout } from '@/service/logout';
+import { getCalculations } from '@/service/fetchCalculations';
+import { getCalculation } from '@/service/fetchCalculation';
+import { formatDateToDMY } from '@/utils/dateFormatter';
 
-const customers = ref();
-const filters = ref();
-const representatives = ref([
-    { name: 'Amy Elsner', image: 'amyelsner.png' },
-    { name: 'Anna Fali', image: 'annafali.png' },
-    { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-    { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-    { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-    { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-    { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-    { name: 'Onyama Limba', image: 'onyamalimba.png' },
-    { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-    { name: 'XuXue Feng', image: 'xuxuefeng.png' }
-]);
-const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
+const filters = ref({
+    global: { value: '', matchMode: 'contains' }
+});
+
+const izracuni = ref([]);
 const loading = ref(true);
 
-onMounted(() => {
-    CustomerService.getCustomersMedium().then((data) => {
-        customers.value = getCustomers(data);
-        loading.value = false;
+const odabraniIzracun = ref();
+const toast = useToast();
+const onRowSelect = async (event) => {
+    //const data = await getCalculation(odabraniIzracun.value.aiz_id);
+    console.log("Uspješno dohvaćen izračun.", odabraniIzracun.value);
+    const idIzracuna = useCookie('id_izracuna', {
+        maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
+        path: '/', // Cookie available throughout the app
+        secure: false, // Only send cookie over HTTPS
+        sameSite: 'strict' // Protect against CSRF attacks
     });
+
+    // Set the cookie values
+    idIzracuna.value = odabraniIzracun.value.aiz_id;
+
+    console.log('Setting cookies:', {
+        idIzracuna: odabraniIzracun.value.aiz_id,
+    });
+
+    navigateTo('/');
+};
+
+onMounted(async () => {
+    // Fetch the calculations data when the component is mounted
+    const data = await getCalculations();
+    if (data) {
+        izracuni.value = data;
+    }
+    loading.value = false; // Set loading to false once data is loaded
 });
 
 const doLogout = async () => {
     await logout();
-    navigateTo('/login')
-}
-
-const initFilters = () => {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        'country.name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        representative: { value: null, matchMode: FilterMatchMode.IN },
-        date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-        balance: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        activity: { value: [0, 100], matchMode: FilterMatchMode.BETWEEN },
-        verified: { value: null, matchMode: FilterMatchMode.EQUALS }
-    };
-};
-
-initFilters();
-
-const formatDate = (value) => {
-    return value.toLocaleDateString('en-US', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-};
-const formatCurrency = (value) => {
-    return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-};
-const clearFilter = () => {
-    initFilters();
-};
-const getCustomers = (data) => {
-    return [...(data || [])].map((d) => {
-        d.date = new Date(d.date);
-
-        return d;
-    });
-};
-const getSeverity = (status) => {
-    switch (status) {
-        case 'unqualified':
-            return 'danger';
-
-        case 'qualified':
-            return 'success';
-
-        case 'new':
-            return 'info';
-
-        case 'negotiation':
-            return 'warn';
-
-        case 'renewal':
-            return null;
-    }
+    navigateTo('/login');
 };
 
 const toDashboard = () => {
     navigateTo('/');
 };
-
 </script>
 
 <style scoped>
@@ -316,7 +229,7 @@ h1 {
 
 main {
     width: 100%;
-    height: 100%;
+    min-height: 100%;
 
     background-color: var(--bg-layout-color);
     border-radius: 10px;
