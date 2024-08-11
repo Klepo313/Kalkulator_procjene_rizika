@@ -7,8 +7,8 @@
                 <font-awesome-icon :class="['narrow-icon', isCollapsed ? 'collapsed' : '']" icon="angles-left"
                     @click="toggleSidebar" />
             </div>
-            <div :class="['sidebar-content', isCollapsed ? 'collapsed' : '']">
-                <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']" style="opacity: 0.75;">
+            <div :class="['sidebar-content izracun-content', isCollapsed ? 'collapsed' : '']">
+                <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']" style="opacity: 1;">
                     <h2 :class="isCollapsed ? 'collapsed' : ''"
                         style="font-size: 14px; font-weight: 400; color: var(--text-color);">
                         Broj izračuna:
@@ -146,6 +146,11 @@ const doLogout = async () => {
     align-items: space-between;
     justify-content: flex-start;
     gap: 20px;
+}
+
+.izracun-content {
+    padding-top: 13px;
+    padding-bottom: 13px;
 }
 
 .sidebar-heading {
@@ -286,6 +291,11 @@ h3 {
 
 .logo-image.collapsed {
     display: none;
+}
+
+.sidebar-content.izracun-content.collapsed {
+    padding-top: 13px;
+    padding-bottom: 13px;
 }
 
 .sidebar-header.collapsed {
