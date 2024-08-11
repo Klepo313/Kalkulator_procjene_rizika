@@ -8,6 +8,15 @@
                     @click="toggleSidebar" />
             </div>
             <div :class="['sidebar-content', isCollapsed ? 'collapsed' : '']">
+                <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']" style="opacity: 0.75;">
+                    <h2 :class="isCollapsed ? 'collapsed' : ''"
+                        style="font-size: 14px; font-weight: 400; color: var(--text-color);">
+                        Broj izračuna:
+                    </h2>
+                    <span class="broj-izracuna">{{ idIzracuna }}</span>
+                </div>
+            </div>
+            <div :class="['sidebar-content', isCollapsed ? 'collapsed' : '']">
                 <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']">
                     <font-awesome-icon :class="['list-icon', isCollapsed ? 'collapsed' : '']" icon="list" />
                     <h2 :class="isCollapsed ? 'collapsed' : ''">Podaci za izračun</h2>
@@ -74,7 +83,9 @@ import { logout } from '@/service/logout';
 // Koristite useRoute za dobivanje trenutne rute
 const route = useRoute();
 
-// const isCollapsed = ref(false);
+const brojIzracuna = ref(0);
+
+var idIzracuna = parseInt(useCookie('id_izracuna').value);
 
 // Prima prop za stanje bočne trake
 const props = defineProps(['isCollapsed'])
@@ -93,8 +104,7 @@ const isActiveRoute = (path) => {
 
 const doLogout = async () => {
     await logout();
-    window.location.reaload();
-    // navigateTo('/login')
+    navigateTo('/login')
 }
 </script>
 
@@ -144,6 +154,11 @@ const doLogout = async () => {
     gap: 10px;
     font-weight: bold;
     color: var(--primary-color);
+}
+
+.broj-izracuna {
+    color: var(--text-color);
+    font-weight: bold;
 }
 
 .list-icon {
