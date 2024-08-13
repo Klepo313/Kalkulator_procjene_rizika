@@ -2,47 +2,47 @@
     <div class="body">
         <main>
             <h1>Adaptacijske mjere</h1>
-
-            <!-- <div class="main-grid">
-                <div class="grid-item header">1</div>
-                <div class="grid-item"></div>
-                <div class="grid-item">1</div>
-                <div class="grid-item">1</div>
-            </div> -->
             <div class="main-content">
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th>Naziv mjere</th>
-                            <th></th>
+                            <th style="width: 20%;">Šifra mjere</th>
+                            <th style="width: 80%;">Naziv mjere</th>
+                            <th />
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-if="mjeraList.length === 0">
+                        <tr v-if="odabraneMjere.length === 0">
                             <td colspan="2" style="font-style: italic;">
                                 <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
                                 Tablica prazna
                             </td>
                         </tr>
-                        <tr v-for="mjera in mjeraList" :key="mjera.id">
-                            <td>{{ mjera.name }}</td>
+                        <tr v-for="mjera in odabraneMjere" :key="mjera.tva_sif">
+                            <td>{{ mjera.tva_sif }}</td>
+                            <td>{{ mjera.tva_naziv }}</td>
                             <td class="empty-th">
-                                <font-awesome-icon icon="minus" class="minus-icon" @click="removeMjera(mjera)"
-                                    style="margin-right: 15px;" />
+                                <font-awesome-icon icon="minus" class="minus-icon" style="margin-right: 15px;"
+                                    @click="removeMjera(mjera)" />
                             </td>
                         </tr>
                     </tbody>
                 </table>
+                <!-- <DataTable :value="odabraneMjere" paginator>
+                    <template #empty> Nema odabranih mjera </template>
+<template #loading> Učitavanje mjera. Molimo pričekajte. </template>
+<Column field="tva_sif" header="Šifra" style="width: 10%;"></Column>
+<Column field="tva_naziv" header="Naziv" style="width: 90%;"></Column>
+</DataTable> -->
                 <div class="newRow">
-                    <Select v-model="selectedMjera" :options="mjere" filter :optionLabel="formatOption"
-                        placeholder="Izaberi mjeru" class="select-mjere"></Select>
+                    <Select v-model="selectedMjera" :options="mjere" filter :option-label="formatOption"
+                        placeholder="Izaberi mjeru" class="select-mjere" />
                     <button class="newMjeraBtn" @click="addMjera">
                         <font-awesome-icon icon="plus" />
                         <span>Dodaj mjeru</span>
                     </button>
                 </div>
             </div>
-
         </main>
         <footer>
             <nuxt-link to="/" class="footer-link">
@@ -64,6 +64,16 @@ import { useAdaptStore } from '~/stores/main-store';
 
 const adaptStore = useAdaptStore()
 
+const idIzracuna = parseInt(useCookie('id_izracuna').value);
+console.log('ID izračuna: ', idIzracuna);
+
+onMounted(async () => {
+    await adaptStore.fetchMetrictypes(idIzracuna);
+    await adaptStore.fetchMetrictypes();
+    console.log('Uspješno dohvaćen izračun.', adaptStore.odabrane_mjere);
+    console.log('Uspješno dohvaćen izračun.', adaptStore.adaptacijske_mjere);
+});
+
 const toRizikSazetak = () => {
     navigateTo('/rizik-sazetak');
 };
@@ -75,20 +85,20 @@ const mjere = computed(() => {
     return niz;
 })
 
-const mjeraList = ref([]);
+const odabraneMjere = ref([]);
 const addMjera = () => {
-    if (selectedMjera.value && !mjeraList.value.some(mjera => mjera.id === selectedMjera.value.id)) {
-        mjeraList.value.push({ ...selectedMjera.value });
+    if (selectedMjera.value && !odabraneMjere.value.some(mjera => mjera.tva_sif === selectedMjera.value.tva_sif)) {
+        odabraneMjere.value.push({ ...selectedMjera.value });
         selectedMjera.value = null; // Reset the selectedMjera after adding
     }
 };
 
 const removeMjera = (mjera) => {
-    mjeraList.value = mjeraList.value.filter(item => item.id !== mjera.id);
+    odabraneMjere.value = odabraneMjere.value.filter(item => item.tva_sif !== mjera.tva_sif);
 };
 
 const formatOption = (option) => {
-    return `${option.id} - ${option.name}`;
+    return `${option.tva_sif} - ${option.tva_naziv}`;
 };
 
 </script>
@@ -128,7 +138,7 @@ main {
 .custom-table th,
 .custom-table td {
     height: 42.5px;
-    padding: 0px 12px;
+    padding: 5px 12px;
 
     color: var(--text-color);
     text-align: left;
@@ -179,6 +189,43 @@ th:last-child {
     outline: auto;
 }
 
+.action-div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info {
+    margin-top: 10px;
+    opacity: 0.5;
+}
+
+#saveBtn {
+    width: 150px;
+    background: none;
+    border: var(--border);
+    color: var(--text-color);
+    font-weight: 500;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+#saveBtn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+#saveBtn:hover>.save-icon {
+    color: white;
+}
+
+#saveBtn:active {
+    background-color: var(--primary-color-focus);
+}
+
 .newRow {
     margin-top: 10px;
     display: flex;
@@ -221,55 +268,16 @@ th:last-child {
     opacity: 0.4;
 }
 
-/* main {
-    position: relative;
-    width: 100%;
-    grid-column: 1;
-    grid-row: 2;
+
+@media screen and (max-width: 1500px) {
+    .main-content {
+        width: 70%;
+    }
 }
 
-.custom-table {
-    margin-top: 20px;
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #1a1a1a;
-    color: white;
+@media screen and (max-width: 1280px) {
+    .main-content {
+        width: 100%;
+    }
 }
-
-.custom-table th,
-.custom-table td {
-    height: 42.5px;
-    padding: 0px 12px;
-    text-align: left;
-}
-
-.custom-table thead th {
-    background-color: #333;
-    font-weight: 500;
-}
-
-.custom-table tbody tr:nth-child(even) {
-    background-color: #2a2a2a;
-}
-
-.custom-table tbody tr:nth-child(odd) {
-    background-color: #1a1a1a;
-}
-
-.newRow {
-    margin-top: 10px;
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.select-mjere {
-    width: 100%;
-}
-
-.newMjeraBtn {
-    width: 30%;
-    height: 44px;
-    border-radius: 5px;
-} */
 </style>

@@ -1,18 +1,20 @@
+<!-- eslint-disable no-constant-binary-expression -->
+<!-- eslint-disable no-constant-binary-expression -->
 <template>
     <div class="body">
         <main>
             <h1>Opći podaci</h1>
-            <div v-if="opciStore.opci_podaci.length > 0" class="main-grid">
+            <div v-if="opciStore.opci_podaci.length > 0 && odabraniDatum" class="main-grid">
                 <div class="grid-item header">Datum</div>
                 <div class="grid-item">
-                    <DatePicker v-model="odabraniDatum" @blur="" showIcon fluid iconDisplay="input"
-                        inputId="icondisplay" dateFormat="dd.mm.yy" class="form-input" placeholder="Odaberi datum" />
+                    <DatePicker v-model="odabraniDatum" show-icon fluid icon-display="input" input-id="icondisplay"
+                        date-format="dd.mm.yy" class="form-input" placeholder="Odaberi datum" />
                 </div>
 
                 <div class="grid-item header">Vrsta izračuna</div>
                 <div class="grid-item">
-                    <Select v-model="odabranaVrstaIzracuna" :options="vrsteIzracuna" optionLabel="tvz_naziv"
-                        placeholder="Odaberi vrstu izračuna" class="form-input" @change="">
+                    <Select v-model="odabranaVrstaIzracuna" :options="vrsteIzracuna" option-label="tvz_naziv"
+                        placeholder="Odaberi vrstu izračuna" class="form-input">
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
                                 <div>{{ slotProps.value.tvz_naziv }}</div>
@@ -32,24 +34,23 @@
                 <div class="grid-item header">Katastarska općina</div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaKatastarskaOpcina" :suggestions="filtriraneKatastarskeOpcine"
-                        @complete="searchKatastarskeOpcine"
-                        @blur="fetchParticles(parseInt(odabranaKatastarskaOpcina?.kop_id))"
-                        placeholder="Unesi katastarsku općinu" :virtualScrollerOptions="{ itemSize: 38 }"
-                        optionLabel="kop_naziv" class="form-input" />
+                        placeholder="Unesi katastarsku općinu" :virtual-scroller-options="{ itemSize: 38 }"
+                        option-label="kop_naziv" class="form-input" @complete="searchKatastarskeOpcine"
+                        @blur="fetchParticles(parseInt(odabranaKatastarskaOpcina?.aiz_kop_id))" />
                 </div>
 
                 <div class="grid-item header">Katastarska čestica</div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaKatastarskaCestica" :suggestions="filtriraneKatastarskeCestice"
-                        @complete="searchKatastarskeCestice" @blur="" placeholder="Unesi katastarsku česticu"
-                        :virtualScrollerOptions="{ itemSize: 38 }" optionLabel="kcs_sif" class="form-input"
-                        :disabled="!odabranaKatastarskaOpcina" />
+                        placeholder="Unesi katastarsku česticu" :virtual-scroller-options="{ itemSize: 38 }"
+                        option-label="kcs_sif" class="form-input" :disabled="!odabranaKatastarskaOpcina"
+                        @complete="searchKatastarskeCestice" />
                 </div>
 
                 <div class="grid-item header">Vrsta objekta</div>
                 <div class="grid-item">
-                    <Select v-model="odabranaVrstaObjekta" :options="vrsteObjekta" optionLabel="tvo_naziv"
-                        placeholder="Odaberi vrstu objekta" class="form-input" @change=""
+                    <Select v-model="odabranaVrstaObjekta" :options="vrsteObjekta" option-label="tvo_naziv"
+                        placeholder="Odaberi vrstu objekta" class="form-input"
                         :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Proces'"
                         :style="{ opacity: odabranaVrstaIzracuna.tvz_naziv === 'Proces' ? 0.6 : 1 }">
                         <template #value="slotProps">
@@ -71,10 +72,9 @@
                 <div class="grid-item header">Djelatnost</div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaDjelatnost" :suggestions="filtriraneDjelatnosti"
-                        @complete="searchDjelatnosti" @blur="" placeholder="Unesi djelatnost"
-                        :virtualScrollerOptions="{ itemSize: 38 }" :optionLabel="formatOption" class="form-input"
-                        :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Imovina'">
-                    </AutoComplete>
+                        placeholder="Unesi djelatnost" :virtual-scroller-options="{ itemSize: 38 }"
+                        :option-label="formatOption" class="form-input"
+                        :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Imovina'" @complete="searchDjelatnosti" />
                 </div>
 
                 <div class="grid-item header">Skupina djelatnosti</div>
@@ -103,18 +103,30 @@
                 Učitavanje podataka
                 <font-awesome-icon icon="spinner" spin />
             </span>
-            <button type="button" id="saveBtn">
-                <font-awesome-icon icon="save" class="save-icon" />
-                Spremi
-            </button>
             <span class="map-link" @click="openMapPopUp">
-                <font-awesome-icon icon="arrow-up-right-from-square"></font-awesome-icon>
+                <font-awesome-icon icon="arrow-up-right-from-square" />
                 <span>
                     Otvori katastarsku mapu i odaberi česticu
                 </span>
             </span>
         </main>
         <footer>
+            <!-- <div class="action-div"> -->
+            <nuxt-link to="/predlosci" class="footer-link">
+                <font-awesome-icon icon="arrow-left-long" />
+                Prethodni izračuni
+            </nuxt-link>
+            <button id="saveBtn" type="button">
+                <font-awesome-icon icon="save" class="save-icon" />
+                Spremi
+            </button>
+            <!-- <span class="info">
+                        <font-awesome-icon icon="info-circle" class="info-icon" />
+                        Klikom na dugme <b>'Spremi'</b> više <b> <u> nećete </u> </b> moći praviti promjene na poljima
+                        za
+                        popunjavanje.
+                    </span> -->
+            <!-- </div> -->
             <nuxt-link to="/adaptacijske-mjere" class="footer-link">
                 Adaptacijske mjere
                 <font-awesome-icon icon="arrow-right-long" />
@@ -136,11 +148,11 @@
 //     ],
 // });
 
-import { ref, onMounted, onBeforeMount } from "vue"
+import { ref, onBeforeMount } from "vue"
 import { useOpciStore } from '~/stores/main-store';
 import { formatDateToDMY } from '~/utils/dateFormatter'
 
-var idIzracuna = parseInt(useCookie('id_izracuna').value);
+const idIzracuna = parseInt(useCookie('id_izracuna').value);
 console.log("idIzracuna: ", idIzracuna)
 
 // Kreiramo instancu storea
@@ -160,41 +172,53 @@ const odabranaIspostava = ref();
 const odabraniPodrucniUred = ref();
 
 onBeforeMount(async () => {
-    await opciStore.fetchCalculation(idIzracuna);
+    if (opciStore.opci_podaci.length <= 0) {
+        await opciStore.fetchCalculation(idIzracuna);
+    }
     await opciStore.fetchCalculationTypes();
     await opciStore.fetchObjectTypes();
     await opciStore.fetchActivities();
     await opciStore.fetchMunicipalities();
-    if (opciStore.opci_podaci.length <= 0) {
-    }
     fillFormData();
 })
 
+watch(odabranaKatastarskaOpcina, (newVal) => {
+    if (newVal) {
+        fetchParticles(parseInt(newVal.aiz_kop_id));
+    }
+});
+
 const fillFormData = () => {
-    console.log("Velicina: ", opciStore.opci_podaci.length)
     if (opciStore.opci_podaci.length > 0) {
         const data = opciStore.opci_podaci[0];
 
         // Ensure these values match the data structure
         odabraniDatum.value = formatDateToDMY(data.aiz_datum) || null;
+        // eslint-disable-next-line no-constant-binary-expression
         odabranaVrstaIzracuna.value = { tvz_naziv: data.tvz_naziv } || null;
-        odabranaKatastarskaOpcina.value = { kop_naziv: data.kop_naziv } || null;
+        // eslint-disable-next-line no-constant-binary-expression
+        odabranaKatastarskaOpcina.value = { aiz_kop_id: data.aiz_kop_id, kop_naziv: data.kop_naziv } || null;
         odabranaKatastarskaCestica.value = data.kcs_sif || null;
+        // eslint-disable-next-line no-constant-binary-expression
         odabranaVrstaObjekta.value = { tvo_naziv: data.tvo_naziv } || null;
+        // eslint-disable-next-line no-constant-binary-expression
         odabranaDjelatnost.value = { djl_sif: data.djl_sif, djl_naziv: data.djl_naziv } || null;
         odabranaSkupinaDjelatnosti.value = data.djl_naziv_sk || null;
         odabranaIspostava.value = data.isp_naziv || null;
         odabraniPodrucniUred.value = data.puk_naziv || null;
 
-        console.log("Odabrani datum: ", odabraniDatum.value);
-        console.log("Odabrana vrsta izračuna: ", odabranaVrstaIzracuna.value);
         console.log("Odabrana katastarska opcina: ", odabranaKatastarskaOpcina.value);
-        console.log("Odabrana katastarska čestica: ", odabranaKatastarskaCestica.value);
-        console.log("Odabrana vrsta objekta: ", odabranaVrstaObjekta.value);
-        console.log("Odabrana djelatnost: ", odabranaDjelatnost.value);
-        console.log("Odabrana skupina djelatnosti: ", odabranaSkupinaDjelatnosti.value);
-        console.log("Odabrana ispostava: ", odabranaIspostava.value);
-        console.log("Odabrani podrucni ured: ", odabraniPodrucniUred.value);
+        fetchParticles(odabranaKatastarskaOpcina.value);
+
+        //     console.log("Odabrani datum: ", odabraniDatum.value);
+        //     console.log("Odabrana vrsta izračuna: ", odabranaVrstaIzracuna.value);
+        //     console.log("Odabrana katastarska opcina: ", odabranaKatastarskaOpcina.value);
+        //     console.log("Odabrana katastarska čestica: ", odabranaKatastarskaCestica.value);
+        //     console.log("Odabrana vrsta objekta: ", odabranaVrstaObjekta.value);
+        //     console.log("Odabrana djelatnost: ", odabranaDjelatnost.value);
+        //     console.log("Odabrana skupina djelatnosti: ", odabranaSkupinaDjelatnosti.value);
+        //     console.log("Odabrana ispostava: ", odabranaIspostava.value);
+        //     console.log("Odabrani podrucni ured: ", odabraniPodrucniUred.value);
     }
 }
 
@@ -300,12 +324,9 @@ const fillFormData = () => {
 //     initFromCookies();
 // })
 
-const icondisplay = ref();
 const filtriraneKatastarskeOpcine = ref();
 const filtriraneKatastarskeCestice = ref();
-const filtriraneVrsteObjekta = ref();
 const filtriraneDjelatnosti = ref();
-const filtriraneSkupineDjelatnosti = ref();
 
 const vrsteIzracuna = computed(() => {
     const niz = opciStore.vrste_izracuna;
@@ -327,10 +348,6 @@ const djelatnosti = computed(() => {
     const niz = opciStore.djelatnosti;
     return niz;
 })
-const skupineDjelatnosti = computed(() => {
-    const niz = opciStore.skupina_djelatnosti;
-    return niz;
-})
 
 const fetchParticles = (id) => {
     if (!id) return; // Ensure ID is valid
@@ -347,11 +364,11 @@ const fetchParticles = (id) => {
 
 const searchKatastarskeOpcine = (event) => {
     //in a real application, make a request to a remote url with the query and return filtered results, for demo we filter at client side
-    let query = event.query;
-    let _filteredItems = [];
+    const query = event.query;
+    const _filteredItems = [];
 
     for (let i = 0; i < katastarskeOpcine.value.length; i++) {
-        let item = katastarskeOpcine.value[i];
+        const item = katastarskeOpcine.value[i];
 
         if (item.kop_naziv.toLowerCase().indexOf(query.toLowerCase()) === 0) {
             _filteredItems.push(item);
@@ -363,11 +380,11 @@ const searchKatastarskeOpcine = (event) => {
 
 const searchKatastarskeCestice = (event) => {
     //in a real application, make a request to a remote url with the query and return filtered results, for demo we filter at client side
-    let query = event.query;
-    let _filteredItems = [];
+    const query = event.query;
+    const _filteredItems = [];
 
     for (let i = 0; i < katastarskeCestice.value.length; i++) {
-        let item = katastarskeCestice.value[i];
+        const item = katastarskeCestice.value[i];
 
         if (item.kcs_sif.toLowerCase().indexOf(query.toLowerCase()) === 0) {
             _filteredItems.push(item);
@@ -383,21 +400,13 @@ const formatOption = (option) => {
 
 const searchDjelatnosti = (event) => {
     // Normalizacija upita za pretragu
-    let query = event.query.toLowerCase();
-    let _filteredItems = djelatnosti.value.filter((item) =>
+    const query = event.query.toLowerCase();
+    const _filteredItems = djelatnosti.value.filter((item) =>
         item.djl_naziv.toLowerCase().includes(query) || item.djl_sif.toLowerCase().includes(query)
     );
     filtriraneDjelatnosti.value = _filteredItems;
 };
 
-const searchSkupineDjelatnosti = (event) => {
-    // Normalizacija upita za pretragu
-    let query = event.query.toLowerCase();
-    let _filteredItems = skupineDjelatnosti.value.filter((item) =>
-        item.name.toLowerCase().includes(query) || item.id.toLowerCase().includes(query)
-    );
-    filtriraneSkupineDjelatnosti.value = _filteredItems;
-};
 
 </script>
 
@@ -428,6 +437,15 @@ h1 {
     gap: 5px;
 }
 
+.action-div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info {
+    opacity: 0.5;
+}
 
 main {
     display: flex;
@@ -530,6 +548,18 @@ main {
 }
 
 footer {
-    justify-content: flex-end;
+    justify-content: space-between;
+}
+
+@media screen and (max-width: 1500px) {
+    .main-grid {
+        width: 70%;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    .main-grid {
+        width: 100%;
+    }
 }
 </style>

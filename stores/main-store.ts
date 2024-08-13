@@ -1,12 +1,12 @@
 // stores/main-store.ts
 import { defineStore } from 'pinia';
-import { useCookie } from '#app';
 import { getCalculationTypes } from '@/service/fetchCalculationTypes'
 import { getObjectTypes } from '~/service/fetchObjectTypes';
 import { getActivities } from '~/service/fetchActivities';
 import { getMunicipalities } from '~/service/fetchMunicipalities';
 import { getParticlesForMunicipalities } from '~/service/fetchParticlesForMunicipalities';
 import { getCalculation } from '~/service/fetchCalculation';
+import { getMetricTypes } from '~/service/fetchMetrictypes';
 
 export const useOpciStore = defineStore('opci-podaci', {
     state: () => ({
@@ -94,29 +94,26 @@ export const useOpciStore = defineStore('opci-podaci', {
 export const useAdaptStore = defineStore('adaptacijske-mjere', {
     state: () => ({
         odabrane_mjere: [],
-        adaptacijske_mjere: [
-            { id: 1001, name: 'Seizmičko ojačanje strukture' },
-            { id: 1002, name: 'Izgradnja otpornosti na poplave' },
-            { id: 1003, name: 'Ugradnja sustava za gašenje požara' },
-            { id: 1004, name: 'Korištenje vatrootpornih materijala' },
-            { id: 1005, name: 'Izrada protupotresnih temelja' },
-            { id: 1006, name: 'Ugradnja sustava za detekciju plina' },
-            { id: 1007, name: 'Poboljšanje energetske učinkovitosti' },
-            { id: 1008, name: 'Ugradnja olujnih barijera' },
-            { id: 1009, name: 'Optimizacija ventilacijskih sustava' },
-            { id: 1010, name: 'Instalacija protuprovalnih sustava' },
-            { id: 1011, name: 'Sustavi za odvodnju i kanalizaciju' },
-            { id: 1012, name: 'Primjena zelenih krovova i fasada' },
-            { id: 1013, name: 'Održavanje i obnova infrastrukture' },
-            { id: 1014, name: 'Korištenje obnovljivih izvora energije' },
-            { id: 1015, name: 'Poboljšanje akustične izolacije' },
-            { id: 1016, name: 'Instalacija sustava za pametno upravljanje zgradama' },
-            { id: 1017, name: 'Upotreba održivih građevinskih materijala' },
-            { id: 1018, name: 'Ugradnja sustava za prikupljanje kišnice' },
-            { id: 1019, name: 'Korištenje izolacije otporne na vlagu' },
-            { id: 1020, name: 'Redovite provjere i održavanje sigurnosnih sustava' }
-        ]
-    })
+        adaptacijske_mjere: []
+    }),
+    actions: {
+        async fetchMetrictypes(id: number) {
+            const items = await getMetricTypes(id);
+
+            if (items?.status == 200) {
+                if (id) {
+                    console.log("Prije: ", items.data)
+                    if (!items.data.message) {
+                        this.odabrane_mjere = items.data
+                    }
+                } else {
+                    this.adaptacijske_mjere = items.data
+                }
+            } else {
+                console.error('Error fetching calculation types:', items?.status);
+            }
+        },
+    }
 });
 
 // const customers = ref();
@@ -198,4 +195,25 @@ export const useAdaptStore = defineStore('adaptacijske-mjere', {
 //     }
 // };
 
+
+// { id: 1001, name: 'Seizmičko ojačanje strukture' },
+// { id: 1002, name: 'Izgradnja otpornosti na poplave' },
+// { id: 1003, name: 'Ugradnja sustava za gašenje požara' },
+// { id: 1004, name: 'Korištenje vatrootpornih materijala' },
+// { id: 1005, name: 'Izrada protupotresnih temelja' },
+// { id: 1006, name: 'Ugradnja sustava za detekciju plina' },
+// { id: 1007, name: 'Poboljšanje energetske učinkovitosti' },
+// { id: 1008, name: 'Ugradnja olujnih barijera' },
+// { id: 1009, name: 'Optimizacija ventilacijskih sustava' },
+// { id: 1010, name: 'Instalacija protuprovalnih sustava' },
+// { id: 1011, name: 'Sustavi za odvodnju i kanalizaciju' },
+// { id: 1012, name: 'Primjena zelenih krovova i fasada' },
+// { id: 1013, name: 'Održavanje i obnova infrastrukture' },
+// { id: 1014, name: 'Korištenje obnovljivih izvora energije' },
+// { id: 1015, name: 'Poboljšanje akustične izolacije' },
+// { id: 1016, name: 'Instalacija sustava za pametno upravljanje zgradama' },
+// { id: 1017, name: 'Upotreba održivih građevinskih materijala' },
+// { id: 1018, name: 'Ugradnja sustava za prikupljanje kišnice' },
+// { id: 1019, name: 'Korištenje izolacije otporne na vlagu' },
+// { id: 1020, name: 'Redovite provjere i održavanje sigurnosnih sustava' }
 
