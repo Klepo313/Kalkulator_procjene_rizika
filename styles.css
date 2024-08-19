@@ -43,7 +43,8 @@ body {
     background-color: var(--input-color) !important;
 } */
 
-input {
+input,
+textarea {
     height: 38px;
     width: 100%;
     background-color: var(--input-color) !important;
@@ -52,13 +53,15 @@ input {
     border-radius: var(--border-form-radius) !important;
 }
 
-input:hover {
+input:hover,
+textarea:hover {
     background-color: var(--input-hover-color) !important;
     border-color: var(--primary-color) !important;
     outline: none;
 }
 
-input:focus {
+input:focus,
+textarea:focus {
     background-color: var(--input-focus-color) !important;
     border-color: var(--primary-color) !important;
     outline: none;
