@@ -26,6 +26,7 @@
                                     @click="removeMjera(mjera)" />
                             </td>
                         </tr>
+
                     </tbody>
                 </table>
                 <!-- <DataTable :value="odabraneMjere" paginator>
@@ -62,13 +63,13 @@ import { ref } from 'vue'
 import { navigateTo } from '#app';
 import { useAdaptStore } from '~/stores/main-store';
 
-const adaptStore = useAdaptStore()
+const adaptStore = useAdaptStore();
 
-const idIzracuna = parseInt(useCookie('id_izracuna').value);
-console.log('ID izračuna: ', idIzracuna);
+const idIzracuna = ref();
+idIzracuna.value = parseInt(useCookie('id_izracuna').value);
 
 onMounted(async () => {
-    await adaptStore.fetchMetrictypes(idIzracuna);
+    await adaptStore.fetchMetrictypes(idIzracuna.value);
     await adaptStore.fetchMetrictypes();
     console.log('Uspješno dohvaćen izračun.', adaptStore.odabrane_mjere);
     console.log('Uspješno dohvaćen izračun.', adaptStore.adaptacijske_mjere);
@@ -85,17 +86,43 @@ const mjere = computed(() => {
     return niz;
 })
 
-const odabraneMjere = ref([]);
-const addMjera = () => {
-    if (selectedMjera.value && !odabraneMjere.value.some(mjera => mjera.tva_sif === selectedMjera.value.tva_sif)) {
-        odabraneMjere.value.push({ ...selectedMjera.value });
-        selectedMjera.value = null; // Reset the selectedMjera after adding
+const odabraneMjere = computed(() => adaptStore.odabrane_mjere);
+
+
+// const addMjera = () => {
+//     if (selectedMjera.value && !odabraneMjere.value.some(mjera => mjera.tva_sif === selectedMjera.value.tva_sif)) {
+//         // Dodavanje kopije objekta u reaktivni niz
+//         odabraneMjere.value = [...odabraneMjere.value, { ...selectedMjera.value }];
+//         // Resetovanje odabranog objekta
+//         selectedMjera.value = null;
+//     }
+// };
+
+
+// const removeMjera = (mjera) => {
+//     console.log("Mjera", mjera);
+//     odabraneMjere.value = odabraneMjere.value.filter(item => item.tva_sif !== mjera.tva_sif);
+//     console.log("Removed Mjera", odabraneMjere.value);
+// };
+
+const addMjera = async () => {
+    if (selectedMjera.value && !adaptStore.odabrane_mjere.some(mjera => mjera.tva_sif === selectedMjera.value.tva_sif)) {
+        adaptStore.odabrane_mjere.push({ ...selectedMjera.value });
+
+        const response = await adaptStore.addMetrictype(idIzracuna.value, selectedMjera.value.tva_id)
+        console.log("dodano-povratno: ", response)
+
+        selectedMjera.value = null; // Resetuj odabranu meru nakon dodavanja
     }
 };
 
-const removeMjera = (mjera) => {
-    odabraneMjere.value = odabraneMjere.value.filter(item => item.tva_sif !== mjera.tva_sif);
+const removeMjera = async (mjera) => {
+    console.log(idIzracuna.value, mjera.tva_id)
+    adaptStore.odabrane_mjere = adaptStore.odabrane_mjere.filter(item => item.tva_sif !== mjera.tva_sif);
+    const response = await adaptStore.deleteMetrictype(idIzracuna.value, mjera.tva_id)
+    console.log("uklonjeno-povratno: ", response)
 };
+
 
 const formatOption = (option) => {
     return `${option.tva_sif} - ${option.tva_naziv}`;
