@@ -175,6 +175,13 @@ const napomena = ref();
 idIzracuna.value = parseInt(useCookie('id_izracuna').value);
 console.log(idIzracuna.value);
 
+const vrstaIzracuna = useCookie('vrsta_izracuna', {
+    maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
+    path: '/', // Cookie available throughout the app
+    secure: false, // Only send cookie over HTTPS
+    sameSite: 'strict' // Protect against CSRF attacks
+});
+
 // Kreiramo instancu storea
 const opciStore = useOpciStore();
 
@@ -304,6 +311,7 @@ const fillFormData = () => {
             puk_naziv: odabranaKatastarskaOpcina.value.puk_naziv
         }
 
+        vrstaIzracuna.value = odabranaVrstaIzracuna.value.tvz_naziv;
         fetchParticles(parseInt(odabranaKatastarskaOpcina.value.aiz_kop_id));
     }
 }
