@@ -4,17 +4,23 @@
     <div class="body">
         <main>
             <h1>Opći podaci</h1>
-            <div v-if="opciStore.opci_podaci.length > 0 && odabraniDatum" class="main-grid">
-                <div class="grid-item header">Datum</div>
-                <div class="grid-item">
+            <div v-if="opciStore.opci_podaci && odabraniDatum" class="main-grid">
+                <label for="nazivIzracuna" class="header">Naziv izračuna</label>
+                <input id="nazivIzracuna" class="dataInput" placeholder="Unesi naziv" :value="nazivIzracuna"
+                    :disabled="status" @change="updateNazivIzracuna($event.target.value)">
+
+                <div class="grid-item header datum">Datum</div>
+                <div class="grid-item datum">
                     <DatePicker v-model="odabraniDatum" show-icon fluid icon-display="input" input-id="icondisplay"
-                        date-format="dd.mm.yy" class="form-input" placeholder="Odaberi datum" />
+                        date-format="dd.mm.yy" class="form-input" placeholder="Odaberi datum" :disabled="status"
+                        @blur="updateDatum" />
                 </div>
 
                 <div class="grid-item header">Vrsta izračuna</div>
                 <div class="grid-item">
                     <Select v-model="odabranaVrstaIzracuna" :options="vrsteIzracuna" option-label="tvz_naziv"
-                        placeholder="Odaberi vrstu izračuna" class="form-input">
+                        placeholder="Odaberi vrstu izračuna" class="form-input" :disabled="status"
+                        @change="updateVrstaIzracuna($event)">
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
                                 <div>{{ slotProps.value.tvz_naziv }}</div>
@@ -35,24 +41,27 @@
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaKatastarskaOpcina" :suggestions="filtriraneKatastarskeOpcine"
                         placeholder="Unesi katastarsku općinu" :virtual-scroller-options="{ itemSize: 38 }"
-                        option-label="kop_naziv" class="form-input" @complete="searchKatastarskeOpcine"
-                        @blur="fetchParticles(parseInt(odabranaKatastarskaOpcina?.aiz_kop_id))" />
+                        option-label="kop_naziv" class="form-input input-opcina" :disabled="status"
+                        @complete="searchKatastarskeOpcine" @blur="updateKatastarskaOpcina();" />
+                    <!--$event-->
+                    <!--fetchParticles(parseInt(odabranaKatastarskaOpcina?.aiz_kop_id)); -->
                 </div>
 
                 <div class="grid-item header">Katastarska čestica</div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaKatastarskaCestica" :suggestions="filtriraneKatastarskeCestice"
                         placeholder="Unesi katastarsku česticu" :virtual-scroller-options="{ itemSize: 38 }"
-                        option-label="kcs_sif" class="form-input" :disabled="!odabranaKatastarskaOpcina"
-                        @complete="searchKatastarskeCestice" />
+                        option-label="kcs_sif" class="form-input" :disabled="!odabranaKatastarskaOpcina || status"
+                        @complete="searchKatastarskeCestice" @update:model-value="updateKatastarskaCestica()" />
                 </div>
 
                 <div class="grid-item header">Vrsta objekta</div>
                 <div class="grid-item">
                     <Select v-model="odabranaVrstaObjekta" :options="vrsteObjekta" option-label="tvo_naziv"
                         placeholder="Odaberi vrstu objekta" class="form-input"
-                        :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Proces'"
-                        :style="{ opacity: odabranaVrstaIzracuna.tvz_naziv === 'Proces' ? 0.6 : 1 }">
+                        :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Proces' || status"
+                        :style="{ opacity: odabranaVrstaIzracuna.tvz_naziv === 'Proces' ? 0.6 : 1 }"
+                        @change="updateVrstaObjekta($event)">
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
                                 <div>{{ slotProps.value.tvo_naziv }}</div>
@@ -72,31 +81,38 @@
                 <div class="grid-item header">Djelatnost</div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaDjelatnost" :suggestions="filtriraneDjelatnosti"
-                        placeholder="Unesi djelatnost" :virtual-scroller-options="{ itemSize: 38 }"
-                        :option-label="formatOption" class="form-input"
-                        :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Imovina'" @complete="searchDjelatnosti" />
+                        :placeholder="odabranaVrstaIzracuna.tvz_naziv == 'Imovina' ? '' : 'Unesi djelatnost'"
+                        :virtual-scroller-options="{ itemSize: 38 }" :option-label="formatOption" class="form-input"
+                        :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Imovina' || status" @complete="searchDjelatnosti"
+                        @blur="updateDjelatnost($event)" />
                 </div>
 
                 <div class="grid-item header">Skupina djelatnosti</div>
                 <div class="grid-item">
-                    <!-- <AutoComplete v-model="odabranaSkupinaDjelatnosti" :suggestions="filtriraneSkupineDjelatnosti"
-                        @complete="searchSkupineDjelatnosti" placeholder="Unesi djelatnost"
-                        :virtualScrollerOptions="{ itemSize: 38 }" :optionLabel="formatOption" class="form-input">
-                    </AutoComplete> -->
-                    <input class="dataInput" type="text" disabled :value="odabranaSkupinaDjelatnosti"
-                        placeholder="Popuni podatke na formi za prikaz skupine djelatnosti">
+                    <input class="form-input dataInput" type="text"
+                        :disabled="odabranaVrstaIzracuna.tvz_naziv === 'Imovina' || status"
+                        :value="odabranaSkupinaDjelatnosti"
+                        :placeholder="odabranaVrstaIzracuna.tvz_naziv === 'Imovina' ? '' : 'Popuni podatke na formi za prikaz skupine djelatnosti'">
+
                 </div>
 
                 <div class="grid-item header">Ispostava</div>
                 <div class="grid-item">
-                    <input class="dataInput" type="text" disabled :value="odabranaIspostava"
+                    <input class="form-input dataInput" type="text" disabled
+                        :value="odabranaIspostava ? odabranaIspostava.isp_naziv : ''"
                         placeholder="Popuni podatke na formi za prikaz ispostave">
                 </div>
 
                 <div class="grid-item header">Područni ured</div>
                 <div class="grid-item">
-                    <input class="dataInput" type="text" disabled :value="odabraniPodrucniUred"
+                    <input class="form-input dataInput" type="text" disabled
+                        :value="odabraniPodrucniUred ? odabraniPodrucniUred.puk_naziv : ''"
                         placeholder="Popuni podatke na formi za prikaz područnog ureda">
+                </div>
+                <div class="grid-item header napomena">Napomena</div>
+                <div class="grid item">
+                    <textarea auto-resize rows="5" cols="30" placeholder="Unesi napomenu" style="width: 100%;"
+                        :value="napomena" @blur="updateNapomena($event.target.value)" />
                 </div>
             </div>
             <span v-else style="font-style: italic;">
@@ -116,7 +132,7 @@
                 <font-awesome-icon icon="arrow-left-long" />
                 Prethodni izračuni
             </nuxt-link>
-            <button id="saveBtn" type="button">
+            <button id="saveBtn" type="button" @click="saveFormData">
                 <font-awesome-icon icon="save" class="save-icon" />
                 Spremi
             </button>
@@ -148,78 +164,215 @@
 //     ],
 // });
 
-import { ref, onBeforeMount } from "vue"
+import { ref, onMounted } from "vue" //onBeforeMount
 import { useOpciStore } from '~/stores/main-store';
 import { formatDateToDMY } from '~/utils/dateFormatter'
 
-const idIzracuna = parseInt(useCookie('id_izracuna').value);
-console.log("idIzracuna: ", idIzracuna)
+const idIzracuna = ref();
+const nazivIzracuna = ref();
+const napomena = ref();
+
+idIzracuna.value = parseInt(useCookie('id_izracuna').value);
+console.log(idIzracuna.value);
 
 // Kreiramo instancu storea
 const opciStore = useOpciStore();
 
 // Kreiramo ref za `Date` objekt datuma
 const odabraniDatum = ref(); // new Date()
-const odabranaVrstaIzracuna = ref({
-    tvz_naziv: '',
-});
+const odabranaVrstaIzracuna = ref(null);
 const odabranaKatastarskaOpcina = ref(null);
 const odabranaKatastarskaCestica = ref(null);
-const odabranaVrstaObjekta = ref();
-const odabranaDjelatnost = ref();
+const odabranaVrstaObjekta = ref(null);
+const odabranaDjelatnost = ref(null);
 const odabranaSkupinaDjelatnosti = ref();
-const odabranaIspostava = ref();
-const odabraniPodrucniUred = ref();
+const odabranaIspostava = ref({
+    isp_naziv: null,
+    isp_sif: null,
+});
+const odabraniPodrucniUred = ref({
+    puk_naziv: null,
+    puk_sif: null,
+});
 
-onBeforeMount(async () => {
-    if (opciStore.opci_podaci.length <= 0) {
-        await opciStore.fetchCalculation(idIzracuna);
+const status = ref(0);
+
+// opciStore.opci_podaci.aiz_datum = null;
+// opciStore.opci_podaci.aiz_djl_id = null;
+// opciStore.opci_podaci.aiz_djl_id_sk = null;
+// opciStore.opci_podaci.aiz_id = null;
+// opciStore.opci_podaci.aiz_kcs_id = null;
+// opciStore.opci_podaci.aiz_kop_id = null;
+// opciStore.opci_podaci.aiz_status = null;
+// opciStore.opci_podaci.aiz_tvo_id = null;
+// opciStore.opci_podaci.aiz_tvz_id = null;
+// opciStore.opci_podaci.aiz_opis = null;
+// opciStore.opci_podaci.aiz_napomena = null;
+// opciStore.opci_podaci.djl_naziv = null;
+// opciStore.opci_podaci.djl_naziv_sk = null;
+// opciStore.opci_podaci.djl_sif = null;
+// opciStore.opci_podaci.isp_naziv = null;
+// opciStore.opci_podaci.kcs_sif = null;
+// opciStore.opci_podaci.kop_naziv = null;
+// opciStore.opci_podaci.puk_naziv = null;
+// opciStore.opci_podaci.tvo_naziv = null;
+// opciStore.opci_podaci.tvz_naziv = null;
+
+
+onMounted(async () => {
+    // Postavi početne vrijednosti za sve podatke
+    odabraniDatum.value = new Date(); // Postavi datum na današnji
+    odabranaVrstaIzracuna.value = '';
+    odabranaKatastarskaOpcina.value = null;
+    odabranaKatastarskaCestica.value = null;
+    odabranaVrstaObjekta.value = null;
+    odabranaDjelatnost.value = null;
+    odabranaSkupinaDjelatnosti.value = null;
+    odabranaIspostava.value = null;
+    odabraniPodrucniUred.value = null;
+    nazivIzracuna.value = '';
+    napomena.value = '';
+
+    // Provjeri je li `idIzracuna` prazan
+    if (idIzracuna.value) {
+        // Ako nije prazan, povuci podatke
+        await opciStore.fetchCalculation(idIzracuna.value);
+        // Ako su podaci uspješno povučeni, popuni formu s podacima
+        fillFormData();
+    } else {
+        // Ako je prazan, sve polja ostaju prazna (postavljena na početne vrijednosti)
+        console.log("ID izračuna je prazan, forma ostaje prazna.");
     }
+
+    // Bez obzira na idIzracuna, povuci statičke podatke za izbornike
     await opciStore.fetchCalculationTypes();
     await opciStore.fetchObjectTypes();
     await opciStore.fetchActivities();
     await opciStore.fetchMunicipalities();
-    fillFormData();
-})
-
-watch(odabranaKatastarskaOpcina, (newVal) => {
-    if (newVal) {
-        fetchParticles(parseInt(newVal.aiz_kop_id));
-    }
 });
 
-const fillFormData = () => {
-    if (opciStore.opci_podaci.length > 0) {
-        const data = opciStore.opci_podaci[0];
 
+const fillFormData = () => {
+    if (opciStore.opci_podaci) {
+        const data = opciStore.opci_podaci;
         // Ensure these values match the data structure
-        odabraniDatum.value = formatDateToDMY(data.aiz_datum) || null;
+        odabraniDatum.value = formatDateToDMY(data.aiz_datum, '.') || null;
         // eslint-disable-next-line no-constant-binary-expression
-        odabranaVrstaIzracuna.value = { tvz_naziv: data.tvz_naziv } || null;
+        odabranaVrstaIzracuna.value = {
+            tvz_id: data.aiz_tvz_id,
+            tvz_naziv: data.tvz_naziv
+        } || null;
         // eslint-disable-next-line no-constant-binary-expression
-        odabranaKatastarskaOpcina.value = { aiz_kop_id: data.aiz_kop_id, kop_naziv: data.kop_naziv } || null;
-        odabranaKatastarskaCestica.value = data.kcs_sif || null;
+        odabranaKatastarskaOpcina.value = {
+            aiz_kop_id: data.aiz_kop_id,
+            kop_naziv: data.kop_naziv
+        } || null;
         // eslint-disable-next-line no-constant-binary-expression
-        odabranaVrstaObjekta.value = { tvo_naziv: data.tvo_naziv } || null;
+        odabranaKatastarskaCestica.value = {
+            kcs_id: data.aiz_kcs_id,
+            kcs_sif: data.kcs_sif
+        } || null;
         // eslint-disable-next-line no-constant-binary-expression
-        odabranaDjelatnost.value = { djl_sif: data.djl_sif, djl_naziv: data.djl_naziv } || null;
+        odabranaVrstaObjekta.value = {
+            tvo_id: data.aiz_tvo_id,
+            tvo_naziv: data.tvo_naziv
+        } || null;
+        // eslint-disable-next-line no-constant-binary-expression
+        odabranaDjelatnost.value = {
+            djl_id: data.aiz_djl_id,
+            djl_sif: data.djl_sif,
+            djl_naziv: data.djl_naziv
+        } || null;
         odabranaSkupinaDjelatnosti.value = data.djl_naziv_sk || null;
         odabranaIspostava.value = data.isp_naziv || null;
         odabraniPodrucniUred.value = data.puk_naziv || null;
 
-        console.log("Odabrana katastarska opcina: ", odabranaKatastarskaOpcina.value);
-        fetchParticles(odabranaKatastarskaOpcina.value);
+        nazivIzracuna.value = data.aiz_opis;
+        napomena.value = data.aiz_napomena;
 
-        //     console.log("Odabrani datum: ", odabraniDatum.value);
-        //     console.log("Odabrana vrsta izračuna: ", odabranaVrstaIzracuna.value);
-        //     console.log("Odabrana katastarska opcina: ", odabranaKatastarskaOpcina.value);
-        //     console.log("Odabrana katastarska čestica: ", odabranaKatastarskaCestica.value);
-        //     console.log("Odabrana vrsta objekta: ", odabranaVrstaObjekta.value);
-        //     console.log("Odabrana djelatnost: ", odabranaDjelatnost.value);
-        //     console.log("Odabrana skupina djelatnosti: ", odabranaSkupinaDjelatnosti.value);
-        //     console.log("Odabrana ispostava: ", odabranaIspostava.value);
-        //     console.log("Odabrani podrucni ured: ", odabraniPodrucniUred.value);
+        status.value = opciStore.opci_podaci.aiz_status;
+
+        console.log("KO: ", odabranaKatastarskaOpcina.value)
+
+        odabranaIspostava.value = {
+            isp_sif: odabranaKatastarskaOpcina.value.isp_sif,
+            isp_naziv: odabranaKatastarskaOpcina.value.isp_naziv
+        }
+
+        odabraniPodrucniUred.value = {
+            puk_sif: odabranaKatastarskaOpcina.value.puk_sif,
+            puk_naziv: odabranaKatastarskaOpcina.value.puk_naziv
+        }
+
+        fetchParticles(parseInt(odabranaKatastarskaOpcina.value.aiz_kop_id));
     }
+}
+
+const updateNazivIzracuna = (value) => {
+    console.log(value);
+    opciStore.opci_podaci.aiz_opis = value;
+};
+
+const updateDatum = () => {
+    // console.log(formatDateToISO(odabraniDatum.value));
+    opciStore.opci_podaci.aiz_datum = formatDateToDMY(odabraniDatum.value, '-');
+    //console.log(formatDateToISO(odabraniDatum.value));
+    console.log(formatDateToDMY(odabraniDatum.value, '-'));
+};
+
+const updateVrstaIzracuna = (event) => {
+    if (event?.tvz_naziv) {
+        opciStore.opci_podaci.aiz_tvz_id = event.tvz_id;
+        opciStore.opci_podaci.tvz_naziv = event.tvz_naziv;
+    }
+};
+
+const updateKatastarskaOpcina = () => {
+    opciStore.opci_podaci.aiz_kop_id = odabranaKatastarskaOpcina.value.kop_id;
+    opciStore.opci_podaci.kop_naziv = odabranaKatastarskaOpcina.value.kop_naziv;
+    fetchParticles(parseInt(odabranaKatastarskaOpcina.value.kop_id));
+
+    odabranaIspostava.value = {
+        isp_sif: odabranaKatastarskaOpcina.value.isp_sif,
+        isp_naziv: odabranaKatastarskaOpcina.value.isp_naziv
+    }
+
+    odabraniPodrucniUred.value = {
+        puk_sif: odabranaKatastarskaOpcina.value.puk_sif,
+        puk_naziv: odabranaKatastarskaOpcina.value.puk_naziv
+    }
+};
+
+const updateKatastarskaCestica = () => {
+    console.log("kcs", odabranaKatastarskaCestica.value)
+    opciStore.opci_podaci.kcs_id = odabranaKatastarskaCestica.value.kcs_id;
+    opciStore.opci_podaci.kcs_sif = odabranaKatastarskaCestica.value.kcs_sif;
+    console.log("novi", opciStore.opci_podaci.kcs_id, opciStore.opci_podaci.kcs_sif);
+};
+
+const updateVrstaObjekta = (event) => {
+    console.log(event.value);
+    opciStore.opci_podaci.aiz_tvo_id = event.value.tvo_id;
+    opciStore.opci_podaci.tvo_naziv = event.value.tvo_naziv;
+};
+
+const updateDjelatnost = (event) => {
+    console.log(event);
+    if (event?.djl_naziv) {
+        opciStore.opci_podaci.aiz_djl_id = event.djl_id;
+        opciStore.opci_podaci.djl_naziv = event.djl_naziv;
+    }
+};
+
+const updateNapomena = (value) => {
+    opciStore.opci_podaci.aiz_napomena = value;
+};
+
+
+const saveFormData = async () => {
+    //console.log("opci opci: ", opciStore.opci_podaci);
+    const data = await opciStore.saveData();
+    console.log(data);
 }
 
 // Kreiramo computed property za datum, koji je povezan s storeom
@@ -433,7 +586,15 @@ h1 {
     width: 50%;
     display: grid;
     grid-template-columns: 150px 1fr;
-    grid-template-rows: repeat(9, 38px);
+    grid-template-rows: repeat(9, 38px) auto;
+    gap: 5px;
+}
+
+.header-grid {
+    width: 50%;
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    grid-template-rows: 38px auto;
     gap: 5px;
 }
 
@@ -502,6 +663,19 @@ main {
     width: 100%;
 }
 
+.form-input:disabled {
+    border: 1px solid #dedfde !important;
+    background-color: #f8f9f8 !important;
+}
+
+.disabled {
+    opacity: 0.5;
+}
+
+.input-opcina {
+    text-transform: uppercase !important;
+}
+
 .p-select {
     height: 38px !important;
     width: 100%;
@@ -519,6 +693,25 @@ main {
 
 .p-select-label.p-placeholder span {
     opacity: 0.4;
+}
+
+.datum {
+    gap: 34px;
+}
+
+.napomena {
+    margin-top: 34px;
+    align-items: flex-start;
+    padding-top: 12px;
+}
+
+textarea {
+    margin-top: 34px;
+    padding: 12px;
+    height: auto !important;
+    width: 100%;
+    box-sizing: border-box;
+    resize: none;
 }
 
 .dataInput {
@@ -552,13 +745,17 @@ footer {
 }
 
 @media screen and (max-width: 1500px) {
-    .main-grid {
+
+    .main-grid,
+    .header-grid {
         width: 70%;
     }
 }
 
 @media screen and (max-width: 1280px) {
-    .main-grid {
+
+    .main-grid,
+    .header-grid {
         width: 100%;
     }
 }
