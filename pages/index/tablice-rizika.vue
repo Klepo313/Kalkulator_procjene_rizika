@@ -6,11 +6,11 @@
                 <TabList>
                     <Tab class="reset-style" value="0">
                         <font-awesome-icon icon="table-columns" class="tab-icon" />
-                        Tablica rizik bez mjera prilagodbe
+                        Bez mjera prilagodbe
                     </Tab>
                     <Tab class="reset-style" value="1">
                         <font-awesome-icon icon="table" class="tab-icon" />
-                        Tablica rizik sa mjerama prilagodbe
+                        Sa mjerama prilagodbe
                     </Tab>
                 </TabList>
                 <TabPanels>
@@ -100,7 +100,7 @@ footer {
 
     background-color: var(--white);
     font-size: 16px;
-    font-weight: 600;
+    font-weight: normal;
     cursor: pointer;
 }
 
@@ -110,7 +110,10 @@ footer {
 }
 
 .p-tab.p-tab-active {
-    color: var(--primary-color);
+    color: white;
+    background-color: var(--primary-color);
+    /* border-bottom: 3px solid var(--primary-color); */
+    border-radius: 5px 5px 0px 0px;
     opacity: 1;
 }
 

@@ -1,6 +1,7 @@
 <template>
     <div>
         <div class="grid">
+            <!-- v-for tdg_rbr == 10 -->
             <div class="_grid-item">15</div>
             <div class="_grid-item db-s">8</div>
             <div class="_grid-item">10</div>
@@ -9,6 +10,7 @@
             <div class="_grid-item">11</div>
             <div class="_grid-item">1</div>
 
+            <!-- v-for tdg_rbr == 20 -->
             <div class="_grid-item">0</div>
             <div class="_grid-item db-s">11</div>
             <div class="_grid-item">-5</div>
@@ -17,6 +19,7 @@
             <div class="_grid-item">1</div>
             <div class="_grid-item">10</div>
 
+            <!-- v-for tdg_rbr == 30 -->
             <div class="_grid-item">0</div>
             <div class="_grid-item db-s">1</div>
             <div class="_grid-item">2</div>
@@ -25,6 +28,7 @@
             <div class="_grid-item">6</div>
             <div class="_grid-item">9</div>
 
+            <!-- v-for tdg_rbr == 40 -->
             <div class="_grid-item">1</div>
             <div class="_grid-item db-s">14</div>
             <div class="_grid-item">4</div>
@@ -38,6 +42,16 @@
 
 <script setup>
 import { onMounted } from 'vue';
+
+const props = defineProps({
+    // eslint-disable-next-line vue/require-default-prop
+    pozicija: Number,
+    data: Object,
+})
+
+const pozicija = props.pozicija
+const data = props.data
+console.log("pozicija: ", pozicija, " data: ", data);
 
 function setColor() {
     const gridItems = document.querySelectorAll('._grid-item');

@@ -2,9 +2,29 @@
     <div>
         <main>
             <h1>Rizik sažetak</h1>
-            <div class="interactive">
+            <!-- <div class="interactive">
                 <RizikSazetak ref="rizikSazetakRef" class="rizik-sazetak" />
-            </div>
+            </div> -->
+            <Tabs value="0">
+                <TabList>
+                    <Tab class="reset-style" value="0">
+                        <font-awesome-icon icon="border-all" class="tab-icon" />
+                        Bez mjera prilagodbe
+                    </Tab>
+                    <Tab class="reset-style" value="1">
+                        <font-awesome-icon icon="table-cells" class="tab-icon" />
+                        Sa mjerama prilagodbe
+                    </Tab>
+                </TabList>
+                <TabPanels>
+                    <TabPanel value="0">
+                        <RizikSazetak ref="rizikSazetakRef" :tip="'RZ'" class="rizik-sazetak" />
+                    </TabPanel>
+                    <TabPanel value="1">
+                        <RizikSazetak ref="rizikSazetakRef" :tip="'KR'" class="rizik-sazetak" />
+                    </TabPanel>
+                </TabPanels>
+            </Tabs>
         </main>
         <!-- <Tabs value="0" class="interactive-tabs">
             <TabList class="reset-style">
@@ -92,14 +112,22 @@ footer {
 }
 
 .p-tablist-tab-list button {
+    font-family: "DM Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+
     width: auto !important;
     color: var(--text-color);
+    padding: 10px 20px;
 
     outline: none;
     border: none;
     border-radius: 0px;
+
     background-color: var(--white);
     font-size: 16px;
+    font-weight: normal;
+    cursor: pointer;
 }
 
 .p-tab {
@@ -108,9 +136,15 @@ footer {
 }
 
 .p-tab.p-tab-active {
-    color: var(--primary-color);
+    color: white;
+    background-color: var(--primary-color);
+    /* border-bottom: 3px solid var(--primary-color); */
+    border-radius: 5px 5px 0px 0px;
     opacity: 1;
-    border-bottom: 3px solid var(--primary-color);
+}
+
+.tab-icon {
+    margin-right: 5px;
 }
 
 h1 {

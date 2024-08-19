@@ -1,6 +1,6 @@
 <template>
     <div class="rizik-sazetak">
-        <div ref="rizikSazetakRef" class="grid-table">
+        <div v-if="structuredData.value" ref="rizikSazetakRef" class="grid-table">
             <div class="grid-item nb" />
             <div class="grid-item nb-r nb-b">RCP 4.5</div>
             <div class="grid-item nb-b">RCP 8.5</div>
@@ -60,7 +60,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item nb-b">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="11" :data="structuredData.value['11']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical lightgreen db-l">Promjene <br> tokova vjetra</div>
@@ -69,7 +69,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item nb-b">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="12" :data="structuredData.value['12']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical lightgray mh2 db-l">Promjene u <br> obrascima i vrati <br>
@@ -80,7 +80,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="13" :data="structuredData.value['13']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical gray mh2 db-l">Erozija obale</div>
@@ -89,7 +89,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item sb-r">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="14" :data="structuredData.value['14']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical pink mh2 nb-l">Temperaturni <br> stres</div>
@@ -98,7 +98,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="21" :data="structuredData.value['21']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical mh2 nb-r nb-b db-l" />
@@ -114,7 +114,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="23" :data="structuredData.value['23']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical gray mh2 db-l">Degradacija tla</div>
@@ -123,7 +123,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item sb-r">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="24" :data="structuredData.value['24']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical pink mh2">Varijablilnost <br> temperature</div>
@@ -132,7 +132,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="31" :data="structuredData.value['31']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical mh2 nb-r nb-b nb-t db-l" />
@@ -148,7 +148,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="33" :data="structuredData.value['33']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical gray mh2 db-l">Erozija tla</div>
@@ -157,7 +157,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item sb-r">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="34" :data="structuredData.value['34']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical pink mh2">Otapanje vječnog <br> leda</div>
@@ -166,7 +166,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="41" :data="structuredData.value['41']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical mh2 nb-r nb-b nb-t db-l" />
@@ -182,7 +182,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="43" :data="structuredData.value['43']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical gray mh2 db-l">Solifikacija</div>
@@ -191,7 +191,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item sb-r">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="44" :data="structuredData.value['44']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical nb-r nb-b" />
@@ -214,7 +214,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="53" :data="structuredData.value['53']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical nb-r nb-b db-l" />
@@ -244,7 +244,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="63" :data="structuredData.value['63']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical nb-r nb-b nb-t db-l" />
@@ -260,7 +260,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="71" :data="structuredData.value['71']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical lightgreen db-l">Ciklon, uragan <br> tajfun</div>
@@ -269,7 +269,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="72" :data="structuredData.value['72']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical lightgray db-l">Suša</div>
@@ -278,7 +278,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="73" :data="structuredData.value['73']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical gray db-l">Lavina</div>
@@ -287,7 +287,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item sb-r">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="74" :data="structuredData.value['74']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical pink">Hladni val/mraz</div>
@@ -296,7 +296,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="81" :data="structuredData.value['81']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical lightgreen db-l">Oluja</div>
@@ -305,7 +305,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="82" :data="structuredData.value['82']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical lightgray db-l">Jake oborine</div>
@@ -314,7 +314,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="83" :data="structuredData.value['83']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical gray db-l">Odron tla</div>
@@ -323,7 +323,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item sb-r">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="84" :data="structuredData.value['84']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical pink">Požar</div>
@@ -332,7 +332,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="91" :data="structuredData.value['91']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical lightgreen db-l">Tornado</div>
@@ -341,7 +341,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="92" :data="structuredData.value['92']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical lightgray db-l">Poplave</div>
@@ -350,7 +350,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="93" :data="structuredData.value['93']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical gray db-l">Slijeganje tla</div>
@@ -359,7 +359,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header">procesi</div>
             <div class="grid-item table-item sb-r">
-                <SazetakTable class="sazetak-table" />
+                <SazetakTable :pozicija="94" :data="structuredData.value['94']" class="sazetak-table" />
             </div>
 
             <div class="grid-item vertical sb-b nb-r" />
@@ -382,7 +382,7 @@
             <div class="grid-item table-header">izlaz</div>
             <div class="grid-item table-header sb-b">procesi</div>
             <div class="grid-item table-item sb-b">
-                <SazetakTable class="sazetak-table " />
+                <SazetakTable :pozicija="103" :data="structuredData.value['103']" class="sazetak-table " />
             </div>
 
             <div class="grid-item vertical sb-b nb-r db-l" />
@@ -393,14 +393,153 @@
             <div class="grid-item table-item sb-t sb-b sb-r" />
 
         </div>
+        <span v-else style="font-style: italic;">
+            Učitavanje podataka
+            <font-awesome-icon icon="spinner" spin />
+        </span>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { getProcessGridData, getPropertyGridData } from '~/service/fetchGridData';
 
 const rizikSazetakRef = ref(null);
+const processData = ref([]);
+const propertyData = ref([]);
+const structuredData = ref([]);
+
+const props = defineProps({
+    tip: String,
+})
+const tip = props.tip; // 'RZ' ili 'KR'
+
+const idIzracuna = ref();
+const vrstaIzracuna = ref(); //
+idIzracuna.value = parseInt(useCookie('id_izracuna').value);
+vrstaIzracuna.value = useCookie('vrsta_izracuna').value;
+
+const processGridData = async () => {
+    const data = await getProcessGridData(idIzracuna.value, tip);
+    processData.value = data.data;
+    // console.log("proces: ", processData.value);
+
+    structuredData.value = restructureData(processData.value);
+    console.log("restructure proces: ", structuredData.value);
+    //console.log(structuredData.value["11"])
+}
+
+const propertyGridData = async () => {
+    const data = await getPropertyGridData(idIzracuna.value, tip);
+    propertyData.value = data.data;
+    // console.log("property: ", propertyData.value);
+
+    structuredData.value = restructureData(propertyData.value);
+    console.log("restructure property: ", structuredData.value);
+}
+
+const restructureData = (data) => {
+    // Glavni objekt koji će sadržavati razvrstane podobjekte
+    const groupedData = {};
+
+    data.forEach(item => {
+        const gridKey = item.tdg_grid;
+
+        // Ako ključ ne postoji, inicijaliziraj prazan niz
+        if (!groupedData[gridKey]) {
+            groupedData[gridKey] = [];
+        }
+
+        // Gurni trenutni objekt u odgovarajući niz
+        groupedData[gridKey].push(item);
+    });
+
+    // Sortiraj svaki niz unutar objekta prema tdg_rbr
+    Object.keys(groupedData).forEach(key => {
+        groupedData[key].sort((a, b) => a.tdg_rbr - b.tdg_rbr);
+    });
+
+    return groupedData;
+}
+
+onMounted(() => {
+    if (vrstaIzracuna.value == 'Proces') {
+        processGridData();
+    } else {
+        propertyGridData();
+    }
+})
+
 </script>
+
+<!-- // {
+    //     "11": {
+    //         {
+    //         aiz_id: 812,
+    //         tdg_grid: 11,
+    //         tdg_rbr: 10,
+    //         history: "3",
+    //         p0_4_5: "3",
+    //         p0_8_5: "5",
+    //         p1_4_5: "5",
+    //         p1_8_5: "5",
+    //         p2_4_5: "5",
+    //         p2_8_5: "5",
+    //         tdg_naziv: "Temperaturni stres",
+    //         tgr_naziv: "Temperatura",
+    //         tvr_naziv: "Kronični",
+    //         },
+    //         {
+    //         aiz_id: 812,
+    //         tdg_grid: 11,
+    //         tdg_rbr: 20,
+    //         history: "3",
+    //         p0_4_5: "3",
+    //         p0_8_5: "5",
+    //         p1_4_5: "5",
+    //         p1_8_5: "5",
+    //         p2_4_5: "5",
+    //         p2_8_5: "5",
+    //         tdg_naziv: "Temperaturni stres",
+    //         tgr_naziv: "Temperatura",
+    //         tvr_naziv: "Kronični",
+    //         },
+    //         ...
+    //     },
+    //     "12": {
+    //         {
+    //         aiz_id: 812,
+    //         tdg_grid: 12,
+    //         tdg_rbr: 10,
+    //         history: "3",
+    //         p0_4_5: "3",
+    //         p0_8_5: "5",
+    //         p1_4_5: "5",
+    //         p1_8_5: "5",
+    //         p2_4_5: "5",
+    //         p2_8_5: "5",
+    //         tdg_naziv: "Vrijeme",
+    //         tgr_naziv: "Vrijeme",
+    //         tvr_naziv: "Kronični",
+    //         },
+    //         {
+    //         aiz_id: 812,
+    //         tdg_grid: 12,
+    //         tdg_rbr: 20,
+    //         history: "3",
+    //         p0_4_5: "3",
+    //         p0_8_5: "5",
+    //         p1_4_5: "5",
+    //         p1_8_5: "5",
+    //         p2_4_5: "5",
+    //         p2_8_5: "5",
+    //         tdg_naziv: "Vrijeme",
+    //         tgr_naziv: "Vrijeme",
+    //         tvr_naziv: "Kronični",
+    //         },
+    //         ...
+    //     }
+    // } -->
 
 <style scoped>
 .rizik-sazetak {
@@ -422,7 +561,7 @@ const rizikSazetakRef = ref(null);
     padding: 0;
     background-color: white;
     color: #2a2a2a;
-    padding: 10px;
+    /* padding: 10px; */
 }
 
 .grid-item {
