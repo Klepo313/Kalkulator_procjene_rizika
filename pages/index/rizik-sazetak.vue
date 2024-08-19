@@ -18,10 +18,14 @@
                 </TabList>
                 <TabPanels>
                     <TabPanel value="0">
-                        <RizikSazetak ref="rizikSazetakRef" :tip="'RZ'" class="rizik-sazetak" />
+                        <RizikSazetak v-if="vrstaIzracuna == 'Proces'" ref="rizikSazetakRef" :tip="'RZ'"
+                            class="rizik-sazetak" />
+                        <TablicaRizika v-else :tip="'RZ'" />
                     </TabPanel>
                     <TabPanel value="1">
-                        <RizikSazetak ref="rizikSazetakRef" :tip="'KR'" class="rizik-sazetak" />
+                        <RizikSazetak v-if="vrstaIzracuna == 'Proces'" ref="rizikSazetakRef" :tip="'KR'"
+                            class="rizik-sazetak" />
+                        <TablicaRizika v-else :tip="'KR'" />
                     </TabPanel>
                 </TabPanels>
             </Tabs>
@@ -61,9 +65,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import TablicaRizika from '~/components/TablicaRizika.vue';
 
 // Kreiramo referencu za pristup komponenti
 const rizikSazetakRef = ref(null);
+const vrstaIzracuna = ref();
+
+vrstaIzracuna.value = useCookie('vrsta_izracuna').value;
 
 // Funkcija za generisanje i preuzimanje PDF-a
 // const downloadRizikSazetak = () => {

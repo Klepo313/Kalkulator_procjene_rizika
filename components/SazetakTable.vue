@@ -1,41 +1,40 @@
 <template>
     <div>
-        <div class="grid">
+        <div v-if="data" class="grid">
             <!-- v-for tdg_rbr == 10 -->
-            <div class="_grid-item">15</div>
-            <div class="_grid-item db-s">8</div>
-            <div class="_grid-item">10</div>
-            <div class="_grid-item">-1</div>
-            <div class="_grid-item">0</div>
-            <div class="_grid-item">11</div>
-            <div class="_grid-item">1</div>
+            <div class="_grid-item">{{ data[0].history }}</div>
+            <div class="_grid-item db-s">{{ data[0].p0_4_5 }}</div>
+            <div class="_grid-item">{{ data[0].p0_8_5 }}</div>
+            <div class="_grid-item">{{ data[0].p1_4_5 }}</div>
+            <div class="_grid-item">{{ data[0].p1_8_5 }}</div>
+            <div class="_grid-item">{{ data[0].p2_4_5 }}</div>
+            <div class="_grid-item">{{ data[0].p2_8_5 }}</div>
 
-            <!-- v-for tdg_rbr == 20 -->
-            <div class="_grid-item">0</div>
-            <div class="_grid-item db-s">11</div>
-            <div class="_grid-item">-5</div>
-            <div class="_grid-item">1</div>
-            <div class="_grid-item">5</div>
-            <div class="_grid-item">1</div>
-            <div class="_grid-item">10</div>
+            <div class="_grid-item">{{ data[1].history }}</div>
+            <div class="_grid-item db-s">{{ data[1].p0_4_5 }}</div>
+            <div class="_grid-item">{{ data[1].p0_8_5 }}</div>
+            <div class="_grid-item">{{ data[1].p1_4_5 }}</div>
+            <div class="_grid-item">{{ data[1].p1_8_5 }}</div>
+            <div class="_grid-item">{{ data[1].p2_4_5 }}</div>
+            <div class="_grid-item">{{ data[1].p2_8_5 }}</div>
 
-            <!-- v-for tdg_rbr == 30 -->
-            <div class="_grid-item">0</div>
-            <div class="_grid-item db-s">1</div>
-            <div class="_grid-item">2</div>
-            <div class="_grid-item">0</div>
-            <div class="_grid-item">-3</div>
-            <div class="_grid-item">6</div>
-            <div class="_grid-item">9</div>
+            <div class="_grid-item">{{ data[2].history }}</div>
+            <div class="_grid-item db-s">{{ data[2].p0_4_5 }}</div>
+            <div class="_grid-item">{{ data[2].p0_8_5 }}</div>
+            <div class="_grid-item">{{ data[2].p1_4_5 }}</div>
+            <div class="_grid-item">{{ data[2].p1_8_5 }}</div>
+            <div class="_grid-item">{{ data[2].p2_4_5 }}</div>
+            <div class="_grid-item">{{ data[2].p2_8_5 }}</div>
 
-            <!-- v-for tdg_rbr == 40 -->
-            <div class="_grid-item">1</div>
-            <div class="_grid-item db-s">14</div>
-            <div class="_grid-item">4</div>
-            <div class="_grid-item">9</div>
-            <div class="_grid-item">7</div>
-            <div class="_grid-item">12</div>
-            <div class="_grid-item">13</div>
+            <div class="_grid-item">{{ data[3].history }}</div>
+            <div class="_grid-item db-s">{{ data[3].p0_4_5 }}</div>
+            <div class="_grid-item">{{ data[3].p0_8_5 }}</div>
+            <div class="_grid-item">{{ data[3].p1_4_5 }}</div>
+            <div class="_grid-item">{{ data[3].p1_8_5 }}</div>
+            <div class="_grid-item">{{ data[3].p2_4_5 }}</div>
+            <div class="_grid-item">{{ data[3].p2_8_5 }}</div>
+            <!-- Dodaj template blokove za tdg_rbr 30, 40, itd. -->
+
         </div>
     </div>
 </template>
@@ -50,8 +49,10 @@ const props = defineProps({
 })
 
 const pozicija = props.pozicija
-const data = props.data
-console.log("pozicija: ", pozicija, " data: ", data);
+const data = ref(props.data);
+//data.value = props.data
+
+console.log("data za --", pozicija, ": ", data.value)
 
 function setColor() {
     const gridItems = document.querySelectorAll('._grid-item');
