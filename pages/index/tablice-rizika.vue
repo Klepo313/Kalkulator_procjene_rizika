@@ -33,7 +33,7 @@
                     <font-awesome-icon icon="expand" size="lg" />
                 </span>
                 <span class="action-icon">
-                    <font-awesome-icon icon="print" size="lg" />
+                    <font-awesome-icon icon="download" size="lg" />
                 </span>
             </div>
         </footer>
