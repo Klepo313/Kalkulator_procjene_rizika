@@ -1,3 +1,4 @@
+<!-- // eslint-disable-next-line vue/multi-word-component-names -->
 <template>
     <div :class="['sidebar', isCollapsed ? 'collapsed' : '']">
         <div :class="['sidebar-main', isCollapsed ? 'collapsed' : '']">
@@ -83,11 +84,10 @@ import { logout } from '@/service/logout';
 // Koristite useRoute za dobivanje trenutne rute
 const route = useRoute();
 
-const brojIzracuna = ref(0);
-
-var idIzracuna = parseInt(useCookie('id_izracuna').value);
+const idIzracuna = parseInt(useCookie('id_izracuna').value);
 
 // Prima prop za stanje bočne trake
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps(['isCollapsed'])
 
 // Emitira događaj za prebacivanje stanja bočne trake
