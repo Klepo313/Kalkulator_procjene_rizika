@@ -13,19 +13,25 @@
                     </Tab>
                     <Tab class="reset-style" value="1">
                         <font-awesome-icon icon="table-cells" class="tab-icon" />
-                        Sa mjerama prilagodbe
+                        S mjerama prilagodbe
                     </Tab>
                 </TabList>
                 <TabPanels>
                     <TabPanel value="0">
                         <RizikSazetak v-if="vrstaIzracuna == 'Proces'" ref="rizikSazetakRef" :tip="'RZ'"
                             class="rizik-sazetak" />
-                        <TablicaRizika v-else :tip="'RZ'" />
+                        <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
+                        <span v-else>
+                            Nije odabrana vrsta izračuna
+                        </span>
                     </TabPanel>
                     <TabPanel value="1">
                         <RizikSazetak v-if="vrstaIzracuna == 'Proces'" ref="rizikSazetakRef" :tip="'KR'"
                             class="rizik-sazetak" />
-                        <TablicaRizika v-else :tip="'KR'" />
+                        <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'KR'" />
+                        <span v-else>
+                            Nije odabrana vrsta izračuna
+                        </span>
                     </TabPanel>
                 </TabPanels>
             </Tabs>

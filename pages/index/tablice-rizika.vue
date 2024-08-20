@@ -10,7 +10,7 @@
                     </Tab>
                     <Tab class="reset-style" value="1">
                         <font-awesome-icon icon="table" class="tab-icon" />
-                        Sa mjerama prilagodbe
+                        S mjerama prilagodbe
                     </Tab>
                 </TabList>
                 <TabPanels>
