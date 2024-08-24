@@ -1,49 +1,51 @@
 <template>
     <div>
-        <div class="grid">
-            <div class="_grid-item">15</div>
-            <div class="_grid-item db-s double">8</div>
-            <div class="_grid-item">10</div>
-            <div class="_grid-item">-1</div>
-            <div class="_grid-item">0</div>
-            <div class="_grid-item">11</div>
-            <div class="_grid-item">1</div>
+        <div v-if="data" class="grid">
+            <div class="_grid-item" :class="getColorClass(data[0].history)">{{ data[0].history }}</div>
+            <div class="_grid-item db-s double" :class="getColorClass(data[0].p0_4_5)">{{data[0].p0_4_5}}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p0_8_5)">{{ data[0].p0_8_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p1_4_5)">{{ data[0].p1_4_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p1_8_5)">{{ data[0].p1_8_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p2_4_5)">{{ data[0].p2_4_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p2_8_5)">{{ data[0].p2_8_5 }}</div>
+        </div>
+        <div v-else class="grid">
+            <div class="_grid-item">
+                <font-awesome-icon icon="spinner" spin />
+            </div>
+            <div class="_grid-item db-s double">
+                <font-awesome-icon icon="spinner" spin />
+            </div>
+            <div class="_grid-item">
+                <font-awesome-icon icon="spinner" spin />
+            </div>
+            <div class="_grid-item">
+                <font-awesome-icon icon="spinner" spin />
+            </div>
+            <div class="_grid-item">
+                <font-awesome-icon icon="spinner" spin />
+            </div>
+            <div class="_grid-item">
+                <font-awesome-icon icon="spinner" spin />
+            </div>
+            <div class="_grid-item">
+                <font-awesome-icon icon="spinner" spin />
+            </div>
         </div>
     </div>
 </template>
 
 <script setup>
 import { onMounted } from 'vue';
+import { getColorClass } from '../utils/getColorClass';
 
-function setColor() {
-    const gridItems = document.querySelectorAll('._grid-item');
-    gridItems.forEach(item => {
-        const value = parseInt(item.textContent);
-        if (!isNaN(value)) {
-            if (value < 0) {
-                item.classList.add('lightgray');
-            } else if (value === 0) {
-                item.classList.add('white');
-            } else if (value === 1) {
-                item.classList.add('gray');
-            } else if (value >= 2 && value <= 3) {
-                item.classList.add('green');
-            } else if (value >= 4 && value <= 6) {
-                item.classList.add('yellow');
-            } else if (value >= 7 && value <= 10) {
-                item.classList.add('orange');
-            } else if (value >= 11 && value <= 15) {
-                item.classList.add('red');
-            } else {
-                item.classList.add('white');
-            }
-        }
-    });
-}
+const props = defineProps({
+    // eslint-disable-next-line vue/require-default-prop
+    pozicija: Number,
+    data: Object,
+})
 
-onMounted(() => {
-    setColor();
-});
+const data = computed(() => props.data);
 </script>
 
 <style scoped>

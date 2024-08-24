@@ -36,18 +36,6 @@
                 </TabPanels>
             </Tabs>
         </main>
-        <!-- <Tabs value="0" class="interactive-tabs">
-            <TabList class="reset-style">
-                <Tab value="0">Rizik sažetak</Tab>
-            </TabList>
-            <TabPanels>
-                <TabPanel value="0">
-                    <div class="interactive">
-                        <int>
-                    </div>
-                </TabPanel>
-            </TabPanels>
-        </Tabs> -->
         <footer>
             <nuxt-link to="/adaptacijske-mjere" class="footer-link">
                 <font-awesome-icon icon="arrow-left-long" />

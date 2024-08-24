@@ -1,6 +1,6 @@
 <template>
     <div class="body">
-        <div class="grid-table">
+        <div v-if="structuredData" class="grid-table">
             <div class="grid-item nb"></div>
             <div class="grid-item nb-r nb-b">RCP 4.5</div>
             <div class="grid-item nb-b">RCP 8.5</div>
@@ -66,7 +66,7 @@
             <div class="grid-item table-header nb-l sb-b"></div>
 
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="11" :data="structuredData['11']"  class="red-table" />
             </div>
 
             <div class="grid-item table-header">Promjene tokova vjetra</div>
@@ -81,7 +81,7 @@
             <div class="grid-item table-header sb-b nb-l"></div>
 
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="12"  :data="structuredData['12']"  class="red-table" />
             </div>
 
             <div class="grid-item table-header">Promjene u obrascima i vrsti oborina</div>
@@ -96,7 +96,7 @@
             <div class="grid-item table-header sb-b">Izljev ledenjačkih jezera</div>
 
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="13"  :data="structuredData['13']" class="red-table" />
             </div>
 
             <div class="grid-item table-header">Erozija obale</div>
@@ -111,44 +111,44 @@
             <div class="grid-item table-header sb-b"></div>
 
             <div class="grid-item nb sb-r">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="14" :data="structuredData['14']" class="red-table" />
             </div>
 
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="21" :data="structuredData['21']" class="red-table" />
             </div>
             <div class="grid-item nb sb-t">
 
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="23" :data="structuredData['23']" class="red-table" />
             </div>
             <div class="grid-item nb sb-r">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="24" :data="structuredData['24']" class="red-table" />
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="31" :data="structuredData['31']" class="red-table" />
             </div>
             <div class="grid-item nb">
 
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="33" :data="structuredData['33']" class="red-table" />
             </div>
             <div class="grid-item nb sb-r">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="34" :data="structuredData['34']" class="red-table" />
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="41" :data="structuredData['41']" class="red-table" />
             </div>
             <div class="grid-item nb">
 
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="43" :data="structuredData['43']" class="red-table" />
             </div>
             <div class="grid-item nb sb-r">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="44" :data="structuredData['44']" class="red-table" />
             </div>
             <div class="grid-item nb sb-t">
 
@@ -157,7 +157,7 @@
 
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="53" :data="structuredData['53']" class="red-table" />
             </div>
             <div class="grid-item nb sb-t sb-r">
 
@@ -169,46 +169,46 @@
 
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="63" :data="structuredData['63']" class="red-table" />
             </div>
             <div class="grid-item nb sb-r">
 
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="71" :data="structuredData['71']" class="red-table" />
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="72" :data="structuredData['72']" class="red-table" />
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="73" :data="structuredData['73']" class="red-table" />
             </div>
             <div class="grid-item nb sb-r">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="74" :data="structuredData['74']" class="red-table" />
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="81" :data="structuredData['81']" class="red-table" />
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="82" :data="structuredData['82']" class="red-table" />
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="83" :data="structuredData['83']" class="red-table" />
             </div>
             <div class="grid-item nb sb-r">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="84" :data="structuredData['84']" class="red-table" />
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="91" :data="structuredData['91']" class="red-table" />
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="92" :data="structuredData['92']" class="red-table" />
             </div>
             <div class="grid-item nb">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="93" :data="structuredData['93']" class="red-table" />
             </div>
             <div class="grid-item nb sb-r">
-                <RedTabliceRizika class="red-table" />
+                <!-- <RedTabliceRizika :pozicija="94" :data="structuredData['94']" class="red-table" /> -->
             </div>
             <div class="grid-item nb sb-t sb-b">
 
@@ -217,7 +217,7 @@
 
             </div>
             <div class="grid-item nb sb-b">
-                <RedTabliceRizika class="red-table" />
+                <RedTabliceRizika :pozicija="103" :data="structuredData['103']" class="red-table" />
             </div>
             <div class="grid-item nb sb-t sb-r sb-b">
 
@@ -227,6 +227,38 @@
 </template>
 
 <script setup>
+
+import { ref, onMounted } from 'vue';
+import { getProcessGridData, getPropertyGridData } from '~/service/fetchGridData';
+import { restructureData } from '~/utils/dataFormatter';
+
+const propertyData = ref([]);
+const structuredData = ref([]);
+
+const props = defineProps({
+    tip: String,
+})
+const tip = props.tip;
+
+const idIzracuna = ref();
+const vrstaIzracuna = ref(); //
+idIzracuna.value = parseInt(useCookie('id_izracuna').value);
+vrstaIzracuna.value = useCookie('vrsta_izracuna').value;
+
+
+const propertyGridData = async () => {
+    const data = await getPropertyGridData(idIzracuna.value, tip);
+    propertyData.value = data.data;
+
+    structuredData.value = restructureData(propertyData.value);
+}
+
+onMounted(() => {
+    if(vrstaIzracuna.value == 'Imovina'){
+        propertyGridData();
+    }
+
+})
 
 </script>
 
