@@ -3,7 +3,7 @@
         <header>
             <img src="../images/sidebar_logo.svg" alt="logo">
             <div class="header-buttons">
-                <button class="novi-predlozak" @click="toDashboard">
+                <button class="novi-predlozak" @click="noviIzracun">
                     <font-awesome-icon icon="plus" class="plus-icon" />
                     Novi predložak
                 </button>
@@ -102,8 +102,10 @@ const idIzracuna = useCookie('id_izracuna', {
     secure: false, // Only send cookie over HTTPS
     sameSite: 'strict' // Protect against CSRF attacks
 });
-
 idIzracuna.value = null;
+
+const vrstaIzracuna = useCookie('vrsta_izracuna');
+vrstaIzracuna.value = null;
 
 const onRowSelect = async () => {
     //const data = await getCalculation(odabraniIzracun.value.aiz_id);
@@ -118,7 +120,7 @@ onMounted(async () => {
     // Fetch the calculations data when the component is mounted
 
     idIzracuna.value = null;
-
+    idIzracuna.value = null;
     const data = await getCalculations();
     if (data) {
         izracuni.value = data;
@@ -131,7 +133,8 @@ const doLogout = async () => {
     navigateTo('/login');
 };
 
-const toDashboard = () => {
+const noviIzracun = () => {
+    idIzracuna.value = '/';
     navigateTo('/');
 };
 </script>

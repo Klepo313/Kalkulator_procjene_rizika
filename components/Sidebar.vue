@@ -80,11 +80,20 @@ import { computed, defineEmits } from 'vue';
 import { useRoute } from 'vue-router';
 import { navigateTo } from '#app';
 import { logout } from '@/service/logout';
+import { useIzracunStore } from '~/stores/main-store';
+
+const izracunStore = useIzracunStore();
 
 // Koristite useRoute za dobivanje trenutne rute
 const route = useRoute();
+const idIzracuna = ref(useCookie('id_izracuna').value);
 
-const idIzracuna = parseInt(useCookie('id_izracuna').value);
+console.log("sidebar: ", idIzracuna.value);
+
+watch(() => izracunStore.idIzracuna, (newValue) => {
+    console.log('idIzracuna updated:', newValue);
+    idIzracuna.value = parseInt(newValue);
+});
 
 // Prima prop za stanje bočne trake
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

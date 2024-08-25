@@ -5,11 +5,11 @@ import axios from 'axios';
 
 const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipalityId, cadastreParticleId, objectTypeId, activityId, description, remark) => {
 
-    console.log("datum: ", date, typeof date)
+    console.log("calc save: ", calculationId)
 
     try {
-        const response = await axios.post(`${local_url + local_port}/calculation/`, {
-            calculationId: parseInt(calculationId),
+        const response = await axios.post(`${local_url + local_port}/calculation`, {
+            calculationId: calculationId,
             date: date,
             calculationTypeId: parseInt(calculationTypeId),
             cadastreMunicipalityId: parseInt(cadastreMunicipalityId),
@@ -27,7 +27,7 @@ const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipa
 
         console.log(response.status)
 
-        return response.status;
+        return response.data;
     } catch (error) {
         console.error('Saving error: ' + error)
         return 0;

@@ -12,18 +12,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
-import { useOpciStore } from '~/stores/main-store';
-
-var idIzracuna = parseInt(useCookie('id_izracuna').value);
-console.log("idIzracuna: ", idIzracuna)
-
-const opciStore = useOpciStore();
-
-onMounted(async () => {
-    await opciStore.fetchCalculation(idIzracuna);
-})
 
 // Reaktivna varijabla za praćenje stanja bočne trake
 const isCollapsed = ref(false)

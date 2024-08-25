@@ -4,7 +4,8 @@
     <div class="body">
         <main>
             <h1>Opći podaci</h1>
-            <div v-if="opciStore.opci_podaci && odabraniDatum" class="main-grid">
+            <!-- <div v-if="opciStore.opci_podaci && odabraniDatum" class="main-grid"> -->
+            <div v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" class="main-grid">
                 <label for="nazivIzracuna" class="header">Naziv izračuna</label>
                 <input id="nazivIzracuna" class="dataInput" placeholder="Unesi naziv" :value="nazivIzracuna"
                     :disabled="status" @change="updateNazivIzracuna($event.target.value)">
@@ -42,9 +43,8 @@
                     <AutoComplete v-model="odabranaKatastarskaOpcina" :suggestions="filtriraneKatastarskeOpcine"
                         placeholder="Unesi katastarsku općinu" :virtual-scroller-options="{ itemSize: 38 }"
                         option-label="kop_naziv" class="form-input input-opcina" :disabled="status"
-                        @complete="searchKatastarskeOpcine" @blur="updateKatastarskaOpcina();" />
-                    <!--$event-->
-                    <!--fetchParticles(parseInt(odabranaKatastarskaOpcina?.aiz_kop_id)); -->
+                        @complete="searchKatastarskeOpcine" @blur="updateKatastarskaOpcina()" />
+
                 </div>
 
                 <div class="grid-item header">Katastarska čestica</div>
@@ -84,14 +84,12 @@
                         :placeholder="odabranaVrstaIzracuna.tvz_naziv == 'Imovina' ? '' : 'Unesi djelatnost'"
                         :virtual-scroller-options="{ itemSize: 38 }" :option-label="formatOption" class="form-input"
                         :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Imovina' || status" @complete="searchDjelatnosti"
-                        @blur="updateDjelatnost($event)" />
+                        @blur="updateDjelatnost()" />
                 </div>
 
                 <div class="grid-item header">Skupina djelatnosti</div>
-                <div class="grid-item">
-                    <input class="form-input dataInput" type="text"
-                        :disabled="odabranaVrstaIzracuna.tvz_naziv === 'Imovina' || status"
-                        :value="odabranaSkupinaDjelatnosti"
+                <div class="grid-item"> <!--:disabled="odabranaVrstaIzracuna.tvz_naziv === 'Imovina' || status"-->
+                    <input class="form-input dataInput" type="text" disabled :value="odabranaSkupinaDjelatnosti"
                         :placeholder="odabranaVrstaIzracuna.tvz_naziv === 'Imovina' ? '' : 'Popuni podatke na formi za prikaz skupine djelatnosti'">
 
                 </div>
@@ -136,13 +134,6 @@
                 <font-awesome-icon icon="save" class="save-icon" />
                 Spremi
             </button>
-            <!-- <span class="info">
-                        <font-awesome-icon icon="info-circle" class="info-icon" />
-                        Klikom na dugme <b>'Spremi'</b> više <b> <u> nećete </u> </b> moći praviti promjene na poljima
-                        za
-                        popunjavanje.
-                    </span> -->
-            <!-- </div> -->
             <nuxt-link to="/adaptacijske-mjere" class="footer-link">
                 Adaptacijske mjere
                 <font-awesome-icon icon="arrow-right-long" />
@@ -165,16 +156,21 @@
 // });
 
 import { ref, onMounted } from "vue" //onBeforeMount
-import { useOpciStore } from '~/stores/main-store';
+import { useOpciStore, useIzracunStore } from '~/stores/main-store';
 import { formatDateToDMY } from '~/utils/dateFormatter'
 
-const idIzracuna = ref();
+const idIzracuna = ref(
+    useCookie('id_izracuna').value == '/' ?
+        '/' : parseInt(useCookie('id_izracuna').value)
+);
 const nazivIzracuna = ref();
+const cookie = useCookie('id_izracuna');
+
 const napomena = ref();
 
-idIzracuna.value = parseInt(useCookie('id_izracuna').value);
-console.log(idIzracuna.value);
+console.log("index: ", idIzracuna.value);
 
+// vrsta izracuna kolačić
 const vrstaIzracuna = useCookie('vrsta_izracuna', {
     maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
     path: '/', // Cookie available throughout the app
@@ -184,10 +180,11 @@ const vrstaIzracuna = useCookie('vrsta_izracuna', {
 
 // Kreiramo instancu storea
 const opciStore = useOpciStore();
+const izracunStore = useIzracunStore();
 
 // Kreiramo ref za `Date` objekt datuma
 const odabraniDatum = ref(); // new Date()
-const odabranaVrstaIzracuna = ref(null);
+const odabranaVrstaIzracuna = ref({});
 const odabranaKatastarskaOpcina = ref(null);
 const odabranaKatastarskaCestica = ref(null);
 const odabranaVrstaObjekta = ref(null);
@@ -204,60 +201,50 @@ const odabraniPodrucniUred = ref({
 
 const status = ref(0);
 
-// opciStore.opci_podaci.aiz_datum = null;
-// opciStore.opci_podaci.aiz_djl_id = null;
-// opciStore.opci_podaci.aiz_djl_id_sk = null;
-// opciStore.opci_podaci.aiz_id = null;
-// opciStore.opci_podaci.aiz_kcs_id = null;
-// opciStore.opci_podaci.aiz_kop_id = null;
-// opciStore.opci_podaci.aiz_status = null;
-// opciStore.opci_podaci.aiz_tvo_id = null;
-// opciStore.opci_podaci.aiz_tvz_id = null;
-// opciStore.opci_podaci.aiz_opis = null;
-// opciStore.opci_podaci.aiz_napomena = null;
-// opciStore.opci_podaci.djl_naziv = null;
-// opciStore.opci_podaci.djl_naziv_sk = null;
-// opciStore.opci_podaci.djl_sif = null;
-// opciStore.opci_podaci.isp_naziv = null;
-// opciStore.opci_podaci.kcs_sif = null;
-// opciStore.opci_podaci.kop_naziv = null;
-// opciStore.opci_podaci.puk_naziv = null;
-// opciStore.opci_podaci.tvo_naziv = null;
-// opciStore.opci_podaci.tvz_naziv = null;
+watch(() => cookie.value, (newValue) => {
+    idIzracuna.value = parseInt(newValue);
+});
 
+watch(idIzracuna, async (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+        await opciStore.fetchCalculation(newValue);
+        fillFormData();
+    }
+});
 
 onMounted(async () => {
-    // Postavi početne vrijednosti za sve podatke
-    odabraniDatum.value = new Date(); // Postavi datum na današnji
-    odabranaVrstaIzracuna.value = '';
-    odabranaKatastarskaOpcina.value = null;
-    odabranaKatastarskaCestica.value = null;
-    odabranaVrstaObjekta.value = null;
-    odabranaDjelatnost.value = null;
-    odabranaSkupinaDjelatnosti.value = null;
-    odabranaIspostava.value = null;
-    odabraniPodrucniUred.value = null;
-    nazivIzracuna.value = '';
-    napomena.value = '';
 
-    // Provjeri je li `idIzracuna` prazan
-    if (idIzracuna.value) {
-        // Ako nije prazan, povuci podatke
+    resetForm();
+
+    if (idIzracuna.value !== '/') {
         await opciStore.fetchCalculation(idIzracuna.value);
-        // Ako su podaci uspješno povučeni, popuni formu s podacima
         fillFormData();
     } else {
         // Ako je prazan, sve polja ostaju prazna (postavljena na početne vrijednosti)
         console.log("ID izračuna je prazan, forma ostaje prazna.");
     }
 
-    // Bez obzira na idIzracuna, povuci statičke podatke za izbornike
     await opciStore.fetchCalculationTypes();
     await opciStore.fetchObjectTypes();
     await opciStore.fetchActivities();
     await opciStore.fetchMunicipalities();
+
+    console.log("Opci podaci: ", opciStore.opci_podaci);
 });
 
+const resetForm = () => {
+    odabraniDatum.value = null;
+    odabranaVrstaIzracuna.value = '';
+    odabranaKatastarskaOpcina.value = '';
+    odabranaKatastarskaCestica.value = '';
+    odabranaVrstaObjekta.value = '';
+    odabranaDjelatnost.value = '';
+    odabranaSkupinaDjelatnosti.value = '';
+    odabranaIspostava.value = null;
+    odabraniPodrucniUred.value = null;
+    nazivIzracuna.value = '';
+    napomena.value = '';
+};
 
 const fillFormData = () => {
     if (opciStore.opci_podaci) {
@@ -272,7 +259,9 @@ const fillFormData = () => {
         // eslint-disable-next-line no-constant-binary-expression
         odabranaKatastarskaOpcina.value = {
             aiz_kop_id: data.aiz_kop_id,
-            kop_naziv: data.kop_naziv
+            kop_naziv: data.kop_naziv,
+            isp_naziv: data.isp_naziv,
+            puk_naziv: data.puk_naziv,
         } || null;
         // eslint-disable-next-line no-constant-binary-expression
         odabranaKatastarskaCestica.value = {
@@ -291,8 +280,8 @@ const fillFormData = () => {
             djl_naziv: data.djl_naziv
         } || null;
         odabranaSkupinaDjelatnosti.value = data.djl_naziv_sk || null;
-        odabranaIspostava.value = data.isp_naziv || null;
-        odabraniPodrucniUred.value = data.puk_naziv || null;
+        //odabranaIspostava.value = data.isp_naziv || null;
+        //odabraniPodrucniUred.value = data.puk_naziv || null;
 
         nazivIzracuna.value = data.aiz_opis;
         napomena.value = data.aiz_napomena;
@@ -302,12 +291,12 @@ const fillFormData = () => {
         console.log("KO: ", odabranaKatastarskaOpcina.value)
 
         odabranaIspostava.value = {
-            isp_sif: odabranaKatastarskaOpcina.value.isp_sif,
+            isp_sif: '2221',
             isp_naziv: odabranaKatastarskaOpcina.value.isp_naziv
         }
 
         odabraniPodrucniUred.value = {
-            puk_sif: odabranaKatastarskaOpcina.value.puk_sif,
+            puk_sif: '2222',
             puk_naziv: odabranaKatastarskaOpcina.value.puk_naziv
         }
 
@@ -316,8 +305,23 @@ const fillFormData = () => {
     }
 }
 
+const isNumber = (value) => {
+    return !isNaN(parseInt(value));
+}
+
+const hasSelectedValues = () => {
+    return odabraniDatum.value ||
+        odabranaVrstaIzracuna.value?.tvz_id ||
+        odabranaKatastarskaOpcina.value?.aiz_kop_id ||
+        odabranaKatastarskaCestica.value?.kcs_id ||
+        odabranaVrstaObjekta.value?.tvo_id ||
+        odabranaDjelatnost.value?.djl_id ||
+        nazivIzracuna.value ||
+        napomena.value;
+}
+
 const updateNazivIzracuna = (value) => {
-    console.log(value);
+    nazivIzracuna.value = value;
     opciStore.opci_podaci.aiz_opis = value;
 };
 
@@ -329,161 +333,77 @@ const updateDatum = () => {
 };
 
 const updateVrstaIzracuna = (event) => {
-    if (event?.tvz_naziv) {
-        opciStore.opci_podaci.aiz_tvz_id = event.tvz_id;
-        opciStore.opci_podaci.tvz_naziv = event.tvz_naziv;
-    }
+    odabranaVrstaIzracuna.value = event.value;
+    //console.log("ovi: ", event.value.tvz_id, '-', event.value.tvz_naziv);
+    opciStore.opci_podaci.aiz_tvz_id = event.value.tvz_id;
+    opciStore.opci_podaci.tvz_naziv = event.value.tvz_naziv;
 };
 
 const updateKatastarskaOpcina = () => {
-    opciStore.opci_podaci.aiz_kop_id = odabranaKatastarskaOpcina.value.kop_id;
-    opciStore.opci_podaci.kop_naziv = odabranaKatastarskaOpcina.value.kop_naziv;
-    fetchParticles(parseInt(odabranaKatastarskaOpcina.value.kop_id));
+    console.log("odabrana: ", odabranaKatastarskaOpcina.value.kop_id)
+    if (odabranaKatastarskaOpcina.value) {
+        opciStore.opci_podaci.aiz_kop_id = odabranaKatastarskaOpcina.value.kop_id;
+        opciStore.opci_podaci.kop_naziv = odabranaKatastarskaOpcina.value.kop_naziv;
+        opciStore.opci_podaci.isp_naziv = odabranaKatastarskaOpcina.value.isp_naziv;
+        opciStore.opci_podaci.puk_naziv = odabranaKatastarskaOpcina.value.puk_naziv;
 
-    odabranaIspostava.value = {
-        isp_sif: odabranaKatastarskaOpcina.value.isp_sif,
-        isp_naziv: odabranaKatastarskaOpcina.value.isp_naziv
-    }
+        fetchParticles(parseInt(odabranaKatastarskaOpcina.value.kop_id));
 
-    odabraniPodrucniUred.value = {
-        puk_sif: odabranaKatastarskaOpcina.value.puk_sif,
-        puk_naziv: odabranaKatastarskaOpcina.value.puk_naziv
+        odabranaIspostava.value = {
+            isp_sif: '2221',
+            isp_naziv: odabranaKatastarskaOpcina.value.isp_naziv
+        }
+
+        odabraniPodrucniUred.value = {
+            puk_sif: '2222',
+            puk_naziv: odabranaKatastarskaOpcina.value.puk_naziv
+        }
     }
 };
 
 const updateKatastarskaCestica = () => {
-    console.log("kcs", odabranaKatastarskaCestica.value)
-    opciStore.opci_podaci.kcs_id = odabranaKatastarskaCestica.value.kcs_id;
-    opciStore.opci_podaci.kcs_sif = odabranaKatastarskaCestica.value.kcs_sif;
-    console.log("novi", opciStore.opci_podaci.kcs_id, opciStore.opci_podaci.kcs_sif);
-};
-
-const updateVrstaObjekta = (event) => {
-    console.log(event.value);
-    opciStore.opci_podaci.aiz_tvo_id = event.value.tvo_id;
-    opciStore.opci_podaci.tvo_naziv = event.value.tvo_naziv;
-};
-
-const updateDjelatnost = (event) => {
-    console.log(event);
-    if (event?.djl_naziv) {
-        opciStore.opci_podaci.aiz_djl_id = event.djl_id;
-        opciStore.opci_podaci.djl_naziv = event.djl_naziv;
+    if (odabranaKatastarskaCestica.value) {
+        opciStore.opci_podaci.aiz_kcs_id = odabranaKatastarskaCestica.value.kcs_id;
+        opciStore.opci_podaci.kcs_sif = odabranaKatastarskaCestica.value.kcs_sif;
     }
 };
 
+const updateVrstaObjekta = (event) => {
+    if (event?.value) {
+        odabranaVrstaObjekta.value = event.value;
+        opciStore.opci_podaci.aiz_tvo_id = event.value.tvo_id;
+        opciStore.opci_podaci.tvo_naziv = event.value.tvo_naziv;
+    }
+};
+
+const updateDjelatnost = () => {
+    console.log(odabranaDjelatnost.value);
+    odabranaSkupinaDjelatnosti.value = odabranaDjelatnost.value.djl_naziv;
+    opciStore.opci_podaci.aiz_djl_id = odabranaDjelatnost.value.djl_id;
+    opciStore.opci_podaci.djl_naziv = odabranaDjelatnost.value.djl_naziv;
+    //odabranaSkupinaDjelatnosti.value = 
+};
+
 const updateNapomena = (value) => {
+    napomena.value = value;
     opciStore.opci_podaci.aiz_napomena = value;
 };
 
 
 const saveFormData = async () => {
-    //console.log("opci opci: ", opciStore.opci_podaci);
-    const data = await opciStore.saveData();
-    console.log(data);
-}
+    try {
+        const responseId = await opciStore.saveData();
+        idIzracuna.value = parseInt(responseId)
 
-// Kreiramo computed property za datum, koji je povezan s storeom
-// const datum = computed({
-//     get: () => opciStore.opci_podaci.datum,
-//     set: (value) => {
-//         opciStore.setOpciPodaci({ datum: value });
-//     },
-// });
+        izracunStore.updateIdIzracuna(responseId);
 
-// Kreiramo ref za formatirani datum
-// const formattedDatum = computed({
-//     get: () => formatDateToDDMMYYYY(datum.value),
-//     set: (value) => {
-//         const [day, month, year] = value.split('.').map(Number);
-//         datum.value = new Date(year, month - 1, day).toISOString();
-//     },
-// });
+        document.cookie = "id_izracuna=" + encodeURIComponent(idIzracuna.value) + "; path=/";
 
-// // Funkcija za formatiranje datuma
-// function formatDateToDDMMYYYY(date) {
-//     const d = new Date(date);
-//     const day = String(d.getDate()).padStart(2, '0');
-//     const month = String(d.getMonth() + 1).padStart(2, '0'); // Mjeseci su 0-indeksirani
-//     const year = d.getFullYear();
-//     return `${day}.${month}.${year}`;
-// }
-
-// Funkcija za postavljanje datuma u store
-// const updateDatum = () => {
-//     opciStore.setOpciPodaci({ datum: odabraniDatum.value.toISOString() });
-// };
-
-// Metoda za ažuriranje vrste izračuna
-// const updateVrstuIzracuna = () => {
-//     opciStore.setOpciPodaci({ vrsta_izracuna: odabranaVrstaIzracuna.value });
-// };
-
-// const updateKatastarskaOpcina = () => {
-//     opciStore.setOpciPodaci({ katastarska_opcina: odabranaKatastarskaOpcina.value });
-
-// }
-
-// const updateKatastarskaCestica = () => {
-//     opciStore.setOpciPodaci({ katastarska_cestica: odabranaKatastarskaCestica.value });
-// };
-
-// const updateVrstaObjekta = () => {
-//     opciStore.setOpciPodaci({ vrsta_objekta: odabranaVrstaObjekta.value });
-// };
-
-// const updateDjelatnost = () => {
-//     opciStore.setOpciPodaci({ djelatnost: odabranaDjelatnost.value });
-// };
-
-// Metoda za inicijalizaciju podataka iz kolačića
-// const initFromCookies = () => {
-//     opciStore.initFromCookies();
-
-//     const initialDate = new Date(opciStore.opci_podaci.datum);
-//     if (!isNaN(initialDate.getTime())) {
-//         odabraniDatum.value = initialDate;
-//     }
-
-//     const savedVrstaIzracuna = opciStore.opci_podaci.vrsta_izracuna;
-//     if (savedVrstaIzracuna) {
-//         odabranaVrstaIzracuna.value = vrsteIzracuna.value.find(
-//             (option) => option.name === savedVrstaIzracuna.name
-//         );
-//     }
-
-//     const savedKatastarskaOpcina = opciStore.opci_podaci.katastarska_opcina
-//     if (savedKatastarskaOpcina) {
-//         odabranaKatastarskaOpcina.value = katastarskeOpcine.value.find(
-//             (option) => option.name === savedKatastarskaOpcina.name
-//         );
-//     }
-
-//     const savedKatastarskaCestica = opciStore.opci_podaci.katastarska_cestica
-//     if (savedKatastarskaCestica) {
-//         odabranaKatastarskaCestica.value = katastarskeCestice.value.find(
-//             (option) => option.name === savedKatastarskaCestica.name
-//         );
-//     }
-
-//     const savedVrstaObjekta = opciStore.opci_podaci.vrsta_objekta
-//     if (savedVrstaObjekta) {
-//         odabranaVrstaObjekta.value = vrsteObjekta.value.find(
-//             (option) => option.name === savedVrstaObjekta.name
-//         );
-//     }
-
-//     const savedDjelatnost = opciStore.opci_podaci.djelatnost
-//     if (savedDjelatnost) {
-//         odabranaDjelatnost.value = djelatnosti.value.find(
-//             (option) => option.name === savedDjelatnost.name
-//         );
-//     }
-// };
-
-// onMounted(() => {
-//     initFromCookies();
-// })
+        console.log('res-id: ', parseInt(idIzracuna.value));
+    } catch (error) {
+        console.error('Došlo je do pogreške prilikom spremanja podataka:', error);
+    }
+};
 
 const filtriraneKatastarskeOpcine = ref();
 const filtriraneKatastarskeCestice = ref();
@@ -567,8 +487,6 @@ const searchDjelatnosti = (event) => {
     );
     filtriraneDjelatnosti.value = _filteredItems;
 };
-
-
 </script>
 
 <style scoped>

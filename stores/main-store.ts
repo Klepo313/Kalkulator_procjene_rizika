@@ -12,6 +12,18 @@ import { addMetricType, removeMetricType } from '~/service/alterMetrictypes';
 
 //import { formatDateToISO } from '~/utils/dateFormatter';
 
+export const useIzracunStore = defineStore('izracunStore', {
+    state: () => ({
+        idIzracuna: useCookie('id_izracuna').value,
+    }),
+    actions: {
+        updateIdIzracuna(newValue: string) {
+            this.idIzracuna = newValue;
+            useCookie('id_izracuna').value = newValue;
+        },
+    },
+});
+
 export const useOpciStore = defineStore('opci-podaci', {
     state: () => ({
         opci_podaci: {
@@ -158,28 +170,26 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.aiz_tvz_id,
                 this.opci_podaci.aiz_kop_id,
                 this.opci_podaci.aiz_kcs_id,
-                this.opci_podaci.aiz_tvo_id,
+                this.opci_podaci.aiz_tvo_id === 0 ? null : this.opci_podaci.aiz_tvo_id,
                 this.opci_podaci.aiz_djl_id,
                 this.opci_podaci.aiz_opis,
                 this.opci_podaci.aiz_napomena
             )
 
-            const status = await saveForm(
+            const response = await saveForm(
                 this.opci_podaci.aiz_id === 0 ? null : this.opci_podaci.aiz_id,
                 this.opci_podaci.aiz_datum,
                 this.opci_podaci.aiz_tvz_id,
                 this.opci_podaci.aiz_kop_id,
                 this.opci_podaci.aiz_kcs_id,
-                this.opci_podaci.aiz_tvo_id,
+                this.opci_podaci.aiz_tvo_id === 0 ? null : this.opci_podaci.aiz_tvo_id,
                 this.opci_podaci.aiz_djl_id,
                 this.opci_podaci.aiz_opis,
                 this.opci_podaci.aiz_napomena
-            );
-            if (status == 200) {
-                console.log('Uspjesno sacuvano');
-            } else {
-                console.error('Error saving data:', status);
-            }
+            )
+
+            console.log("Response savea: ", response.aiz_id)
+            return response.aiz_id;
         }
 
     },

@@ -65,14 +65,21 @@ import { useAdaptStore } from '~/stores/main-store';
 
 const adaptStore = useAdaptStore();
 
-const idIzracuna = ref();
-idIzracuna.value = parseInt(useCookie('id_izracuna').value);
+const idIzracuna = ref(
+    useCookie('id_izracuna').value == '/' ?
+        '/' : parseInt(useCookie('id_izracuna').value)
+);
 
 onMounted(async () => {
-    await adaptStore.fetchMetrictypes(idIzracuna.value);
-    await adaptStore.fetchMetrictypes();
-    console.log('Uspješno dohvaćen izračun.', adaptStore.odabrane_mjere);
-    console.log('Uspješno dohvaćen izračun.', adaptStore.adaptacijske_mjere);
+    if (!(idIzracuna.value == '/')) {
+        await adaptStore.fetchMetrictypes(idIzracuna.value);
+        await adaptStore.fetchMetrictypes();
+        console.log('Uspješno dohvaćen izračun.', adaptStore.odabrane_mjere);
+        console.log('Uspješno dohvaćen izračun.', adaptStore.adaptacijske_mjere);
+    } else {
+        console.log('ID izračuna je "/", nećemo dohvatiti adaptacijske mjere.');
+    }
+
 });
 
 const toRizikSazetak = () => {

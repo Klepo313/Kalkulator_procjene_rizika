@@ -1,10 +1,7 @@
 <template>
-    <div>
+    <div class="body">
         <main>
             <h1>Rizik sažetak</h1>
-            <!-- <div class="interactive">
-                <RizikSazetak ref="rizikSazetakRef" class="rizik-sazetak" />
-            </div> -->
             <Tabs value="0">
                 <TabList>
                     <Tab class="reset-style" value="0">
@@ -22,6 +19,7 @@
                             class="rizik-sazetak" />
                         <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
                         <span v-else>
+                            <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
                             Nije odabrana vrsta izračuna
                         </span>
                     </TabPanel>
@@ -30,6 +28,7 @@
                             class="rizik-sazetak" />
                         <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'KR'" />
                         <span v-else>
+                            <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
                             Nije odabrana vrsta izračuna
                         </span>
                     </TabPanel>
@@ -63,9 +62,7 @@ import TablicaRizika from '~/components/TablicaRizika.vue';
 
 // Kreiramo referencu za pristup komponenti
 const rizikSazetakRef = ref(null);
-const vrstaIzracuna = ref();
-
-vrstaIzracuna.value = useCookie('vrsta_izracuna').value;
+const vrstaIzracuna = ref(useCookie('vrsta_izracuna').value);
 
 // Funkcija za generisanje i preuzimanje PDF-a
 // const downloadRizikSazetak = () => {
@@ -94,6 +91,21 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.body {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+main,
+footer {
+    width: 100%;
+}
+
 footer {
     margin-top: 26px;
 }
