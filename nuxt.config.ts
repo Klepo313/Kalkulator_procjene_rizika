@@ -18,9 +18,9 @@ export default defineNuxtConfig({
     pageTransition: { name: 'page', mode: 'out-in' },
     layoutTransition: { name: 'layout', mode: 'out-in' },
   },
-  router: {
-    middleware: ['auth'],
-  },
+  // router: {
+  //   middleware: ['auth'],
+  // },
   modules: ['@primevue/nuxt-module', '@pinia/nuxt', "@nuxt/eslint"],
   primevue: {
     options: {
