@@ -87,6 +87,10 @@ import { logout } from '@/service/logout';
 import { getCalculations } from '@/service/fetchCalculations';
 import { formatDateToDMY } from '@/utils/dateFormatter';
 
+// definePageMeta({
+//     middleware: 'auth',
+// });
+
 const filters = ref({
     global: { value: '', matchMode: 'contains' }
 });
@@ -99,8 +103,8 @@ const odabraniIzracun = ref();
 const idIzracuna = useCookie('id_izracuna', {
     maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
     path: '/', // Cookie available throughout the app
-    secure: false, // Only send cookie over HTTPS
-    sameSite: 'strict' // Protect against CSRF attacks
+    secure: true, // Only send cookie over HTTPS
+    sameSite: 'none' // Protect against CSRF attacks
 });
 idIzracuna.value = null;
 

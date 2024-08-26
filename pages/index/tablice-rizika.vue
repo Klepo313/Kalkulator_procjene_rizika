@@ -2,7 +2,12 @@
     <div class="body">
         <main>
             <h1>Tablice rizika</h1>
-            <Tabs value="0">
+            <span>
+                <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
+                Nema podataka za prikaz
+            </span>
+
+            <!-- <Tabs value="0">
                 <TabList>
                     <Tab class="reset-style" value="0">
                         <font-awesome-icon icon="table-columns" class="tab-icon" />
@@ -21,7 +26,7 @@
                         <TablicaRizika class="tablica" />
                     </TabPanel>
                 </TabPanels>
-            </Tabs>
+            </Tabs> -->
         </main>
         <footer>
             <nuxt-link to="/rizik-sazetak" class="footer-link">

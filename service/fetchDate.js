@@ -1,4 +1,4 @@
-import { local_url, local_port } from '../composables/variables'
+import { base_url } from '../composables/variables'
 import axios from 'axios';
 
 const getDate = () => {

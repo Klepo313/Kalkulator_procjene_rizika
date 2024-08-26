@@ -1,11 +1,11 @@
 // import { useAuthCookie } from '../composables/useAuthCookie'
-import { local_url, local_port } from '../composables/variables'
+import { base_url } from '../composables/variables'
 import axios from 'axios';
 //import { formatDMYtoYMD, formatDateToISO } from '~/utils/dateFormatter';
 
 const addMetricType = async (calculationId, metricTypeId) => {
     try {
-        const response = await axios.post(`${local_url + local_port}/calculation/${calculationId}/metric_type`, {
+        const response = await axios.post(`${base_url}/calculation/${calculationId}/metric_type`, {
             metricTypeId: parseInt(metricTypeId),
         }, {
             withCredentials: true, // Ensure cookies are included in requests
@@ -25,7 +25,7 @@ const addMetricType = async (calculationId, metricTypeId) => {
 
 const removeMetricType = async (calculationId, metricTypeId) => {
     try {
-        const response = await axios.delete(`${local_url + local_port}/calculation/${calculationId}/metric_type`, {
+        const response = await axios.delete(`${base_url}/calculation/${calculationId}/metric_type`, {
             data: {
                 metricTypeId: parseInt(metricTypeId)
             },

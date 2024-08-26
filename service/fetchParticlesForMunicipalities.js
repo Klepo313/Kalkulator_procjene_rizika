@@ -1,11 +1,11 @@
-import { local_url, local_port } from '../composables/variables'
+import { base_url } from '../composables/variables'
 import axios from 'axios';
 
 const getParticlesForMunicipalities = async (id) => {
     if (id) {
         try {
             // Postavite URL na osnovu prisustva id-a
-            const url = `${local_url + local_port}/cadastre/municipality/${id}/particle`;
+            const url = `${base_url}/cadastre/municipality/${id}/particle`;
             console.log(url);
             // Pošaljite GET zahtjev sa withCredentials opcijom
             const response = await axios.get(url, {

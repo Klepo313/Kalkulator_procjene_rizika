@@ -1,12 +1,12 @@
-import { local_url, local_port } from '../composables/variables'
+import { base_url } from '../composables/variables'
 import axios from 'axios';
 
 const getObjectTypes = async (id) => {
     try {
         // Postavite URL na osnovu prisustva id-a
         const url = id !== undefined
-            ? `${local_url + local_port}/form/object_types/${id}`
-            : `${local_url + local_port}/form/object_types`;
+            ? `${base_url}/form/object_types/${id}`
+            : `${base_url}/form/object_types`;
 
         // Pošaljite GET zahtjev sa withCredentials opcijom
         const response = await axios.get(url, {

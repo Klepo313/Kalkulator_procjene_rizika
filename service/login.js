@@ -1,10 +1,10 @@
 // import { useAuthCookie } from '../composables/useAuthCookie'
-import { local_url, local_port } from '../composables/variables'
+import { base_url } from '../composables/variables'
 import axios from 'axios';
 
 const login = async (username, password) => {
     try {
-        const response = await axios.post(`${local_url + local_port}/user/login`, {
+        const response = await axios.post(`${base_url}/user/login`, {
             username: username,
             password: password
         }, {

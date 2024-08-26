@@ -1,12 +1,12 @@
 // /process/:id/:type
 
-import { local_url, local_port } from '../composables/variables'
+import { base_url } from '../composables/variables'
 import axios from 'axios';
 
 const getProcessGridData = async (id, type) => {
     try {
         // Postavite URL na osnovu prisustva id-a
-        const url = `${local_url + local_port}/calculation/process/${id}/${type}`;
+        const url = `${base_url}/calculation/process/${id}/${type}`;
 
         // Pošaljite GET zahtjev sa withCredentials opcijom
         const response = await axios.get(url, {
@@ -31,7 +31,7 @@ const getProcessGridData = async (id, type) => {
 const getPropertyGridData = async (id, type) => {
     try {
         // Postavite URL na osnovu prisustva id-a
-        const url = `${local_url + local_port}/calculation/property/${id}/${type}`;
+        const url = `${base_url}/calculation/property/${id}/${type}`;
 
         // Pošaljite GET zahtjev sa withCredentials opcijom
         const response = await axios.get(url, {

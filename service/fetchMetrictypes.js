@@ -1,4 +1,4 @@
-import { local_url, local_port } from '../composables/variables'
+import { base_url } from '../composables/variables'
 import axios from 'axios';
 
 const getMetricTypes = async (id) => {
@@ -6,8 +6,8 @@ const getMetricTypes = async (id) => {
         console.log("IDID: ", id);
         // Postavite URL na osnovu prisustva id-a
         const url = id !== undefined
-            ? `${local_url + local_port}/calculation/${id}/metric_types`
-            : `${local_url + local_port}/form/metric_types`;
+            ? `${base_url}/calculation/${id}/metric_types`
+            : `${base_url}/form/metric_types`;
 
         // Pošaljite GET zahtjev sa withCredentials opcijom
         const response = await axios.get(url, {

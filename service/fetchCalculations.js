@@ -1,10 +1,10 @@
-import { local_url, local_port } from '../composables/variables'
+import { base_url } from '../composables/variables'
 import axios from 'axios';
 
 const getCalculations = async (id) => {
     try {
         // Postavite URL na osnovu prisustva id-a
-        const url = `${local_url + local_port}/calculation/user`;
+        const url = `${base_url}/calculation/user`;
 
         // Pošaljite GET zahtjev sa withCredentials opcijom
         const response = await axios.get(url, {

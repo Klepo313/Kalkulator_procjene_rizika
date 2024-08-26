@@ -1,5 +1,5 @@
 // import { useAuthCookie } from '../composables/useAuthCookie'
-import { local_url, local_port } from '../composables/variables'
+import { base_url } from '../composables/variables'
 import axios from 'axios';
 //import { formatDMYtoYMD, formatDateToISO } from '~/utils/dateFormatter';
 
@@ -8,7 +8,7 @@ const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipa
     console.log("calc save: ", calculationId)
 
     try {
-        const response = await axios.post(`${local_url + local_port}/calculation`, {
+        const response = await axios.post(`${base_url}/calculation`, {
             calculationId: calculationId,
             date: date,
             calculationTypeId: parseInt(calculationTypeId),

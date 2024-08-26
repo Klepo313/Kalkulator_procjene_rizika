@@ -149,12 +149,6 @@
 
 <script setup>
 
-// definePageMeta({
-//     middleware: [
-//         'auth',
-//     ],
-// });
-
 import { ref, onMounted } from "vue" //onBeforeMount
 import { useOpciStore, useIzracunStore } from '~/stores/main-store';
 import { formatDateToDMY } from '~/utils/dateFormatter'
@@ -174,8 +168,8 @@ console.log("index: ", idIzracuna.value);
 const vrstaIzracuna = useCookie('vrsta_izracuna', {
     maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
     path: '/', // Cookie available throughout the app
-    secure: false, // Only send cookie over HTTPS
-    sameSite: 'strict' // Protect against CSRF attacks
+    secure: true, // Only send cookie over HTTPS
+    sameSite: 'none' // Protect against CSRF attacks
 });
 
 // Kreiramo instancu storea
