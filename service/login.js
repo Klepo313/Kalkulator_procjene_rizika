@@ -14,9 +14,10 @@ const login = async (username, password) => {
             },
         });
 
-        console.log("status: ", response.status)
-
-        return response.status;
+        return {
+            status: response.status,
+            token: response.data.token
+        };
     } catch (error) {
         console.error('Login error: ' + error)
         return 0;

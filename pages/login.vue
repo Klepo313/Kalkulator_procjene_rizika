@@ -42,6 +42,7 @@ import { navigateTo } from '#app';
 import { login } from '@/service/login'
 
 const statusCode = ref(0);
+const token = ref('');
 
 const usernameInput = ref(null);
 const passwordInput = ref(null);
@@ -52,6 +53,13 @@ const loginBtnText = ref(null);
 // State for showing/hiding the alert
 const showAlert = ref(false);
 
+const idIzracuna = useCookie('id_izracuna');
+idIzracuna.value = null;
+const vrstaIzracuna = useCookie('vrsta_izracuna');
+vrstaIzracuna.value = null;
+const accessToken = useCookie('accessToken');
+accessToken.value = '/';
+
 onMounted(() => {
     spinnerIcon.value.style.display = "none";
     loginBtnText.value.style.display = "inline";
@@ -59,12 +67,16 @@ onMounted(() => {
 
 const checkLogin = async () => {
     if (usernameInput.value.value && passwordInput.value.value) {
-        statusCode.value = await login(usernameInput.value.value, passwordInput.value.value);
+        const response = await login(usernameInput.value.value, passwordInput.value.value);
+        console.log(response);
+        statusCode.value = response.status;
 
         loginBtnText.value.style.display = "none";
         spinnerIcon.value.style.display = "inline";
 
         if (statusCode.value == 200) {
+            token.value = response.token;
+            accessToken.value = token.value;
             navigateTo('/predlosci');
         } else {
             highlightBorders();

@@ -166,10 +166,13 @@ console.log("index: ", idIzracuna.value);
 
 // vrsta izracuna kolačić
 const vrstaIzracuna = useCookie('vrsta_izracuna', {
+    // httpOnly: true,
     maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
     path: '/', // Cookie available throughout the app
-    secure: true, // Only send cookie over HTTPS
-    sameSite: 'none' // Protect against CSRF attacks
+    secure: process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production // true, //process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production
+    sameSite: process.env.ENVIRONMENT === 'PRODUCTION' ? 'None' : 'Lax', // Use 'None' only in production
+    // secure: true, // Only send cookie over HTTPS
+    // sameSite: 'none' // Protect against CSRF attacks
 });
 
 // Kreiramo instancu storea

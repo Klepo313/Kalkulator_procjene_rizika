@@ -18,6 +18,12 @@
                                 Tablica prazna
                             </td>
                         </tr>
+                        <!-- <tr v-if="adaptStore.odabrane_mjere.length === 0">
+                            <td colspan="2" style="font-style: italic;">
+                                <font-awesome-icon icon="spinner" style="margin-right: 5px;" spin />
+                                Učitavanje podataka
+                            </td>
+                        </tr> -->
                         <tr v-for="mjera in odabraneMjere" :key="mjera.tva_sif">
                             <td>{{ mjera.tva_sif }}</td>
                             <td>{{ mjera.tva_naziv }}</td>
@@ -29,12 +35,6 @@
 
                     </tbody>
                 </table>
-                <!-- <DataTable :value="odabraneMjere" paginator>
-                    <template #empty> Nema odabranih mjera </template>
-<template #loading> Učitavanje mjera. Molimo pričekajte. </template>
-<Column field="tva_sif" header="Šifra" style="width: 10%;"></Column>
-<Column field="tva_naziv" header="Naziv" style="width: 90%;"></Column>
-</DataTable> -->
                 <div class="newRow">
                     <Select v-model="selectedMjera" :options="mjere" filter :option-label="formatOption"
                         placeholder="Izaberi mjeru" class="select-mjere" />
@@ -71,6 +71,8 @@ const idIzracuna = ref(
 );
 
 onMounted(async () => {
+    adaptStore.odabrane_mjere = [];
+    adaptStore.adaptacijske_mjere = [];
     if (!(idIzracuna.value == '/')) {
         await adaptStore.fetchMetrictypes(idIzracuna.value);
         await adaptStore.fetchMetrictypes();
