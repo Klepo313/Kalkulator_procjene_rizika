@@ -42,8 +42,9 @@
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaKatastarskaOpcina" :suggestions="filtriraneKatastarskeOpcine"
                         placeholder="Unesi katastarsku općinu" :virtual-scroller-options="{ itemSize: 38 }"
-                        option-label="kop_naziv" class="form-input input-opcina" :disabled="status"
-                        @complete="searchKatastarskeOpcine" @blur="updateKatastarskaOpcina()" />
+                        :option-label="option => formatOption(option, 'aiz_kop_id', 'kop_naziv')"
+                        class="form-input input-opcina" :disabled="status" @complete="searchKatastarskeOpcine"
+                        @blur="updateKatastarskaOpcina()" />
 
                 </div>
 
@@ -82,7 +83,8 @@
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaDjelatnost" :suggestions="filtriraneDjelatnosti"
                         :placeholder="odabranaVrstaIzracuna.tvz_naziv == 'Imovina' ? '' : 'Unesi djelatnost'"
-                        :virtual-scroller-options="{ itemSize: 38 }" :option-label="formatOption" class="form-input"
+                        :virtual-scroller-options="{ itemSize: 38 }"
+                        :option-label="option => formatOption(option, 'djl_sif', 'djl_naziv')" class="form-input"
                         :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Imovina' || status" @complete="searchDjelatnosti"
                         @blur="updateDjelatnost()" />
                 </div>
@@ -390,13 +392,15 @@ const updateNapomena = (value) => {
 const saveFormData = async () => {
     try {
         const responseId = await opciStore.saveData();
-        idIzracuna.value = parseInt(responseId)
 
-        izracunStore.updateIdIzracuna(responseId);
+        if (idIzracuna.value == '/') {
+            idIzracuna.value = parseInt(responseId)
+            izracunStore.updateIdIzracuna(responseId);
+            document.cookie = "id_izracuna=" + encodeURIComponent(idIzracuna.value) + "; path=/";
 
-        document.cookie = "id_izracuna=" + encodeURIComponent(idIzracuna.value) + "; path=/";
+            console.log('res-id: ', parseInt(idIzracuna.value));
+        }
 
-        console.log('res-id: ', parseInt(idIzracuna.value));
     } catch (error) {
         console.error('Došlo je do pogreške prilikom spremanja podataka:', error);
     }
@@ -448,7 +452,8 @@ const searchKatastarskeOpcine = (event) => {
     for (let i = 0; i < katastarskeOpcine.value.length; i++) {
         const item = katastarskeOpcine.value[i];
 
-        if (item.kop_naziv.toLowerCase().indexOf(query.toLowerCase()) === 0) {
+        //item.djl_naziv.toLowerCase().includes(query) || item.djl_sif.toLowerCase().includes(query)
+        if (item.kop_naziv.toLowerCase().indexOf(query.toLowerCase() || item.aiz_kop_id.toLowerCase().indexOf(query.toLowerCase()) === 0)) {
             _filteredItems.push(item);
         }
     }
@@ -472,9 +477,10 @@ const searchKatastarskeCestice = (event) => {
     filtriraneKatastarskeCestice.value = _filteredItems;
 };
 
-const formatOption = (option) => {
-    return `${option.djl_sif} - ${option.djl_naziv}`;
+const formatOption = (option, sifKey, nazivKey) => {
+    return `${option[sifKey]} - ${option[nazivKey]}`;
 };
+
 
 const searchDjelatnosti = (event) => {
     // Normalizacija upita za pretragu

@@ -16,11 +16,11 @@
 import { ref, computed, watch } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
 
-definePageMeta({
-    middleware: [
-        'auth',
-    ],
-});
+// definePageMeta({
+//     middleware: [
+//         'auth',
+//     ],
+// });
 
 // Reaktivna varijabla za praćenje stanja bočne trake
 const isCollapsed = ref(false)

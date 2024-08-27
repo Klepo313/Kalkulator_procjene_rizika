@@ -87,9 +87,9 @@ import { logout } from '@/service/logout';
 import { getCalculations } from '@/service/fetchCalculations';
 import { formatDateToDMY } from '@/utils/dateFormatter';
 
-definePageMeta({
-    middleware: 'auth',
-});
+// definePageMeta({
+//     middleware: 'auth',
+// });
 
 const filters = ref({
     global: { value: '', matchMode: 'contains' }
