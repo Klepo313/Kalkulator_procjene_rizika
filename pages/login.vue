@@ -68,7 +68,7 @@ onMounted(() => {
 const checkLogin = async () => {
     if (usernameInput.value.value && passwordInput.value.value) {
         const response = await login(usernameInput.value.value, passwordInput.value.value);
-        console.log(response);
+
         statusCode.value = response.status;
 
         loginBtnText.value.style.display = "none";
