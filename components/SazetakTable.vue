@@ -121,64 +121,22 @@
                 <font-awesome-icon icon="spinner" spin />
             </div>
         </div>
-        <!-- <span  style="font-style: italic;">
-            Učitavanje podataka
-            <font-awesome-icon icon="spinner" spin />
-        </span> -->
     </div>
 </template>
 
 <script setup>
-// import { onMounted } from 'vue';
-
-import {getColorClass} from '../utils/getColorClass'
+import { getColorClass } from '../utils/getColorClass'
 
 const props = defineProps({
     // eslint-disable-next-line vue/require-default-prop
     pozicija: Number,
+    // eslint-disable-next-line vue/require-default-prop
     data: Object,
 })
 
-//const pozicija = props.pozicija
-
 // Reaktivna vrednost data je direktno povezana sa props.data
 const data = computed(() => props.data);
-//data.value = props.data
 
-//console.log("data za: ", pozicija, ": ", data.value)
-
-// function setColor() {
-//     const gridItems = document.querySelectorAll('._grid-item');
-//     gridItems.forEach(item => {
-//         const value = parseInt(item.textContent);
-//         if (!isNaN(value)) {
-//             if (value < 0) {
-//                 item.classList.add('lightgray');
-//             } else if (value === 0) {
-//                 item.classList.add('white');
-//             } else if (value === 1) {
-//                 item.classList.add('gray');
-//             } else if (value >= 2 && value <= 3) {
-//                 item.classList.add('green');
-//             } else if (value >= 4 && value <= 6) {
-//                 item.classList.add('yellow');
-//             } else if (value >= 7 && value <= 10) {
-//                 item.classList.add('orange');
-//             } else if (value >= 11 && value <= 15) {
-//                 item.classList.add('red');
-//             } else {
-//                 item.classList.add('white');
-//             }
-//         }
-//     });
-// }
-
-
-
-// onMounted(() => {
-//     data.value = props.data;
-//     setColor();
-// });
 </script>
 
 <style scoped>

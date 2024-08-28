@@ -34,6 +34,7 @@
                     </TabPanel>
                 </TabPanels>
             </Tabs>
+            <LegendaBoja class="legenda" />
         </main>
         <footer>
             <nuxt-link to="/adaptacijske-mjere" class="footer-link">
@@ -57,37 +58,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import TablicaRizika from '~/components/TablicaRizika.vue';
 
 // Kreiramo referencu za pristup komponenti
 const rizikSazetakRef = ref(null);
 const vrstaIzracuna = ref(useCookie('vrsta_izracuna').value);
-
-// Funkcija za generisanje i preuzimanje PDF-a
-// const downloadRizikSazetak = () => {
-//     const element = document.querySelector('.rizik-sazetak');
-
-//     // Konfigurišite opcije za html2pdf
-//     const options = {
-//         margin: [10, 10, 10, 10], // Margine [gore, desno, dole, levo]
-//         filename: 'RizikSazetak.pdf',
-//         image: { type: 'jpeg', quality: 0.98 },
-//         html2canvas: {
-//             scale: 2, // Povećana rezolucija za bolju kvalitetu
-//             useCORS: true, // Omogućava Cross-Origin Resource Sharing
-//         },
-//         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-//     };
-
-//     // Generisanje i preuzimanje PDF-a
-//     html2pdf().from(element).set(options).save();
-// };
-
-// Osigurajte da rizikSazetakRef bude dostupan nakon montaže
-onMounted(() => {
-
-});
 </script>
 
 <style scoped>
@@ -177,5 +153,9 @@ main {
 .rizik-sazetak {
     width: 100%;
     height: 100%;
+}
+
+.legenda {
+    padding: 0px 15px;
 }
 </style>
