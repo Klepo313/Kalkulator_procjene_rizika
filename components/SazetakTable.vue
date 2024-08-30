@@ -4,34 +4,34 @@
             <!-- v-for tdg_rbr == 10 -->
             <div class="_grid-item" :class="getColorClass(data[0].history)">{{ data[0].history }}</div>
             <div class="_grid-item db-s" :class="getColorClass(data[0].p0_4_5)">{{ data[0].p0_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p0_8_5)">{{ data[0].p0_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p1_4_5)">{{ data[0].p1_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p1_8_5)">{{ data[0].p1_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p2_4_5)">{{ data[0].p2_4_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p1_4_5)">{{ data[0].p0_8_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p2_4_5)">{{ data[0].p1_4_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p0_8_5)">{{ data[0].p1_8_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p1_8_5)">{{ data[0].p2_4_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[0].p2_8_5)">{{ data[0].p2_8_5 }}</div>
 
             <div class="_grid-item" :class="getColorClass(data[1].history)">{{ data[1].history }}</div>
             <div class="_grid-item db-s" :class="getColorClass(data[1].p0_4_5)">{{ data[1].p0_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[1].p0_8_5)">{{ data[1].p0_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[1].p1_4_5)">{{ data[1].p1_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[1].p1_8_5)">{{ data[1].p1_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[1].p2_4_5)">{{ data[1].p2_4_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[1].p1_4_5)">{{ data[1].p0_8_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[1].p2_4_5)">{{ data[1].p1_4_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[1].p0_8_5)">{{ data[1].p1_8_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[1].p1_8_5)">{{ data[1].p2_4_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[1].p2_8_5)">{{ data[1].p2_8_5 }}</div>
 
             <div class="_grid-item" :class="getColorClass(data[2].history)">{{ data[2].history }}</div>
             <div class="_grid-item db-s" :class="getColorClass(data[2].p0_4_5)">{{ data[2].p0_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[2].p0_8_5)">{{ data[2].p0_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[2].p1_4_5)">{{ data[2].p1_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[2].p1_8_5)">{{ data[2].p1_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[2].p2_4_5)">{{ data[2].p2_4_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[2].p1_4_5)">{{ data[2].p0_8_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[2].p2_4_5)">{{ data[2].p1_4_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[2].p0_8_5)">{{ data[2].p1_8_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[2].p1_8_5)">{{ data[2].p2_4_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[2].p2_8_5)">{{ data[2].p2_8_5 }}</div>
 
             <div class="_grid-item" :class="getColorClass(data[3].history)">{{ data[3].history }}</div>
             <div class="_grid-item db-s" :class="getColorClass(data[3].p0_4_5)">{{ data[3].p0_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[3].p0_8_5)">{{ data[3].p0_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[3].p1_4_5)">{{ data[3].p1_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[3].p1_8_5)">{{ data[3].p1_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[3].p2_4_5)">{{ data[3].p2_4_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[3].p1_4_5)">{{ data[3].p0_8_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[3].p2_4_5)">{{ data[3].p1_4_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[3].p0_8_5)">{{ data[3].p1_8_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[3].p1_8_5)">{{ data[3].p2_4_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[3].p2_8_5)">{{ data[3].p2_8_5 }}</div>
         </div>
         <div v-else class="grid">

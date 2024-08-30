@@ -61,6 +61,8 @@ export const useOpciStore = defineStore('opci-podaci', {
 
             kop_naziv: "",
 
+            kop_sif: "",
+
             puk_naziv: "",
 
             tvo_naziv: "",

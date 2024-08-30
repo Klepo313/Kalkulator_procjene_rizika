@@ -42,7 +42,7 @@
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaKatastarskaOpcina" :suggestions="filtriraneKatastarskeOpcine"
                         placeholder="Unesi katastarsku općinu" :virtual-scroller-options="{ itemSize: 38 }"
-                        :option-label="option => formatOption(option, 'aiz_kop_id', 'kop_naziv')"
+                        :option-label="option => formatOption(option, 'kop_sif', 'kop_naziv')"
                         class="form-input input-opcina" :disabled="status" @complete="searchKatastarskeOpcine"
                         @blur="updateKatastarskaOpcina()" />
 
@@ -258,6 +258,7 @@ const fillFormData = () => {
         // eslint-disable-next-line no-constant-binary-expression
         odabranaKatastarskaOpcina.value = {
             aiz_kop_id: data.aiz_kop_id,
+            kop_sif: data.kop_sif,
             kop_naziv: data.kop_naziv,
             isp_naziv: data.isp_naziv,
             puk_naziv: data.puk_naziv,
@@ -445,20 +446,19 @@ const fetchParticles = (id) => {
 };
 
 const searchKatastarskeOpcine = (event) => {
-    //in a real application, make a request to a remote url with the query and return filtered results, for demo we filter at client side
-    const query = event.query;
-    const _filteredItems = [];
-
-    for (let i = 0; i < katastarskeOpcine.value.length; i++) {
-        const item = katastarskeOpcine.value[i];
-
-        //item.djl_naziv.toLowerCase().includes(query) || item.djl_sif.toLowerCase().includes(query)
-        if (item.kop_naziv.toLowerCase().indexOf(query.toLowerCase() || item.aiz_kop_id.toLowerCase().indexOf(query.toLowerCase()) === 0)) {
-            _filteredItems.push(item);
-        }
-    }
-
+    const query = event.query.toLowerCase();
+    const _filteredItems = katastarskeOpcine.value.filter((item) =>
+        String(item.kop_sif).toLowerCase().includes(query) || item.kop_naziv.toLowerCase().includes(query)
+    );
     filtriraneKatastarskeOpcine.value = _filteredItems;
+};
+
+const searchDjelatnosti = (event) => {
+    const query = event.query.toLowerCase();
+    const _filteredItems = djelatnosti.value.filter((item) =>
+        item.djl_naziv.toLowerCase().includes(query) || item.djl_sif.toLowerCase().includes(query)
+    );
+    filtriraneDjelatnosti.value = _filteredItems;
 };
 
 const searchKatastarskeCestice = (event) => {
@@ -482,14 +482,6 @@ const formatOption = (option, sifKey, nazivKey) => {
 };
 
 
-const searchDjelatnosti = (event) => {
-    // Normalizacija upita za pretragu
-    const query = event.query.toLowerCase();
-    const _filteredItems = djelatnosti.value.filter((item) =>
-        item.djl_naziv.toLowerCase().includes(query) || item.djl_sif.toLowerCase().includes(query)
-    );
-    filtriraneDjelatnosti.value = _filteredItems;
-};
 </script>
 
 <style scoped>
