@@ -35,6 +35,11 @@
     --red-focus: #461919;
 }
 
+::selection {
+    background: var(--primary-color);
+    color: white;
+}
+
 body {
     background-color: var(--bg-color);
 }
