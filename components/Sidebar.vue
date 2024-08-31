@@ -86,7 +86,10 @@ const izracunStore = useIzracunStore();
 
 // Koristite useRoute za dobivanje trenutne rute
 const route = useRoute();
-const idIzracuna = ref(useCookie('id_izracuna').value);
+const idIzracuna = ref(
+    useCookie('id_izracuna').value == '/' ?
+        '/' : parseInt(useCookie('id_izracuna').value)
+);
 
 console.log("sidebar: ", idIzracuna.value);
 

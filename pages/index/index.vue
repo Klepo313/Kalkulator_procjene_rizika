@@ -160,11 +160,9 @@ const idIzracuna = ref(
         '/' : parseInt(useCookie('id_izracuna').value)
 );
 const nazivIzracuna = ref();
-const cookie = useCookie('id_izracuna');
+// const cookie = useCookie('id_izracuna');
 
 const napomena = ref();
-
-console.log("index: ", idIzracuna.value);
 
 // vrsta izracuna kolačić
 const vrstaIzracuna = useCookie('vrsta_izracuna', {
@@ -200,9 +198,9 @@ const odabraniPodrucniUred = ref({
 
 const status = ref(0);
 
-watch(() => cookie.value, (newValue) => {
-    idIzracuna.value = parseInt(newValue);
-});
+// watch(() => cookie.value, (newValue) => {
+//     idIzracuna.value = parseInt(newValue);
+// });
 
 watch(idIzracuna, async (newValue, oldValue) => {
     if (newValue !== oldValue) {
@@ -214,12 +212,17 @@ watch(idIzracuna, async (newValue, oldValue) => {
 onMounted(async () => {
 
     resetForm();
+    cleanOpciStore();
+    izracunStore.idIzracuna = idIzracuna.value == '/' ? 0 : idIzracuna.value;
+
+    console.log("ID izračuna u storeu: ", izracunStore.idIzracuna);
+
+    console.log("ID izračuna u indexu: ", idIzracuna.value);
 
     if (idIzracuna.value !== '/') {
         await opciStore.fetchCalculation(idIzracuna.value);
         fillFormData();
     } else {
-        // Ako je prazan, sve polja ostaju prazna (postavljena na početne vrijednosti)
         console.log("ID izračuna je prazan, forma ostaje prazna.");
     }
 
@@ -244,6 +247,31 @@ const resetForm = () => {
     nazivIzracuna.value = '';
     napomena.value = '';
 };
+
+const cleanOpciStore = () => {
+    opciStore.opci_podaci.aiz_datum = '';
+    opciStore.opci_podaci.aiz_djl_id = 0;
+    opciStore.opci_podaci.aiz_djl_id_sk = 0;
+    opciStore.opci_podaci.aiz_id = 0;
+    opciStore.opci_podaci.aiz_kcs_id = 0;
+    opciStore.opci_podaci.aiz_kop_id = 0;
+    opciStore.opci_podaci.aiz_status = 0;
+    opciStore.opci_podaci.aiz_tvo_id = 0;
+    opciStore.opci_podaci.aiz_tvz_id = 0;
+    opciStore.opci_podaci.aiz_opis = '';
+    opciStore.opci_podaci.aiz_napomena = '';
+    opciStore.opci_podaci.djl_naziv = '';
+    opciStore.opci_podaci.djl_naziv_sk = '';
+    opciStore.opci_podaci.djl_sif = '';
+    opciStore.opci_podaci.isp_naziv = '';
+    opciStore.opci_podaci.kcs_sif = '';
+    opciStore.opci_podaci.kop_naziv = '';
+    opciStore.opci_podaci.kop_sif = '';
+    opciStore.opci_podaci.puk_naziv = '';
+    opciStore.opci_podaci.tvo_naziv = '';
+    opciStore.opci_podaci.tvz_naziv = '';
+};
+
 
 const fillFormData = () => {
     if (opciStore.opci_podaci) {
@@ -396,6 +424,7 @@ const saveFormData = async () => {
 
         if (idIzracuna.value == '/') {
             idIzracuna.value = parseInt(responseId)
+            izracunStore.idIzracuna = '/';
             izracunStore.updateIdIzracuna(responseId);
             document.cookie = "id_izracuna=" + encodeURIComponent(idIzracuna.value) + "; path=/";
 
