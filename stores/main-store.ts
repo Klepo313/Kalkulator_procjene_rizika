@@ -174,7 +174,7 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.aiz_kop_id,
                 this.opci_podaci.aiz_kcs_id,
                 this.opci_podaci.aiz_tvo_id === 0 ? null : this.opci_podaci.aiz_tvo_id,
-                this.opci_podaci.aiz_djl_id,
+                this.opci_podaci.aiz_djl_id === 0 ? null : this.opci_podaci.aiz_djl_id,
                 this.opci_podaci.aiz_opis,
                 this.opci_podaci.aiz_napomena
             )
@@ -186,7 +186,7 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.aiz_kop_id,
                 this.opci_podaci.aiz_kcs_id,
                 this.opci_podaci.aiz_tvo_id === 0 ? null : this.opci_podaci.aiz_tvo_id,
-                this.opci_podaci.aiz_djl_id,
+                this.opci_podaci.aiz_djl_id === 0 ? null : this.opci_podaci.aiz_djl_id,
                 this.opci_podaci.aiz_opis,
                 this.opci_podaci.aiz_napomena
             )
