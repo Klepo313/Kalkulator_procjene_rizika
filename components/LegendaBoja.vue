@@ -61,11 +61,16 @@ export default {
 <style scoped>
 .risk-matrix {
     width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 table {
     border-collapse: collapse;
-    width: 100%;
+    width: 50%;
 }
 
 th,
