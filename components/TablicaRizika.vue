@@ -66,7 +66,7 @@
             <div class="grid-item table-header nb-l sb-b"></div>
 
             <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="11" :data="structuredData['11']"  class="red-table" />
+                <RedTabliceRizika :pozicija="11" :data="structuredData['11']" class="red-table" />
             </div>
 
             <div class="grid-item table-header">Promjene tokova vjetra</div>
@@ -81,7 +81,7 @@
             <div class="grid-item table-header sb-b nb-l"></div>
 
             <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="12"  :data="structuredData['12']"  class="red-table" />
+                <RedTabliceRizika :pozicija="12" :data="structuredData['12']" class="red-table" />
             </div>
 
             <div class="grid-item table-header">Promjene u obrascima i vrsti oborina</div>
@@ -96,7 +96,7 @@
             <div class="grid-item table-header sb-b">Izljev ledenjačkih jezera</div>
 
             <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="13"  :data="structuredData['13']" class="red-table" />
+                <RedTabliceRizika :pozicija="13" :data="structuredData['13']" class="red-table" />
             </div>
 
             <div class="grid-item table-header">Erozija obale</div>
@@ -208,7 +208,7 @@
                 <RedTabliceRizika :pozicija="93" :data="structuredData['93']" class="red-table" />
             </div>
             <div class="grid-item nb sb-r">
-                <!-- <RedTabliceRizika :pozicija="94" :data="structuredData['94']" class="red-table" /> -->
+                <RedTabliceRizika :pozicija="94" :data="structuredData['94']" class="red-table" />
             </div>
             <div class="grid-item nb sb-t sb-b">
 
@@ -229,7 +229,7 @@
 <script setup>
 
 import { ref, onMounted } from 'vue';
-import { getProcessGridData, getPropertyGridData } from '~/service/fetchGridData';
+import { getPropertyGridData } from '~/service/fetchGridData';
 import { restructureData } from '~/utils/dataFormatter';
 
 const propertyData = ref([]);
@@ -254,7 +254,7 @@ const propertyGridData = async () => {
 }
 
 onMounted(() => {
-    if(vrstaIzracuna.value == 'Imovina'){
+    if (vrstaIzracuna.value == 'Imovina') {
         propertyGridData();
     }
 

@@ -3,7 +3,7 @@
         <main>
             <h1>Adaptacijske mjere</h1>
             <div class="main-content">
-                <table class="custom-table">
+                <!-- <table class="custom-table">
                     <thead>
                         <tr>
                             <th style="width: 20%;">Šifra mjere</th>
@@ -18,12 +18,6 @@
                                 Tablica prazna
                             </td>
                         </tr>
-                        <!-- <tr v-if="adaptStore.odabrane_mjere.length === 0">
-                            <td colspan="2" style="font-style: italic;">
-                                <font-awesome-icon icon="spinner" style="margin-right: 5px;" spin />
-                                Učitavanje podataka
-                            </td>
-                        </tr> -->
                         <tr v-for="mjera in odabraneMjere" :key="mjera.tva_sif">
                             <td>{{ mjera.tva_sif }}</td>
                             <td>{{ mjera.tva_naziv }}</td>
@@ -42,6 +36,53 @@
                         <font-awesome-icon icon="plus" />
                         <span>Dodaj mjeru</span>
                     </button>
+                </div> -->
+
+                <span v-if="isLoading" style="font-style: italic;">
+                    <font-awesome-icon icon="spinner" spin />
+                    Učitavanje podataka
+                </span>
+                <div v-else class="mjere-list">
+                    <h2 style="color: red;">Filter po temperaturi, vjetru, oborinama i čvrstoj masi još ne radi.</h2>
+                    <h2>Dodavanje/uklanjanje mjera radi.</h2>
+                    <div class="mjere-list-header">
+                        <div v-for="vrsta of vrsteMjera" :key="vrsta.key" class="p-checkbox">
+                            <Checkbox v-model="odabraneMjereCheckbox" :inputId="vrsta.key" name="mjera"
+                                :value="vrsta.name" />
+                            <label :for="vrsta.key" class="p-checkbox-label">{{ vrsta.name }}</label>
+                        </div>
+                    </div>
+                    <div class="mjere-list-table">
+                        <DataTable v-model:filters="filters" v-model:selection="odabraneMjere" :value="mjere" paginator
+                            :rows="10" dataKey="tva_sif" filterDisplay="menu"
+                            :globalFilterFields="['tva_sif', 'tva_naziv']" @update:selection="onSelectionChange">
+                            <template #header>
+                                <div class="flex justify-between">
+                                    <IconField>
+                                        <InputIcon>
+                                            <font-awesome-icon icon="search" />
+                                        </InputIcon>
+                                        <InputText v-model="filters['global'].value"
+                                            placeholder="Pretraži adaptacijske mjere" />
+                                    </IconField>
+                                </div>
+                            </template>
+                            <template #empty> Nema adaptacijskih mjera. </template>
+                            <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+                            <Column field="tva_sif" header="Šifra" style="min-width: 7rem">
+                                <template #body="{ data }">
+                                    {{ data.tva_sif }}
+                                </template>
+                            </Column>
+                            <Column field="tva_naziv" header="Naziv" style="min-width: 14rem">
+                                <template #body="{ data }">
+                                    <div class="flex items-center gap-2">
+                                        <span>{{ data.tva_naziv }}</span>
+                                    </div>
+                                </template>
+                            </Column>
+                        </DataTable>
+                    </div>
                 </div>
             </div>
         </main>
@@ -62,6 +103,7 @@
 import { ref } from 'vue'
 import { navigateTo } from '#app';
 import { useAdaptStore } from '~/stores/main-store';
+// import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 
 const adaptStore = useAdaptStore();
 
@@ -81,38 +123,44 @@ onMounted(async () => {
     } else {
         console.log('ID izračuna je "/", nećemo dohvatiti adaptacijske mjere.');
     }
-
+    isLoading.value = false;
 });
+
+const isLoading = ref(true);
 
 const toRizikSazetak = () => {
     navigateTo('/rizik-sazetak');
 };
 
+const filters = ref({
+    global: { value: '' }
+});
+
 const selectedMjera = ref(null);
+// const odabraneMjereTablica = ref()
 
 const mjere = computed(() => {
     const niz = adaptStore.adaptacijske_mjere;
     return niz;
 })
 
-const odabraneMjere = computed(() => adaptStore.odabrane_mjere);
+// const odabraneMjere = computed(() => adaptStore.odabrane_mjere);
+const odabraneMjere = ref(adaptStore.odabrane_mjere);
 
+const vrsteMjera = ref([
+    { name: "Temperatura", key: "01" },
+    { name: "Vjetar", key: "02" },
+    { name: "Oborine", key: "03" },
+    { name: "Čvrsta masa", key: "04" }
+]);
+const odabraneMjereCheckbox = ref([]);
 
-// const addMjera = () => {
-//     if (selectedMjera.value && !odabraneMjere.value.some(mjera => mjera.tva_sif === selectedMjera.value.tva_sif)) {
-//         // Dodavanje kopije objekta u reaktivni niz
-//         odabraneMjere.value = [...odabraneMjere.value, { ...selectedMjera.value }];
-//         // Resetovanje odabranog objekta
-//         selectedMjera.value = null;
-//     }
-// };
+watch(mjere, () => {
+    odabraneMjere.value = adaptStore.odabrane_mjere.filter(mjera =>
+        mjere.value.some(item => item.tva_sif === mjera.tva_sif)
+    );
+}, { immediate: true });
 
-
-// const removeMjera = (mjera) => {
-//     console.log("Mjera", mjera);
-//     odabraneMjere.value = odabraneMjere.value.filter(item => item.tva_sif !== mjera.tva_sif);
-//     console.log("Removed Mjera", odabraneMjere.value);
-// };
 
 const addMjera = async () => {
     if (selectedMjera.value && !adaptStore.odabrane_mjere.some(mjera => mjera.tva_sif === selectedMjera.value.tva_sif)) {
@@ -122,6 +170,8 @@ const addMjera = async () => {
         console.log("dodano-povratno: ", response)
 
         selectedMjera.value = null; // Resetuj odabranu meru nakon dodavanja
+    } else {
+        console.log("Već ste dodali ovu mjeru.");
     }
 };
 
@@ -132,14 +182,58 @@ const removeMjera = async (mjera) => {
     console.log("uklonjeno-povratno: ", response)
 };
 
+const onSelectionChange = async (event) => {
+    const selectedItems = event;
 
-const formatOption = (option) => {
-    return `${option.tva_sif} - ${option.tva_naziv}`;
+    // Provjera koji su itemi dodani
+    for (const item of selectedItems) {
+        if (!adaptStore.odabrane_mjere.some(mjera => mjera.tva_sif === item.tva_sif)) {
+            selectedMjera.value = item;
+            addMjera();
+        }
+    }
+
+    // Provjera koji su itemi uklonjeni
+    for (const mjera of adaptStore.odabrane_mjere) {
+        if (!selectedItems.some(item => item.tva_sif === mjera.tva_sif)) {
+            removeMjera(mjera);
+        }
+    }
 };
+
+
+// const formatOption = (option) => {
+//     return `${option.tva_sif} - ${option.tva_naziv}`;
+// };
 
 </script>
 
 <style scoped>
+.mjere-list {
+    /* outline: auto; */
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mjere-list-header {
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 30px;
+}
+
+.p-checkbox {
+    width: auto;
+}
+
+.p-checkbox-label {
+    margin-left: 5px;
+}
+
 .body {
     height: 100%;
     display: flex;
