@@ -42,46 +42,58 @@
                     <font-awesome-icon icon="spinner" spin />
                     Učitavanje podataka
                 </span>
-                <div v-else class="mjere-list">
-                    <h2 style="color: red;">Filter po temperaturi, vjetru, oborinama i čvrstoj masi još ne radi.</h2>
-                    <h2>Dodavanje/uklanjanje mjera radi.</h2>
-                    <div class="mjere-list-header">
-                        <div v-for="vrsta of vrsteMjera" :key="vrsta.key" class="p-checkbox">
-                            <Checkbox v-model="odabraneMjereCheckbox" :inputId="vrsta.key" name="mjera"
-                                :value="vrsta.name" />
-                            <label :for="vrsta.key" class="p-checkbox-label">{{ vrsta.name }}</label>
-                        </div>
+                <div v-else class="main-content-container">
+                    <div class="mjere-list-odabrane">
+                        <h2>Odabrane adaptacijske mjere</h2>
+                        <DataTable :value="odabrane_mjere_computed" removableSort tableStyle="min-width: 50rem"
+                            paginator :rows="5" stripedRows>
+                            <Column field="tva_sif" header="Šifra" sortable style="width: 15%"></Column>
+                            <Column field="tva_naziv" header="Naziv" sortable style="width: 100%"></Column>
+                        </DataTable>
                     </div>
-                    <div class="mjere-list-table">
-                        <DataTable v-model:filters="filters" v-model:selection="odabraneMjere" :value="mjere" paginator
-                            :rows="10" dataKey="tva_sif" filterDisplay="menu"
-                            :globalFilterFields="['tva_sif', 'tva_naziv']" @update:selection="onSelectionChange">
-                            <template #header>
-                                <div class="flex justify-between">
-                                    <IconField>
-                                        <InputIcon>
-                                            <font-awesome-icon icon="search" />
-                                        </InputIcon>
-                                        <InputText v-model="filters['global'].value"
-                                            placeholder="Pretraži adaptacijske mjere" />
-                                    </IconField>
-                                </div>
-                            </template>
-                            <template #empty> Nema adaptacijskih mjera. </template>
-                            <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-                            <Column field="tva_sif" header="Šifra" style="min-width: 7rem">
-                                <template #body="{ data }">
-                                    {{ data.tva_sif }}
-                                </template>
-                            </Column>
-                            <Column field="tva_naziv" header="Naziv" style="min-width: 14rem">
-                                <template #body="{ data }">
-                                    <div class="flex items-center gap-2">
-                                        <span>{{ data.tva_naziv }}</span>
+                    <div class="mjere-list">
+                        <!-- <h2 style="color: red;">Filter po temperaturi, vjetru, oborinama i čvrstoj masi još ne radi.
+                        </h2>
+                        <h2>Dodavanje/uklanjanje mjera radi.</h2> -->
+                        <h2>Popis adaptacijskih mjera</h2>
+                        <div class="mjere-list-header">
+                            <div v-for="vrsta of vrsteMjera" :key="vrsta.key" class="p-checkbox">
+                                <Checkbox v-model="odabraneMjereCheckbox" :inputId="vrsta.key" name="mjera"
+                                    :value="vrsta.name" disabled />
+                                <label :for="vrsta.key" class="p-checkbox-label">{{ vrsta.name }}</label>
+                            </div>
+                        </div>
+                        <div class="mjere-list-table">
+                            <DataTable v-model:filters="filters" v-model:selection="odabraneMjere" :value="mjere"
+                                paginator :rows="10" dataKey="tva_sif" filterDisplay="menu"
+                                :globalFilterFields="['tva_sif', 'tva_naziv']" @update:selection="onSelectionChange">
+                                <template #header>
+                                    <div class="flex justify-between">
+                                        <IconField>
+                                            <InputIcon>
+                                                <font-awesome-icon icon="search" />
+                                            </InputIcon>
+                                            <InputText v-model="filters['global'].value"
+                                                placeholder="Pretraži adaptacijske mjere" />
+                                        </IconField>
                                     </div>
                                 </template>
-                            </Column>
-                        </DataTable>
+                                <template #empty> Nema adaptacijskih mjera. </template>
+                                <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+                                <Column field="tva_sif" header="Šifra" style="min-width: 7rem">
+                                    <template #body="{ data }">
+                                        {{ data.tva_sif }}
+                                    </template>
+                                </Column>
+                                <Column field="tva_naziv" header="Naziv" style="min-width: 14rem">
+                                    <template #body="{ data }">
+                                        <div class="flex items-center gap-2">
+                                            <span>{{ data.tva_naziv }}</span>
+                                        </div>
+                                    </template>
+                                </Column>
+                            </DataTable>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -146,6 +158,7 @@ const mjere = computed(() => {
 
 // const odabraneMjere = computed(() => adaptStore.odabrane_mjere);
 const odabraneMjere = ref(adaptStore.odabrane_mjere);
+const odabrane_mjere_computed = computed(() => adaptStore.odabrane_mjere);
 
 const vrsteMjera = ref([
     { name: "Temperatura", key: "01" },
@@ -209,12 +222,18 @@ const onSelectionChange = async (event) => {
 </script>
 
 <style scoped>
-.mjere-list {
+.mjere-list,
+.mjere-list-odabrane,
+.main-content-container {
     /* outline: auto; */
 
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.main-content-container {
+    gap: 26px;
 }
 
 .mjere-list-header {
@@ -252,6 +271,13 @@ main {
     display: flex;
     flex-direction: column;
     gap: 34px;
+}
+
+h2 {
+    font-size: 18px;
+    color: var(--primary-color);
+    /* padding-bottom: 5px;
+    border-bottom: 2px solid var(--primary-color); */
 }
 
 .main-content {
