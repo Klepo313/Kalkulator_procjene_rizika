@@ -45,10 +45,9 @@
                 <div v-else class="main-content-container">
                     <div class="mjere-list-odabrane">
                         <h2>Odabrane adaptacijske mjere</h2>
-                        <DataTable :value="odabrane_mjere_computed" removableSort tableStyle="min-width: 50rem"
-                            paginator :rows="5" stripedRows>
-                            <Column field="tva_sif" header="Šifra" sortable style="width: 15%"></Column>
-                            <Column field="tva_naziv" header="Naziv" sortable style="width: 100%"></Column>
+                        <DataTable :value="odabrane_mjere_computed" removableSort paginator :rows="5" stripedRows>
+                            <Column field="tva_sif" header="Šifra" sortable style="width: auto"></Column>
+                            <Column field="tva_naziv" header="Naziv" sortable style="width: auto"></Column>
                         </DataTable>
                     </div>
                     <div class="mjere-list">
@@ -158,7 +157,12 @@ const mjere = computed(() => {
 
 // const odabraneMjere = computed(() => adaptStore.odabrane_mjere);
 const odabraneMjere = ref(adaptStore.odabrane_mjere);
-const odabrane_mjere_computed = computed(() => adaptStore.odabrane_mjere);
+const odabrane_mjere_computed = computed(() => {
+    return adaptStore.odabrane_mjere.slice().sort((a, b) => {
+        return a.tva_rbr - b.tva_rbr;
+    });
+});
+
 
 const vrsteMjera = ref([
     { name: "Temperatura", key: "01" },
