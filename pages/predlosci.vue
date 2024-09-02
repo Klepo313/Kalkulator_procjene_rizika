@@ -18,7 +18,7 @@
                 <h1>Prethodni izračuni</h1>
                 <div class="table">
                     <DataTable v-model:filters="filters" v-model:selection="odabraniIzracun" :value="izracuni"
-                        selection-mode="single" :meta-key-selection="false" paginator removable-sort :rows="10"
+                        selection-mode="single" :meta-key-selection="false" paginator :rows="10" stripedRows
                         data-key="aiz_id" filter-display="row" :loading="loading"
                         :global-filter-fields="['aiz_id', 'aiz_opis', 'aiz_datum', 'tvz_naziv', 'kcs_sif', 'kop_sif', 'kop_naziv', 'puk_naziv', 'objekt_djel']"
                         @row-select="onRowSelect">
