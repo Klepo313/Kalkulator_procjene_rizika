@@ -68,13 +68,14 @@ onMounted(() => {
 });
 
 const checkLogin = async () => {
+
+    loginBtnText.value.style.display = "none";
+    spinnerIcon.value.style.display = "inline";
+
     if (usernameInput.value.value && passwordInput.value.value) {
         const response = await login(usernameInput.value.value, passwordInput.value.value);
 
         statusCode.value = response.status;
-
-        loginBtnText.value.style.display = "none";
-        spinnerIcon.value.style.display = "inline";
 
         if (statusCode.value == 200) {
             console.log("response login: ", response)
