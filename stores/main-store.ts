@@ -176,7 +176,7 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.aiz_tvo_id === 0 ? null : this.opci_podaci.aiz_tvo_id,
                 this.opci_podaci.aiz_djl_id === 0 ? null : this.opci_podaci.aiz_djl_id,
                 this.opci_podaci.aiz_opis,
-                this.opci_podaci.aiz_napomena === '' ? ' ' : this.opci_podaci.aiz_napomena
+                this.opci_podaci.aiz_napomena === '' ? null : this.opci_podaci.aiz_napomena
             )
 
             const response = await saveForm(
@@ -188,7 +188,7 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.aiz_tvo_id === 0 ? null : this.opci_podaci.aiz_tvo_id,
                 this.opci_podaci.aiz_djl_id === 0 ? null : this.opci_podaci.aiz_djl_id,
                 this.opci_podaci.aiz_opis,
-                this.opci_podaci.aiz_napomena === '' ? ' ' : this.opci_podaci.aiz_napomena
+                this.opci_podaci.aiz_napomena === '' ? null : this.opci_podaci.aiz_napomena
             )
 
             console.log("Response savea: ", response.aiz_id)
