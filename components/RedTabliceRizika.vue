@@ -3,10 +3,10 @@
         <div v-if="data" class="grid">
             <div class="_grid-item" :class="getColorClass(data[0].history)">{{ data[0].history }}</div>
             <div class="_grid-item db-s double" :class="getColorClass(data[0].p0_4_5)">{{ data[0].p0_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p0_8_5)">{{ data[0].p1_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p1_4_5)">{{ data[0].p2_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p1_8_5)">{{ data[0].p0_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p2_4_5)">{{ data[0].p1_8_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p1_4_5)">{{ data[0].p1_4_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p2_4_5)">{{ data[0].p2_4_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p0_8_5)">{{ data[0].p0_8_5 }}</div>
+            <div class="_grid-item" :class="getColorClass(data[0].p1_8_5)">{{ data[0].p1_8_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[0].p2_8_5)">{{ data[0].p2_8_5 }}</div>
         </div>
         <div v-else class="grid">
@@ -36,7 +36,6 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
 import { getColorClass } from '../utils/getColorClass';
 
 const props = defineProps({
