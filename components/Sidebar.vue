@@ -29,9 +29,14 @@
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="map" />
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Opći podaci</h3>
                     </nuxt-link>
-                    <nuxt-link
-                        :class="['nuxtlink-form', 'mjere', isActiveRoute('/adaptacijske-mjere') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
-                        to="/adaptacijske-mjere">
+                    <nuxt-link :class="[
+                        'nuxtlink-form',
+                        'mjere',
+                        isActiveRoute('/adaptacijske-mjere') ? 'active' : 'inactive',
+                        isCollapsed ? 'collapsed' : '',
+                        isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je idIzracuna '/'
+                    ]" :to="isDisabled ? '#' : '/adaptacijske-mjere'" :tabindex="isDisabled ? -1 : 0"
+                        :aria-disabled="isDisabled">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="ruler-horizontal" />
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Adaptacijske mjere</h3>
                     </nuxt-link>
@@ -43,18 +48,30 @@
                     <h2 :class="isCollapsed ? 'collapsed' : ''">Statistički podaci</h2>
                 </div>
                 <div :class="['navigation', isCollapsed ? 'collapsed' : '']">
-                    <nuxt-link
-                        :class="['nuxtlink-form', 'opci', isActiveRoute('/rizik-sazetak') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
-                        to="/rizik-sazetak">
+                    <nuxt-link :class="[
+                        'nuxtlink-form',
+                        'opci',
+                        isActiveRoute('/rizik-sazetak') ? 'active' : 'inactive',
+                        isCollapsed ? 'collapsed' : '',
+                        isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je idIzracuna '/'
+                    ]" :to="isDisabled ? '#' : '/rizik-sazetak'" :tabindex="isDisabled ? -1 : 0"
+                        :aria-disabled="isDisabled">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-cells" />
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Rizik sažetak</h3>
                     </nuxt-link>
-                    <nuxt-link
-                        :class="['nuxtlink-form', 'opci', isActiveRoute('/tablice-rizika') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
-                        to="/tablice-rizika">
+
+                    <nuxt-link :class="[
+                        'nuxtlink-form',
+                        'opci',
+                        isActiveRoute('/tablice-rizika') ? 'active' : 'inactive',
+                        isCollapsed ? 'collapsed' : '',
+                        isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je idIzracuna '/'
+                    ]" :to="isDisabled ? '#' : '/tablice-rizika'" :tabindex="isDisabled ? -1 : 0"
+                        :aria-disabled="isDisabled">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-columns" />
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Tablice rizika</h3>
                     </nuxt-link>
+
                 </div>
             </div>
         </div>
@@ -94,6 +111,8 @@ const username = ref(
     useCookie('username').value == undefined ?
         'ime_prezime' : useCookie('username').value.toLowerCase()
 );
+
+const isDisabled = computed(() => idIzracuna.value === '/' || idIzracuna.value == 0);
 
 console.log("sidebar: ", idIzracuna.value);
 
@@ -216,6 +235,22 @@ h3 {
     padding-left: 20px;
     color: var(--text-color);
     cursor: pointer;
+}
+
+.nuxtlink-form.disabled {
+    color: gray;
+    /* Boja zasivljene veze */
+    pointer-events: none;
+    /* Onemogućava klikove */
+    cursor: default;
+    /* Pokazivač kursora */
+    text-decoration: none;
+    /* Uklanja underline ili druge efekte */
+}
+
+.nuxtlink-form.disabled .icon {
+    color: gray;
+    /* Ikonica je također zasivljena */
 }
 
 .active {
