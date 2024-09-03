@@ -62,8 +62,8 @@
             <div :class="['profile-content', isCollapsed ? 'collapsed' : '']">
                 <font-awesome-icon icon="circle-user" size="xl" />
                 <div :class="['profile-details', isCollapsed ? 'collapsed' : '']">
-                    <h4 :class="isCollapsed ? 'collapsed' : ''">Ante Antić</h4>
-                    <span :class="isCollapsed ? 'collapsed' : ''">ante.antic@gmail.com</span>
+                    <h4 :class="isCollapsed ? 'collapsed' : ''">{{ username }}</h4>
+                    <span :class="isCollapsed ? 'collapsed' : ''">{{ username + '@gmail.com' }}</span>
                 </div>
             </div>
             <div :class="['logout-container', isCollapsed ? 'collapsed' : '']" @click="doLogout">
@@ -89,6 +89,10 @@ const route = useRoute();
 const idIzracuna = ref(
     useCookie('id_izracuna').value == '/' ?
         '/' : parseInt(useCookie('id_izracuna').value)
+);
+const username = ref(
+    useCookie('username').value == undefined ?
+        'ime_prezime' : useCookie('username').value.toLowerCase()
 );
 
 console.log("sidebar: ", idIzracuna.value);

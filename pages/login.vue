@@ -59,6 +59,8 @@ const vrstaIzracuna = useCookie('vrsta_izracuna');
 vrstaIzracuna.value = null;
 const accessToken = useCookie('accessToken');
 accessToken.value = '/';
+const username = useCookie('username');
+username.value = null;
 
 onMounted(() => {
     spinnerIcon.value.style.display = "none";
@@ -75,8 +77,10 @@ const checkLogin = async () => {
         spinnerIcon.value.style.display = "inline";
 
         if (statusCode.value == 200) {
+            console.log("response login: ", response)
             token.value = response.token;
             accessToken.value = token.value;
+            username.value = response.username;
             navigateTo('/predlosci');
         } else {
             highlightBorders();
