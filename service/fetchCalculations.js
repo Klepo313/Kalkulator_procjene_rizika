@@ -1,7 +1,7 @@
 import { base_url } from '../composables/variables'
 import axios from 'axios';
 
-const getCalculations = async (id) => {
+const getCalculations = async () => {
     try {
         // Postavite URL na osnovu prisustva id-a
         const url = `${base_url}/calculation/user`;

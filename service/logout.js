@@ -1,5 +1,3 @@
-// import { useAuthCookie } from '../composables/useAuthCookie'
-import auth from '~/middleware/auth';
 import { base_url } from '../composables/variables'
 import axios from 'axios';
 

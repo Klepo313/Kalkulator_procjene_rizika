@@ -1,6 +1,3 @@
-import { base_url } from '../composables/variables'
-import axios from 'axios';
-
 const getDate = () => {
     try {
         console.log("Datum")
