@@ -161,7 +161,16 @@ const filters = ref({
 const selectedMjera = ref(null);
 
 const mjere = computed(() => adaptStore.adaptacijske_mjere);
-const filteredMjere = ref(mjere.value);
+// const filteredMjere = ref(mjere.value);
+// const filteredMjere = ref(computed(() => mjere.value));
+const filteredMjere = ref([]); // Inicijalno prazan niz
+
+// Koristite watchEffect da automatski sinkronizirate filteredMjere s mjere
+watchEffect(() => {
+    if (mjere.value.length > 0) {
+        filteredMjere.value = mjere.value;
+    }
+});
 
 // const odabraneMjere = computed(() => adaptStore.odabrane_mjere);
 const odabraneMjere = ref(adaptStore.odabrane_mjere);
