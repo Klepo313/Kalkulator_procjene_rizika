@@ -46,8 +46,11 @@
                     <div class="mjere-list-odabrane">
                         <h2>Odabrane adaptacijske mjere</h2>
                         <DataTable :value="odabrane_mjere_computed" removableSort paginator :rows="5" stripedRows>
+                            <template #empty> Nema odabranih adaptacijskih mjera. </template>
+                            <template #loading> Učitavanje odabranih adaptacijskih mjera. Molimo pričekajte. </template>
                             <Column field="tva_sif" header="Šifra" sortable style="width: auto"></Column>
                             <Column field="tva_naziv" header="Naziv" sortable style="width: auto"></Column>
+                            <Column field="tgr_naziv" header="Grupa" sortable style="width: auto"></Column>
                         </DataTable>
                     </div>
                     <div class="mjere-list">
@@ -57,15 +60,16 @@
                         <h2>Popis adaptacijskih mjera</h2>
                         <div class="mjere-list-header">
                             <div v-for="vrsta of vrsteMjera" :key="vrsta.key" class="p-checkbox">
-                                <Checkbox v-model="odabraneMjereCheckbox" :inputId="vrsta.key" name="mjera"
-                                    :value="vrsta.name" disabled />
+                                <RadioButton v-model="odabraneMjereCheckbox" :inputId="vrsta.key" name="mjera"
+                                    :value="vrsta.name" />
                                 <label :for="vrsta.key" class="p-checkbox-label">{{ vrsta.name }}</label>
                             </div>
                         </div>
                         <div class="mjere-list-table">
-                            <DataTable v-model:filters="filters" v-model:selection="odabraneMjere" :value="mjere"
-                                paginator :rows="10" dataKey="tva_sif" filterDisplay="menu"
-                                :globalFilterFields="['tva_sif', 'tva_naziv']" @update:selection="onSelectionChange">
+                            <DataTable v-model:filters="filters" v-model:selection="odabraneMjere"
+                                :value="filteredMjere" paginator :rows="10" dataKey="tva_sif" filterDisplay="menu"
+                                :globalFilterFields="['tva_sif', 'tva_naziv', 'tgr_naziv']"
+                                @update:selection="onSelectionChange">
                                 <template #header>
                                     <div class="flex justify-between">
                                         <IconField>
@@ -78,6 +82,7 @@
                                     </div>
                                 </template>
                                 <template #empty> Nema adaptacijskih mjera. </template>
+                                <template #loading> Učitavanje adaptacijskih mjera. Molimo pričekajte. </template>
                                 <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
                                 <Column field="tva_sif" header="Šifra" style="min-width: 7rem">
                                     <template #body="{ data }">
@@ -89,6 +94,11 @@
                                         <div class="flex items-center gap-2">
                                             <span>{{ data.tva_naziv }}</span>
                                         </div>
+                                    </template>
+                                </Column>
+                                <Column field="tgr_naziv" header="Grupa">
+                                    <template #body="{ data }">
+                                        {{ data.tgr_naziv }}
                                     </template>
                                 </Column>
                             </DataTable>
@@ -114,6 +124,7 @@
 import { ref } from 'vue'
 import { navigateTo } from '#app';
 import { useAdaptStore } from '~/stores/main-store';
+import RadioButton from 'primevue/radiobutton';
 // import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 
 const adaptStore = useAdaptStore();
@@ -129,8 +140,8 @@ onMounted(async () => {
     if (!(idIzracuna.value == '/')) {
         await adaptStore.fetchMetrictypes(idIzracuna.value);
         await adaptStore.fetchMetrictypes();
-        console.log('Uspješno dohvaćen izračun.', adaptStore.odabrane_mjere);
-        console.log('Uspješno dohvaćen izračun.', adaptStore.adaptacijske_mjere);
+        console.log('Uspješno dohvaćene odabrane mjere.', adaptStore.odabrane_mjere);
+        console.log('Uspješno dohvaćene sve adaptacijske mjere.', adaptStore.adaptacijske_mjere);
     } else {
         console.log('ID izračuna je "/", nećemo dohvatiti adaptacijske mjere.');
     }
@@ -148,12 +159,9 @@ const filters = ref({
 });
 
 const selectedMjera = ref(null);
-// const odabraneMjereTablica = ref()
 
-const mjere = computed(() => {
-    const niz = adaptStore.adaptacijske_mjere;
-    return niz;
-})
+const mjere = computed(() => adaptStore.adaptacijske_mjere);
+const filteredMjere = ref(mjere.value);
 
 // const odabraneMjere = computed(() => adaptStore.odabrane_mjere);
 const odabraneMjere = ref(adaptStore.odabrane_mjere);
@@ -163,14 +171,14 @@ const odabrane_mjere_computed = computed(() => {
     });
 });
 
-
 const vrsteMjera = ref([
+    { name: "Sve grupe", key: "00" },
     { name: "Temperatura", key: "01" },
     { name: "Vjetar", key: "02" },
     { name: "Oborine", key: "03" },
     { name: "Čvrsta masa", key: "04" }
 ]);
-const odabraneMjereCheckbox = ref([]);
+const odabraneMjereCheckbox = ref("Sve grupe");
 
 watch(mjere, () => {
     odabraneMjere.value = adaptStore.odabrane_mjere.filter(mjera =>
@@ -178,6 +186,14 @@ watch(mjere, () => {
     );
 }, { immediate: true });
 
+watch(odabraneMjereCheckbox, (newValue) => {
+    console.log("Odabrana vrsta mjera: ", newValue);
+    if (newValue === "Sve grupe") {
+        filteredMjere.value = mjere.value; // Prikaz svih mjera
+    } else {
+        filteredMjere.value = mjere.value.filter(mjera => mjera.tgr_naziv === newValue);
+    }
+});
 
 const addMjera = async () => {
     if (selectedMjera.value && !adaptStore.odabrane_mjere.some(mjera => mjera.tva_sif === selectedMjera.value.tva_sif)) {
@@ -217,7 +233,6 @@ const onSelectionChange = async (event) => {
         }
     }
 };
-
 
 // const formatOption = (option) => {
 //     return `${option.tva_sif} - ${option.tva_naziv}`;
@@ -285,7 +300,7 @@ h2 {
 }
 
 .main-content {
-    width: 50%;
+    width: 80%;
 }
 
 .custom-table {
@@ -431,7 +446,7 @@ th:last-child {
 
 @media screen and (max-width: 1500px) {
     .main-content {
-        width: 70%;
+        width: 80%;
     }
 }
 
