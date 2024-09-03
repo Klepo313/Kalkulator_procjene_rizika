@@ -60,7 +60,7 @@
                         <h2>Popis adaptacijskih mjera</h2>
                         <div class="mjere-list-header">
                             <div v-for="vrsta of vrsteMjera" :key="vrsta.key" class="p-checkbox">
-                                <RadioButton v-model="odabraneMjereCheckbox" :inputId="vrsta.key" name="mjera"
+                                <Checkbox v-model="odabraneMjereCheckbox" :inputId="vrsta.key" name="mjera"
                                     :value="vrsta.name" />
                                 <label :for="vrsta.key" class="p-checkbox-label">{{ vrsta.name }}</label>
                             </div>
@@ -124,7 +124,7 @@
 import { ref } from 'vue'
 import { navigateTo } from '#app';
 import { useAdaptStore } from '~/stores/main-store';
-import RadioButton from 'primevue/radiobutton';
+import Checkbox from 'primevue/checkbox';
 // import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 
 const adaptStore = useAdaptStore();
@@ -181,28 +181,40 @@ const odabrane_mjere_computed = computed(() => {
 });
 
 const vrsteMjera = ref([
-    { name: "Sve grupe", key: "00" },
+    // { name: "Sve grupe", key: "00" },
     { name: "Temperatura", key: "01" },
     { name: "Vjetar", key: "02" },
     { name: "Oborine", key: "03" },
     { name: "Čvrsta masa", key: "04" }
 ]);
-const odabraneMjereCheckbox = ref("Sve grupe");
-
+// const odabraneMjereCheckbox = ref("Sve grupe");
+const odabraneMjereCheckbox = ref(["Temperatura", "Vjetar", "Oborine", "Čvrsta masa"]);
 watch(mjere, () => {
     odabraneMjere.value = adaptStore.odabrane_mjere.filter(mjera =>
         mjere.value.some(item => item.tva_sif === mjera.tva_sif)
     );
 }, { immediate: true });
 
-watch(odabraneMjereCheckbox, (newValue) => {
-    console.log("Odabrana vrsta mjera: ", newValue);
-    if (newValue === "Sve grupe") {
-        filteredMjere.value = mjere.value; // Prikaz svih mjera
+// watch(odabraneMjereCheckbox, (newValue) => {
+//     console.log("Odabrana vrsta mjera: ", newValue);
+//     if (newValue === "Sve grupe") {
+//         filteredMjere.value = mjere.value; // Prikaz svih mjera
+//     } else {
+//         filteredMjere.value = mjere.value.filter(mjera => mjera.tgr_naziv === newValue);
+//     }
+// });
+
+watch(odabraneMjereCheckbox, (newValues) => {
+    console.log("Odabrane vrste mjera: ", newValues);
+
+    if (newValues.length === 0) {
+        filteredMjere.value = mjere.value; // Ako nema odabranih vrsta, prikazuju se sve mjere
     } else {
-        filteredMjere.value = mjere.value.filter(mjera => mjera.tgr_naziv === newValue);
+        filteredMjere.value = mjere.value.filter(mjera =>
+            newValues.includes(mjera.tgr_naziv)
+        );
     }
-});
+}, { immediate: true });
 
 const addMjera = async () => {
     if (selectedMjera.value && !adaptStore.odabrane_mjere.some(mjera => mjera.tva_sif === selectedMjera.value.tva_sif)) {
