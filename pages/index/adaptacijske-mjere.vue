@@ -188,7 +188,7 @@ const vrsteMjera = ref([
     { name: "Čvrsta masa", key: "04" }
 ]);
 // const odabraneMjereCheckbox = ref("Sve grupe");
-const odabraneMjereCheckbox = ref(["Temperatura", "Vjetar", "Oborine", "Čvrsta masa"]);
+const odabraneMjereCheckbox = ref(["Temperatura", "Vjetar", "Oborine", "Čvrsta masa"]); //"Temperatura", "Vjetar", "Oborine", "Čvrsta masa"
 watch(mjere, () => {
     odabraneMjere.value = adaptStore.odabrane_mjere.filter(mjera =>
         mjere.value.some(item => item.tva_sif === mjera.tva_sif)
@@ -208,7 +208,7 @@ watch(odabraneMjereCheckbox, (newValues) => {
     console.log("Odabrane vrste mjera: ", newValues);
 
     if (newValues.length === 0) {
-        filteredMjere.value = mjere.value; // Ako nema odabranih vrsta, prikazuju se sve mjere
+        filteredMjere.value = []; // Ako nema odabranih vrsta, prikazuju se sve mjere
     } else {
         filteredMjere.value = mjere.value.filter(mjera =>
             newValues.includes(mjera.tgr_naziv)
