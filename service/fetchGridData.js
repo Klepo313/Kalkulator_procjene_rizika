@@ -13,14 +13,14 @@ const getProcessGridData = async (id, type) => {
             withCredentials: true, // Ovo omogućava slanje kolačića
         });
 
-        console.log(response.data)
+        console.log("Proces response: ", response)
 
-        if (response.status == 200) {
-            return response; // Vratite podatke ako je potrebno
-        } else {
-            console.error('Došlo je do pogreške na serveru!');
-            return null; // Vratite null ako je greška
-        }
+        return response; // Vratite podatke ako je potrebno
+        // if (response.status == 200) {
+        // } else {
+        //     console.error('Došlo je do pogreške na serveru!');
+        //     return null; // Vratite null ako je greška
+        // }
 
     } catch (error) {
         console.error('Greška pri dohvaćanju grid podataka ' + error)
@@ -38,14 +38,14 @@ const getPropertyGridData = async (id, type) => {
             withCredentials: true, // Ovo omogućava slanje kolačića
         });
 
-        console.log(response.data)
+        console.log("Imovina response: ", response)
 
-        if (response.status == 200) {
-            return response; // Vratite podatke ako je potrebno
-        } else {
-            console.error('Došlo je do pogreške na serveru!');
-            return null; // Vratite null ako je greška
-        }
+        return response; // Vratite podatke ako je potrebno
+        // if (response.status == 200) {
+        // } else {
+        //     console.error('Došlo je do pogreške na serveru!');
+        //     return null; // Vratite null ako je greška
+        // }
 
     } catch (error) {
         console.error('Greška pri dohvaćanju grid podataka ' + error)
