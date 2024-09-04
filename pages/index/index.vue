@@ -2,19 +2,28 @@
 <!-- eslint-disable no-constant-binary-expression -->
 <template>
     <div class="body">
+        <div v-if="showPopup" :class="['success-popup', { error: !isSuccess }]">
+            <font-awesome-icon :icon="isSuccess ? 'circle-check' : 'circle-exclamation'" />
+            <span>
+                {{ isSuccess ? 'Uspješno spremanje' : 'Spremanje nije uspjelo' }}
+            </span>
+            <div class="progress-bar"></div>
+        </div>
+
         <main>
             <h1>Opći podaci</h1>
             <!-- <div v-if="opciStore.opci_podaci && odabraniDatum" class="main-grid"> -->
-            <div v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" class="main-grid">
+            <form v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" class="main-grid">
                 <label for="nazivIzracuna" class="header">Naziv izračuna</label>
-                <input id="nazivIzracuna" class="dataInput" placeholder="Unesi naziv" :value="nazivIzracuna"
-                    :disabled="status" @change="updateNazivIzracuna($event.target.value)">
+                <InputText id="nazivIzracuna" placeholder="Unesi naziv" :value="nazivIzracuna" :disabled="status"
+                    @change="updateNazivIzracuna($event.target.value)" />
+                <!-- :invalid="nazivIzracuna === (null || '')"-->
 
                 <div class="grid-item header datum">Datum</div>
                 <div class="grid-item datum">
                     <DatePicker v-model="odabraniDatum" show-icon fluid icon-display="input" input-id="icondisplay"
                         date-format="dd.mm.yy" class="form-input" placeholder="Odaberi datum" :disabled="status"
-                        @blur="updateDatum" />
+                        @blur="updateDatum" /> <!--:invalid="odabraniDatum === null"-->
                 </div>
 
                 <div class="grid-item header">Vrsta izračuna</div>
@@ -26,7 +35,7 @@
                             <div v-if="slotProps.value" class="flex items-center">
                                 <div>{{ slotProps.value.tvz_naziv }}</div>
                             </div>
-                            <span v-else>
+                            <span v-else style="color: #aeb8c7">
                                 {{ slotProps.placeholder }}
                             </span>
                         </template>
@@ -51,7 +60,7 @@
                 <div class="grid-item header">Katastarska čestica</div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaKatastarskaCestica" :suggestions="filtriraneKatastarskeCestice"
-                        placeholder="Unesi katastarsku česticu" :virtual-scroller-options="{ itemSize: 38 }"
+                        id="kcs" placeholder="Unesi katastarsku česticu" :virtual-scroller-options="{ itemSize: 38 }"
                         option-label="kcs_sif" class="form-input" :disabled="!odabranaKatastarskaOpcina || status"
                         @complete="searchKatastarskeCestice" @update:model-value="updateKatastarskaCestica()" />
                 </div>
@@ -61,13 +70,13 @@
                     <Select v-model="odabranaVrstaObjekta" :options="vrsteObjekta" option-label="tvo_naziv"
                         placeholder="Odaberi vrstu objekta" class="form-input"
                         :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Proces' || status"
-                        :style="{ opacity: odabranaVrstaIzracuna.tvz_naziv === 'Proces' ? 0.6 : 1 }"
                         @change="updateVrstaObjekta($event)">
+                        <!--:style="{ opacity: odabranaVrstaIzracuna.tvz_naziv === 'Proces' ? 0.6 : 1 }"-->
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
                                 <div>{{ slotProps.value.tvo_naziv }}</div>
                             </div>
-                            <span v-else>
+                            <span v-else style="color: #aeb8c7">
                                 {{ slotProps.placeholder }}
                             </span>
                         </template>
@@ -91,30 +100,31 @@
 
                 <div class="grid-item header">Skupina djelatnosti</div>
                 <div class="grid-item"> <!--:disabled="odabranaVrstaIzracuna.tvz_naziv === 'Imovina' || status"-->
-                    <input class="form-input dataInput" type="text" disabled :value="odabranaSkupinaDjelatnosti"
-                        :placeholder="odabranaVrstaIzracuna.tvz_naziv === 'Imovina' ? '' : 'Popuni podatke na formi za prikaz skupine djelatnosti'">
+                    <InputText class="form-input dataInput" type="text" :value="odabranaSkupinaDjelatnosti" readonly
+                        :disabled="odabranaVrstaIzracuna.tvz_naziv === 'Imovina' || status"
+                        :placeholder="odabranaVrstaIzracuna.tvz_naziv === 'Imovina' ? null : 'Popuni podatke na formi za prikaz skupine djelatnosti'" />
 
                 </div>
 
                 <div class="grid-item header">Ispostava</div>
                 <div class="grid-item">
-                    <input class="form-input dataInput" type="text" disabled
-                        :value="odabranaIspostava ? odabranaIspostava.isp_naziv : ''"
-                        placeholder="Popuni podatke na formi za prikaz ispostave">
+                    <InputText class="form-input dataInput" type="text"
+                        :value="odabranaIspostava ? odabranaIspostava.isp_naziv : ''" readonly
+                        placeholder="Popuni podatke na formi za prikaz ispostave" /> <!--disabled-->
                 </div>
 
                 <div class="grid-item header">Područni ured</div>
                 <div class="grid-item">
-                    <input class="form-input dataInput" type="text" disabled
-                        :value="odabraniPodrucniUred ? odabraniPodrucniUred.puk_naziv : ''"
-                        placeholder="Popuni podatke na formi za prikaz područnog ureda">
+                    <InputText class="form-input dataInput" type="text"
+                        :value="odabraniPodrucniUred ? odabraniPodrucniUred.puk_naziv : ''" readonly
+                        placeholder="Popuni podatke na formi za prikaz područnog ureda" />
                 </div>
                 <div class="grid-item header napomena">Napomena</div>
                 <div class="grid item">
-                    <textarea auto-resize rows="5" cols="30" placeholder="Unesi napomenu" style="width: 100%;"
+                    <Textarea auto-resize rows="5" cols="30" placeholder="Unesi napomenu" style="width: 100%;"
                         :value="napomena" @blur="updateNapomena($event.target.value)" />
                 </div>
-            </div>
+            </form>
             <span v-else style="font-style: italic;">
                 Učitavanje podataka
                 <font-awesome-icon icon="spinner" spin />
@@ -127,12 +137,11 @@
             </span>
         </main>
         <footer>
-            <!-- <div class="action-div"> -->
             <nuxt-link to="/predlosci" class="footer-link">
                 <font-awesome-icon icon="arrow-left-long" />
                 Prethodni izračuni
             </nuxt-link>
-            <button id="saveBtn" type="button" @click="saveFormData">
+            <button id="saveBtn" type="button" @click="saveFormData" :disabled="!isFormValid">
                 <font-awesome-icon icon="save" class="save-icon" />
                 Spremi
             </button>
@@ -151,6 +160,8 @@
 
 <script setup>
 
+import InputText from "primevue/inputtext";
+import Textarea from "primevue/textarea";
 import { ref, onMounted } from "vue" //onBeforeMount
 import { useOpciStore, useIzracunStore } from '~/stores/main-store';
 import { formatDateToDMY } from '~/utils/dateFormatter'
@@ -159,7 +170,6 @@ const idIzracuna = ref(
     useCookie('id_izracuna').value == '/' ?
         '/' : parseInt(useCookie('id_izracuna').value)
 );
-const nazivIzracuna = ref();
 // const cookie = useCookie('id_izracuna');
 
 const napomena = ref();
@@ -180,13 +190,14 @@ const opciStore = useOpciStore();
 const izracunStore = useIzracunStore();
 
 // Kreiramo ref za `Date` objekt datuma
-const odabraniDatum = ref(); // new Date()
-const odabranaVrstaIzracuna = ref({});
+const nazivIzracuna = ref(null);
+const odabraniDatum = ref(null); // new Date()
+const odabranaVrstaIzracuna = ref('');
 const odabranaKatastarskaOpcina = ref(null);
 const odabranaKatastarskaCestica = ref(null);
 const odabranaVrstaObjekta = ref(null);
 const odabranaDjelatnost = ref(null);
-const odabranaSkupinaDjelatnosti = ref();
+const odabranaSkupinaDjelatnosti = ref(null);
 const odabranaIspostava = ref({
     isp_naziv: null,
     isp_sif: null,
@@ -198,9 +209,10 @@ const odabraniPodrucniUred = ref({
 
 const status = ref(0);
 
-// watch(() => cookie.value, (newValue) => {
-//     idIzracuna.value = parseInt(newValue);
-// });
+const isSuccess = ref(true);
+const showPopup = ref(false);
+
+const obaveznaPolja = ['nazivIzracuna', 'odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina'];
 
 watch(idIzracuna, async (newValue, oldValue) => {
     if (newValue !== oldValue) {
@@ -237,15 +249,26 @@ onMounted(async () => {
 const resetForm = () => {
     odabraniDatum.value = null;
     odabranaVrstaIzracuna.value = '';
-    odabranaKatastarskaOpcina.value = '';
+    odabranaKatastarskaOpcina.value = null;
     odabranaKatastarskaCestica.value = '';
-    odabranaVrstaObjekta.value = '';
-    odabranaDjelatnost.value = '';
-    odabranaSkupinaDjelatnosti.value = '';
+    odabranaVrstaObjekta.value = null;
+    odabranaDjelatnost.value = null;
+    odabranaSkupinaDjelatnosti.value = null;
     odabranaIspostava.value = null;
     odabraniPodrucniUred.value = null;
-    nazivIzracuna.value = '';
-    napomena.value = '';
+    nazivIzracuna.value = null;
+    napomena.value = null;
+    // odabraniDatum.value = null;
+    // odabranaVrstaIzracuna.value = '';
+    // odabranaKatastarskaOpcina.value = '';
+    // odabranaKatastarskaCestica.value = '';
+    // odabranaVrstaObjekta.value = '';
+    // odabranaDjelatnost.value = '';
+    // odabranaSkupinaDjelatnosti.value = '';
+    // odabranaIspostava.value = null;
+    // odabraniPodrucniUred.value = null;
+    // nazivIzracuna.value = '';
+    // napomena.value = '';
 };
 
 const cleanOpciStore = () => {
@@ -271,7 +294,6 @@ const cleanOpciStore = () => {
     opciStore.opci_podaci.tvo_naziv = '';
     opciStore.opci_podaci.tvz_naziv = '';
 };
-
 
 const fillFormData = () => {
     if (opciStore.opci_podaci) {
@@ -329,6 +351,14 @@ const fillFormData = () => {
         }
 
         vrstaIzracuna.value = odabranaVrstaIzracuna.value.tvz_naziv;
+
+        if (odabranaVrstaIzracuna.value.tvz_naziv == 'Imovina') {
+            odabranaDjelatnost.value = null;
+            odabranaSkupinaDjelatnosti.value = null;
+        } else if (odabranaVrstaIzracuna.value.tvz_naziv == 'Proces') {
+            odabranaVrstaObjekta.value = null;
+        }
+
         fetchParticles(parseInt(odabranaKatastarskaOpcina.value.aiz_kop_id));
     }
 }
@@ -348,6 +378,12 @@ const hasSelectedValues = () => {
         napomena.value;
 }
 
+const isFormValid = computed(() => {
+    return obaveznaPolja.every(field => eval(field).value); // Provjera jesu li sva obavezna polja popunjena
+});
+
+
+
 const updateNazivIzracuna = (value) => {
     nazivIzracuna.value = value;
     opciStore.opci_podaci.aiz_opis = value;
@@ -365,6 +401,14 @@ const updateVrstaIzracuna = (event) => {
     //console.log("ovi: ", event.value.tvz_id, '-', event.value.tvz_naziv);
     opciStore.opci_podaci.aiz_tvz_id = event.value.tvz_id;
     opciStore.opci_podaci.tvz_naziv = event.value.tvz_naziv;
+
+    if (event.value.tvz_naziv == 'Imovina') {
+        odabranaDjelatnost.value = null;
+        odabranaSkupinaDjelatnosti.value = null;
+    } else if (event.value.tvz_naziv == 'Proces') {
+        odabranaVrstaObjekta.value = null;
+    }
+
 };
 
 const updateKatastarskaOpcina = () => {
@@ -419,20 +463,41 @@ const updateNapomena = (value) => {
 
 
 const saveFormData = async () => {
-    try {
-        const responseId = await opciStore.saveData();
+    if (isFormValid.value) {
+        console.log("Forma je validna i podaci su spremljeni.")
+        try {
+            const response = await opciStore.saveData();
+            const responseId = response.resId;
+            const responseStatus = response.status;
 
-        if (idIzracuna.value == '/') {
-            idIzracuna.value = parseInt(responseId)
-            izracunStore.idIzracuna = '/';
-            izracunStore.updateIdIzracuna(responseId);
-            document.cookie = "id_izracuna=" + encodeURIComponent(idIzracuna.value) + "; path=/";
+            isSuccess.value = responseStatus == 200;
+            showPopup.value = true;
 
-            console.log('res-id: ', parseInt(idIzracuna.value));
+            // Uklanjanje popup-a nakon 3 sekunde
+            setTimeout(() => {
+                showPopup.value = false;
+            }, 3000);
+
+            if (idIzracuna.value == '/') {
+                idIzracuna.value = parseInt(responseId)
+                izracunStore.idIzracuna = '/';
+                izracunStore.updateIdIzracuna(responseId);
+                document.cookie = "id_izracuna=" + encodeURIComponent(idIzracuna.value) + "; path=/";
+
+                console.log('res-id: ', parseInt(idIzracuna.value));
+            }
+
+        } catch (error) {
+            isSuccess.value = false;
+            showPopup.value = true;
+
+            setTimeout(() => {
+                showPopup.value = false;
+            }, 3000);
+            console.error('Došlo je do pogreške prilikom spremanja podataka:', error);
         }
-
-    } catch (error) {
-        console.error('Došlo je do pogreške prilikom spremanja podataka:', error);
+    } else {
+        console.log("Forma nije validna.");
     }
 };
 
@@ -536,7 +601,7 @@ h1 {
     width: 50%;
     display: grid;
     grid-template-columns: 150px 1fr;
-    grid-template-rows: repeat(9, 38px) auto;
+    grid-template-rows: repeat(10, 38px) auto;
     gap: 5px;
 }
 
@@ -552,10 +617,6 @@ h1 {
     display: flex;
     flex-direction: column;
     gap: 10px;
-}
-
-.info {
-    opacity: 0.5;
 }
 
 main {
@@ -591,6 +652,7 @@ main {
     gap: 5px;
 }
 
+
 #saveBtn:hover {
     background-color: var(--primary-color);
     color: white;
@@ -604,36 +666,58 @@ main {
     background-color: var(--primary-color-focus);
 }
 
-.header {
+
+#saveBtn:disabled {
+    background: rgb(216, 216, 216);
+    /* Svijetlo siva pozadina */
+    color: black;
+    /* border: none; */
+    /* Boja teksta */
+    cursor: not-allowed;
+    /* Pokazivač miša pokazuje da nije moguće kliknuti */
+    pointer-events: none;
+    /* Onemogućava sve interakcije miša */
+    opacity: 0.6;
+    /* Smanjena vidljivost */
+}
+
+#saveBtn:disabled:hover,
+#saveBtn:disabled:active,
+#saveBtn:disabled>.save-icon {
+    background-color: rgb(232, 232, 232);
+    /* Uklanja hover i active efekte */
+    color: black;
+    /* Zadržava boju teksta */
+}
+
+.header,
+.grid-item {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
 }
 
-.form-input {
-    width: 100%;
+.form-input,
+.p-inputtext {
+    width: 100% !important;
+    height: 100% !important;
 }
 
-.form-input:disabled {
-    border: 1px solid #dedfde !important;
-    background-color: #f8f9f8 !important;
+.dataInput {
+    cursor: default;
 }
 
-.disabled {
-    opacity: 0.5;
+input {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .input-opcina {
     text-transform: uppercase !important;
 }
 
-.p-select {
-    height: 38px !important;
-    width: 100%;
-    padding-top: 2px !important;
-    background-color: var(--input-color) !important;
+.p-select:active {
     border: var(--border) !important;
-    border-radius: var(--border-form-radius) !important;
-    color: var(--text-color);
 }
 
 .p-select-label {
@@ -641,36 +725,42 @@ main {
     align-items: center !important;
 }
 
-.p-select-label.p-placeholder span {
-    opacity: 0.4;
+.p-select.p-component.p-inputwrapper.form-input {
+    padding: 2px 0px !important;
 }
+
+/*
+.p-inputtext.p-component.p-autocomplete-input.form-input {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.p-autocomplete {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.kcs {
+    width: 100% !important;
+} */
 
 .datum {
     gap: 34px;
 }
 
 .napomena {
-    margin-top: 34px;
+    /* margin-top: 34px; */
     align-items: flex-start;
     padding-top: 12px;
 }
 
 textarea {
-    margin-top: 34px;
+    /* margin-top: 34px; */
     padding: 12px;
     height: auto !important;
     width: 100%;
     box-sizing: border-box;
     resize: none;
-}
-
-.dataInput {
-    padding-left: 12px;
-}
-
-.dataInput:hover {
-    border: var(--border) !important;
-    background-color: var(--input-color) !important;
 }
 
 .pop-up {
@@ -707,6 +797,57 @@ footer {
     .main-grid,
     .header-grid {
         width: 100%;
+    }
+}
+
+.success-popup {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 12px 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: rgb(43, 133, 43);
+    /* Zelena boja za uspjeh */
+    border-radius: 5px;
+    overflow: hidden;
+    /* Osigurava da progress bar bude unutar popup-a */
+    transition: all 0.5s ease-in-out;
+    /* Animacija za pojavu i nestajanje */
+}
+
+.success-popup.error {
+    background-color: rgb(192, 57, 43);
+    /* Crvena boja za grešku */
+}
+
+.success-popup * {
+    color: white;
+}
+
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.6);
+    /* Bijela boja progress bara */
+    animation: progress 3s linear forwards;
+    /* 3 sekunde trajanje */
+}
+
+@keyframes progress {
+    from {
+        width: 100%;
+    }
+
+    to {
+        width: 0;
     }
 }
 </style>
