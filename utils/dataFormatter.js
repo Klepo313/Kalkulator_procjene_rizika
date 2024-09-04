@@ -25,3 +25,29 @@ const restructureData = (data) => {
 export {
     restructureData,
 }
+
+// const restructureData = (data) => {
+//     const groupedData = {};
+
+//     // Grupiranje podataka
+//     for (const item of data) {
+//         const gridKey = item.tdg_grid;
+
+//         if (!groupedData[gridKey]) {
+//             groupedData[gridKey] = [];
+//         }
+
+//         groupedData[gridKey].push(item);
+//     }
+
+//     // Sortiranje svake grupe pomoću ugrađenog sortiranja koje je vrlo optimizirano
+//     for (const key in groupedData) {
+//         groupedData[key].sort((a, b) => a.tdg_rbr - b.tdg_rbr);
+//     }
+
+//     return groupedData;
+// }
+
+// export {
+//     restructureData,
+// }
