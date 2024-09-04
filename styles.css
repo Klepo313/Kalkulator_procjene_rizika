@@ -44,30 +44,12 @@ body {
     background-color: var(--bg-color);
 }
 
-/* .p-inputtext {
-    background-color: var(--input-color) !important;
-} */
-
-input,
-textarea {
-    height: 38px;
+.p-inputtext {
     width: 100%;
-    background-color: var(--input-color) !important;
-    border: var(--border) !important;
-    padding: 0px 20px;
-    border-radius: var(--border-form-radius) !important;
-}
-
-input:hover,
-textarea:hover {
-    background-color: var(--input-hover-color) !important;
-    border-color: var(--primary-color) !important;
-    outline: none;
 }
 
 input:focus,
 textarea:focus {
-    background-color: var(--input-focus-color) !important;
     border-color: var(--primary-color) !important;
     outline: none;
 }
