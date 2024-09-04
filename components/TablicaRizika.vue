@@ -1,228 +1,247 @@
 <template>
     <div class="body">
-        <div v-if="structuredData" class="grid-table">
-            <div class="grid-item nb"></div>
-            <div class="grid-item nb-r nb-b">RCP 4.5</div>
-            <div class="grid-item nb-b">RCP 8.5</div>
-            <div class="grid-item nb"></div>
-            <div class="grid-item nb-r nb-b">RCP 4.5</div>
-            <div class="grid-item nb-b">RCP 8.5</div>
-            <div class="grid-item nb"></div>
-            <div class="grid-item nb-r nb-b">RCP 4.5</div>
-            <div class="grid-item nb-b">RCP 8.5</div>
-            <div class="grid-item nb"></div>
-            <div class="grid-item nb-r nb-b">RCP 4.5</div>
-            <div class="grid-item nb-b">RCP 8.5</div>
-
-            <div class="grid-item vertical green th" style="border-bottom: none;">Kronični</div>
-            <div class="grid-item vertical green th">Akutni</div>
-
-            <div class="grid-item green postojeci nb-r nb-b">Postojeći</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-r nb-b">P2</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-b">P2</div>
-
-            <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-r nb-b">P2</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-b">P2</div>
-
-            <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-r nb-b">P2</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-b">P2</div>
-
-            <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-r nb-b">P2</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-b">P2</div>
-
-            <div class="grid-item pink nb-l nb-b nb-r">Temperatura</div>
-            <div class="grid-item lightgreen db-l nb-b nb-r">Vjetar</div>
-            <div class="grid-item lightgray db-l nb-b nb-r">Voda</div>
-            <div class="grid-item gray db-l nb-b">Čvrsta masa</div>
-
-            <div class="grid-item table-header nb-l">Promjene temperature</div>
-            <div class="grid-item table-header nb-l">Temperaturni stres</div>
-            <div class="grid-item table-header nb-l">Varijabilnost temperature</div>
-            <div class="grid-item table-header nb-l"> Otapanje vječnog leda</div>
-            <div class="grid-item table-header nb-l"></div>
-            <div class="grid-item table-header nb-l nb-t"></div>
-            <div class="grid-item table-header nb-l">Toplinski val</div>
-            <div class="grid-item table-header nb-l">Hladni val/mraz</div>
-            <div class="grid-item table-header nb-l">Požar</div>
-            <div class="grid-item table-header nb-l sb-b"></div>
-
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="11" :data="structuredData['11']" class="red-table" />
-            </div>
-
-            <div class="grid-item table-header">Promjene tokova vjetra</div>
-            <div class="grid-item table-header"></div>
-            <div class="grid-item table-header nb-t"></div>
-            <div class="grid-item table-header nb-t"></div>
-            <div class="grid-item table-header nb-t"></div>
-            <div class="grid-item table-header nb-t"></div>
-            <div class="grid-item table-header">Ciklon, uragan, tajfun</div>
-            <div class="grid-item table-header">Oluja</div>
-            <div class="grid-item table-header">Tornado</div>
-            <div class="grid-item table-header sb-b nb-l"></div>
-
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="12" :data="structuredData['12']" class="red-table" />
-            </div>
-
-            <div class="grid-item table-header">Promjene u obrascima i vrsti oborina</div>
-            <div class="grid-item table-header">Varijabilnost oborina</div>
-            <div class="grid-item table-header">Zakiseljavanje oceana</div>
-            <div class="grid-item table-header">Prodor slane vode</div>
-            <div class="grid-item table-header">Podizanje razine mora</div>
-            <div class="grid-item table-header">Nestašica vode</div>
-            <div class="grid-item table-header">Suša</div>
-            <div class="grid-item table-header">Jake oborine</div>
-            <div class="grid-item table-header">Poplave</div>
-            <div class="grid-item table-header sb-b">Izljev ledenjačkih jezera</div>
-
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="13" :data="structuredData['13']" class="red-table" />
-            </div>
-
-            <div class="grid-item table-header">Erozija obale</div>
-            <div class="grid-item table-header">Degradacija tla</div>
-            <div class="grid-item table-header">Erozija tla</div>
-            <div class="grid-item table-header">Soliflukcija</div>
-            <div class="grid-item table-header"></div>
-            <div class="grid-item table-header nb-t"></div>
-            <div class="grid-item table-header">Lavina</div>
-            <div class="grid-item table-header">Klizišta</div>
-            <div class="grid-item table-header">Slijeganje tla</div>
-            <div class="grid-item table-header sb-b"></div>
-
-            <div class="grid-item nb sb-r">
-                <RedTabliceRizika :pozicija="14" :data="structuredData['14']" class="red-table" />
-            </div>
-
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="21" :data="structuredData['21']" class="red-table" />
-            </div>
-            <div class="grid-item nb sb-t">
-
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="23" :data="structuredData['23']" class="red-table" />
-            </div>
-            <div class="grid-item nb sb-r">
-                <RedTabliceRizika :pozicija="24" :data="structuredData['24']" class="red-table" />
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="31" :data="structuredData['31']" class="red-table" />
-            </div>
-            <div class="grid-item nb">
-
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="33" :data="structuredData['33']" class="red-table" />
-            </div>
-            <div class="grid-item nb sb-r">
-                <RedTabliceRizika :pozicija="34" :data="structuredData['34']" class="red-table" />
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="41" :data="structuredData['41']" class="red-table" />
-            </div>
-            <div class="grid-item nb">
-
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="43" :data="structuredData['43']" class="red-table" />
-            </div>
-            <div class="grid-item nb sb-r">
-                <RedTabliceRizika :pozicija="44" :data="structuredData['44']" class="red-table" />
-            </div>
-            <div class="grid-item nb sb-t">
-
-            </div>
-            <div class="grid-item nb">
-
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="53" :data="structuredData['53']" class="red-table" />
-            </div>
-            <div class="grid-item nb sb-t sb-r">
-
-            </div>
-            <div class="grid-item nb">
-
-            </div>
-            <div class="grid-item nb">
-
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="63" :data="structuredData['63']" class="red-table" />
-            </div>
-            <div class="grid-item nb sb-r">
-
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="71" :data="structuredData['71']" class="red-table" />
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="72" :data="structuredData['72']" class="red-table" />
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="73" :data="structuredData['73']" class="red-table" />
-            </div>
-            <div class="grid-item nb sb-r">
-                <RedTabliceRizika :pozicija="74" :data="structuredData['74']" class="red-table" />
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="81" :data="structuredData['81']" class="red-table" />
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="82" :data="structuredData['82']" class="red-table" />
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="83" :data="structuredData['83']" class="red-table" />
-            </div>
-            <div class="grid-item nb sb-r">
-                <RedTabliceRizika :pozicija="84" :data="structuredData['84']" class="red-table" />
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="91" :data="structuredData['91']" class="red-table" />
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="92" :data="structuredData['92']" class="red-table" />
-            </div>
-            <div class="grid-item nb">
-                <RedTabliceRizika :pozicija="93" :data="structuredData['93']" class="red-table" />
-            </div>
-            <div class="grid-item nb sb-r">
-                <RedTabliceRizika :pozicija="94" :data="structuredData['94']" class="red-table" />
-            </div>
-            <div class="grid-item nb sb-t sb-b">
-
-            </div>
-            <div class="grid-item nb sb-t sb-b">
-
-            </div>
-            <div class="grid-item nb sb-b">
-                <RedTabliceRizika :pozicija="103" :data="structuredData['103']" class="red-table" />
-            </div>
-            <div class="grid-item nb sb-t sb-r sb-b">
-
-            </div>
+        <div v-if="showPopup" class="success-popup">
+            <font-awesome-icon :icon="'circle-exclamation'" />
+            <span>
+                Nema podataka za prikaz
+            </span>
+            <div class="progress-bar" />
         </div>
+        <div class="sazetak">
+            <div v-if="structuredData" class="grid-table">
+                <div class="grid-item nb"></div>
+                <div class="grid-item nb-r nb-b">RCP 4.5</div>
+                <div class="grid-item nb-b">RCP 8.5</div>
+                <div class="grid-item nb"></div>
+                <div class="grid-item nb-r nb-b">RCP 4.5</div>
+                <div class="grid-item nb-b">RCP 8.5</div>
+                <div class="grid-item nb"></div>
+                <div class="grid-item nb-r nb-b">RCP 4.5</div>
+                <div class="grid-item nb-b">RCP 8.5</div>
+                <div class="grid-item nb"></div>
+                <div class="grid-item nb-r nb-b">RCP 4.5</div>
+                <div class="grid-item nb-b">RCP 8.5</div>
+
+                <div class="grid-item vertical green th" style="border-bottom: none;">Kronični</div>
+                <div class="grid-item vertical green th">Akutni</div>
+
+                <div class="grid-item green postojeci nb-r nb-b">Postojeći</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-r nb-b">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-b">P2</div>
+
+                <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-r nb-b">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-b">P2</div>
+
+                <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-r nb-b">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-b">P2</div>
+
+                <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-r nb-b">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-b">P2</div>
+
+                <div class="grid-item pink nb-l nb-b nb-r">Temperatura</div>
+                <div class="grid-item lightgreen db-l nb-b nb-r">Vjetar</div>
+                <div class="grid-item lightgray db-l nb-b nb-r">Voda</div>
+                <div class="grid-item gray db-l nb-b">Čvrsta masa</div>
+
+                <div class="grid-item table-header nb-l">Promjene temperature</div>
+                <div class="grid-item table-header nb-l">Temperaturni stres</div>
+                <div class="grid-item table-header nb-l">Varijabilnost temperature</div>
+                <div class="grid-item table-header nb-l"> Otapanje vječnog leda</div>
+                <div class="grid-item table-header nb-l"></div>
+                <div class="grid-item table-header nb-l nb-t"></div>
+                <div class="grid-item table-header nb-l">Toplinski val</div>
+                <div class="grid-item table-header nb-l">Hladni val/mraz</div>
+                <div class="grid-item table-header nb-l">Požar</div>
+                <div class="grid-item table-header nb-l sb-b"></div>
+
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="11" :data="structuredData['11']" class="red-table" />
+                </div>
+
+                <div class="grid-item table-header">Promjene tokova vjetra</div>
+                <div class="grid-item table-header"></div>
+                <div class="grid-item table-header nb-t"></div>
+                <div class="grid-item table-header nb-t"></div>
+                <div class="grid-item table-header nb-t"></div>
+                <div class="grid-item table-header nb-t"></div>
+                <div class="grid-item table-header">Ciklon, uragan, tajfun</div>
+                <div class="grid-item table-header">Oluja</div>
+                <div class="grid-item table-header">Tornado</div>
+                <div class="grid-item table-header sb-b nb-l"></div>
+
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="12" :data="structuredData['12']" class="red-table" />
+                </div>
+
+                <div class="grid-item table-header">Promjene u obrascima i vrsti oborina</div>
+                <div class="grid-item table-header">Varijabilnost oborina</div>
+                <div class="grid-item table-header">Zakiseljavanje oceana</div>
+                <div class="grid-item table-header">Prodor slane vode</div>
+                <div class="grid-item table-header">Podizanje razine mora</div>
+                <div class="grid-item table-header">Nestašica vode</div>
+                <div class="grid-item table-header">Suša</div>
+                <div class="grid-item table-header">Jake oborine</div>
+                <div class="grid-item table-header">Poplave</div>
+                <div class="grid-item table-header sb-b">Izljev ledenjačkih jezera</div>
+
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="13" :data="structuredData['13']" class="red-table" />
+                </div>
+
+                <div class="grid-item table-header">Erozija obale</div>
+                <div class="grid-item table-header">Degradacija tla</div>
+                <div class="grid-item table-header">Erozija tla</div>
+                <div class="grid-item table-header">Soliflukcija</div>
+                <div class="grid-item table-header"></div>
+                <div class="grid-item table-header nb-t"></div>
+                <div class="grid-item table-header">Lavina</div>
+                <div class="grid-item table-header">Klizišta</div>
+                <div class="grid-item table-header">Slijeganje tla</div>
+                <div class="grid-item table-header sb-b"></div>
+
+                <div class="grid-item nb sb-r">
+                    <RedTabliceRizika :pozicija="14" :data="structuredData['14']" class="red-table" />
+                </div>
+
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="21" :data="structuredData['21']" class="red-table" />
+                </div>
+                <div class="grid-item nb sb-t">
+
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="23" :data="structuredData['23']" class="red-table" />
+                </div>
+                <div class="grid-item nb sb-r">
+                    <RedTabliceRizika :pozicija="24" :data="structuredData['24']" class="red-table" />
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="31" :data="structuredData['31']" class="red-table" />
+                </div>
+                <div class="grid-item nb">
+
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="33" :data="structuredData['33']" class="red-table" />
+                </div>
+                <div class="grid-item nb sb-r">
+                    <RedTabliceRizika :pozicija="34" :data="structuredData['34']" class="red-table" />
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="41" :data="structuredData['41']" class="red-table" />
+                </div>
+                <div class="grid-item nb">
+
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="43" :data="structuredData['43']" class="red-table" />
+                </div>
+                <div class="grid-item nb sb-r">
+                    <RedTabliceRizika :pozicija="44" :data="structuredData['44']" class="red-table" />
+                </div>
+                <div class="grid-item nb sb-t">
+
+                </div>
+                <div class="grid-item nb">
+
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="53" :data="structuredData['53']" class="red-table" />
+                </div>
+                <div class="grid-item nb sb-t sb-r">
+
+                </div>
+                <div class="grid-item nb">
+
+                </div>
+                <div class="grid-item nb">
+
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="63" :data="structuredData['63']" class="red-table" />
+                </div>
+                <div class="grid-item nb sb-r">
+
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="71" :data="structuredData['71']" class="red-table" />
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="72" :data="structuredData['72']" class="red-table" />
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="73" :data="structuredData['73']" class="red-table" />
+                </div>
+                <div class="grid-item nb sb-r">
+                    <RedTabliceRizika :pozicija="74" :data="structuredData['74']" class="red-table" />
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="81" :data="structuredData['81']" class="red-table" />
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="82" :data="structuredData['82']" class="red-table" />
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="83" :data="structuredData['83']" class="red-table" />
+                </div>
+                <div class="grid-item nb sb-r">
+                    <RedTabliceRizika :pozicija="84" :data="structuredData['84']" class="red-table" />
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="91" :data="structuredData['91']" class="red-table" />
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="92" :data="structuredData['92']" class="red-table" />
+                </div>
+                <div class="grid-item nb">
+                    <RedTabliceRizika :pozicija="93" :data="structuredData['93']" class="red-table" />
+                </div>
+                <div class="grid-item nb sb-r">
+                    <RedTabliceRizika :pozicija="94" :data="structuredData['94']" class="red-table" />
+                </div>
+                <div class="grid-item nb sb-t sb-b">
+
+                </div>
+                <div class="grid-item nb sb-t sb-b">
+
+                </div>
+                <div class="grid-item nb sb-b">
+                    <RedTabliceRizika :pozicija="103" :data="structuredData['103']" class="red-table" />
+                </div>
+                <div class="grid-item nb sb-t sb-r sb-b">
+
+                </div>
+            </div>
+            <LegendaBoja v-if="structuredData" class="legenda" />
+        </div>
+        <!-- <span v-else style="font-style: italic;">
+            Učitavanje podataka
+            <font-awesome-icon icon="spinner" spin />
+        </span>
+        <span v-if="message">
+            <font-awesome-icon icon="file-circle-xmark" />
+            Nema podataka za prikaz rizika
+        </span> -->
+
     </div>
 </template>
 
@@ -234,6 +253,9 @@ import { restructureData } from '~/utils/dataFormatter';
 
 const propertyData = ref([]);
 const structuredData = ref([]);
+
+const message = ref('');
+const showPopup = ref(false);
 
 const props = defineProps({
     tip: String,
@@ -249,6 +271,19 @@ vrstaIzracuna.value = useCookie('vrsta_izracuna').value;
 const propertyGridData = async () => {
     const data = await getPropertyGridData(idIzracuna.value, tip);
     propertyData.value = data.data;
+    propertyData.value = data.data;
+    if (propertyData.value.message) {
+        message.value = propertyData.value.message;
+        showPopup.value = true;
+
+        // Uklanjanje popup-a nakon 3 sekunde
+        setTimeout(() => {
+            showPopup.value = false;
+        }, 3000);
+    } else {
+        structuredData.value = restructureData(propertyData.value);
+        console.log("restructure proces: ", structuredData.value, structuredData.value['11'].length);
+    }
 
     structuredData.value = restructureData(propertyData.value);
 }
@@ -266,6 +301,11 @@ onMounted(() => {
 .body {
     width: 100%;
     height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
 .grid-table {
@@ -338,6 +378,64 @@ onMounted(() => {
     justify-content: flex-end;
     padding-right: 5px;
     color: white;
+}
+
+.sazetak {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.success-popup {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 12px 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: rgb(192, 57, 43);
+    /* Zelena boja za uspjeh */
+    border-radius: 5px;
+    overflow: hidden;
+    /* Osigurava da progress bar bude unutar popup-a */
+    transition: all 0.5s ease-in-out;
+    /* Animacija za pojavu i nestajanje */
+}
+
+.success-popup.error {
+    background-color: rgb(192, 57, 43);
+    /* Crvena boja za grešku */
+}
+
+.success-popup * {
+    color: white;
+}
+
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.6);
+    /* Bijela boja progress bara */
+    animation: progress 3s linear forwards;
+    /* 3 sekunde trajanje */
+}
+
+@keyframes progress {
+    from {
+        width: 100%;
+    }
+
+    to {
+        width: 0;
+    }
 }
 
 .th {

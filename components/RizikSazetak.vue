@@ -1,414 +1,422 @@
 <template>
     <div class="rizik-sazetak">
-        <div v-if="structuredData" ref="rizikSazetakRef" class="grid-table">
-            <div class="grid-item nb" />
-            <div class="grid-item nb-r nb-b">RCP 4.5</div>
-            <div class="grid-item nb-b">RCP 8.5</div>
-            <div class="grid-item nb" />
-            <div class="grid-item nb-r nb-b">RCP 4.5</div>
-            <div class="grid-item nb-b">RCP 8.5</div>
-            <div class="grid-item nb" />
-            <div class="grid-item nb-r nb-b">RCP 4.5</div>
-            <div class="grid-item nb-b">RCP 8.5</div>
-            <div class="grid-item nb" />
-            <div class="grid-item nb-r nb-b">RCP 4.5</div>
-            <div class="grid-item nb-b">RCP 8.5</div>
-
-            <div class="grid-item vertical green th" style="border-bottom: none;">Kronični</div>
-            <div class="grid-item vertical green th">Akutni</div>
-
-            <div class="grid-item green postojeci nb-r nb-b">Postojeći</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-r nb-b">P2</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-b">P2</div>
-
-            <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-r nb-b">P2</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-b">P2</div>
-
-            <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-r nb-b">P2</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-b">P2</div>
-
-            <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-r nb-b">P2</div>
-            <div class="grid-item darkgreen nb-r nb-b">P0</div>
-            <div class="grid-item darkgreen nb-r nb-b">P1</div>
-            <div class="grid-item darkgreen nb-b">P2</div>
-
-            <div class="grid-item pink nb-l nb-b nb-r">Temperatura</div>
-            <div class="grid-item lightgreen db-l nb-b nb-r">Vjetar</div>
-            <div class="grid-item lightgray db-l nb-b nb-r">Voda</div>
-            <div class="grid-item gray db-l nb-b">Čvrsta masa</div>
-
-            <div class="grid-item vertical pink mh1">Promjene <br> temperature</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item nb-b">
-                <SazetakTable :pozicija="11" :data="structuredData['11']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical lightgreen db-l">Promjene <br> tokova vjetra</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item nb-b">
-                <SazetakTable :pozicija="12" :data="structuredData['12']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical lightgray mh2 db-l">Promjene u <br> obrascima i vrati <br>
-                oborina
-            </div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="13" :data="structuredData['13']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical gray mh2 db-l">Erozija obale</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item sb-r">
-                <SazetakTable :pozicija="14" :data="structuredData['14']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical pink mh2 nb-l">Temperaturni <br> stres</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="21" :data="structuredData['21']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical mh2 nb-r nb-b db-l" />
-            <div class="grid-item table-header nb-b nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-item" style="border-top: 1px solid #2a2a2a;" />
-
-            <div class="grid-item vertical lightgray mh2 db-l">Varijablilnost <br> oborina</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="23" :data="structuredData['23']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical gray mh2 db-l">Degradacija tla</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item sb-r">
-                <SazetakTable :pozicija="24" :data="structuredData['24']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical pink mh2">Varijablilnost <br> temperature</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="31" :data="structuredData['31']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical mh2 nb-r nb-b nb-t db-l" />
-            <div class="grid-item table-header nb-b nb-l nb-t" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-item" />
-
-            <div class="grid-item vertical lightgray mh2 db-l">Zakiseljavanje <br> oceana</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="33" :data="structuredData['33']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical gray mh2 db-l">Erozija tla</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item sb-r">
-                <SazetakTable :pozicija="34" :data="structuredData['34']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical pink mh2">Otapanje vječnog <br> leda</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="41" :data="structuredData['41']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical mh2 nb-r nb-b nb-t db-l" />
-            <div class="grid-item table-header nb-b nb-l nb-t" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-item" />
-
-            <div class="grid-item vertical lightgray mh2 db-l">Prodor slane <br> vode</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="43" :data="structuredData['43']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical gray mh2 db-l">Solifikacija</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item sb-r">
-                <SazetakTable :pozicija="44" :data="structuredData['44']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical nb-r nb-b" />
-            <div class="grid-item table-header nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-item sb-t" />
-
-            <div class="grid-item vertical mh2 nb-r nb-b nb-t" />
-            <div class="grid-item table-header nb-b nb-l nb-t" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-item" />
-
-            <div class="grid-item vertical lightgray mh2 db-l">Podizanje razine <br> mora</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="53" :data="structuredData['53']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical nb-r nb-b db-l" />
-            <div class="grid-item table-header nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-header nb-t nb-l" />
-            <div class="grid-item table-item sb-t sb-r" />
-
-            <div class="grid-item vertical nb-r nb-b nb-t" />
-            <div class="grid-item table-header nb-l nb-t" />
-            <div class="grid-item table-header nb-t nb-l nb-t" />
-            <div class="grid-item table-header nb-t nb-l nb-t" />
-            <div class="grid-item table-header nb-t nb-l nb-t" />
-            <div class="grid-item table-item nb-t" />
-
-            <div class="grid-item vertical nb-r nb-b nb-t" />
-            <div class="grid-item table-header nb-l nb-t" />
-            <div class="grid-item table-header nb-t nb-l nb-t" />
-            <div class="grid-item table-header nb-t nb-l nb-t" />
-            <div class="grid-item table-header nb-t nb-l nb-t" />
-            <div class="grid-item table-item nb-t" />
-
-            <div class="grid-item vertical lightgray mh2 db-l">Nestašica vode</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="63" :data="structuredData['63']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical nb-r nb-b nb-t db-l" />
-            <div class="grid-item table-header nb-l nb-t" />
-            <div class="grid-item table-header nb-t nb-l nb-t" />
-            <div class="grid-item table-header nb-t nb-l nb-t" />
-            <div class="grid-item table-header nb-t nb-l nb-t" />
-            <div class="grid-item table-item nb-t sb-r" />
-
-            <div class="grid-item vertical pink">Toplinski val</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="71" :data="structuredData['71']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical lightgreen db-l">Ciklon, uragan <br> tajfun</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="72" :data="structuredData['72']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical lightgray db-l">Suša</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="73" :data="structuredData['73']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical gray db-l">Lavina</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item sb-r">
-                <SazetakTable :pozicija="74" :data="structuredData['74']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical pink">Hladni val/mraz</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="81" :data="structuredData['81']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical lightgreen db-l">Oluja</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="82" :data="structuredData['82']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical lightgray db-l">Jake oborine</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="83" :data="structuredData['83']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical gray db-l">Odron tla</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item sb-r">
-                <SazetakTable :pozicija="84" :data="structuredData['84']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical pink">Požar</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="91" :data="structuredData['91']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical lightgreen db-l">Tornado</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="92" :data="structuredData['92']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical lightgray db-l">Poplave</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item">
-                <SazetakTable :pozicija="93" :data="structuredData['93']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical gray db-l">Slijeganje tla</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header">procesi</div>
-            <div class="grid-item table-item sb-r">
-                <SazetakTable :pozicija="94" :data="structuredData['94']" class="sazetak-table" />
-            </div>
-
-            <div class="grid-item vertical sb-b nb-r" />
-            <div class="grid-item table-header nb-l" />
-            <div class="grid-item table-header nb-l nb-t" />
-            <div class="grid-item table-header nb-l nb-t" />
-            <div class="grid-item table-header nb-l nb-t sb-b" />
-            <div class="grid-item table-item sb-t sb-b" />
-
-            <div class="grid-item vertical sb-b nb-r" />
-            <div class="grid-item table-header nb-l" />
-            <div class="grid-item table-header nb-l nb-t" />
-            <div class="grid-item table-header nb-l nb-t" />
-            <div class="grid-item table-header nb-l nb-t sb-b" />
-            <div class="grid-item table-item sb-t sb-b" />
-
-            <div class="grid-item vertical lightgray db-l sb-b">Izljev ledenjačkih <br> jezera</div>
-            <div class="grid-item table-header">imovina</div>
-            <div class="grid-item table-header">ulaz</div>
-            <div class="grid-item table-header">izlaz</div>
-            <div class="grid-item table-header sb-b">procesi</div>
-            <div class="grid-item table-item sb-b">
-                <SazetakTable :pozicija="103" :data="structuredData['103']" class="sazetak-table " />
-            </div>
-
-            <div class="grid-item vertical sb-b nb-r db-l" />
-            <div class="grid-item table-header nb-l" />
-            <div class="grid-item table-header nb-l nb-t" />
-            <div class="grid-item table-header nb-l nb-t" />
-            <div class="grid-item table-header nb-l nb-t sb-b" />
-            <div class="grid-item table-item sb-t sb-b sb-r" />
-
+        <div v-if="showPopup" class="success-popup">
+            <font-awesome-icon :icon="'circle-exclamation'" />
+            <span>
+                Nema podataka za prikaz
+            </span>
+            <div class="progress-bar" />
         </div>
-        <span v-else style="font-style: italic;">
-            Učitavanje podataka
-            <font-awesome-icon icon="spinner" spin />
-        </span>
+        <div class="sazetak"> <!--v-else-if="structuredData" -->
+            <div ref="rizikSazetakRef" class="grid-table">
+                <div class="grid-item nb" />
+                <div class="grid-item nb-r nb-b">RCP 4.5</div>
+                <div class="grid-item nb-b">RCP 8.5</div>
+                <div class="grid-item nb" />
+                <div class="grid-item nb-r nb-b">RCP 4.5</div>
+                <div class="grid-item nb-b">RCP 8.5</div>
+                <div class="grid-item nb" />
+                <div class="grid-item nb-r nb-b">RCP 4.5</div>
+                <div class="grid-item nb-b">RCP 8.5</div>
+                <div class="grid-item nb" />
+                <div class="grid-item nb-r nb-b">RCP 4.5</div>
+                <div class="grid-item nb-b">RCP 8.5</div>
+
+                <div class="grid-item vertical green th" style="border-bottom: none;">Kronični</div>
+                <div class="grid-item vertical green th">Akutni</div>
+
+                <div class="grid-item green postojeci nb-r nb-b">Postojeći</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-r nb-b">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-b">P2</div>
+
+                <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-r nb-b">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-b">P2</div>
+
+                <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-r nb-b">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-b">P2</div>
+
+                <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-r nb-b">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b">P1</div>
+                <div class="grid-item darkgreen nb-b">P2</div>
+
+                <div class="grid-item pink nb-l nb-b nb-r">Temperatura</div>
+                <div class="grid-item lightgreen db-l nb-b nb-r">Vjetar</div>
+                <div class="grid-item lightgray db-l nb-b nb-r">Voda</div>
+                <div class="grid-item gray db-l nb-b">Čvrsta masa</div>
+
+                <div class="grid-item vertical pink mh1">Promjene <br> temperature</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item nb-b">
+                    <SazetakTable :pozicija="11" :data="structuredData['11']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical lightgreen db-l">Promjene <br> tokova vjetra</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item nb-b">
+                    <SazetakTable :pozicija="12" :data="structuredData['12']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical lightgray mh2 db-l">Promjene u <br> obrascima i vrati <br>
+                    oborina
+                </div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="13" :data="structuredData['13']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical gray mh2 db-l">Erozija obale</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item sb-r">
+                    <SazetakTable :pozicija="14" :data="structuredData['14']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical pink mh2 nb-l">Temperaturni <br> stres</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="21" :data="structuredData['21']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical mh2 nb-r nb-b db-l" />
+                <div class="grid-item table-header nb-b nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-item" style="border-top: 1px solid #2a2a2a;" />
+
+                <div class="grid-item vertical lightgray mh2 db-l">Varijablilnost <br> oborina</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="23" :data="structuredData['23']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical gray mh2 db-l">Degradacija tla</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item sb-r">
+                    <SazetakTable :pozicija="24" :data="structuredData['24']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical pink mh2">Varijablilnost <br> temperature</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="31" :data="structuredData['31']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical mh2 nb-r nb-b nb-t db-l" />
+                <div class="grid-item table-header nb-b nb-l nb-t" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-item" />
+
+                <div class="grid-item vertical lightgray mh2 db-l">Zakiseljavanje <br> oceana</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="33" :data="structuredData['33']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical gray mh2 db-l">Erozija tla</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item sb-r">
+                    <SazetakTable :pozicija="34" :data="structuredData['34']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical pink mh2">Otapanje vječnog <br> leda</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="41" :data="structuredData['41']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical mh2 nb-r nb-b nb-t db-l" />
+                <div class="grid-item table-header nb-b nb-l nb-t" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-item" />
+
+                <div class="grid-item vertical lightgray mh2 db-l">Prodor slane <br> vode</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="43" :data="structuredData['43']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical gray mh2 db-l">Solifikacija</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item sb-r">
+                    <SazetakTable :pozicija="44" :data="structuredData['44']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical nb-r nb-b" />
+                <div class="grid-item table-header nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-item sb-t" />
+
+                <div class="grid-item vertical mh2 nb-r nb-b nb-t" />
+                <div class="grid-item table-header nb-b nb-l nb-t" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-item" />
+
+                <div class="grid-item vertical lightgray mh2 db-l">Podizanje razine <br> mora</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="53" :data="structuredData['53']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical nb-r nb-b db-l" />
+                <div class="grid-item table-header nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-header nb-t nb-l" />
+                <div class="grid-item table-item sb-t sb-r" />
+
+                <div class="grid-item vertical nb-r nb-b nb-t" />
+                <div class="grid-item table-header nb-l nb-t" />
+                <div class="grid-item table-header nb-t nb-l nb-t" />
+                <div class="grid-item table-header nb-t nb-l nb-t" />
+                <div class="grid-item table-header nb-t nb-l nb-t" />
+                <div class="grid-item table-item nb-t" />
+
+                <div class="grid-item vertical nb-r nb-b nb-t" />
+                <div class="grid-item table-header nb-l nb-t" />
+                <div class="grid-item table-header nb-t nb-l nb-t" />
+                <div class="grid-item table-header nb-t nb-l nb-t" />
+                <div class="grid-item table-header nb-t nb-l nb-t" />
+                <div class="grid-item table-item nb-t" />
+
+                <div class="grid-item vertical lightgray mh2 db-l">Nestašica vode</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="63" :data="structuredData['63']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical nb-r nb-b nb-t db-l" />
+                <div class="grid-item table-header nb-l nb-t" />
+                <div class="grid-item table-header nb-t nb-l nb-t" />
+                <div class="grid-item table-header nb-t nb-l nb-t" />
+                <div class="grid-item table-header nb-t nb-l nb-t" />
+                <div class="grid-item table-item nb-t sb-r" />
+
+                <div class="grid-item vertical pink">Toplinski val</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="71" :data="structuredData['71']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical lightgreen db-l">Ciklon, uragan <br> tajfun</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="72" :data="structuredData['72']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical lightgray db-l">Suša</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="73" :data="structuredData['73']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical gray db-l">Lavina</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item sb-r">
+                    <SazetakTable :pozicija="74" :data="structuredData['74']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical pink">Hladni val/mraz</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="81" :data="structuredData['81']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical lightgreen db-l">Oluja</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="82" :data="structuredData['82']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical lightgray db-l">Jake oborine</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="83" :data="structuredData['83']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical gray db-l">Odron tla</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item sb-r">
+                    <SazetakTable :pozicija="84" :data="structuredData['84']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical pink">Požar</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="91" :data="structuredData['91']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical lightgreen db-l">Tornado</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="92" :data="structuredData['92']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical lightgray db-l">Poplave</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item">
+                    <SazetakTable :pozicija="93" :data="structuredData['93']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical gray db-l">Slijeganje tla</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header">procesi</div>
+                <div class="grid-item table-item sb-r">
+                    <SazetakTable :pozicija="94" :data="structuredData['94']" class="sazetak-table" />
+                </div>
+
+                <div class="grid-item vertical sb-b nb-r" />
+                <div class="grid-item table-header nb-l" />
+                <div class="grid-item table-header nb-l nb-t" />
+                <div class="grid-item table-header nb-l nb-t" />
+                <div class="grid-item table-header nb-l nb-t sb-b" />
+                <div class="grid-item table-item sb-t sb-b" />
+
+                <div class="grid-item vertical sb-b nb-r" />
+                <div class="grid-item table-header nb-l" />
+                <div class="grid-item table-header nb-l nb-t" />
+                <div class="grid-item table-header nb-l nb-t" />
+                <div class="grid-item table-header nb-l nb-t sb-b" />
+                <div class="grid-item table-item sb-t sb-b" />
+
+                <div class="grid-item vertical lightgray db-l sb-b">Izljev ledenjačkih <br> jezera</div>
+                <div class="grid-item table-header">imovina</div>
+                <div class="grid-item table-header">ulaz</div>
+                <div class="grid-item table-header">izlaz</div>
+                <div class="grid-item table-header sb-b">procesi</div>
+                <div class="grid-item table-item sb-b">
+                    <SazetakTable :pozicija="103" :data="structuredData['103']" class="sazetak-table " />
+                </div>
+
+                <div class="grid-item vertical sb-b nb-r db-l" />
+                <div class="grid-item table-header nb-l" />
+                <div class="grid-item table-header nb-l nb-t" />
+                <div class="grid-item table-header nb-l nb-t" />
+                <div class="grid-item table-header nb-l nb-t sb-b" />
+                <div class="grid-item table-item sb-t sb-b sb-r" />
+
+            </div>
+            <LegendaBoja v-if="structuredData" class="legenda" />
+        </div>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getProcessGridData, getPropertyGridData } from '~/service/fetchGridData';
+import { getProcessGridData } from '~/service/fetchGridData';
 import { restructureData } from '~/utils/dataFormatter';
 
 const rizikSazetakRef = ref(null);
 const processData = ref([]);
-const propertyData = ref([]);
 const structuredData = ref([]);
+
+const message = ref('');
+const showPopup = ref(false);
 
 const props = defineProps({
     tip: String,
@@ -423,28 +431,27 @@ vrstaIzracuna.value = useCookie('vrsta_izracuna').value;
 const processGridData = async () => {
     const data = await getProcessGridData(idIzracuna.value, tip);
     processData.value = data.data;
+    if (processData.value.message) {
+        message.value = processData.value.message;
+        showPopup.value = true;
+
+        // Uklanjanje popup-a nakon 3 sekunde
+        setTimeout(() => {
+            showPopup.value = false;
+        }, 3000);
+    } else {
+        structuredData.value = restructureData(processData.value);
+        console.log("restructure proces: ", structuredData.value, structuredData.value['11'].length);
+    }
     // console.log("proces: ", processData.value);
 
-    structuredData.value = restructureData(processData.value);
-    console.log("restructure proces: ", structuredData.value);
     //console.log(structuredData.value["11"])
 }
 
-const propertyGridData = async () => {
-    const data = await getPropertyGridData(idIzracuna.value, tip);
-    propertyData.value = data.data;
-    // console.log("property: ", propertyData.value);
 
-    structuredData.value = restructureData(propertyData.value);
-    console.log("restructure property: ", structuredData.value);
-}
 
 onMounted(() => {
-    if (vrstaIzracuna.value == 'Proces') {
-        processGridData();
-    } else {
-        propertyGridData();
-    }
+    processGridData();
 })
 
 </script>
@@ -524,10 +531,16 @@ onMounted(() => {
     width: 100%;
     height: 100%;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    /* Vertikalno centriranje */
-    justify-content: center;
-    /* Horizontalno centriranje */
+    gap: 20px;
+}
+
+.sazetak {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
 .grid-table {
@@ -606,6 +619,57 @@ onMounted(() => {
     border-right: 1px dashed #2a2a2a;
     border-left: 1px solid #2a2a2a;
     border-bottom: 1px solid #2a2a2a;
+}
+
+.success-popup {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 12px 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: rgb(192, 57, 43);
+    /* Zelena boja za uspjeh */
+    border-radius: 5px;
+    overflow: hidden;
+    /* Osigurava da progress bar bude unutar popup-a */
+    transition: all 0.5s ease-in-out;
+    /* Animacija za pojavu i nestajanje */
+}
+
+.success-popup.error {
+    background-color: rgb(192, 57, 43);
+    /* Crvena boja za grešku */
+}
+
+.success-popup * {
+    color: white;
+}
+
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.6);
+    /* Bijela boja progress bara */
+    animation: progress 3s linear forwards;
+    /* 3 sekunde trajanje */
+}
+
+@keyframes progress {
+    from {
+        width: 100%;
+    }
+
+    to {
+        width: 0;
+    }
 }
 
 .nb {

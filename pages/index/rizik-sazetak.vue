@@ -13,8 +13,8 @@
                         S mjerama prilagodbe
                     </Tab>
                 </TabList>
-                <TabPanels>
-                    <TabPanel value="0">
+                <TabPanels class="tab-panel">
+                    <TabPanel value="0" class="tab-panel">
                         <RizikSazetak v-if="vrstaIzracuna == 'Proces'" ref="rizikSazetakRef" :tip="'RZ'"
                             class="rizik-sazetak" />
                         <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
@@ -23,7 +23,7 @@
                             Nije odabrana vrsta izračuna
                         </span>
                     </TabPanel>
-                    <TabPanel value="1">
+                    <TabPanel value="1" class="tab-panel">
                         <RizikSazetak v-if="vrstaIzracuna == 'Proces'" ref="rizikSazetakRef" :tip="'KR'"
                             class="rizik-sazetak" />
                         <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'KR'" />
@@ -34,7 +34,7 @@
                     </TabPanel>
                 </TabPanels>
             </Tabs>
-            <LegendaBoja class="legenda" />
+            <!-- <LegendaBoja class="legenda" /> -->
         </main>
         <footer>
             <nuxt-link to="/adaptacijske-mjere" class="footer-link">
@@ -118,6 +118,10 @@ footer {
     font-size: 16px;
     font-weight: normal;
     cursor: pointer;
+}
+
+.tab-panel {
+    height: 100% !important;
 }
 
 .p-tab {
