@@ -27,7 +27,10 @@ const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipa
 
         console.log(response.status)
 
-        return response.data;
+        return {
+            resId: response.data.aiz_id,
+            status: response.status
+        };
     } catch (error) {
         console.error('Saving error: ' + error)
         return 0;

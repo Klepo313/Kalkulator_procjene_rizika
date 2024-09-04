@@ -191,8 +191,8 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.aiz_napomena === '' ? null : this.opci_podaci.aiz_napomena
             )
 
-            console.log("Response savea: ", response.aiz_id)
-            return response.aiz_id;
+            console.log("Response savea: ", response)
+            return response;
         }
 
     },
