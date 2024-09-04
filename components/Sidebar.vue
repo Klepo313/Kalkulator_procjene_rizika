@@ -60,7 +60,7 @@
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Rizik sažetak</h3>
                     </nuxt-link>
 
-                    <nuxt-link :class="[
+                    <!-- <nuxt-link :class="[
                         'nuxtlink-form',
                         'opci',
                         isActiveRoute('/tablice-rizika') ? 'active' : 'inactive',
@@ -70,7 +70,7 @@
                         :aria-disabled="isDisabled">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-columns" />
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Tablice rizika</h3>
-                    </nuxt-link>
+                    </nuxt-link> -->
 
                 </div>
             </div>
