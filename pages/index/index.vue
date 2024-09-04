@@ -14,22 +14,27 @@
             <h1>Opći podaci</h1>
             <!-- <div v-if="opciStore.opci_podaci && odabraniDatum" class="main-grid"> -->
             <form v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" class="main-grid">
-                <label for="nazivIzracuna" class="header">Naziv izračuna</label>
+                <label for="nazivIzracuna" class="header">Naziv izračuna </label>
                 <InputText id="nazivIzracuna" placeholder="Unesi naziv" :value="nazivIzracuna" :disabled="status"
                     @change="updateNazivIzracuna($event.target.value)" />
                 <!-- :invalid="nazivIzracuna === (null || '')"-->
 
-                <div class="grid-item header datum">Datum</div>
+                <div class="grid-item header datum">
+                    Datum
+                    <span class="required">*</span>
+                </div>
                 <div class="grid-item datum">
                     <DatePicker v-model="odabraniDatum" show-icon fluid icon-display="input" input-id="icondisplay"
                         date-format="dd.mm.yy" class="form-input" placeholder="Odaberi datum" :disabled="status"
-                        @blur="updateDatum" /> <!--:invalid="odabraniDatum === null"-->
+                        required @blur="updateDatum" /> <!--:invalid="odabraniDatum === null"-->
                 </div>
 
-                <div class="grid-item header">Vrsta izračuna</div>
+                <div class="grid-item header">
+                    Vrsta izračuna <span class="required">*</span>
+                </div>
                 <div class="grid-item">
                     <Select v-model="odabranaVrstaIzracuna" :options="vrsteIzracuna" option-label="tvz_naziv"
-                        placeholder="Odaberi vrstu izračuna" class="form-input" :disabled="status"
+                        placeholder="Odaberi vrstu izračuna" class="form-input" :disabled="status" required
                         @change="updateVrstaIzracuna($event)">
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
@@ -47,12 +52,15 @@
                     </Select>
                 </div>
 
-                <div class="grid-item header">Katastarska općina</div>
+                <div class="grid-item header">
+                    Katastarska općina
+                    <span class="required">*</span>
+                </div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaKatastarskaOpcina" :suggestions="filtriraneKatastarskeOpcine"
                         placeholder="Unesi katastarsku općinu" :virtual-scroller-options="{ itemSize: 38 }"
                         :option-label="option => formatOption(option, 'kop_sif', 'kop_naziv')"
-                        class="form-input input-opcina" :disabled="status" @complete="searchKatastarskeOpcine"
+                        class="form-input input-opcina" :disabled="status" required @complete="searchKatastarskeOpcine"
                         @blur="updateKatastarskaOpcina()" />
 
                 </div>
@@ -62,15 +70,39 @@
                     <AutoComplete v-model="odabranaKatastarskaCestica" :suggestions="filtriraneKatastarskeCestice"
                         id="kcs" placeholder="Unesi katastarsku česticu" :virtual-scroller-options="{ itemSize: 38 }"
                         option-label="kcs_sif" class="form-input" :disabled="!odabranaKatastarskaOpcina || status"
-                        @complete="searchKatastarskeCestice" @update:model-value="updateKatastarskaCestica()" />
+                        @complete="searchKatastarskeCestice" @update:model-value="updateKatastarskaCestica" />
+                    <!-- <Select v-model="odabranaKatastarskaCestica" :options="katastarskeCestice" filter
+                        option-label="kcs_sif" placeholder="Odaberi katastarsku česticu" class="form-input"
+                        :disabled="!odabranaKatastarskaOpcina || status" @change="updateKatastarskaCestica">
+                        
+                        <template #value="slotProps">
+                            <div v-if="slotProps.value" class="flex items-center">
+                                <div>{{ slotProps.value.kcs_sif }}</div>
+                            </div>
+                            <span v-else>
+                                {{ slotProps.placeholder }}
+                            </span>
+                        </template>
+
+                        
+                        <template #option="slotProps">
+                            <div class="flex items-center">
+                                <div>{{ slotProps.option.kcs_sif }}</div>
+                            </div>
+                        </template>
+                    </Select> -->
+
                 </div>
 
-                <div class="grid-item header">Vrsta objekta</div>
+                <div class="grid-item header">
+                    Vrsta objekta
+                    <span v-if="odabranaVrstaIzracuna.tvz_naziv == 'Imovina'" class="required">*</span>
+                </div>
                 <div class="grid-item">
                     <Select v-model="odabranaVrstaObjekta" :options="vrsteObjekta" option-label="tvo_naziv"
                         placeholder="Odaberi vrstu objekta" class="form-input"
                         :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Proces' || status"
-                        @change="updateVrstaObjekta($event)">
+                        :required="odabranaVrstaIzracuna.tvz_naziv == 'Imovina'" @change="updateVrstaObjekta($event)">
                         <!--:style="{ opacity: odabranaVrstaIzracuna.tvz_naziv === 'Proces' ? 0.6 : 1 }"-->
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
@@ -88,13 +120,17 @@
                     </Select>
                 </div>
 
-                <div class="grid-item header">Djelatnost</div>
+                <div class="grid-item header">
+                    Djelatnost
+                    <span v-if="odabranaVrstaIzracuna.tvz_naziv == 'Proces'" class="required">*</span>
+                </div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaDjelatnost" :suggestions="filtriraneDjelatnosti"
                         :placeholder="odabranaVrstaIzracuna.tvz_naziv == 'Imovina' ? '' : 'Unesi djelatnost'"
                         :virtual-scroller-options="{ itemSize: 38 }"
                         :option-label="option => formatOption(option, 'djl_sif', 'djl_naziv')" class="form-input"
-                        :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Imovina' || status" @complete="searchDjelatnosti"
+                        :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Imovina' || status"
+                        :required="odabranaVrstaIzracuna.tvz_naziv == 'Proces'" @complete="searchDjelatnosti"
                         @blur="updateDjelatnost()" />
                 </div>
 
@@ -192,7 +228,10 @@ const izracunStore = useIzracunStore();
 // Kreiramo ref za `Date` objekt datuma
 const nazivIzracuna = ref(null);
 const odabraniDatum = ref(null); // new Date()
-const odabranaVrstaIzracuna = ref('');
+const odabranaVrstaIzracuna = ref({
+    tvz_naziv: '',
+    tvz_id: '',
+});
 const odabranaKatastarskaOpcina = ref(null);
 const odabranaKatastarskaCestica = ref(null);
 const odabranaVrstaObjekta = ref(null);
@@ -212,7 +251,21 @@ const status = ref(0);
 const isSuccess = ref(true);
 const showPopup = ref(false);
 
-const obaveznaPolja = ['nazivIzracuna', 'odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina'];
+// const obaveznaPolja = ref(
+//     odabranaVrstaIzracuna.value.tvz_naziv == 'Proces'
+//         ? ['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina', 'odabranaDjelatnost']
+//         : ['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina', 'odabranaVrstaObjekta']);
+
+const obaveznaPolja = ref(['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina']);
+
+watch(() => odabranaVrstaIzracuna.value.tvz_naziv, (newVal) => {
+    console.log("Novi vrsta izračuna: ", newVal);
+    if (newVal === 'Proces') {
+        obaveznaPolja.value = ['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina', 'odabranaDjelatnost'];
+    } else {
+        obaveznaPolja.value = ['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina', 'odabranaVrstaObjekta'];
+    }
+});
 
 watch(idIzracuna, async (newValue, oldValue) => {
     if (newValue !== oldValue) {
@@ -379,7 +432,7 @@ const hasSelectedValues = () => {
 }
 
 const isFormValid = computed(() => {
-    return obaveznaPolja.every(field => eval(field).value); // Provjera jesu li sva obavezna polja popunjena
+    return obaveznaPolja.value.every(field => eval(field).value); // Provjera jesu li sva obavezna polja popunjena
 });
 
 
@@ -433,12 +486,21 @@ const updateKatastarskaOpcina = () => {
     }
 };
 
-const updateKatastarskaCestica = () => {
-    if (odabranaKatastarskaCestica.value) {
-        opciStore.opci_podaci.aiz_kcs_id = odabranaKatastarskaCestica.value.kcs_id;
-        opciStore.opci_podaci.kcs_sif = odabranaKatastarskaCestica.value.kcs_sif;
+// const updateKatastarskaCestica = () => {
+//     if (odabranaKatastarskaCestica.value) {
+//         opciStore.opci_podaci.aiz_kcs_id = odabranaKatastarskaCestica.value.kcs_id;
+//         opciStore.opci_podaci.kcs_sif = odabranaKatastarskaCestica.value.kcs_sif;
+//     }
+// };
+
+const updateKatastarskaCestica = (newValue) => {
+    console.log("Nova vrijednost katastarske čestice:", newValue);
+    if (newValue) {
+        opciStore.opci_podaci.aiz_kcs_id = newValue.kcs_id;
+        opciStore.opci_podaci.kcs_sif = newValue.kcs_sif;
     }
 };
+
 
 const updateVrstaObjekta = (event) => {
     if (event?.value) {
@@ -744,9 +806,6 @@ input {
     width: 100% !important;
 } */
 
-.datum {
-    gap: 34px;
-}
 
 .napomena {
     /* margin-top: 34px; */
@@ -782,6 +841,10 @@ textarea {
 
 footer {
     justify-content: space-between;
+}
+
+.required {
+    color: rgb(192, 57, 43);
 }
 
 @media screen and (max-width: 1500px) {
