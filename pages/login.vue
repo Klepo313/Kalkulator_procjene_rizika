@@ -138,6 +138,30 @@ main {
     width: 100%;
 }
 
+input,
+textarea {
+    height: 38px;
+    width: 100%;
+    background-color: var(--input-color);
+    border: var(--border);
+    padding: 0px 20px;
+    border-radius: var(--border-form-radius);
+}
+
+input:hover,
+textarea:hover {
+    background-color: var(--input-hover-color);
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+input:focus,
+textarea:focus {
+    background-color: var(--input-focus-color) !important;
+    border-color: var(--primary-color) !important;
+    outline: none;
+}
+
 form {
     display: flex;
     flex-direction: column;
