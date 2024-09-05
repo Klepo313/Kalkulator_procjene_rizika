@@ -50,8 +50,8 @@
                 </span>
             </div>
             <nuxt-link to="/tablice-rizika" class="footer-link">
-                Tablice rizika
-                <font-awesome-icon icon="arrow-right-long" />
+                <!-- Tablice rizika
+                <font-awesome-icon icon="arrow-right-long" /> -->
             </nuxt-link>
         </footer>
     </div>
@@ -92,9 +92,14 @@ footer {
     gap: 16px;
 }
 
+.action-icon {
+    color: gray;
+}
+
 .action-icon:hover {
-    color: var(--primary-color);
-    cursor: pointer;
+    /* color: var(--primary-color); 
+    cursor: pointer;*/
+    color: gray;
 }
 
 .reset-style {
