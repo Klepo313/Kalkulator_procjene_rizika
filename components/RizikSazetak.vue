@@ -3,7 +3,7 @@
         <div v-if="showPopup" class="success-popup">
             <font-awesome-icon :icon="'circle-exclamation'" />
             <span>
-                Nema podataka za prikaz
+                {{ message }}
             </span>
             <div class="progress-bar" />
         </div>
@@ -435,10 +435,10 @@ const processGridData = async () => {
         message.value = processData.value.message;
         showPopup.value = true;
 
-        // Uklanjanje popup-a nakon 3 sekunde
-        setTimeout(() => {
-            showPopup.value = false;
-        }, 3000);
+        // // Uklanjanje popup-a nakon 3 sekunde
+        // setTimeout(() => {
+        //     showPopup.value = false;
+        // }, 3000);
     } else {
         structuredData.value = restructureData(processData.value);
         console.log("restructure proces: ", structuredData.value, structuredData.value['11'].length);
