@@ -70,7 +70,8 @@
                     <AutoComplete v-model="odabranaKatastarskaCestica" :suggestions="filtriraneKatastarskeCestice"
                         id="kcs" placeholder="Unesi katastarsku česticu" :virtual-scroller-options="{ itemSize: 38 }"
                         option-label="kcs_sif" class="form-input" :disabled="!odabranaKatastarskaOpcina || status"
-                        @complete="searchKatastarskeCestice" @update:model-value="updateKatastarskaCestica" />
+                        @complete="searchKatastarskeCestice" @update:model-value="updateKatastarskaCestica"
+                        @select="onSelectKatastarskaCestica" />
                     <!-- <Select v-model="odabranaKatastarskaCestica" :options="katastarskeCestice" filter
                         option-label="kcs_sif" placeholder="Odaberi katastarsku česticu" class="form-input"
                         :disabled="!odabranaKatastarskaOpcina || status" @change="updateKatastarskaCestica">
@@ -486,18 +487,29 @@ const updateKatastarskaOpcina = () => {
     }
 };
 
-// const updateKatastarskaCestica = () => {
-//     if (odabranaKatastarskaCestica.value) {
-//         opciStore.opci_podaci.aiz_kcs_id = odabranaKatastarskaCestica.value.kcs_id;
-//         opciStore.opci_podaci.kcs_sif = odabranaKatastarskaCestica.value.kcs_sif;
+// const updateKatastarskaCestica = (newValue) => {
+//     console.log("Nova vrijednost katastarske čestice:", newValue);
+//     if (newValue) {
+//         opciStore.opci_podaci.aiz_kcs_id = newValue.kcs_id;
+//         opciStore.opci_podaci.kcs_sif = newValue.kcs_sif;
 //     }
 // };
 
+const privremenaKatastarskaCestica = ref(null);
+
 const updateKatastarskaCestica = (newValue) => {
     console.log("Nova vrijednost katastarske čestice:", newValue);
-    if (newValue) {
-        opciStore.opci_podaci.aiz_kcs_id = newValue.kcs_id;
-        opciStore.opci_podaci.kcs_sif = newValue.kcs_sif;
+    // Čuvamo privremenu vrijednost, ali je ne spremamo odmah u store
+    privremenaKatastarskaCestica.value = newValue;
+};
+
+// Funkcija se poziva kad je stvarna stavka odabrana iz dropdown-a
+const onSelectKatastarskaCestica = (selectedValue) => {
+    console.log("Odabrana katastarska čestica:", selectedValue);
+    // Ako je stavka odabrana, ažuriramo store
+    if (selectedValue) {
+        opciStore.opci_podaci.aiz_kcs_id = selectedValue.kcs_id;
+        opciStore.opci_podaci.kcs_sif = selectedValue.kcs_sif;
     }
 };
 
