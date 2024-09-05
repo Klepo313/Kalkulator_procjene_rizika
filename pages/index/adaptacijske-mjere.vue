@@ -298,6 +298,7 @@ const onSelectionChange = async (event) => {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    gap: 26px;
 }
 
 h1 {

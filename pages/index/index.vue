@@ -173,7 +173,7 @@
             </span>
         </main>
         <footer>
-            <nuxt-link to="/predlosci" class="footer-link">
+            <nuxt-link to="/predlosci" class="footer-link prethodni">
                 <font-awesome-icon icon="arrow-left-long" />
                 Prethodni izračuni
             </nuxt-link>
@@ -650,6 +650,7 @@ const formatOption = (option, sifKey, nazivKey) => {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    gap: 26px;
 }
 
 h1 {
@@ -767,6 +768,7 @@ main {
 
 .dataInput {
     cursor: default;
+    background-color: rgba(20, 82, 28, 0.03);
 }
 
 input {
@@ -841,6 +843,20 @@ textarea {
 
 footer {
     justify-content: space-between;
+}
+
+.prethodni {
+    /* background-color: none;
+    color: var(--text-color);
+    border: var(--border);
+    border-radius: var(--border-form-radius); */
+    color: var(--primary-color);
+    font-weight: bold;
+    /* text-decoration: underline; */
+}
+
+.prethodni * {
+    color: var(--primary-color);
 }
 
 .required {
