@@ -87,9 +87,9 @@ import { logout } from '@/service/logout';
 import { getCalculations } from '@/service/fetchCalculations';
 import { formatDateToDMY } from '@/utils/dateFormatter';
 
-// definePageMeta({
-//     middleware: 'auth',
-// });
+definePageMeta({
+    middleware: 'auth',
+});
 
 const filters = ref({
     global: { value: '', matchMode: 'contains' }
@@ -100,14 +100,8 @@ const loading = ref(true);
 
 const odabraniIzracun = ref();
 
-const idIzracuna = useCookie('id_izracuna', {
-    // httpOnly: true,
-    maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
-    path: '/', // Cookie available throughout the app
-    secure: process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production // true, //process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production
-    sameSite: process.env.ENVIRONMENT === 'PRODUCTION' ? 'None' : 'Lax', // Use 'None' only in production
-});
-idIzracuna.value = null;
+const idIzracuna = useCookie('id_izracuna');
+//idIzracuna.value = '/';
 
 const vrstaIzracuna = useCookie('vrsta_izracuna');
 vrstaIzracuna.value = null;
@@ -124,8 +118,7 @@ const onRowSelect = async () => {
 onMounted(async () => {
     // Fetch the calculations data when the component is mounted
 
-    idIzracuna.value = null;
-    idIzracuna.value = null;
+    idIzracuna.value = '/';
     const data = await getCalculations();
     if (data) {
         izracuni.value = data;

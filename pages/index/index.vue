@@ -253,10 +253,20 @@ import { ref, onMounted } from "vue" //onBeforeMount
 import { useOpciStore, useIzracunStore } from '~/stores/main-store';
 import { formatDateToDMY } from '~/utils/dateFormatter'
 
+definePageMeta({
+    middleware: [
+        'auth',
+        //'izracun'
+    ],
+});
+
 const idIzracuna = ref(
-    useCookie('id_izracuna').value == '/' ?
-        '/' : parseInt(useCookie('id_izracuna').value)
+    useCookie('id_izracuna').value == '/' ||
+        useCookie('id_izracuna') == undefined
+        ? '/'
+        : parseInt(useCookie('id_izracuna').value)
 );
+
 // const cookie = useCookie('id_izracuna');
 
 const napomena = ref();
