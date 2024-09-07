@@ -156,13 +156,42 @@ export const useOpciStore = defineStore('opci-podaci', {
                 console.error('Error fetching calculation types:', items?.status);
             }
         },
-        async fetchParticlesForMunicipalities(id: number) {
-            const items = await getParticlesForMunicipalities(id);
+        // async fetchParticlesForMunicipalities(id: number) {
+        //     const items = await getParticlesForMunicipalities(id);
 
-            if (items?.status == 200) {
-                this.katastarske_cestice = items.data;
-            } else {
-                console.error('Error fetching calculation types:', items?.status);
+        //     if (items?.status == 200) {
+        //         if (items?.data.message) {
+        //             return items.data.message;
+        //         } else {
+        //             this.katastarske_cestice = items.data;
+        //         }
+        //     } else {
+        //         console.error('Error fetching calculation types:', items?.status);
+        //     }
+        // },
+        async fetchParticlesForMunicipalities(id: number) {
+            try {
+                const items = await getParticlesForMunicipalities(id);
+
+                console.log("status: " + items?.status);
+                console.log("items: ", items?.data)
+
+                if (items?.status == 200) {
+                    if (items?.data.message) {
+                        console.log("Postoji poruka");
+                        return { message: items.data.message };
+                    } else {
+                        console.log("Nema poruke");
+                        this.katastarske_cestice = items.data;
+                        return { particles: items.data };
+                    }
+                } else {
+                    console.error('Error fetching calculation types:', items?.status);
+                    return { message: 'Greška pri dohvaćanju podataka' }; // Vraćamo poruku o grešci
+                }
+            } catch (error) {
+                console.error('Error fetching particles:', error);
+                return { message: 'Došlo je do greške prilikom dohvaćanja podataka' };
             }
         },
         async saveData() {
