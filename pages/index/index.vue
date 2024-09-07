@@ -18,6 +18,10 @@
                 <InputText id="nazivIzracuna" placeholder="Unesi naziv" :value="nazivIzracuna" :disabled="status"
                     @change="updateNazivIzracuna($event.target.value)" />
                 <!-- :invalid="nazivIzracuna === (null || '')"-->
+                <div class="grid-item info-div">
+                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
+                    <!-- <span class="info-text">{{ message }}</span> -->
+                </div>
 
                 <div class="grid-item header datum">
                     Datum
@@ -27,6 +31,10 @@
                     <DatePicker v-model="odabraniDatum" show-icon fluid icon-display="input" input-id="icondisplay"
                         date-format="dd.mm.yy" class="form-input" placeholder="Odaberi datum" :disabled="status"
                         required @blur="updateDatum" /> <!--:invalid="odabraniDatum === null"-->
+                </div>
+                <div class="grid-item info-div">
+                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
+                    <!-- <span class="info-text">{{ message }}</span> -->
                 </div>
 
                 <div class="grid-item header">
@@ -51,6 +59,10 @@
                         </template>
                     </Select>
                 </div>
+                <div class="grid-item info-div">
+                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
+                    <!-- <span class="info-text">{{ message }}</span> -->
+                </div>
 
                 <div class="grid-item header">
                     Katastarska općina
@@ -64,6 +76,10 @@
                         @blur="updateKatastarskaOpcina()" />
 
                 </div>
+                <div class="grid-item info-div">
+                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
+                    <!-- <span class="info-text">{{ message }}</span> -->
+                </div>
 
                 <div class="grid-item header">Katastarska čestica</div>
                 <div class="grid-item">
@@ -71,7 +87,8 @@
                         id="kcs" placeholder="Unesi katastarsku česticu" :virtual-scroller-options="{ itemSize: 38 }"
                         option-label="kcs_sif" class="form-input" :disabled="!odabranaKatastarskaOpcina || status"
                         @complete="searchKatastarskeCestice" @update:model-value="updateKatastarskaCestica"
-                        @select="onSelectKatastarskaCestica" />
+                        @item-select="onSelectKatastarskaCestica" />
+
                     <!-- <Select v-model="odabranaKatastarskaCestica" :options="katastarskeCestice" filter
                         option-label="kcs_sif" placeholder="Odaberi katastarsku česticu" class="form-input"
                         :disabled="!odabranaKatastarskaOpcina || status" @change="updateKatastarskaCestica">
@@ -93,6 +110,15 @@
                         </template>
                     </Select> -->
 
+                </div>
+                <div class="grid-item info-div">
+                    <font-awesome-icon v-if="message" :icon="'info-circle'" class="info-icon" />
+                    <span v-if="message" class="info-text"> {{
+                        message == `There is no particle data for given municipality.`
+                            ? `Ne postoje podaci o česticama za odabranu općinu.`
+                            : message
+                    }}
+                    </span>
                 </div>
 
                 <div class="grid-item header">
@@ -120,6 +146,10 @@
                         </template>
                     </Select>
                 </div>
+                <div class="grid-item info-div">
+                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
+                    <!-- <span class="info-text">{{ message }}</span> -->
+                </div>
 
                 <div class="grid-item header">
                     Djelatnost
@@ -134,13 +164,20 @@
                         :required="odabranaVrstaIzracuna.tvz_naziv == 'Proces'" @complete="searchDjelatnosti"
                         @blur="updateDjelatnost()" />
                 </div>
+                <div class="grid-item info-div">
+                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
+                    <!-- <span class="info-text">{{ message }}</span> -->
+                </div>
 
                 <div class="grid-item header">Skupina djelatnosti</div>
                 <div class="grid-item"> <!--:disabled="odabranaVrstaIzracuna.tvz_naziv === 'Imovina' || status"-->
                     <InputText class="form-input dataInput" type="text" :value="odabranaSkupinaDjelatnosti" readonly
                         :disabled="odabranaVrstaIzracuna.tvz_naziv === 'Imovina' || status"
                         :placeholder="odabranaVrstaIzracuna.tvz_naziv === 'Imovina' ? null : 'Popuni podatke na formi za prikaz skupine djelatnosti'" />
-
+                </div>
+                <div class="grid-item info-div">
+                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
+                    <!-- <span class="info-text">{{ message }}</span> -->
                 </div>
 
                 <div class="grid-item header">Ispostava</div>
@@ -149,6 +186,10 @@
                         :value="odabranaIspostava ? odabranaIspostava.isp_naziv : ''" readonly
                         placeholder="Popuni podatke na formi za prikaz ispostave" /> <!--disabled-->
                 </div>
+                <div class="grid-item info-div">
+                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
+                    <!-- <span class="info-text">{{ message }}</span> -->
+                </div>
 
                 <div class="grid-item header">Područni ured</div>
                 <div class="grid-item">
@@ -156,10 +197,19 @@
                         :value="odabraniPodrucniUred ? odabraniPodrucniUred.puk_naziv : ''" readonly
                         placeholder="Popuni podatke na formi za prikaz područnog ureda" />
                 </div>
+                <div class="grid-item info-div">
+                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
+                    <!-- <span class="info-text">{{ message }}</span> -->
+                </div>
+
                 <div class="grid-item header napomena">Napomena</div>
                 <div class="grid item">
                     <Textarea auto-resize rows="5" cols="30" placeholder="Unesi napomenu" style="width: 100%;"
                         :value="napomena" @blur="updateNapomena($event.target.value)" />
+                </div>
+                <div class="grid-item info-div">
+                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
+                    <!-- <span class="info-text">{{ message }}</span> -->
                 </div>
             </form>
             <span v-else style="font-style: italic;">
@@ -210,6 +260,7 @@ const idIzracuna = ref(
 // const cookie = useCookie('id_izracuna');
 
 const napomena = ref();
+const message = ref(null);
 
 // vrsta izracuna kolačić
 const vrstaIzracuna = useCookie('vrsta_izracuna', {
@@ -347,6 +398,13 @@ const cleanOpciStore = () => {
     opciStore.opci_podaci.puk_naziv = '';
     opciStore.opci_podaci.tvo_naziv = '';
     opciStore.opci_podaci.tvz_naziv = '';
+
+    opciStore.katastarske_cestice = [];
+    opciStore.katastarske_opcine = [];
+    opciStore.vrste_izracuna = [];
+    opciStore.vrste_objekta = [];
+    opciStore.djelatnosti = [];
+    opciStore.skupina_djelatnosti = [];
 };
 
 const fillFormData = () => {
@@ -505,11 +563,9 @@ const updateKatastarskaCestica = (newValue) => {
 
 // Funkcija se poziva kad je stvarna stavka odabrana iz dropdown-a
 const onSelectKatastarskaCestica = (selectedValue) => {
-    console.log("Odabrana katastarska čestica:", selectedValue);
-    // Ako je stavka odabrana, ažuriramo store
-    if (selectedValue) {
-        opciStore.opci_podaci.aiz_kcs_id = selectedValue.kcs_id;
-        opciStore.opci_podaci.kcs_sif = selectedValue.kcs_sif;
+    if (selectedValue.value) {
+        opciStore.opci_podaci.aiz_kcs_id = selectedValue.value.kcs_id;
+        opciStore.opci_podaci.kcs_sif = selectedValue.value.kcs_sif;
     }
 };
 
@@ -600,18 +656,49 @@ const djelatnosti = computed(() => {
     return niz;
 })
 
+// const fetchParticles = (id) => {
+//     if (!id) return; // Ensure ID is valid
+//     console.log('odabranaKatastarskaOpcina:', odabranaKatastarskaOpcina.value);
+//     console.log('Id:', id);
+
+//     // Assuming fetchParticlesForMunicipalities returns a promise or updated value
+//     opciStore.fetchParticlesForMunicipalities(id).then(response => {
+//         katastarskeCestice.value = response; // Update computed value
+//     }).catch(error => {
+//         console.error('Error fetching particles:', error);
+//     });
+// };
+
 const fetchParticles = (id) => {
-    if (!id) return; // Ensure ID is valid
+    if (!id) return; // Provjeravamo je li ID validan
     console.log('odabranaKatastarskaOpcina:', odabranaKatastarskaOpcina.value);
     console.log('Id:', id);
 
-    // Assuming fetchParticlesForMunicipalities returns a promise or updated value
+    // Pozivamo funkciju iz storea
     opciStore.fetchParticlesForMunicipalities(id).then(response => {
-        katastarskeCestice.value = response; // Update computed value
+        if (!response) {
+            // Ako je response undefined, zabilježimo grešku
+            console.error('Odgovor je undefined');
+            message.value = 'Greška: Odgovor nije ispravan';
+            return;
+        }
+
+        if (response.message) {
+            // Ako postoji poruka, spremamo ju u message ref
+            message.value = response.message;
+            console.log("poruka: ", message.value);
+            katastarskeCestice.value = []; // Očistimo čestice ako nema podataka
+        } else if (response.particles) {
+            // Ako postoje katastarske čestice, ažuriramo katastarskeCestice
+            katastarskeCestice.value = response.particles;
+            message.value = null; // Očistimo poruku ako ima čestica
+        }
     }).catch(error => {
         console.error('Error fetching particles:', error);
+        message.value = 'Došlo je do greške prilikom dohvaćanja podataka'; // Prikaži poruku o grešci
     });
 };
+
 
 const searchKatastarskeOpcine = (event) => {
     const query = event.query.toLowerCase();
@@ -673,9 +760,9 @@ h1 {
 }
 
 .main-grid {
-    width: 50%;
+    width: 60%;
     display: grid;
-    grid-template-columns: 150px 1fr;
+    grid-template-columns: 150px 1fr auto;
     grid-template-rows: repeat(10, 38px) auto;
     gap: 5px;
 }
@@ -692,6 +779,46 @@ h1 {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.info-div {
+    position: relative;
+    /* Potrebno za pozicioniranje apsolutnog elementa unutar ove div-e */
+    margin-left: 5px;
+}
+
+.info-icon {
+    color: var(--red-soft);
+}
+
+.info-icon:hover {
+    color: var(--red);
+}
+
+.info-text {
+    position: absolute;
+    top: -25px;
+    left: 25%;
+    transform: translateX(-30%);
+
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+
+    padding: 5px;
+    border-radius: 3px;
+
+    white-space: nowrap;
+    visibility: hidden;
+
+    transform: translateY(-10px);
+    opacity: 0;
+    transition: visibility 0s, opacity 0.2s ease-in-out;
+}
+
+.info-div:hover .info-text {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 main {
@@ -783,6 +910,11 @@ main {
     background-color: rgba(20, 82, 28, 0.03);
 }
 
+.dataInput:disabled {
+    background-color: #eef1f6;
+    border: 1px solid #e0e6ed;
+}
+
 input {
     width: 100% !important;
     height: 100% !important;
@@ -872,7 +1004,7 @@ footer {
 }
 
 .required {
-    color: rgb(192, 57, 43);
+    color: var(--red-soft);
 }
 
 @media screen and (max-width: 1500px) {
@@ -883,12 +1015,22 @@ footer {
     }
 }
 
+@media screen and (max-width: 1350px) {
+    .info-text {
+        left: auto;
+        right: 0;
+        transform: translateX(0);
+    }
+
+}
+
 @media screen and (max-width: 1280px) {
 
     .main-grid,
     .header-grid {
         width: 100%;
     }
+
 }
 
 .success-popup {
@@ -912,7 +1054,7 @@ footer {
 }
 
 .success-popup.error {
-    background-color: rgb(192, 57, 43);
+    background-color: var(--red-soft);
     /* Crvena boja za grešku */
 }
 
