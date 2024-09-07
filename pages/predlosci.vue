@@ -120,8 +120,13 @@ onMounted(async () => {
 
     idIzracuna.value = '/';
     const data = await getCalculations();
+    console.log("izracuni: ", data)
     if (data) {
-        izracuni.value = data;
+        if (data.message) {
+            izracuni.value = [];
+        } else {
+            izracuni.value = data;
+        }
     }
     loading.value = false; // Set loading to false once data is loaded
 });
