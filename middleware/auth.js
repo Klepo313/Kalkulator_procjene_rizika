@@ -1,17 +1,17 @@
 // middleware/auth.js
-import { defineNuxtRouteMiddleware, navigateTo } from '#app';
-import { useCookie } from '#imports';
 
-export default defineNuxtRouteMiddleware(() => {
-    // Ako je na strani klijenta
-    const authToken = useCookie('accessToken');
+export default defineNuxtRouteMiddleware(async () => {
+    try {
+        const csrfToken = useCookie('csrfToken').value;
+        console.log("csrf token: ", csrfToken);
 
-    if (authToken.value === '/') {
-        console.log('No accessToken found, redirecting...');
-        return navigateTo('/login');
-    } else {
-        console.log('Valid accessToken found, continuing...');
+        if (!csrfToken) return navigateTo('/login');
+
+        console.log("User logged in");
         return;
+    } catch (error) {
+        console.error('Error during login check:', error.message || error); // Uhvatljena i ispisana greška ako je došlo do pogreške pri provjeravanju prijave
+        return navigateTo('/login'); // Ako je greška, također preusmjeravamo na login
     }
 });
 
