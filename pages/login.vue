@@ -40,6 +40,7 @@
 import { ref, onMounted } from 'vue';
 import { navigateTo } from '#app';
 import { login } from '@/service/login'
+import { generateCsrfToken } from '~/utils/generateCSRFtoken';
 
 const statusCode = ref(0);
 const token = ref('');
@@ -81,6 +82,12 @@ const checkLogin = async () => {
             console.log("response login: ", response)
             token.value = response.token;
             username.value = response.username;
+
+            const newCsrfToken = generateCsrfToken();
+
+            // Ažuriraj CSRF token u kolačiću
+            csrfToken.value = newCsrfToken;
+
             navigateTo('/predlosci');
         } else {
             highlightBorders();
