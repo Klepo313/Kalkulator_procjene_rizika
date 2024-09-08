@@ -73,7 +73,7 @@
                         placeholder="Unesi katastarsku općinu" :virtual-scroller-options="{ itemSize: 38 }"
                         :option-label="option => formatOption(option, 'kop_sif', 'kop_naziv')"
                         class="form-input input-opcina" :disabled="status" required @complete="searchKatastarskeOpcine"
-                        @blur="updateKatastarskaOpcina()" />
+                        @item-select="updateKatastarskaOpcina()" />
 
                 </div>
                 <div class="grid-item info-div">
@@ -291,7 +291,7 @@ const izracunStore = useIzracunStore();
 
 // Kreiramo ref za `Date` objekt datuma
 const nazivIzracuna = ref(null);
-const odabraniDatum = ref(null); // new Date()
+const odabraniDatum = ref(null);
 const odabranaVrstaIzracuna = ref({
     tvz_naziv: '',
     tvz_id: '',
@@ -320,14 +320,47 @@ const showPopup = ref(false);
 //         ? ['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina', 'odabranaDjelatnost']
 //         : ['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina', 'odabranaVrstaObjekta']);
 
-const obaveznaPolja = ref(['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina']);
+// const obaveznaPolja = ref({
+//     odabraniDatum,
+//     odabranaVrstaIzracuna,
+//     odabranaKatastarskaOpcina
+// });
+
+const obaveznaPolja = ref([
+    'odabraniDatum',
+    'odabranaVrstaIzracuna',
+    'odabranaKatastarskaOpcina'
+])
 
 watch(() => odabranaVrstaIzracuna.value.tvz_naziv, (newVal) => {
     console.log("Novi vrsta izračuna: ", newVal);
     if (newVal === 'Proces') {
-        obaveznaPolja.value = ['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina', 'odabranaDjelatnost'];
+        obaveznaPolja.value = [
+            'odabraniDatum',
+            'odabranaVrstaIzracuna',
+            'odabranaKatastarskaOpcina',
+            'odabranaDjelatnost',
+        ]
+        // obaveznaPolja.value = {
+        //     odabraniDatum,
+        //     odabranaVrstaIzracuna,
+        //     odabranaKatastarskaOpcina,
+        //     odabranaDjelatnost
+        // }
     } else {
-        obaveznaPolja.value = ['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina', 'odabranaVrstaObjekta'];
+        // obaveznaPolja.value = {
+        //     odabraniDatum,
+        //     odabranaVrstaIzracuna,
+        //     odabranaKatastarskaOpcina,
+        //     odabranaVrstaObjekta
+        // }
+
+        obaveznaPolja.value = [
+            'odabraniDatum',
+            'odabranaVrstaIzracuna',
+            'odabranaKatastarskaOpcina',
+            'odabranaVrstaObjekta',
+        ]
     }
 });
 
@@ -505,6 +538,19 @@ const hasSelectedValues = () => {
 const isFormValid = computed(() => {
     return obaveznaPolja.value.every(field => eval(field).value); // Provjera jesu li sva obavezna polja popunjena
 });
+
+// Provjera validnosti forme
+// const isFormValid = computed(() => {
+//     return Object.keys(obaveznaPolja.value).every(fieldKey => {
+//         const fieldValue = obaveznaPolja.value[fieldKey]?.value;
+//         if (fieldKey === 'odabranaKatastarskaOpcina') {
+//             // Provjera da li je stvarno odabrana opcija s kop_id
+//             return fieldValue && fieldValue.kop_id;
+//         }
+//         // Provjera da li su ostala polja popunjena
+//         return fieldValue !== null && fieldValue !== '';
+//     });
+// });
 
 
 
