@@ -768,7 +768,7 @@ const searchKatastarskeOpcine = (event) => {
 const searchDjelatnosti = (event) => {
     const query = event.query.toLowerCase();
     const _filteredItems = djelatnosti.value.filter((item) =>
-        item.djl_naziv.toLowerCase().includes(query) || item.djl_sif.toLowerCase().includes(query)
+        item.djl_naziv.toLowerCase().startsWith(query) || item.djl_sif.toLowerCase().startsWith(query)
     );
     filtriraneDjelatnosti.value = _filteredItems;
 };
