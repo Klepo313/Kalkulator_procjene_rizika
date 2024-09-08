@@ -4,7 +4,8 @@ import axios from 'axios';
 const logout = async () => {
     try {
         const response = await axios.post(`${base_url}/user/logout`, {
-            authToken: ''
+            authToken: '',
+            csrfToken: ''
         }, {
             withCredentials: true, // Ensure cookies are included in requests
             headers: {
