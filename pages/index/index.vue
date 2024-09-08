@@ -20,7 +20,7 @@
                 <!-- :invalid="nazivIzracuna === (null || '')"-->
                 <div class="grid-item info-div">
                     <font-awesome-icon :icon="'info-circle'" style="display: none;" />
-                    <!-- <span class="info-text">{{ message }}</span> -->
+                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
 
                 <div class="grid-item header datum">
@@ -34,7 +34,7 @@
                 </div>
                 <div class="grid-item info-div">
                     <font-awesome-icon :icon="'info-circle'" style="display: none;" />
-                    <!-- <span class="info-text">{{ message }}</span> -->
+                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
 
                 <div class="grid-item header">
@@ -61,7 +61,7 @@
                 </div>
                 <div class="grid-item info-div">
                     <font-awesome-icon :icon="'info-circle'" style="display: none;" />
-                    <!-- <span class="info-text">{{ message }}</span> -->
+                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
 
                 <div class="grid-item header">
@@ -78,7 +78,7 @@
                 </div>
                 <div class="grid-item info-div">
                     <font-awesome-icon :icon="'info-circle'" style="display: none;" />
-                    <!-- <span class="info-text">{{ message }}</span> -->
+                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
 
                 <div class="grid-item header">Katastarska čestica</div>
@@ -112,11 +112,11 @@
 
                 </div>
                 <div class="grid-item info-div">
-                    <font-awesome-icon v-if="message" :icon="'info-circle'" class="info-icon" />
-                    <span v-if="message" class="info-text"> {{
-                        message == `There is no particle data for given municipality.`
+                    <font-awesome-icon v-if="messageCestica" :icon="'info-circle'" class="info-icon" />
+                    <span v-if="messageCestica" class="info-text"> {{
+                        messageCestica == `There is no particle data for given municipality.`
                             ? `Ne postoje podaci o česticama za odabranu općinu.`
-                            : message
+                            : messageCestica
                     }}
                     </span>
                 </div>
@@ -148,7 +148,7 @@
                 </div>
                 <div class="grid-item info-div">
                     <font-awesome-icon :icon="'info-circle'" style="display: none;" />
-                    <!-- <span class="info-text">{{ message }}</span> -->
+                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
 
                 <div class="grid-item header">
@@ -162,11 +162,11 @@
                         :option-label="option => formatOption(option, 'djl_sif', 'djl_naziv')" class="form-input"
                         :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Imovina' || status"
                         :required="odabranaVrstaIzracuna.tvz_naziv == 'Proces'" @complete="searchDjelatnosti"
-                        @blur="updateDjelatnost()" />
+                        @item-select="updateDjelatnost()" />
                 </div>
                 <div class="grid-item info-div">
                     <font-awesome-icon :icon="'info-circle'" style="display: none;" />
-                    <!-- <span class="info-text">{{ message }}</span> -->
+                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
 
                 <div class="grid-item header">Skupina djelatnosti</div>
@@ -177,7 +177,7 @@
                 </div>
                 <div class="grid-item info-div">
                     <font-awesome-icon :icon="'info-circle'" style="display: none;" />
-                    <!-- <span class="info-text">{{ message }}</span> -->
+                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
 
                 <div class="grid-item header">Ispostava</div>
@@ -188,7 +188,7 @@
                 </div>
                 <div class="grid-item info-div">
                     <font-awesome-icon :icon="'info-circle'" style="display: none;" />
-                    <!-- <span class="info-text">{{ message }}</span> -->
+                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
 
                 <div class="grid-item header">Područni ured</div>
@@ -199,7 +199,7 @@
                 </div>
                 <div class="grid-item info-div">
                     <font-awesome-icon :icon="'info-circle'" style="display: none;" />
-                    <!-- <span class="info-text">{{ message }}</span> -->
+                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
 
                 <div class="grid-item header napomena">Napomena</div>
@@ -209,7 +209,7 @@
                 </div>
                 <div class="grid-item info-div">
                     <font-awesome-icon :icon="'info-circle'" style="display: none;" />
-                    <!-- <span class="info-text">{{ message }}</span> -->
+                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
             </form>
             <span v-else style="font-style: italic;">
@@ -271,7 +271,8 @@ const idIzracuna = ref(
 // const cookie = useCookie('id_izracuna');
 
 const napomena = ref();
-const message = ref(null);
+const messageCestica = ref(null);
+// const messageDjeltanost = ref(null);
 
 // vrsta izracuna kolačić
 const vrstaIzracuna = useCookie('vrsta_izracuna', {
@@ -594,7 +595,6 @@ const updateDjelatnost = () => {
     odabranaSkupinaDjelatnosti.value = odabranaDjelatnost.value.djl_naziv;
     opciStore.opci_podaci.aiz_djl_id = odabranaDjelatnost.value.djl_id;
     opciStore.opci_podaci.djl_naziv = odabranaDjelatnost.value.djl_naziv;
-    //odabranaSkupinaDjelatnosti.value = 
 };
 
 const updateNapomena = (value) => {
@@ -690,23 +690,23 @@ const fetchParticles = (id) => {
         if (!response) {
             // Ako je response undefined, zabilježimo grešku
             console.error('Odgovor je undefined');
-            message.value = 'Greška: Odgovor nije ispravan';
+            messageCestica.value = 'Greška: Odgovor nije ispravan';
             return;
         }
 
         if (response.message) {
-            // Ako postoji poruka, spremamo ju u message ref
-            message.value = response.message;
-            console.log("poruka: ", message.value);
+            // Ako postoji poruka, spremamo ju u messageCestica ref
+            messageCestica.value = response.message;
+            console.log("poruka: ", messageCestica.value);
             katastarskeCestice.value = []; // Očistimo čestice ako nema podataka
         } else if (response.particles) {
             // Ako postoje katastarske čestice, ažuriramo katastarskeCestice
             katastarskeCestice.value = response.particles;
-            message.value = null; // Očistimo poruku ako ima čestica
+            messageCestica.value = null; // Očistimo poruku ako ima čestica
         }
     }).catch(error => {
         console.error('Error fetching particles:', error);
-        message.value = 'Došlo je do greške prilikom dohvaćanja podataka'; // Prikaži poruku o grešci
+        messageCestica.value = 'Došlo je do greške prilikom dohvaćanja podataka'; // Prikaži poruku o grešci
     });
 };
 
