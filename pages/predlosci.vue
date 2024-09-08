@@ -81,12 +81,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeMount } from 'vue';
+import { ref, onMounted } from 'vue';
 import { navigateTo, useCookie } from '#app';
 import { logout } from '@/service/logout';
 import { getCalculations } from '@/service/fetchCalculations';
 import { formatDateToDMY } from '@/utils/dateFormatter';
-import { checkLogin } from '~/service/checkLogin';
 
 definePageMeta({
     middleware: 'auth',
@@ -102,7 +101,6 @@ const loading = ref(true);
 const odabraniIzracun = ref();
 
 const idIzracuna = useCookie('id_izracuna', {
-    // httpOnly: true,
     maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
     path: '/', // Cookie available throughout the app
     secure: process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production // true, //process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production
