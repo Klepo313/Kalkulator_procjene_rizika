@@ -3,7 +3,6 @@
 export default defineNuxtRouteMiddleware(async () => {
     try {
         const csrfToken = useCookie('csrfToken').value;
-        console.log("csrf token: ", csrfToken);
 
         if (!csrfToken) return navigateTo('/login');
 
