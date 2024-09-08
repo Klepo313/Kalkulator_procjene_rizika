@@ -1,6 +1,6 @@
 // middleware/auth.js
 
-export default defineNuxtRouteMiddleware(async () => {
+export default defineNuxtRouteMiddleware(() => {
     try {
         const csrfToken = useCookie('csrfToken').value;
 
