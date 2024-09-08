@@ -4,15 +4,14 @@ import { useCookie } from '#imports';
 
 export default defineNuxtRouteMiddleware(() => {
     // Ako je na strani klijenta
-    const authToken = useCookie('accessToken');
+    const idIzracuna = useCookie('id_izracuna');
 
-
-    // if (authToken.value === '/') {
-    //     console.log('No accessToken found, redirecting...');
-    //     return navigateTo('/login');
-    // } else {
-    //     console.log('Valid accessToken found, continuing...');
-    //     return;
-    // }
+    if (idIzracuna.value === '/' || idIzracuna.value) {
+        console.log('Valid id_izracuna found, continuing...');
+        return;
+    } else {
+        console.log('No id_izracuna found, redirecting...');
+        return navigateTo('/predlosci');
+    }
 });
 
