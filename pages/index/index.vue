@@ -256,9 +256,10 @@ import { formatDateToDMY } from '~/utils/dateFormatter'
 definePageMeta({
     middleware: [
         'auth',
-        //'izracun'
+        'izracun'
     ],
 });
+
 
 const idIzracuna = ref(
     useCookie('id_izracuna').value == '/' ||

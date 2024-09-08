@@ -81,11 +81,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeMount } from 'vue';
 import { navigateTo, useCookie } from '#app';
 import { logout } from '@/service/logout';
 import { getCalculations } from '@/service/fetchCalculations';
 import { formatDateToDMY } from '@/utils/dateFormatter';
+import { checkLogin } from '~/service/checkLogin';
 
 definePageMeta({
     middleware: 'auth',
@@ -100,8 +101,14 @@ const loading = ref(true);
 
 const odabraniIzracun = ref();
 
-const idIzracuna = useCookie('id_izracuna');
-//idIzracuna.value = '/';
+const idIzracuna = useCookie('id_izracuna', {
+    // httpOnly: true,
+    maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
+    path: '/', // Cookie available throughout the app
+    secure: process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production // true, //process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production
+    sameSite: process.env.ENVIRONMENT === 'PRODUCTION' ? 'None' : 'Lax', // Use 'None' only in production
+});
+idIzracuna.value = '/';
 
 const vrstaIzracuna = useCookie('vrsta_izracuna');
 vrstaIzracuna.value = null;
@@ -116,11 +123,8 @@ const onRowSelect = async () => {
 };
 
 onMounted(async () => {
-    // Fetch the calculations data when the component is mounted
-
     idIzracuna.value = '/';
     const data = await getCalculations();
-    console.log("izracuni: ", data)
     if (data) {
         if (data.message) {
             izracuni.value = [];
@@ -128,7 +132,8 @@ onMounted(async () => {
             izracuni.value = data;
         }
     }
-    loading.value = false; // Set loading to false once data is loaded
+    console.log(izracuni.value)
+    loading.value = false;
 });
 
 const doLogout = async () => {
