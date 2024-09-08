@@ -57,8 +57,6 @@ const idIzracuna = useCookie('id_izracuna');
 idIzracuna.value = null;
 const vrstaIzracuna = useCookie('vrsta_izracuna');
 vrstaIzracuna.value = null;
-const accessToken = useCookie('accessToken');
-accessToken.value = '/';
 const csrfToken = useCookie('csrfToken');
 csrfToken.value = null;
 const username = useCookie('username');
@@ -82,7 +80,6 @@ const checkLogin = async () => {
         if (statusCode.value == 200) {
             console.log("response login: ", response)
             token.value = response.token;
-            accessToken.value = token.value;
             username.value = response.username;
             navigateTo('/predlosci');
         } else {

@@ -16,7 +16,7 @@ const login = async (username, password) => {
 
         return {
             status: response.status,
-            token: response.data.token,
+            // token: response.data.token,
             username: response.data.userName
         };
     } catch (error) {
