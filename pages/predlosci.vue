@@ -66,7 +66,7 @@
                 </div>
             </div>
             <footer>
-                <nuxt-link to="/login" class="footer-link">
+                <nuxt-link to="/login" class="footer-link" @click="doLogout">
                     <font-awesome-icon icon="arrow-left-long" />
                     Prijava
                 </nuxt-link>
