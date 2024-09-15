@@ -1,6 +1,7 @@
 export function getColorClass(value) {
     const parsedValue = parseInt(value);
-    if (isNaN(parsedValue)) return '';
+    console.log("parsedValue: ", parsedValue);
+    if (isNaN(parsedValue)) return 'nullgray';
     if (parsedValue < 0) return 'lightgray';
     if (parsedValue === 0) return 'white';
     if (parsedValue === 1) return 'gray';
