@@ -20,34 +20,45 @@
             <div :class="['sidebar-content', isCollapsed ? 'collapsed' : '']">
                 <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']">
                     <font-awesome-icon :class="['list-icon', isCollapsed ? 'collapsed' : '']" icon="list" />
-                    <h2 :class="isCollapsed ? 'collapsed' : ''">Podaci za izračun</h2>
+                    <h2 :class="isCollapsed ? 'collapsed' : ''">Unos podataka za procjenu rizika</h2>
                 </div>
                 <div :class="['navigation', isCollapsed ? 'collapsed' : '']">
                     <nuxt-link
-                        :class="['nuxtlink-form', 'opci', isActiveRoute('/') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
-                        to="/">
+                        :class="['nuxtlink-form', 'opci', isActiveRoute('/predlozak') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
+                        to="/predlozak">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="map" />
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Opći podaci</h3>
                     </nuxt-link>
                     <nuxt-link :class="[
                         'nuxtlink-form',
                         'mjere',
-                        isActiveRoute('/adaptacijske-mjere') ? 'active' : 'inactive',
+                        isActiveRoute('/predlozak/mjere-prilagodbe') ? 'active' : 'inactive',
                         isCollapsed ? 'collapsed' : '',
                         isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je idIzracuna '/'
-                    ]" :to="isDisabled ? '#' : '/adaptacijske-mjere'" :tabindex="isDisabled ? -1 : 0"
+                    ]" :to="isDisabled ? '#' : '/predlozak/mjere-prilagodbe'" :tabindex="isDisabled ? -1 : 0"
                         :aria-disabled="isDisabled">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="ruler-horizontal" />
-                        <h3 :class="isCollapsed ? 'collapsed' : ''">Adaptacijske mjere</h3>
+                        <h3 :class="isCollapsed ? 'collapsed' : ''">Mjere prilagodbe</h3>
                     </nuxt-link>
                 </div>
             </div>
             <div :class="['sidebar-content', isCollapsed ? 'collapsed' : '']">
-                <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']">
+                <nuxt-link :class="[
+                    'nuxtlink-form',
+                    'opci',
+                    isActiveRoute('/predlozak/rizik-sazetak') ? 'active' : 'inactive',
+                    isCollapsed ? 'collapsed' : '',
+                    isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je idIzracuna '/'
+                ]" :to="isDisabled ? '#' : '/predlozak/rizik-sazetak'" :tabindex="isDisabled ? -1 : 0"
+                    :aria-disabled="isDisabled">
+                    <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-cells" />
+                    <h3 :class="isCollapsed ? 'collapsed' : ''">Rezultat izračuna</h3>
+                </nuxt-link>
+                <!-- <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']">
                     <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="chart-bar" />
                     <h2 :class="isCollapsed ? 'collapsed' : ''">Statistički podaci</h2>
-                </div>
-                <div :class="['navigation', isCollapsed ? 'collapsed' : '']">
+                </div> -->
+                <!-- <div :class="['navigation', isCollapsed ? 'collapsed' : '']">
                     <nuxt-link :class="[
                         'nuxtlink-form',
                         'opci',
@@ -57,22 +68,10 @@
                     ]" :to="isDisabled ? '#' : '/rizik-sazetak'" :tabindex="isDisabled ? -1 : 0"
                         :aria-disabled="isDisabled">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-cells" />
-                        <h3 :class="isCollapsed ? 'collapsed' : ''">Rizik sažetak</h3>
+                        <h3 :class="isCollapsed ? 'collapsed' : ''">Rezultat izračuna</h3>
                     </nuxt-link>
 
-                    <!-- <nuxt-link :class="[
-                        'nuxtlink-form',
-                        'opci',
-                        isActiveRoute('/tablice-rizika') ? 'active' : 'inactive',
-                        isCollapsed ? 'collapsed' : '',
-                        isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je idIzracuna '/'
-                    ]" :to="isDisabled ? '#' : '/tablice-rizika'" :tabindex="isDisabled ? -1 : 0"
-                        :aria-disabled="isDisabled">
-                        <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-columns" />
-                        <h3 :class="isCollapsed ? 'collapsed' : ''">Tablice rizika</h3>
-                    </nuxt-link> -->
-
-                </div>
+                </div> -->
             </div>
         </div>
         <div :class="['profile-container', isCollapsed ? 'collapsed' : '']">
