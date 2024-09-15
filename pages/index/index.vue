@@ -27,8 +27,10 @@
 </template>
 
 <script setup>
-
 definePageMeta({
+    middleware: [
+        'auth'
+    ],
     pageTransition: { name: 'slide', mode: 'out-in' }
 });
 
