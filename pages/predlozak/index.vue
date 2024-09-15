@@ -232,7 +232,7 @@
                 <font-awesome-icon icon="save" class="save-icon" />
                 Spremi
             </button>
-            <button @click="navigateTo('/adaptacijske-mjere')" class="footer-button">
+            <button @click="navigateTo('/predlozak/mjere-prilagodbe')" class="footer-button">
                 <span>Mjere prilagodbe</span>
                 <font-awesome-icon icon="arrow-right-long" />
             </button>
