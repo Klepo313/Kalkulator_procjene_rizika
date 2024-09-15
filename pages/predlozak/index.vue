@@ -232,7 +232,8 @@
                 <font-awesome-icon icon="save" class="save-icon" />
                 Spremi
             </button>
-            <button @click="navigateTo('/predlozak/mjere-prilagodbe')" class="footer-button">
+            <button class="footer-button" @click="navigateTo('/predlozak/mjere-prilagodbe')"
+                :disabled="idIzracuna == '/' || idIzracuna == 0">
                 <span>Mjere prilagodbe</span>
                 <font-awesome-icon icon="arrow-right-long" />
             </button>
@@ -1073,6 +1074,17 @@ footer {
 
 .footer-button * {
     color: white;
+}
+
+.footer-button:disabled {
+    cursor: default;
+}
+
+.footer-button:disabled:hover,
+.footer-button:disabled:active {
+    background-color: var(--primary-color);
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .prethodni {
