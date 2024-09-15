@@ -24,37 +24,6 @@ definePageMeta({
 </script>
 
 <style scoped>
-/* CSS za slide animaciju s efektom nestajanja */
-.slide-enter-active,
-.slide-leave-active {
-    transition: transform 0.5s ease, opacity 0.25s ease;
-    /* Dodajemo tranziciju za opacity */
-}
-
-.slide-enter-from {
-    transform: translateX(-100%);
-    opacity: 0;
-    /* Početak ulaska, izvan ekrana s lijeve strane i nevidljivo */
-}
-
-.slide-enter-to {
-    transform: translateX(0);
-    opacity: 1;
-    /* Krajnja točka, element se potpuno vidi i nalazi na mjestu */
-}
-
-.slide-leave-from {
-    transform: translateX(0);
-    opacity: 1;
-    /* Element započinje na mjestu i potpuno vidljiv */
-}
-
-.slide-leave-to {
-    transform: translateX(100%);
-    opacity: 0;
-    /* Element klizi udesno i postaje nevidljiv */
-}
-
 .footer-text {
     position: absolute;
     bottom: 20px;
