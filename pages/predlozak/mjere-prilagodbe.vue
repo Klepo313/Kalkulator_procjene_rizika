@@ -1,53 +1,18 @@
 <template>
     <div class="body">
         <main>
-            <h1>Adaptacijske mjere</h1>
+            <h1>Mjere prilagodbe</h1>
             <div class="main-content">
-                <!-- <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 20%;">Šifra mjere</th>
-                            <th style="width: 80%;">Naziv mjere</th>
-                            <th />
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-if="odabraneMjere.length === 0">
-                            <td colspan="2" style="font-style: italic;">
-                                <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
-                                Tablica prazna
-                            </td>
-                        </tr>
-                        <tr v-for="mjera in odabraneMjere" :key="mjera.tva_sif">
-                            <td>{{ mjera.tva_sif }}</td>
-                            <td>{{ mjera.tva_naziv }}</td>
-                            <td class="empty-th">
-                                <font-awesome-icon icon="minus" class="minus-icon" style="margin-right: 15px;"
-                                    @click="removeMjera(mjera)" />
-                            </td>
-                        </tr>
-
-                    </tbody>
-                </table>
-                <div class="newRow">
-                    <Select v-model="selectedMjera" :options="mjere" filter :option-label="formatOption"
-                        placeholder="Izaberi mjeru" class="select-mjere" />
-                    <button class="newMjeraBtn" @click="addMjera">
-                        <font-awesome-icon icon="plus" />
-                        <span>Dodaj mjeru</span>
-                    </button>
-                </div> -->
-
                 <span v-if="isLoading" style="font-style: italic;">
                     <font-awesome-icon icon="spinner" spin />
                     Učitavanje podataka
                 </span>
                 <div v-else class="main-content-container">
                     <div class="mjere-list-odabrane">
-                        <h2>Odabrane adaptacijske mjere</h2>
+                        <h2>Odabrane mjere prilagodbe</h2>
                         <DataTable :value="odabrane_mjere_computed" removableSort paginator :rows="5" stripedRows>
-                            <template #empty> Nema odabranih adaptacijskih mjera. </template>
-                            <template #loading> Učitavanje odabranih adaptacijskih mjera. Molimo pričekajte. </template>
+                            <template #empty> Nema odabranih mjera prilagodbe. </template>
+                            <template #loading> Učitavanje odabranih mjera prilagodbe. Molimo pričekajte. </template>
                             <Column field="tva_sif" header="Šifra" sortable style="width: auto"></Column>
                             <Column field="tva_naziv" header="Naziv" sortable style="width: auto"></Column>
                             <Column field="tgr_naziv" header="Grupa" sortable style="width: auto"></Column>
@@ -57,7 +22,7 @@
                         <!-- <h2 style="color: red;">Filter po temperaturi, vjetru, oborinama i čvrstoj masi još ne radi.
                         </h2>
                         <h2>Dodavanje/uklanjanje mjera radi.</h2> -->
-                        <h2>Popis adaptacijskih mjera</h2>
+                        <h2>Popis mjera prilagodbe</h2>
                         <div class="mjere-list-header">
                             <div v-for="vrsta of vrsteMjera" :key="vrsta.key" class="p-checkbox">
                                 <Checkbox v-model="odabraneMjereCheckbox" :inputId="vrsta.key" name="mjera"
@@ -67,8 +32,8 @@
                         </div>
                         <div class="mjere-list-table">
                             <DataTable v-model:filters="filters" v-model:selection="odabraneMjere"
-                                :value="filteredMjere" paginator :rows="10" dataKey="tva_sif" filterDisplay="menu"
-                                :globalFilterFields="['tva_sif', 'tva_naziv', 'tgr_naziv']"
+                                :value="filteredMjere" scrollable scrollHeight="400px" :rows="10" dataKey="tva_sif"
+                                filterDisplay="menu" :globalFilterFields="['tva_sif', 'tva_naziv', 'tgr_naziv']"
                                 @update:selection="onSelectionChange">
                                 <template #header>
                                     <div class="flex justify-between">
@@ -77,12 +42,12 @@
                                                 <font-awesome-icon icon="search" />
                                             </InputIcon>
                                             <InputText v-model="filters['global'].value"
-                                                placeholder="Pretraži adaptacijske mjere" />
+                                                placeholder="Pretraži mjere prilagodbe" />
                                         </IconField>
                                     </div>
                                 </template>
-                                <template #empty> Nema adaptacijskih mjera. </template>
-                                <template #loading> Učitavanje adaptacijskih mjera. Molimo pričekajte. </template>
+                                <template #empty> Nema mjera prilagodbe. </template>
+                                <template #loading> Učitavanje mjera prilagodbe. Molimo pričekajte. </template>
                                 <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
                                 <Column field="tva_sif" header="Šifra" style="min-width: 7rem">
                                     <template #body="{ data }">
@@ -108,12 +73,12 @@
             </div>
         </main>
         <footer>
-            <nuxt-link to="/" class="footer-link">
-                <font-awesome-icon icon="arrow-left-long" />
+            <button class="footer-btn" @click="navigateTo('/predlozak')">
+                <font-awesome-icon icon="arrow-left-long" style="margin-right: 10px;" />
                 Opći podaci
-            </nuxt-link>
+            </button>
             <button class="footer-btn" @click="toRizikSazetak">
-                Prikaži rizik
+                Izračunaj rizik
                 <font-awesome-icon icon="arrow-right-long" style="margin-left: 10px;" />
             </button>
         </footer>
@@ -141,9 +106,9 @@ onMounted(async () => {
         await adaptStore.fetchMetrictypes(idIzracuna.value);
         await adaptStore.fetchMetrictypes();
         console.log('Uspješno dohvaćene odabrane mjere.', adaptStore.odabrane_mjere);
-        console.log('Uspješno dohvaćene sve adaptacijske mjere.', adaptStore.adaptacijske_mjere);
+        console.log('Uspješno dohvaćene sve mjere prilagodbe.', adaptStore.adaptacijske_mjere);
     } else {
-        console.log('ID izračuna je "/", nećemo dohvatiti adaptacijske mjere.');
+        console.log('ID izračuna je "/", nećemo dohvatiti mjere prilagodbe.');
     }
     isLoading.value = false;
 });
@@ -151,7 +116,7 @@ onMounted(async () => {
 const isLoading = ref(true);
 
 const toRizikSazetak = () => {
-    navigateTo('/rizik-sazetak');
+    navigateTo('/predlozak/rizik-sazetak');
 };
 
 const filters = ref({
@@ -194,15 +159,6 @@ watch(mjere, () => {
         mjere.value.some(item => item.tva_sif === mjera.tva_sif)
     );
 }, { immediate: true });
-
-// watch(odabraneMjereCheckbox, (newValue) => {
-//     console.log("Odabrana vrsta mjera: ", newValue);
-//     if (newValue === "Sve grupe") {
-//         filteredMjere.value = mjere.value; // Prikaz svih mjera
-//     } else {
-//         filteredMjere.value = mjere.value.filter(mjera => mjera.tgr_naziv === newValue);
-//     }
-// });
 
 watch(odabraneMjereCheckbox, (newValues) => {
     console.log("Odabrane vrste mjera: ", newValues);
@@ -254,10 +210,6 @@ const onSelectionChange = async (event) => {
         }
     }
 };
-
-// const formatOption = (option) => {
-//     return `${option.tva_sif} - ${option.tva_naziv}`;
-// };
 
 </script>
 
