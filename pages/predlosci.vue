@@ -112,7 +112,7 @@ const onRowSelect = async () => {
 
     // Set the cookie values
     idIzracuna.value = odabraniIzracun.value.aiz_id;
-    navigateTo('/');
+    navigateTo('/predlozak');
 };
 
 onMounted(async () => {
@@ -136,7 +136,7 @@ const doLogout = async () => {
 
 const noviIzracun = () => {
     idIzracuna.value = '/';
-    navigateTo('/');
+    navigateTo('/predlozak');
 };
 </script>
 

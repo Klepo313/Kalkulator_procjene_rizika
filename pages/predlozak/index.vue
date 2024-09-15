@@ -14,7 +14,7 @@
             <h1>Opći podaci</h1>
             <!-- <div v-if="opciStore.opci_podaci && odabraniDatum" class="main-grid"> -->
             <form v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" class="main-grid">
-                <label for="nazivIzracuna" class="header">Naziv izračuna </label>
+                <label for="nazivIzracuna" class="header">Naziv predloška </label>
                 <InputText id="nazivIzracuna" placeholder="Unesi naziv" :value="nazivIzracuna" :disabled="status"
                     @change="updateNazivIzracuna($event.target.value)" />
                 <!-- :invalid="nazivIzracuna === (null || '')"-->
@@ -122,7 +122,7 @@
                 </div>
 
                 <div class="grid-item header">
-                    Vrsta objekta
+                    Vrsta imovine
                     <span v-if="odabranaVrstaIzracuna.tvz_naziv == 'Imovina'" class="required">*</span>
                 </div>
                 <div class="grid-item">
@@ -224,18 +224,18 @@
             </span>
         </main>
         <footer>
-            <nuxt-link to="/predlosci" class="footer-link prethodni">
+            <!-- <nuxt-link to="/predlosci" class="footer-link prethodni">
                 <font-awesome-icon icon="arrow-left-long" />
                 Prethodni izračuni
-            </nuxt-link>
+            </nuxt-link> -->
             <button id="saveBtn" type="button" @click="saveFormData" :disabled="!isFormValid">
                 <font-awesome-icon icon="save" class="save-icon" />
                 Spremi
             </button>
-            <nuxt-link to="/adaptacijske-mjere" class="footer-link">
-                Adaptacijske mjere
+            <button @click="navigateTo('/adaptacijske-mjere')" class="footer-button">
+                <span>Mjere prilagodbe</span>
                 <font-awesome-icon icon="arrow-right-long" />
-            </nuxt-link>
+            </button>
         </footer>
         <div class="pop-up">
             <div class="pop-up-content">
@@ -249,7 +249,7 @@
 
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
-import { ref, onMounted } from "vue" //onBeforeMount
+import { ref, onMounted, onBeforeUnmount } from "vue" //onBeforeMount
 import { useOpciStore, useIzracunStore } from '~/stores/main-store';
 import { formatDateToDMY } from '~/utils/dateFormatter'
 
@@ -341,19 +341,7 @@ watch(() => odabranaVrstaIzracuna.value.tvz_naziv, (newVal) => {
             'odabranaKatastarskaOpcina',
             'odabranaDjelatnost',
         ]
-        // obaveznaPolja.value = {
-        //     odabraniDatum,
-        //     odabranaVrstaIzracuna,
-        //     odabranaKatastarskaOpcina,
-        //     odabranaDjelatnost
-        // }
     } else {
-        // obaveznaPolja.value = {
-        //     odabraniDatum,
-        //     odabranaVrstaIzracuna,
-        //     odabranaKatastarskaOpcina,
-        //     odabranaVrstaObjekta
-        // }
 
         obaveznaPolja.value = [
             'odabraniDatum',
@@ -371,7 +359,34 @@ watch(idIzracuna, async (newValue, oldValue) => {
     }
 });
 
+function handleBeforeUnload(event) {
+    // Provjeri da li su varijable promijenjene
+    if (odabraniDatum.value !== null ||
+        odabranaVrstaIzracuna.value !== '' ||
+        odabranaKatastarskaOpcina.value !== null ||
+        odabranaKatastarskaCestica.value !== '' ||
+        odabranaVrstaObjekta.value !== null ||
+        odabranaDjelatnost.value !== null ||
+        odabranaSkupinaDjelatnosti.value !== null ||
+        odabranaIspostava.value !== null ||
+        odabraniPodrucniUred.value !== null ||
+        nazivIzracuna.value !== null ||
+        napomena.value !== null) {
+
+        // Otvori dijalog za upozorenje
+        event.preventDefault();
+        event.returnValue = 'Imate nespremljene promjene. Jeste li sigurni da želite napustiti ovu stranicu?'; // Ovo je potrebno za kompatibilnost s različitim preglednicima
+    }
+}
+
+
+onBeforeUnmount(() => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+});
+
 onMounted(async () => {
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     resetForm();
     cleanOpciStore();
@@ -1044,6 +1059,20 @@ textarea {
 
 footer {
     justify-content: space-between;
+}
+
+.footer-button {
+    color: white;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.footer-button * {
+    color: white;
 }
 
 .prethodni {
