@@ -80,7 +80,7 @@
                     <SazetakTable :pozicija="12" :data="structuredData['12']" class="sazetak-table" />
                 </div>
 
-                <div class="grid-item vertical lightgray mh2 db-l">Promjene u <br> obrascima i vrati <br>
+                <div class="grid-item vertical lightgray mh2 db-l">Promjene u <br> obrascima i vrsti <br>
                     oborina
                 </div>
                 <div class="grid-item table-header">imovina</div>
@@ -114,9 +114,9 @@
                 <div class="grid-item table-header nb-t nb-l" />
                 <div class="grid-item table-header nb-t nb-l" />
                 <div class="grid-item table-header nb-t nb-l" />
-                <div class="grid-item table-item" style="border-top: 1px solid #2a2a2a;" />
+                <div class="grid-item table-item" style="border-top: 1px solid #3C7D22;" />
 
-                <div class="grid-item vertical lightgray mh2 db-l">Varijablilnost <br> oborina</div>
+                <div class="grid-item vertical lightgray mh2 db-l">Varijabilnost <br> oborina</div>
                 <div class="grid-item table-header">imovina</div>
                 <div class="grid-item table-header">ulaz</div>
                 <div class="grid-item table-header">izlaz</div>
@@ -193,7 +193,7 @@
                     <SazetakTable :pozicija="43" :data="structuredData['43']" class="sazetak-table" />
                 </div>
 
-                <div class="grid-item vertical gray mh2 db-l">Solifikacija</div>
+                <div class="grid-item vertical gray mh2 db-l">Soliflukcija</div>
                 <div class="grid-item table-header">imovina</div>
                 <div class="grid-item table-header">ulaz</div>
                 <div class="grid-item table-header">izlaz</div>
@@ -561,7 +561,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #2a2a2a;
+    border: 1px solid #3C7D22;
     font-size: 14px;
 
     text-wrap: wrap;
@@ -616,9 +616,9 @@ onMounted(() => {
 
 .th {
     /* font-weight: bold; */
-    border-right: 1px dashed #2a2a2a;
-    border-left: 1px solid #2a2a2a;
-    border-bottom: 1px solid #2a2a2a;
+    border-right: 1px dashed #3C7D22;
+    border-left: 1px solid #3C7D22;
+    border-bottom: 1px solid #3C7D22;
 }
 
 .success-popup {
@@ -694,43 +694,43 @@ onMounted(() => {
 
 
 .db {
-    border: #2a2a2a 1px dashed;
+    border: #3C7D22 1px dashed;
 }
 
 .db-r {
-    border-right: #2a2a2a 1px dashed;
+    border-right: #3C7D22 1px dashed;
 }
 
 .db-l {
-    border-left: #2a2a2a 1px dashed;
+    border-left: #3C7D22 1px dashed;
 }
 
 .db-t {
-    border-top: #2a2a2a 1px dashed;
+    border-top: #3C7D22 1px dashed;
 }
 
 .db-b {
-    border-bottom: #2a2a2a 1px dashed;
+    border-bottom: #3C7D22 1px dashed;
 }
 
 .sb {
-    border: 1px solid #2a2a2a;
+    border: 1px solid #3C7D22;
 }
 
 .sb-r {
-    border-right: 1px solid #2a2a2a;
+    border-right: 1px solid #3C7D22;
 }
 
 .sb-l {
-    border-left: 1px solid #2a2a2a;
+    border-left: 1px solid #3C7D22;
 }
 
 .sb-t {
-    border-top: 1px solid #2a2a2a;
+    border-top: 1px solid #3C7D22;
 }
 
 .sb-b {
-    border-bottom: 1px solid #2a2a2a;
+    border-bottom: 1px solid #3C7D22;
 }
 
 
@@ -777,7 +777,7 @@ onMounted(() => {
 }
 
 .nb-rd:nth-child(2) {
-    border-right: 1px solid #2a2a2a;
+    border-right: 1px solid #3C7D22;
 }
 
 .grid-item:first-child {

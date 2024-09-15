@@ -2,7 +2,11 @@
     <div>
         <div v-if="data" class="grid">
             <!-- v-for tdg_rbr == 10 -->
-            <div class="_grid-item" :class="getColorClass(data[0].history)">{{ data[0].history }}</div>
+            <div class="_grid-item first-div" :class="getColorClass(data[0].history)">
+                <span class="first">
+                    {{ data[0].history }}
+                </span>
+            </div>
             <div class="_grid-item db-s" :class="getColorClass(data[0].p0_4_5)">{{ data[0].p0_4_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[0].p0_8_5)">{{ data[0].p0_8_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[0].p1_4_5)">{{ data[0].p1_4_5 }}</div>
@@ -10,7 +14,11 @@
             <div class="_grid-item" :class="getColorClass(data[0].p2_4_5)">{{ data[0].p2_4_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[0].p2_8_5)">{{ data[0].p2_8_5 }}</div>
 
-            <div class="_grid-item" :class="getColorClass(data[1].history)">{{ data[1].history }}</div>
+            <div class="_grid-item first-div" :class="getColorClass(data[1].history)">
+                <span class="first">
+                    {{ data[1].history }}
+                </span>
+            </div>
             <div class="_grid-item db-s" :class="getColorClass(data[1].p0_4_5)">{{ data[1].p0_4_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[1].p0_8_5)">{{ data[1].p0_8_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[1].p1_4_5)">{{ data[1].p1_4_5 }}</div>
@@ -18,7 +26,11 @@
             <div class="_grid-item" :class="getColorClass(data[1].p2_4_5)">{{ data[1].p2_4_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[1].p2_8_5)">{{ data[1].p2_8_5 }}</div>
 
-            <div class="_grid-item" :class="getColorClass(data[2].history)">{{ data[2].history }}</div>
+            <div class="_grid-item first-div" :class="getColorClass(data[2].history)">
+                <span class="first">
+                    {{ data[2].history }}
+                </span>
+            </div>
             <div class="_grid-item db-s" :class="getColorClass(data[2].p0_4_5)">{{ data[2].p0_4_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[2].p0_8_5)">{{ data[2].p0_8_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[2].p1_4_5)">{{ data[2].p1_4_5 }}</div>
@@ -26,7 +38,11 @@
             <div class="_grid-item" :class="getColorClass(data[2].p2_4_5)">{{ data[2].p2_4_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[2].p2_8_5)">{{ data[2].p2_8_5 }}</div>
 
-            <div class="_grid-item" :class="getColorClass(data[3].history)">{{ data[3].history }}</div>
+            <div class="_grid-item first-div" :class="getColorClass(data[3].history)">
+                <span class="first">
+                    {{ data[3].history }}
+                </span>
+            </div>
             <div class="_grid-item db-s" :class="getColorClass(data[3].p0_4_5)">{{ data[3].p0_4_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[3].p0_8_5)">{{ data[3].p0_8_5 }}</div>
             <div class="_grid-item" :class="getColorClass(data[3].p1_4_5)">{{ data[3].p1_4_5 }}</div>
@@ -157,17 +173,33 @@ const data = computed(() => props.data);
     font-size: 14px;
 
     box-sizing: border-box;
-    border: 1px solid #2a2a2a;
+    border: 1px solid #3C7D22;
     border-bottom: none;
     border-right: none;
 }
 
+.first-div {
+    padding: 0px 1px;
+}
+
+.first {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-left: 1px solid #3C7D22;
+    border-right: 1px solid #3C7D22;
+}
+
 .db-r {
-    border-right: 1px dashed #2a2a2a;
+    border-right: 1px dashed #3C7D22;
 }
 
 .db-s {
-    border-left-style: dashed;
+    border-left-style: solid;
 }
 
 /* < 0 */
