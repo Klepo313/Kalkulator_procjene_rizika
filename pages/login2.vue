@@ -58,7 +58,12 @@ const idIzracuna = useCookie('id_izracuna');
 idIzracuna.value = null;
 const vrstaIzracuna = useCookie('vrsta_izracuna');
 vrstaIzracuna.value = null;
-const csrfToken = useCookie('csrfToken');
+const csrfToken = useCookie('csrfToken', {
+    maxAge: 24 * 60 * 60, // 1 dan
+    path: '/',
+    secure: true,
+});
+
 csrfToken.value = null;
 const username = useCookie('username');
 username.value = null;

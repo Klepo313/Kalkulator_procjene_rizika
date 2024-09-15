@@ -66,17 +66,12 @@
                 </div>
             </div>
             <footer>
-                <nuxt-link to="/login" class="footer-link" @click="doLogout">
+                <nuxt-link to="/" class="footer-link">
                     <font-awesome-icon icon="arrow-left-long" />
-                    Prijava
+                    Homepage
                 </nuxt-link>
             </footer>
         </main>
-        <!-- <div class="pop-up">
-            <div class="pop-up-content">
-                
-            </div>
-        </div> -->
     </div>
 </template>
 
