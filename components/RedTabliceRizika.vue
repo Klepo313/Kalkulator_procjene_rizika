@@ -79,6 +79,10 @@ const data = computed(() => props.data);
     border-left: 2px dashed #a6c9ec;
 }
 
+.nullgray {
+    background-color: rgb(239, 239, 239);
+}
+
 /* < 0 */
 .lightgray {
     background-color: #caedfb;

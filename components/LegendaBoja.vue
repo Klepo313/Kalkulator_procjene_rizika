@@ -43,11 +43,22 @@
         </table>
         <div class="legend">
             <!-- <strong>Legenda:</strong> -->
-            <div class="legend-item"><span class="green" /> BEZNAČAJAN</div>
-            <div class="legend-item"><span class="yellow" /> NISKI</div>
-            <div class="legend-item"><span class="orange" /> SREDNJI</div>
-            <div class="legend-item"><span class="red" /> VISOKI</div>
-            <div class="legend-item"><span class="red" /> VRLO VISOKI</div>
+            <div>
+                <div class="legend-item"><span class="green" /> BEZNAČAJAN</div>
+                <div class="legend-item"><span class="yellow" /> NISKI</div>
+                <div class="legend-item"><span class="orange" /> SREDNJI</div>
+                <div class="legend-item"><span class="red" /> VISOKI</div>
+                <div class="legend-item"><span class="red" /> VRLO VISOKI</div>
+            </div>
+            <div>
+                <div class="legend-item"><span class="nullgray" />
+                    RIZIK OD KLIMATSKE PROMJENE OSTAJE ISTI
+                </div>
+                <div class="legend-item"><span class="lightgray" />
+                    SMANJENJE POJAVE
+                </div>
+
+            </div>
         </div>
     </div>
 </template>
@@ -83,8 +94,17 @@ td {
 .legend {
     margin-top: 16px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 13px;
+}
+
+.legend>div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     gap: 26px;
 }
 
@@ -99,10 +119,6 @@ td {
     width: 20px;
     height: 20px;
     margin-right: 8px;
-}
-
-.lightgray {
-    background-color: #ececec;
 }
 
 .gray {
@@ -123,5 +139,14 @@ td {
 
 .red {
     background-color: #ff0000;
+}
+
+.nullgray {
+    background-color: rgb(239, 239, 239);
+}
+
+.lightgray {
+    background-color: #caedfb;
+    font-style: italic;
 }
 </style>
