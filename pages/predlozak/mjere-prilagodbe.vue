@@ -92,6 +92,13 @@ import { useAdaptStore } from '~/stores/main-store';
 import Checkbox from 'primevue/checkbox';
 // import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 
+definePageMeta({
+    middleware: [
+        'auth',
+        'id-izracuna'
+    ],
+});
+
 const adaptStore = useAdaptStore();
 
 const idIzracuna = ref(

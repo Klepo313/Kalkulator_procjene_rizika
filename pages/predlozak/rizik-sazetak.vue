@@ -111,6 +111,13 @@ import { ref, computed, onMounted } from 'vue';
 import TablicaRizika from '~/components/TablicaRizika.vue';
 import { useOpciStore } from '#imports';
 
+definePageMeta({
+    middleware: [
+        'auth',
+        'id-izracuna'
+    ],
+});
+
 const rizikSazetakRef = ref(null);
 
 const opciStore = useOpciStore();
