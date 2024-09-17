@@ -128,9 +128,9 @@
                 <div class="grid-item">
                     <Select v-model="odabranaVrstaObjekta" :options="vrsteObjekta" option-label="tvo_naziv"
                         placeholder="Odaberi vrstu objekta" class="form-input"
-                        :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Proces' || status"
+                        :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Djelatnost' || status"
                         :required="odabranaVrstaIzracuna.tvz_naziv == 'Imovina'" @change="updateVrstaObjekta($event)">
-                        <!--:style="{ opacity: odabranaVrstaIzracuna.tvz_naziv === 'Proces' ? 0.6 : 1 }"-->
+                        <!--:style="{ opacity: odabranaVrstaIzracuna.tvz_naziv === 'Djelatnost' ? 0.6 : 1 }"-->
                         <template #value="slotProps">
                             <div v-if="slotProps.value" class="flex items-center">
                                 <div>{{ slotProps.value.tvo_naziv }}</div>
@@ -153,7 +153,7 @@
 
                 <div class="grid-item header">
                     Djelatnost
-                    <span v-if="odabranaVrstaIzracuna.tvz_naziv == 'Proces'" class="required">*</span>
+                    <span v-if="odabranaVrstaIzracuna.tvz_naziv == 'Djelatnost'" class="required">*</span>
                 </div>
                 <div class="grid-item">
                     <AutoComplete v-model="odabranaDjelatnost" :suggestions="filtriraneDjelatnosti"
@@ -161,7 +161,7 @@
                         :virtual-scroller-options="{ itemSize: 38 }"
                         :option-label="option => formatOption(option, 'djl_sif', 'djl_naziv')" class="form-input"
                         :disabled="odabranaVrstaIzracuna.tvz_naziv == 'Imovina' || status"
-                        :required="odabranaVrstaIzracuna.tvz_naziv == 'Proces'" @complete="searchDjelatnosti"
+                        :required="odabranaVrstaIzracuna.tvz_naziv == 'Djelatnost'" @complete="searchDjelatnosti"
                         @item-select="updateDjelatnost()" />
                 </div>
                 <div class="grid-item info-div">
@@ -317,7 +317,7 @@ const isSuccess = ref(true);
 const showPopup = ref(false);
 
 // const obaveznaPolja = ref(
-//     odabranaVrstaIzracuna.value.tvz_naziv == 'Proces'
+//     odabranaVrstaIzracuna.value.tvz_naziv == 'Djelatnost'
 //         ? ['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina', 'odabranaDjelatnost']
 //         : ['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina', 'odabranaVrstaObjekta']);
 
@@ -335,7 +335,7 @@ const obaveznaPolja = ref([
 
 watch(() => odabranaVrstaIzracuna.value.tvz_naziv, (newVal) => {
     console.log("Novi vrsta izračuna: ", newVal);
-    if (newVal === 'Proces') {
+    if (newVal === 'Djelatnost') {
         obaveznaPolja.value = [
             'odabraniDatum',
             'odabranaVrstaIzracuna',
@@ -528,7 +528,7 @@ const fillFormData = () => {
         if (odabranaVrstaIzracuna.value.tvz_naziv == 'Imovina') {
             odabranaDjelatnost.value = null;
             odabranaSkupinaDjelatnosti.value = null;
-        } else if (odabranaVrstaIzracuna.value.tvz_naziv == 'Proces') {
+        } else if (odabranaVrstaIzracuna.value.tvz_naziv == 'Djelatnost') {
             odabranaVrstaObjekta.value = null;
         }
 
@@ -591,7 +591,7 @@ const updateVrstaIzracuna = (event) => {
     if (event.value.tvz_naziv == 'Imovina') {
         odabranaDjelatnost.value = null;
         odabranaSkupinaDjelatnosti.value = null;
-    } else if (event.value.tvz_naziv == 'Proces') {
+    } else if (event.value.tvz_naziv == 'Djelatnost') {
         odabranaVrstaObjekta.value = null;
     }
 
