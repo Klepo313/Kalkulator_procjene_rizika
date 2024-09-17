@@ -103,8 +103,10 @@ const izracunStore = useIzracunStore();
 // Koristite useRoute za dobivanje trenutne rute
 const route = useRoute();
 const idIzracuna = ref(
-    useCookie('id_izracuna').value == '/' ?
-        '/' : parseInt(useCookie('id_izracuna').value)
+    useCookie('id_izracuna').value == '/' ||
+        useCookie('id_izracuna') == 0
+        ? '/'
+        : parseInt(useCookie('id_izracuna').value)
 );
 const username = ref(
     useCookie('username').value == undefined ?
