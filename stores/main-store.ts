@@ -84,11 +84,28 @@ export const useOpciStore = defineStore('opci-podaci', {
 
     }),
     actions: {
-        initializeData() {
-
-        },
-        clearData() {
-
+        clearOpciPodaci() {
+            this.opci_podaci.aiz_datum = '';
+            this.opci_podaci.aiz_djl_id = 0;
+            this.opci_podaci.aiz_djl_id_sk = 0;
+            this.opci_podaci.aiz_id = 0;
+            this.opci_podaci.aiz_kcs_id = 0;
+            this.opci_podaci.aiz_kop_id = 0;
+            this.opci_podaci.aiz_status = 0;
+            this.opci_podaci.aiz_tvo_id = 0;
+            this.opci_podaci.aiz_tvz_id = 0;
+            this.opci_podaci.aiz_opis = '';
+            this.opci_podaci.aiz_napomena = '';
+            this.opci_podaci.djl_naziv = '';
+            this.opci_podaci.djl_naziv_sk = '';
+            this.opci_podaci.djl_sif = '';
+            this.opci_podaci.isp_naziv = '';
+            this.opci_podaci.kcs_sif = '';
+            this.opci_podaci.kop_naziv = '';
+            this.opci_podaci.kop_sif = '';
+            this.opci_podaci.puk_naziv = '';
+            this.opci_podaci.tvo_naziv = '';
+            this.opci_podaci.tvz_naziv = '';
         },
 
         async fetchCalculationTypes() {
