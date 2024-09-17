@@ -271,7 +271,6 @@ const idIzracuna = ref(
 
 // const cookie = useCookie('id_izracuna');
 
-const napomena = ref();
 const messageCestica = ref(null);
 // const messageDjeltanost = ref(null);
 
@@ -285,6 +284,10 @@ const vrstaIzracuna = useCookie('vrsta_izracuna', {
     // secure: true, // Only send cookie over HTTPS
     // sameSite: 'none' // Protect against CSRF attacks
 });
+
+
+
+
 
 // Kreiramo instancu storea
 const opciStore = useOpciStore();
@@ -310,22 +313,75 @@ const odabraniPodrucniUred = ref({
     puk_naziv: null,
     puk_sif: null,
 });
+const napomena = ref();
 
 const status = ref(0);
-
 const isSuccess = ref(true);
 const showPopup = ref(false);
 
-// const obaveznaPolja = ref(
-//     odabranaVrstaIzracuna.value.tvz_naziv == 'Djelatnost'
-//         ? ['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina', 'odabranaDjelatnost']
-//         : ['odabraniDatum', 'odabranaVrstaIzracuna', 'odabranaKatastarskaOpcina', 'odabranaVrstaObjekta']);
+// Varijabla koja označava da su podaci fetchani i postavljeni
+const initialDataSet = ref(false);
 
-// const obaveznaPolja = ref({
-//     odabraniDatum,
-//     odabranaVrstaIzracuna,
-//     odabranaKatastarskaOpcina
-// });
+// Snapshot originalnih vrijednosti
+const initialFormData = ref({});
+
+// Inicijalizacija podataka
+const isFormDirty = ref(false);
+
+watch(
+    [
+        nazivIzracuna,
+        odabraniDatum,
+        odabranaVrstaIzracuna,
+        odabranaKatastarskaOpcina,
+        odabranaKatastarskaCestica,
+        odabranaVrstaObjekta,
+        odabranaDjelatnost,
+        odabranaSkupinaDjelatnosti,
+        odabranaIspostava,
+        odabraniPodrucniUred,
+        napomena,
+    ],
+    () => {
+        if (initialDataSet.value) {
+            // Usporedi trenutne vrijednosti s originalnim
+            isFormDirty.value = JSON.stringify({
+                nazivIzracuna: nazivIzracuna.value,
+                odabraniDatum: odabraniDatum.value,
+                odabranaVrstaIzracuna: odabranaVrstaIzracuna.value,
+                odabranaKatastarskaOpcina: odabranaKatastarskaOpcina.value,
+                odabranaKatastarskaCestica: odabranaKatastarskaCestica.value,
+                odabranaVrstaObjekta: odabranaVrstaObjekta.value,
+                odabranaDjelatnost: odabranaDjelatnost.value,
+                odabranaSkupinaDjelatnosti: odabranaSkupinaDjelatnosti.value,
+                odabranaIspostava: odabranaIspostava.value,
+                odabraniPodrucniUred: odabraniPodrucniUred.value,
+                napomena: napomena.value,
+            }) !== JSON.stringify(initialFormData.value);
+        }
+    },
+    { deep: true }
+);
+
+
+// Upozorenje prilikom napuštanja stranice (navigacije) ako ima nespremljenih promjena
+const router = useRouter();
+router.beforeEach((to, from, next) => {
+    // if (isFormDirty.value && !window.confirm('Imate nespremljene promjene. Želite li stvarno napustiti stranicu?')) {
+    if (isFormDirty.value && !window.confirm('This page is asking you to confirm that you want to leave — information you’ve entered may not be saved.')) {
+        next(false);
+    } else {
+        next();
+    }
+});
+
+// Upozorenje prilikom refreša stranice
+const beforeWindowUnload = (e) => {
+    if (isFormDirty.value) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+};
 
 const obaveznaPolja = ref([
     'odabraniDatum',
@@ -360,34 +416,40 @@ watch(idIzracuna, async (newValue, oldValue) => {
     }
 });
 
-function handleBeforeUnload(event) {
-    // Provjeri da li su varijable promijenjene
-    if (odabraniDatum.value !== null ||
-        odabranaVrstaIzracuna.value !== '' ||
-        odabranaKatastarskaOpcina.value !== null ||
-        odabranaKatastarskaCestica.value !== '' ||
-        odabranaVrstaObjekta.value !== null ||
-        odabranaDjelatnost.value !== null ||
-        odabranaSkupinaDjelatnosti.value !== null ||
-        odabranaIspostava.value !== null ||
-        odabraniPodrucniUred.value !== null ||
-        nazivIzracuna.value !== null ||
-        napomena.value !== null) {
+// function handleBeforeUnload(event) {
+//     // Provjeri da li su varijable promijenjene
+//     if (odabraniDatum.value !== null ||
+//         odabranaVrstaIzracuna.value !== '' ||
+//         odabranaKatastarskaOpcina.value !== null ||
+//         odabranaKatastarskaCestica.value !== '' ||
+//         odabranaVrstaObjekta.value !== null ||
+//         odabranaDjelatnost.value !== null ||
+//         odabranaSkupinaDjelatnosti.value !== null ||
+//         odabranaIspostava.value !== null ||
+//         odabraniPodrucniUred.value !== null ||
+//         nazivIzracuna.value !== null ||
+//         napomena.value !== null) {
 
-        // Otvori dijalog za upozorenje
-        event.preventDefault();
-        event.returnValue = 'Imate nespremljene promjene. Jeste li sigurni da želite napustiti ovu stranicu?'; // Ovo je potrebno za kompatibilnost s različitim preglednicima
-    }
-}
+//         // Otvori dijalog za upozorenje
+//         event.preventDefault();
+//         event.returnValue = 'Imate nespremljene promjene. Jeste li sigurni da želite napustiti ovu stranicu?'; // Ovo je potrebno za kompatibilnost s različitim preglednicima
+//     }
+// }
+
+
+// onBeforeUnmount(() => {
+//     window.removeEventListener('beforeunload', handleBeforeUnload);
+// });
 
 
 onBeforeUnmount(() => {
-    window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.removeEventListener('beforeunload', beforeWindowUnload);
 });
 
 onMounted(async () => {
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    // window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('beforeunload', beforeWindowUnload);
 
     resetForm();
     cleanOpciStore();
@@ -424,17 +486,6 @@ const resetForm = () => {
     odabraniPodrucniUred.value = null;
     nazivIzracuna.value = null;
     napomena.value = null;
-    // odabraniDatum.value = null;
-    // odabranaVrstaIzracuna.value = '';
-    // odabranaKatastarskaOpcina.value = '';
-    // odabranaKatastarskaCestica.value = '';
-    // odabranaVrstaObjekta.value = '';
-    // odabranaDjelatnost.value = '';
-    // odabranaSkupinaDjelatnosti.value = '';
-    // odabranaIspostava.value = null;
-    // odabraniPodrucniUred.value = null;
-    // nazivIzracuna.value = '';
-    // napomena.value = '';
 };
 
 const cleanOpciStore = () => {
@@ -533,6 +584,24 @@ const fillFormData = () => {
         }
 
         fetchParticles(parseInt(odabranaKatastarskaOpcina.value.aiz_kop_id));
+
+        initialFormData.value = JSON.parse(JSON.stringify({
+            nazivIzracuna: nazivIzracuna.value,
+            odabraniDatum: odabraniDatum.value,
+            odabranaVrstaIzracuna: odabranaVrstaIzracuna.value,
+            odabranaKatastarskaOpcina: odabranaKatastarskaOpcina.value,
+            odabranaKatastarskaCestica: odabranaKatastarskaCestica.value,
+            odabranaVrstaObjekta: odabranaVrstaObjekta.value,
+            odabranaDjelatnost: odabranaDjelatnost.value,
+            odabranaSkupinaDjelatnosti: odabranaSkupinaDjelatnosti.value,
+            odabranaIspostava: odabranaIspostava.value,
+            odabraniPodrucniUred: odabraniPodrucniUred.value,
+            napomena: napomena.value,
+        }));
+
+        // Označi da su podaci postavljeni
+        initialDataSet.value = true;
+
     }
 }
 
