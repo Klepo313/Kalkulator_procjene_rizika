@@ -95,12 +95,7 @@ const loading = ref(true);
 
 const odabraniIzracun = ref();
 
-const idIzracuna = useCookie('id_izracuna', {
-    maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
-    path: '/', // Cookie available throughout the app
-    secure: process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production // true, //process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production
-    sameSite: process.env.ENVIRONMENT === 'PRODUCTION' ? 'None' : 'Lax', // Use 'None' only in production
-});
+const idIzracuna = useCookie('id_izracuna');
 idIzracuna.value = '/';
 
 const vrstaIzracuna = useCookie('vrsta_izracuna');
