@@ -624,21 +624,6 @@ const isFormValid = computed(() => {
     return obaveznaPolja.value.every(field => eval(field).value); // Provjera jesu li sva obavezna polja popunjena
 });
 
-// Provjera validnosti forme
-// const isFormValid = computed(() => {
-//     return Object.keys(obaveznaPolja.value).every(fieldKey => {
-//         const fieldValue = obaveznaPolja.value[fieldKey]?.value;
-//         if (fieldKey === 'odabranaKatastarskaOpcina') {
-//             // Provjera da li je stvarno odabrana opcija s kop_id
-//             return fieldValue && fieldValue.kop_id;
-//         }
-//         // Provjera da li su ostala polja popunjena
-//         return fieldValue !== null && fieldValue !== '';
-//     });
-// });
-
-
-
 const updateNazivIzracuna = (value) => {
     nazivIzracuna.value = value;
     opciStore.opci_podaci.aiz_opis = value;
@@ -687,14 +672,6 @@ const updateKatastarskaOpcina = () => {
         }
     }
 };
-
-// const updateKatastarskaCestica = (newValue) => {
-//     console.log("Nova vrijednost katastarske čestice:", newValue);
-//     if (newValue) {
-//         opciStore.opci_podaci.aiz_kcs_id = newValue.kcs_id;
-//         opciStore.opci_podaci.kcs_sif = newValue.kcs_sif;
-//     }
-// };
 
 const privremenaKatastarskaCestica = ref(null);
 
@@ -758,6 +735,8 @@ const saveFormData = async () => {
 
                 console.log('res-id: ', parseInt(idIzracuna.value));
             }
+
+            isFormDirty.value = false;
 
         } catch (error) {
             isSuccess.value = false;
