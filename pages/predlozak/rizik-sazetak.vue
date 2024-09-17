@@ -3,8 +3,16 @@
         <main>
             <h1>
                 Rizik
+                <span class="h1-container">
+                    <span v-for="(item, index) in filteredItems" :key="index" class="h1-item">
+                        <div v-if="item.value">
+                            {{ item.value }}
+                            <span v-if="item.suffix">{{ item.suffix }}</span>
+                        </div>
+                    </span>
+                </span>
             </h1>
-            <div class="opci-podaci">
+            <!-- <div class="opci-podaci">
                 <div class="opci-podaci-item item-header">
                     Katastarska općina:
                 </div>
@@ -42,7 +50,7 @@
                     (Nije odabrano)
                 </div>
 
-            </div>
+            </div> -->
             <Tabs value="0">
                 <TabList>
                     <Tab class="reset-style" value="0">
@@ -90,7 +98,7 @@
                     <font-awesome-icon icon="download" size="lg" />
                 </span>
             </div>
-            <button @click="navigateTo('/predlozak')" class="footer-button">
+            <button @click="noviIzracun" class="footer-button">
                 <span>Novi predložak izračuna</span>
                 <font-awesome-icon icon="arrow-right-long" style="margin-left: 5px;" />
             </button>
@@ -103,6 +111,8 @@ import { ref, computed, onMounted } from 'vue';
 import TablicaRizika from '~/components/TablicaRizika.vue';
 import { useOpciStore } from '#imports';
 
+const rizikSazetakRef = ref(null);
+
 const opciStore = useOpciStore();
 
 const idIzracuna = ref(
@@ -112,10 +122,14 @@ const idIzracuna = ref(
         : parseInt(useCookie('id_izracuna').value)
 );
 
+// Kreiramo referencu za pristup komponenti
+const vrstaIzracuna = ref(useCookie('vrsta_izracuna').value);
+
 onMounted(async () => {
     await opciStore.fetchCalculation(idIzracuna.value);
 })
 
+const katOpcinaSifra = computed(() => opciStore.opci_podaci.kop_sif);
 const katOpcina = computed(() => opciStore.opci_podaci.kop_naziv);
 const katCestica = computed(() =>
     opciStore.opci_podaci.kcs_sif === ''
@@ -129,9 +143,21 @@ const djelatnost = computed(() =>
         : opciStore.opci_podaci.djl_naziv
 );
 
-// Kreiramo referencu za pristup komponenti
-const rizikSazetakRef = ref(null);
-const vrstaIzracuna = ref(useCookie('vrsta_izracuna').value);
+const displayItems = computed(() => [
+    { value: katOpcinaSifra.value && katOpcina.value ? `${katOpcinaSifra.value} - ${katOpcina.value}` : '', suffix: ',' },
+    { value: katCestica.value, suffix: ',' },
+    { value: vrstaImovine.value, suffix: ',' },
+    { value: djelatnost.value, suffix: '' }
+]);
+const filteredItems = computed(() => displayItems.value.filter(item => item.value));
+
+const noviIzracun = () => {
+    opciStore.clearOpciPodaci();
+    useCookie('id_izracuna').value = '/';
+    useCookie('vrsta_izracuna').value = null;
+    navigateTo('/predlozak');
+}
+
 </script>
 
 <style scoped>
@@ -242,6 +268,36 @@ h1 {
     text-align: left;
     padding-bottom: 7px;
     border-bottom: 2px solid var(--text-color);
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.h1-container {
+    font-size: 16px;
+    font-weight: 400;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px;
+}
+
+.h1-container * {
+    font-size: 16px;
+}
+
+.h1-opcina {
+    text-transform: capitalize;
+}
+
+.h1-container>span {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /* gap: 10px; */
 }
 
 main {
