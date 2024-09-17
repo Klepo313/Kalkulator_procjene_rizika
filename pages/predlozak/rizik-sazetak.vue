@@ -7,7 +7,7 @@
                     <span v-for="(item, index) in filteredItems" :key="index" class="h1-item">
                         <div v-if="item.value">
                             {{ item.value }}
-                            <span v-if="item.suffix">{{ item.suffix }}</span>
+                            <span v-if="index !== filteredItems.length - 1">{{ item.suffix }}</span>
                         </div>
                     </span>
                 </span>
@@ -282,9 +282,6 @@ h1 {
 }
 
 .h1-container {
-    font-size: 16px;
-    font-weight: 400;
-
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -294,6 +291,8 @@ h1 {
 
 .h1-container * {
     font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-color);
 }
 
 .h1-opcina {
