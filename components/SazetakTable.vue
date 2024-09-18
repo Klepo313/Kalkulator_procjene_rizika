@@ -99,8 +99,10 @@
             </div>
         </div>
         <div v-else class="grid">
-            <div class="_grid-item">
-                <font-awesome-icon icon="spinner" spin />
+            <div class="_grid-item first-div">
+                <span class="first">
+                    <font-awesome-icon icon="spinner" spin />
+                </span>
             </div>
             <div class="_grid-item db-s">
                 <font-awesome-icon icon="spinner" spin />
@@ -121,8 +123,10 @@
                 <font-awesome-icon icon="spinner" spin />
             </div>
 
-            <div class="_grid-item">
-                <font-awesome-icon icon="spinner" spin />
+            <div class="_grid-item first-div">
+                <span class="first">
+                    <font-awesome-icon icon="spinner" spin />
+                </span>
             </div>
             <div class="_grid-item db-s">
                 <font-awesome-icon icon="spinner" spin />
@@ -143,8 +147,10 @@
                 <font-awesome-icon icon="spinner" spin />
             </div>
 
-            <div class="_grid-item">
-                <font-awesome-icon icon="spinner" spin />
+            <div class="_grid-item first-div">
+                <span class="first">
+                    <font-awesome-icon icon="spinner" spin />
+                </span>
             </div>
             <div class="_grid-item db-s">
                 <font-awesome-icon icon="spinner" spin />
@@ -165,7 +171,11 @@
                 <font-awesome-icon icon="spinner" spin />
             </div>
 
-            <div class="_grid-item"><font-awesome-icon icon="spinner" spin /></div>
+            <div class="_grid-item first-div">
+                <span class="first">
+                    <font-awesome-icon icon="spinner" spin />
+                </span>
+            </div>
             <div class="_grid-item db-s">
                 <font-awesome-icon icon="spinner" spin />
             </div>
