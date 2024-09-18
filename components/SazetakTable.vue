@@ -189,6 +189,7 @@
 </template>
 
 <script setup>
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { getColorClass } from '../utils/getColorClass'
 
 const props = defineProps({
@@ -201,27 +202,18 @@ const props = defineProps({
 // Reaktivna vrednost data je direktno povezana sa props.data
 const data = computed(() => props.data);
 
-const isScreenWidthLessThan1500 = ref(window.innerWidth < 1500)
 
-const isDoubleDigit = (value) => {
-    // Provjerava je li vrijednost broj i je li dvoznamenkast
-    return value >= 10 && value <= 99; // typeof value === 'number' && 
-}
-const getFontSize = (value) => {
-    // Vraća stil na temelju provjere je li broj dvoznamenkast
-    if (isDoubleDigit(value) && isScreenWidthLessThan1500.value) {
-        return { fontSize: '12px' };
-    }
-    return {};
-}
+const isScreenWidthLessThan1500 = ref(false);
 
-// Funkcija koja ažurira varijablu kad se promijeni veličina ekrana
 const updateScreenWidth = () => {
-    isScreenWidthLessThan1500.value = window.innerWidth < 1500;
+    if (typeof window !== 'undefined') {
+        isScreenWidthLessThan1500.value = window.innerWidth < 1500;
+    }
 };
 
-// Dodaj event listener za promjene u veličini ekrana
+// Dodaj event listener za promjene u veličini ekrana unutar onMounted hook-a
 onMounted(() => {
+    updateScreenWidth(); // Inicijalno postavljanje prilikom mount-a
     window.addEventListener('resize', updateScreenWidth);
 });
 
@@ -234,6 +226,18 @@ onUnmounted(() => {
 watch(isScreenWidthLessThan1500, (newValue) => {
     console.log(`Screen width is less than 1500: ${newValue}`);
 });
+
+const isDoubleDigit = (value) => {
+    // Provjerava je li vrijednost broj i je li dvoznamenkast
+    return value >= 10 && value <= 99; // typeof value === 'number' && 
+}
+const getFontSize = (value) => {
+    // Vraća stil na temelju provjere je li broj dvoznamenkast
+    if (isDoubleDigit(value) && isScreenWidthLessThan1500.value) {
+        return { fontSize: '12px' };
+    }
+    return {};
+}
 
 </script>
 
