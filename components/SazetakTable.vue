@@ -201,18 +201,39 @@ const props = defineProps({
 // Reaktivna vrednost data je direktno povezana sa props.data
 const data = computed(() => props.data);
 
+const isScreenWidthLessThan1500 = ref(window.innerWidth < 1500)
+
 const isDoubleDigit = (value) => {
     // Provjerava je li vrijednost broj i je li dvoznamenkast
     return value >= 10 && value <= 99; // typeof value === 'number' && 
 }
 const getFontSize = (value) => {
-    const isScreenWidthLessThan1500 = window.innerWidth < 1500;
     // Vraća stil na temelju provjere je li broj dvoznamenkast
-    if (isDoubleDigit(value) && isScreenWidthLessThan1500) {
+    if (isDoubleDigit(value) && isScreenWidthLessThan1500.value) {
         return { fontSize: '12px' };
     }
     return {};
 }
+
+// Funkcija koja ažurira varijablu kad se promijeni veličina ekrana
+const updateScreenWidth = () => {
+    isScreenWidthLessThan1500.value = window.innerWidth < 1500;
+};
+
+// Dodaj event listener za promjene u veličini ekrana
+onMounted(() => {
+    window.addEventListener('resize', updateScreenWidth);
+});
+
+// Ukloni event listener kada komponenta bude uništena
+onUnmounted(() => {
+    window.removeEventListener('resize', updateScreenWidth);
+});
+
+// watch funkcija koja reagira na promjene u reaktivnoj varijabli
+watch(isScreenWidthLessThan1500, (newValue) => {
+    console.log(`Screen width is less than 1500: ${newValue}`);
+});
 
 </script>
 
