@@ -3,7 +3,7 @@
         <div class="body">
             <main>
                 <div class="image-container">
-                    <img src="../images/KPR_full_logo.svg" alt="logo">
+                    <img src="../images/KPKR_logo.svg" alt="logo">
                 </div>
                 <div class="main-container">
                     <NuxtPage style="width: 100%; height: 100%;" />
@@ -48,14 +48,13 @@ main {
     flex-direction: column;
     justify-content: center;
     align-items: space-between;
-    gap: 0px;
+    gap: 20px;
 
     transition: flex-direction 0.5s ease;
 }
 
 .image-container,
 .main-container {
-    padding: 26px;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -3,8 +3,8 @@
     <div :class="['sidebar', isCollapsed ? 'collapsed' : '']">
         <div :class="['sidebar-main', isCollapsed ? 'collapsed' : '']">
             <div :class="['sidebar-header', isCollapsed ? 'collapsed' : '']">
-                <img :class="['logo-image', isCollapsed ? 'collapsed' : '']" src="../images/sidebar_logo.svg" alt="logo"
-                    style="cursor: pointer;" @click="navigateTo('/')">
+                <img :class="['logo-image', isCollapsed ? 'collapsed' : '']" src="../images/KPKR_logo_sidebar.svg"
+                    alt="logo" style="cursor: pointer;" @click="navigateTo('/')">
                 <font-awesome-icon :class="['narrow-icon', isCollapsed ? 'collapsed' : '']" icon="angles-left"
                     @click="toggleSidebar" />
             </div>
@@ -165,7 +165,9 @@ const doLogout = async () => {
     color: var(--text-color);
 }
 
-
+/* .sidebar-header img {
+    max-width: 180px;
+} */
 
 .narrow-icon:hover {
     transform: translateX(-3px);
