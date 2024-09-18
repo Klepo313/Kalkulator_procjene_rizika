@@ -3,8 +3,8 @@
     <div :class="['sidebar', isCollapsed ? 'collapsed' : '']">
         <div :class="['sidebar-main', isCollapsed ? 'collapsed' : '']">
             <div :class="['sidebar-header', isCollapsed ? 'collapsed' : '']">
-                <img :class="['logo-image', isCollapsed ? 'collapsed' : '']" src="../images/sidebar_logo.svg"
-                    alt="logo">
+                <img :class="['logo-image', isCollapsed ? 'collapsed' : '']" src="../images/sidebar_logo.svg" alt="logo"
+                    style="cursor: pointer;" @click="navigateTo('/')">
                 <font-awesome-icon :class="['narrow-icon', isCollapsed ? 'collapsed' : '']" icon="angles-left"
                     @click="toggleSidebar" />
             </div>
