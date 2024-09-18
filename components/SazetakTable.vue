@@ -3,52 +3,100 @@
         <div v-if="data" class="grid">
             <!-- v-for tdg_rbr == 10 -->
             <div class="_grid-item first-div" :class="getColorClass(data[0].history)">
-                <span class="first">
+                <span class="first" :style="getFontSize(data[0].history)">
                     {{ data[0].history }}
                 </span>
             </div>
-            <div class="_grid-item db-s" :class="getColorClass(data[0].p0_4_5)">{{ data[0].p0_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p0_8_5)">{{ data[0].p0_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p1_4_5)">{{ data[0].p1_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p1_8_5)">{{ data[0].p1_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p2_4_5)">{{ data[0].p2_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[0].p2_8_5)">{{ data[0].p2_8_5 }}</div>
+            <div class="_grid-item db-s" :class="getColorClass(data[0].p0_4_5)" :style="getFontSize(data[0].p0_4_5)">
+                {{ data[0].p0_4_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[0].p0_8_5)" :style="getFontSize(data[0].p0_8_5)">
+                {{ data[0].p0_8_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[0].p1_4_5)" :style="getFontSize(data[0].p1_4_5)">
+                {{ data[0].p1_4_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[0].p1_8_5)" :style="getFontSize(data[0].p1_8_5)">
+                {{ data[0].p1_8_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[0].p2_4_5)" :style="getFontSize(data[0].p2_4_5)">
+                {{ data[0].p2_4_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[0].p2_8_5)" :style="getFontSize(data[0].p2_8_5)">
+                {{ data[0].p2_8_5 }}
+            </div>
 
             <div class="_grid-item first-div" :class="getColorClass(data[1].history)">
-                <span class="first">
+                <span class="first" :style="getFontSize(data[1].history)">
                     {{ data[1].history }}
                 </span>
             </div>
-            <div class="_grid-item db-s" :class="getColorClass(data[1].p0_4_5)">{{ data[1].p0_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[1].p0_8_5)">{{ data[1].p0_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[1].p1_4_5)">{{ data[1].p1_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[1].p1_8_5)">{{ data[1].p1_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[1].p2_4_5)">{{ data[1].p2_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[1].p2_8_5)">{{ data[1].p2_8_5 }}</div>
+            <div class="_grid-item db-s" :class="getColorClass(data[1].p0_4_5)" :style="getFontSize(data[1].p0_4_5)">
+                {{ data[1].p0_4_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[1].p0_8_5)" :style="getFontSize(data[1].p0_8_5)">
+                {{ data[1].p0_8_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[1].p1_4_5)" :style="getFontSize(data[1].p1_4_5)">
+                {{ data[1].p1_4_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[1].p1_8_5)" :style="getFontSize(data[1].p1_8_5)">
+                {{ data[1].p1_8_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[1].p2_4_5)" :style="getFontSize(data[1].p2_4_5)">
+                {{ data[1].p2_4_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[1].p2_8_5)" :style="getFontSize(data[1].p2_8_5)">
+                {{ data[1].p2_8_5 }}
+            </div>
 
             <div class="_grid-item first-div" :class="getColorClass(data[2].history)">
-                <span class="first">
+                <span class="first" :style="getFontSize(data[2].history)">
                     {{ data[2].history }}
                 </span>
             </div>
-            <div class="_grid-item db-s" :class="getColorClass(data[2].p0_4_5)">{{ data[2].p0_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[2].p0_8_5)">{{ data[2].p0_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[2].p1_4_5)">{{ data[2].p1_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[2].p1_8_5)">{{ data[2].p1_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[2].p2_4_5)">{{ data[2].p2_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[2].p2_8_5)">{{ data[2].p2_8_5 }}</div>
+            <div class="_grid-item db-s" :class="getColorClass(data[2].p0_4_5)" :style="getFontSize(data[2].p0_4_5)">
+                {{ data[2].p0_4_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[2].p0_8_5)" :style="getFontSize(data[2].p0_8_5)">
+                {{ data[2].p0_8_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[2].p1_4_5)" :style="getFontSize(data[2].p1_4_5)">
+                {{ data[2].p1_4_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[2].p1_8_5)" :style="getFontSize(data[2].p1_8_5)">
+                {{ data[2].p1_8_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[2].p2_4_5)" :style="getFontSize(data[2].p2_4_5)">
+                {{ data[2].p2_4_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[2].p2_8_5)" :style="getFontSize(data[2].p2_8_5)">
+                {{ data[2].p2_8_5 }}
+            </div>
 
             <div class="_grid-item first-div" :class="getColorClass(data[3].history)">
-                <span class="first">
+                <span class="first" :style="getFontSize(data[3].history)">
                     {{ data[3].history }}
                 </span>
             </div>
-            <div class="_grid-item db-s" :class="getColorClass(data[3].p0_4_5)">{{ data[3].p0_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[3].p0_8_5)">{{ data[3].p0_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[3].p1_4_5)">{{ data[3].p1_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[3].p1_8_5)">{{ data[3].p1_8_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[3].p2_4_5)">{{ data[3].p2_4_5 }}</div>
-            <div class="_grid-item" :class="getColorClass(data[3].p2_8_5)">{{ data[3].p2_8_5 }}</div>
+            <div class="_grid-item db-s" :class="getColorClass(data[3].p0_4_5)" :style="getFontSize(data[3].p0_4_5)">
+                {{ data[3].p0_4_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[3].p0_8_5)" :style="getFontSize(data[3].p0_8_5)">
+                {{ data[3].p0_8_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[3].p1_4_5)" :style="getFontSize(data[3].p1_4_5)">
+                {{ data[3].p1_4_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[3].p1_8_5)" :style="getFontSize(data[3].p1_8_5)">
+                {{ data[3].p1_8_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[3].p2_4_5)" :style="getFontSize(data[3].p2_4_5)">
+                {{ data[3].p2_4_5 }}
+            </div>
+            <div class="_grid-item" :class="getColorClass(data[3].p2_8_5)" :style="getFontSize(data[3].p2_8_5)">
+                {{ data[3].p2_8_5 }}
+            </div>
         </div>
         <div v-else class="grid">
             <div class="_grid-item">
@@ -153,6 +201,19 @@ const props = defineProps({
 // Reaktivna vrednost data je direktno povezana sa props.data
 const data = computed(() => props.data);
 
+const isDoubleDigit = (value) => {
+    // Provjerava je li vrijednost broj i je li dvoznamenkast
+    return value >= 10 && value <= 99; // typeof value === 'number' && 
+}
+const getFontSize = (value) => {
+    const isScreenWidthLessThan1500 = window.innerWidth < 1500;
+    // Vraća stil na temelju provjere je li broj dvoznamenkast
+    if (isDoubleDigit(value) && isScreenWidthLessThan1500) {
+        return { fontSize: '12px' };
+    }
+    return {};
+}
+
 </script>
 
 <style scoped>
@@ -178,9 +239,9 @@ const data = computed(() => props.data);
     border-right: none;
 }
 
-.first-div {
+/* .first-div {
     padding: 0px 1px;
-}
+} */
 
 .first {
     width: 100%;
@@ -190,8 +251,8 @@ const data = computed(() => props.data);
     align-items: center;
     justify-content: center;
 
-    border-left: 1px solid #3C7D22;
-    border-right: 1px solid #3C7D22;
+    border-left: 2px solid #3C7D22;
+    border-right: 2px solid #3C7D22;
 }
 
 .db-r {
@@ -200,6 +261,10 @@ const data = computed(() => props.data);
 
 .db-s {
     border-left-style: solid;
+}
+
+.nullgray {
+    background-color: rgb(239, 239, 239);
 }
 
 /* < 0 */
