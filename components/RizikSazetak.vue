@@ -27,35 +27,35 @@
 
                 <div class="grid-item green postojeci nb-r nb-b">Postojeći</div>
                 <div class="grid-item darkgreen nb-r nb-b">P0</div>
-                <div class="grid-item darkgreen nb-r nb-b">P1</div>
-                <div class="grid-item darkgreen nb-r nb-b">P2</div>
-                <div class="grid-item darkgreen nb-r nb-b">P0</div>
-                <div class="grid-item darkgreen nb-r nb-b">P1</div>
-                <div class="grid-item darkgreen nb-b">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P1</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P1</div>
+                <div class="grid-item darkgreen nb-b sb-w-l">P2</div>
 
                 <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
                 <div class="grid-item darkgreen nb-r nb-b">P0</div>
-                <div class="grid-item darkgreen nb-r nb-b">P1</div>
-                <div class="grid-item darkgreen nb-r nb-b">P2</div>
-                <div class="grid-item darkgreen nb-r nb-b">P0</div>
-                <div class="grid-item darkgreen nb-r nb-b">P1</div>
-                <div class="grid-item darkgreen nb-b">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P1</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P1</div>
+                <div class="grid-item darkgreen nb-b sb-w-l">P2</div>
 
                 <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
                 <div class="grid-item darkgreen nb-r nb-b">P0</div>
-                <div class="grid-item darkgreen nb-r nb-b">P1</div>
-                <div class="grid-item darkgreen nb-r nb-b">P2</div>
-                <div class="grid-item darkgreen nb-r nb-b">P0</div>
-                <div class="grid-item darkgreen nb-r nb-b">P1</div>
-                <div class="grid-item darkgreen nb-b">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P1</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P1</div>
+                <div class="grid-item darkgreen nb-b sb-w-l">P2</div>
 
                 <div class="grid-item green postojeci nb-l nb-r nb-b">Postojeći</div>
                 <div class="grid-item darkgreen nb-r nb-b">P0</div>
-                <div class="grid-item darkgreen nb-r nb-b">P1</div>
-                <div class="grid-item darkgreen nb-r nb-b">P2</div>
-                <div class="grid-item darkgreen nb-r nb-b">P0</div>
-                <div class="grid-item darkgreen nb-r nb-b">P1</div>
-                <div class="grid-item darkgreen nb-b">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P1</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P2</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P0</div>
+                <div class="grid-item darkgreen nb-r nb-b sb-w-l">P1</div>
+                <div class="grid-item darkgreen nb-b sb-w-l">P2</div>
 
                 <div class="grid-item pink nb-l nb-b nb-r">Temperatura</div>
                 <div class="grid-item lightgreen db-l nb-b nb-r">Vjetar</div>
@@ -601,8 +601,10 @@ onMounted(() => {
     align-items: center;
     justify-content: flex-end;
     text-align: right;
-    padding-left: 30px;
-    padding-right: 5px;
+    /* padding-left: 30px;
+    padding-right: 5px; */
+
+    padding: 5px;
 
     border-right: none;
     border-bottom: none;
@@ -733,6 +735,31 @@ onMounted(() => {
     border-bottom: 1px solid #3C7D22;
 }
 
+.sb-w {
+    border: 1px solid white;
+}
+
+.sb-w-t {
+    border-top: 1px solid white;
+}
+
+.sb-w-b {
+    border-bottom: 1px solid white;
+}
+
+.sb-w-l {
+    border-left: 1px solid white;
+}
+
+.sb-w-r {
+    border-right: 1px solid white;
+}
+
+
+
+.nullgray {
+    background-color: rgb(239, 239, 239);
+}
 
 .pink {
     background-color: #FBE2D5;
