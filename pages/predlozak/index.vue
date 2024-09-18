@@ -7,7 +7,7 @@
             <span>
                 {{ isSuccess ? 'Uspješno spremanje' : 'Spremanje nije uspjelo' }}
             </span>
-            <div class="progress-bar"></div>
+            <div class="progress-bar" />
         </div>
 
         <main>
@@ -88,28 +88,6 @@
                         option-label="kcs_sif" class="form-input" :disabled="!odabranaKatastarskaOpcina || status"
                         @complete="searchKatastarskeCestice" @update:model-value="updateKatastarskaCestica"
                         @item-select="onSelectKatastarskaCestica" />
-
-                    <!-- <Select v-model="odabranaKatastarskaCestica" :options="katastarskeCestice" filter
-                        option-label="kcs_sif" placeholder="Odaberi katastarsku česticu" class="form-input"
-                        :disabled="!odabranaKatastarskaOpcina || status" @change="updateKatastarskaCestica">
-                        
-                        <template #value="slotProps">
-                            <div v-if="slotProps.value" class="flex items-center">
-                                <div>{{ slotProps.value.kcs_sif }}</div>
-                            </div>
-                            <span v-else>
-                                {{ slotProps.placeholder }}
-                            </span>
-                        </template>
-
-                        
-                        <template #option="slotProps">
-                            <div class="flex items-center">
-                                <div>{{ slotProps.option.kcs_sif }}</div>
-                            </div>
-                        </template>
-                    </Select> -->
-
                 </div>
                 <div class="grid-item info-div">
                     <font-awesome-icon v-if="messageCestica" :icon="'info-circle'" class="info-icon" />
@@ -212,26 +190,23 @@
                     <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
             </form>
+            <button v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" id="saveBtn"
+                type="button" @click="saveFormData" :disabled="!isFormValid">
+                <font-awesome-icon icon="save" class="save-icon" />
+                Spremi
+            </button>
             <span v-else style="font-style: italic;">
                 Učitavanje podataka
                 <font-awesome-icon icon="spinner" spin />
             </span>
-            <span class="map-link" @click="openMapPopUp">
+            <!-- <span class="map-link" @click="openMapPopUp">
                 <font-awesome-icon icon="arrow-up-right-from-square" />
                 <span>
                     Otvori katastarsku mapu i odaberi česticu
                 </span>
-            </span>
+            </span> -->
         </main>
         <footer>
-            <!-- <nuxt-link to="/predlosci" class="footer-link prethodni">
-                <font-awesome-icon icon="arrow-left-long" />
-                Prethodni izračuni
-            </nuxt-link> -->
-            <button id="saveBtn" type="button" @click="saveFormData" :disabled="!isFormValid">
-                <font-awesome-icon icon="save" class="save-icon" />
-                Spremi
-            </button>
             <button class="footer-button" @click="navigateTo('/predlozak/mjere-prilagodbe')"
                 :disabled="idIzracuna == '/' || idIzracuna == 0">
                 <span>Mjere prilagodbe</span>
@@ -345,6 +320,11 @@ watch(
     () => {
         if (initialDataSet.value) {
             // Usporedi trenutne vrijednosti s originalnim
+
+            console.log("Bilo je promjena");
+
+            console.log("initial data set u watchu prije: ", initialDataSet.value)
+
             isFormDirty.value = JSON.stringify({
                 nazivIzracuna: nazivIzracuna.value,
                 odabraniDatum: odabraniDatum.value,
@@ -358,6 +338,22 @@ watch(
                 odabraniPodrucniUred: odabraniPodrucniUred.value,
                 napomena: napomena.value,
             }) !== JSON.stringify(initialFormData.value);
+
+            console.log("Nakon u watchu: ",
+                {
+                    nazivIzracuna: nazivIzracuna.value,
+                    odabraniDatum: odabraniDatum.value,
+                    odabranaVrstaIzracuna: odabranaVrstaIzracuna.value,
+                    odabranaKatastarskaOpcina: odabranaKatastarskaOpcina.value,
+                    odabranaKatastarskaCestica: odabranaKatastarskaCestica.value,
+                    odabranaVrstaObjekta: odabranaVrstaObjekta.value,
+                    odabranaDjelatnost: odabranaDjelatnost.value,
+                    odabranaSkupinaDjelatnosti: odabranaSkupinaDjelatnosti.value,
+                    odabranaIspostava: odabranaIspostava.value,
+                    odabraniPodrucniUred: odabraniPodrucniUred.value,
+                    napomena: napomena.value,
+                }
+            )
         }
     },
     { deep: true }
@@ -371,6 +367,7 @@ router.beforeEach((to, from, next) => {
     if (isFormDirty.value && !window.confirm('This page is asking you to confirm that you want to leave — information you’ve entered may not be saved.')) {
         next(false);
     } else {
+        isFormDirty.value = false;
         next();
     }
 });
@@ -447,25 +444,42 @@ onBeforeUnmount(() => {
 });
 
 onMounted(async () => {
-
-    // window.addEventListener('beforeunload', handleBeforeUnload);
+    // Dodaj event listener za upozorenje prilikom refreša stranice
     window.addEventListener('beforeunload', beforeWindowUnload);
 
+    // Resetiramo formu i store
     resetForm();
     cleanOpciStore();
     izracunStore.idIzracuna = idIzracuna.value == '/' ? 0 : idIzracuna.value;
 
     console.log("ID izračuna u storeu: ", izracunStore.idIzracuna);
-
     console.log("ID izračuna u indexu: ", idIzracuna.value);
 
+    // Provjeri da li je ID izračuna prazan
     if (idIzracuna.value !== '/') {
         await opciStore.fetchCalculation(idIzracuna.value);
         fillFormData();
     } else {
-        console.log("ID izračuna je prazan, forma ostaje prazna.");
+        console.log("ID izračuna je prazan, inicijaliziramo praznu formu.");
+        initialFormData.value = JSON.parse(JSON.stringify({
+            nazivIzracuna: '',
+            odabraniDatum: null,
+            odabranaVrstaIzracuna: '',
+            odabranaKatastarskaOpcina: '',
+            odabranaKatastarskaCestica: '',
+            odabranaVrstaObjekta: null,
+            odabranaDjelatnost: '',
+            odabranaSkupinaDjelatnosti: '',
+            odabranaIspostava: '',
+            odabraniPodrucniUred: '',
+            napomena: '',
+        }));
+
+        // Označi da su podaci postavljeni
+        initialDataSet.value = true;
     }
 
+    // Dohvati podatke potrebne za formu
     await opciStore.fetchCalculationTypes();
     await opciStore.fetchObjectTypes();
     await opciStore.fetchActivities();
@@ -474,18 +488,19 @@ onMounted(async () => {
     console.log("Opci podaci: ", opciStore.opci_podaci);
 });
 
+
 const resetForm = () => {
     odabraniDatum.value = null;
     odabranaVrstaIzracuna.value = '';
-    odabranaKatastarskaOpcina.value = null;
+    odabranaKatastarskaOpcina.value = '';
     odabranaKatastarskaCestica.value = '';
     odabranaVrstaObjekta.value = null;
-    odabranaDjelatnost.value = null;
-    odabranaSkupinaDjelatnosti.value = null;
-    odabranaIspostava.value = null;
-    odabraniPodrucniUred.value = null;
-    nazivIzracuna.value = null;
-    napomena.value = null;
+    odabranaDjelatnost.value = '';
+    odabranaSkupinaDjelatnosti.value = '';
+    odabranaIspostava.value = '';
+    odabraniPodrucniUred.value = '';
+    nazivIzracuna.value = '';
+    napomena.value = '';
 };
 
 const cleanOpciStore = () => {
@@ -625,6 +640,7 @@ const isFormValid = computed(() => {
 });
 
 const updateNazivIzracuna = (value) => {
+    console.log(value);
     nazivIzracuna.value = value;
     opciStore.opci_podaci.aiz_opis = value;
 };
@@ -675,10 +691,34 @@ const updateKatastarskaOpcina = () => {
 
 const privremenaKatastarskaCestica = ref(null);
 
+// const updateKatastarskaCestica = (newValue) => {
+//     console.log("Nova vrijednost katastarske čestice:", newValue);
+//     // Čuvamo privremenu vrijednost, ali je ne spremamo odmah u store
+//     privremenaKatastarskaCestica.value = newValue;
+// };
+
 const updateKatastarskaCestica = (newValue) => {
     console.log("Nova vrijednost katastarske čestice:", newValue);
-    // Čuvamo privremenu vrijednost, ali je ne spremamo odmah u store
-    privremenaKatastarskaCestica.value = newValue;
+
+    // Provjera ako postoji katastarska čestica u katastarskeCestice koja odgovara newValue
+    const matchingCestica = katastarskeCestice.value.find(cestica => cestica.kcs_sif === newValue);
+
+    if (matchingCestica) {
+        // Ako postoji, dohvati njena svojstva (kcs_id, kcs_sif)
+        privremenaKatastarskaCestica.value = {
+            ...matchingCestica,  // kopiramo svojstva matchingCestice
+        };
+
+        // Spremanje u store
+        opciStore.opci_podaci.aiz_kcs_id = privremenaKatastarskaCestica.value.kcs_id;
+        opciStore.opci_podaci.kcs_sif = privremenaKatastarskaCestica.value.kcs_sif;
+
+        console.log("Vrijednosti spremljene u store:", opciStore.opci_podaci);
+    } else {
+        // Ako nema podudaranja, samo postavi privremenu vrijednost
+        privremenaKatastarskaCestica.value = newValue;
+        console.log("Privremeno ažurirana katastarska čestica:", privremenaKatastarskaCestica.value);
+    }
 };
 
 // Funkcija se poziva kad je stvarna stavka odabrana iz dropdown-a
@@ -1107,7 +1147,7 @@ textarea {
 }
 
 footer {
-    justify-content: space-between;
+    justify-content: flex-end;
 }
 
 .footer-button {
