@@ -10,20 +10,20 @@
         <div class="sazetak">
             <div v-if="structuredData" class="grid-table">
                 <div class="grid-item nb"></div>
-                <div class="grid-item nb-r nb-b">RCP 4.5</div>
-                <div class="grid-item nb-b">RCP 8.5</div>
+                <div class="grid-item nb-r nb-b rcp">RCP 4.5</div>
+                <div class="grid-item nb-b rcp">RCP 8.5</div>
                 <div class="grid-item nb"></div>
-                <div class="grid-item nb-r nb-b">RCP 4.5</div>
-                <div class="grid-item nb-b">RCP 8.5</div>
+                <div class="grid-item nb-r nb-b rcp">RCP 4.5</div>
+                <div class="grid-item nb-b rcp">RCP 8.5</div>
                 <div class="grid-item nb"></div>
-                <div class="grid-item nb-r nb-b">RCP 4.5</div>
-                <div class="grid-item nb-b">RCP 8.5</div>
+                <div class="grid-item nb-r nb-b rcp">RCP 4.5</div>
+                <div class="grid-item nb-b rcp">RCP 8.5</div>
                 <div class="grid-item nb"></div>
-                <div class="grid-item nb-r nb-b">RCP 4.5</div>
-                <div class="grid-item nb-b">RCP 8.5</div>
+                <div class="grid-item nb-r nb-b rcp">RCP 4.5</div>
+                <div class="grid-item nb-b rcp">RCP 8.5</div>
 
-                <div class="grid-item vertical green th" style="border-bottom: none;">Kronični</div>
-                <div class="grid-item vertical green th">Akutni</div>
+                <div class="grid-item vertical th" style="border-bottom: none;">Kronični</div>
+                <div class="grid-item vertical th">Akutni</div>
 
                 <div class="grid-item green postojeci nb-r nb-b">Postojeći</div>
                 <div class="grid-item darkgreen nb-r nb-b">P0</div>
@@ -337,14 +337,19 @@ onMounted(() => {
     text-orientation: sideways;
     text-align: center;
     text-wrap: wrap;
+
     font-size: 14px;
+    font-weight: 500;
     padding: 5px;
 
     border-right: none;
     border-left: none;
     border-bottom: none;
+}
 
-    color: white;
+.rcp {
+    color: #0070c0;
+    font-weight: 500;
 }
 
 .table-item {
@@ -367,6 +372,9 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     text-align: center;
+
+    font-weight: 500;
+
     padding: 5px 20px;
 
     border-right: none;
@@ -397,7 +405,7 @@ onMounted(() => {
     align-items: center;
     gap: 10px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 500;
     background-color: rgb(192, 57, 43);
     /* Zelena boja za uspjeh */
     border-radius: 5px;
