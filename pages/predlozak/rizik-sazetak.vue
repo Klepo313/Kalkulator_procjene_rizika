@@ -12,45 +12,6 @@
                     </span>
                 </span>
             </h1>
-            <!-- <div class="opci-podaci">
-                <div class="opci-podaci-item item-header">
-                    Katastarska općina:
-                </div>
-                <div class="opci-podaci-item">
-                    {{ katOpcina }}
-                </div>
-
-                <div class="opci-podaci-item item-header">
-                    Vrsta imovine:
-                </div>
-                <div v-if="vrstaImovine" class="opci-podaci-item">
-                    {{ vrstaImovine }}
-                </div>
-                <div v-else class="opci-podaci-item empty">
-                    (Nije odabrano)
-                </div>
-
-                <div class="opci-podaci-item item-header">
-                    Katastarska čestica:
-                </div>
-                <div v-if="katCestica" class="opci-podaci-item">
-                    {{ katCestica }}
-                </div>
-                <div v-else class="opci-podaci-item empty">
-                    (Nije odabrano)
-                </div>
-
-                <div class="opci-podaci-item item-header">
-                    Djelatnost:
-                </div>
-                <div v-if="djelatnost" class="opci-podaci-item">
-                    {{ djelatnost }}
-                </div>
-                <div v-else class="opci-podaci-item empty">
-                    (Nije odabrano)
-                </div>
-
-            </div> -->
             <Tabs value="0">
                 <TabList>
                     <Tab class="reset-style" value="0">
@@ -64,17 +25,17 @@
                 </TabList>
                 <TabPanels class="tab-panel">
                     <TabPanel value="0" class="tab-panel">
-                        <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" ref="rizikSazetakRef" :tip="'RZ'"
-                            class="rizik-sazetak" />
-                        <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
-                        <span v-else>
-                            <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
-                            Nije odabrana vrsta izračuna
-                        </span>
+                        <div ref="rizikSazetakRef">
+                            <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'RZ'" class="rizik-sazetak" />
+                            <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
+                            <span v-else>
+                                <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
+                                Nije odabrana vrsta izračuna
+                            </span>
+                        </div>
                     </TabPanel>
                     <TabPanel value="1" class="tab-panel">
-                        <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" ref="rizikSazetakRef" :tip="'KR'"
-                            class="rizik-sazetak" />
+                        <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'KR'" class="rizik-sazetak" />
                         <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'KR'" />
                         <span v-else>
                             <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
@@ -83,7 +44,6 @@
                     </TabPanel>
                 </TabPanels>
             </Tabs>
-            <!-- <LegendaBoja class="legenda" /> -->
         </main>
         <footer>
             <button @click="navigateTo('/predlozak/mjere-prilagodbe')" class="footer-button">
@@ -94,7 +54,7 @@
                 <span class="action-icon">
                     <font-awesome-icon icon="expand" size="lg" />
                 </span>
-                <span class="action-icon" @click="downloadRizikSazetak">
+                <span class="action-icon" @click="downloadRizikSazetak($event)">
                     <font-awesome-icon icon="download" size="lg" />
                 </span>
             </div>
@@ -110,6 +70,8 @@
 import { ref, computed, onMounted } from 'vue';
 import TablicaRizika from '~/components/TablicaRizika.vue';
 import { useOpciStore } from '#imports';
+import { jsPDF } from 'jspdf';
+
 
 definePageMeta({
     middleware: [
@@ -118,7 +80,8 @@ definePageMeta({
     ],
 });
 
-const rizikSazetakRef = ref(null);
+const rizikSazetakRef = ref();
+const tablicaRizikaRef = ref();
 
 const opciStore = useOpciStore();
 
@@ -164,6 +127,31 @@ const noviIzracun = () => {
     useCookie('vrsta_izracuna').value = null;
     navigateTo('/predlozak');
 }
+
+const downloadRizikSazetak = () => {
+    console.log('rizikSazetakRef: ', rizikSazetakRef.value.innerHTML);
+    // const doc = new jsPDF();
+
+    // if (vrstaIzracuna.value === 'Djelatnost' && rizikSazetakRef.value) {
+    //     // Pretpostavljam da RizikSazetak ima metodu za dohvat podataka
+    //     // const data = rizikSazetakRef.value.getDataForPDF(); // Zamijeni s pravom metodom
+
+    //     // Dodaj sadržaj u PDF
+    //     doc.text('Naslov', 10, 10); // Primjer dodavanja teksta
+    //     doc.text(rizikSazetakRef.value, 10, 20); // Dodaj ostale podatke
+
+    //     // Preuzmi PDF
+    //     doc.save('rizik_sazetak.pdf');
+    // } else {
+    //     console.warn('Nije moguće preuzeti PDF, jer komponenta nije dostupna ili nije odabrana vrsta izračuna.');
+    // }
+};
+
+
+
+const exportCSV = () => {
+    dt.value.exportCSV();
+};
 
 </script>
 
@@ -216,14 +204,14 @@ footer {
     gap: 16px;
 }
 
-.action-icon {
+/* .action-icon {
     color: gray;
-}
+} */
 
 .action-icon:hover {
-    /* color: var(--primary-color); 
-    cursor: pointer;*/
-    color: gray;
+    color: var(--primary-color);
+    cursor: pointer;
+    /* color: gray; */
 }
 
 .reset-style {
