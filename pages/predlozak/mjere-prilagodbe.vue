@@ -32,8 +32,9 @@
                         </div>
                         <div class="mjere-list-table">
                             <DataTable v-model:filters="filters" v-model:selection="odabraneMjere"
-                                :value="filteredMjere" scrollable scrollHeight="400px" :rows="10" dataKey="tva_sif"
-                                filterDisplay="menu" :globalFilterFields="['tva_sif', 'tva_naziv', 'tgr_naziv']"
+                                :value="filteredMjere" scrollable :scrollHeight="scrollHeight" :rows="10"
+                                dataKey="tva_sif" filterDisplay="menu"
+                                :globalFilterFields="['tva_sif', 'tva_naziv', 'tgr_naziv']"
                                 @update:selection="onSelectionChange">
                                 <template #header>
                                     <div class="flex justify-between">
@@ -106,7 +107,14 @@ const idIzracuna = ref(
         '/' : parseInt(useCookie('id_izracuna').value)
 );
 
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', updateScrollHeight); // Ukloni listener prilikom unmounta
+});
+
 onMounted(async () => {
+    updateScrollHeight(); // Postavi scrollHeight prilikom montiranja
+    window.addEventListener('resize', updateScrollHeight); // Dodaj listener za promjenu veličine
+
     adaptStore.odabrane_mjere = [];
     adaptStore.adaptacijske_mjere = [];
     if (!(idIzracuna.value == '/')) {
@@ -218,6 +226,18 @@ const onSelectionChange = async (event) => {
     }
 };
 
+const scrollHeight = ref('600px');
+const updateScrollHeight = () => {
+    const width = window.innerWidth;
+    if (width <= 1500) {
+        scrollHeight.value = '400px';
+    } else if (width > 1500 && width < 1920) {
+        scrollHeight.value = '600px';
+    } else {
+        scrollHeight.value = '800px';
+    }
+};
+
 </script>
 
 <style scoped>
@@ -234,6 +254,29 @@ const onSelectionChange = async (event) => {
 .main-content-container {
     gap: 26px;
 }
+
+.mjere-list-table {
+    position: relative;
+    /* Ovo je potrebno za pozicioniranje gradijenta */
+    overflow-y: auto;
+    /* Omogućava vertikalni scroll */
+}
+
+.mjere-list-table::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    /* Visina gradijenta */
+    background: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+    /* background: linear-gradient(to top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0)); */
+    /* Blagi gradijent */
+    pointer-events: none;
+    /* Onemogućava interakciju s gradijentom */
+}
+
 
 .mjere-list-header {
     margin-top: 20px;
