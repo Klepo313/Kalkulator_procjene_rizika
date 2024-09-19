@@ -213,11 +213,8 @@
                 <font-awesome-icon icon="arrow-right-long" />
             </button>
         </footer>
-        <div class="pop-up">
-            <div class="pop-up-content">
-                Da
-            </div>
-        </div>
+        <NespremljenePromjenePopup class="alert-popup" :visible="isNespremljenePromjenePopupVisible"
+            @confirm="confirmLeave" @cancel="cancelLeave" />
     </div>
 </template>
 
@@ -293,6 +290,8 @@ const napomena = ref();
 const status = ref(0);
 const isSuccess = ref(true);
 const showPopup = ref(false);
+const isNespremljenePromjenePopupVisible = ref(false);
+let resolveNavigation = null;
 
 // Varijabla koja označava da su podaci fetchani i postavljeni
 const initialDataSet = ref(false);
@@ -359,26 +358,95 @@ watch(
     { deep: true }
 );
 
-
-// Upozorenje prilikom napuštanja stranice (navigacije) ako ima nespremljenih promjena
-const router = useRouter();
-router.beforeEach((to, from, next) => {
-    // if (isFormDirty.value && !window.confirm('Imate nespremljene promjene. Želite li stvarno napustiti stranicu?')) {
-    if (isFormDirty.value && !window.confirm('This page is asking you to confirm that you want to leave — information you’ve entered may not be saved.')) {
-        next(false);
+watch(isNespremljenePromjenePopupVisible, (newValue) => {
+    if (newValue) {
+        // Onemogući scrollanje
+        document.body.style.overflow = 'hidden';
     } else {
-        isFormDirty.value = false;
+        // Omogući scrollanje
+        document.body.style.overflow = '';
+    }
+});
+
+const router = useRouter();
+
+// Funkcija koja se poziva kad korisnik potvrdi napuštanje
+const confirmLeave = () => {
+    isFormDirty.value = false; // Resetiraj "prljavost" forme
+    isNespremljenePromjenePopupVisible.value = false; // Sakrij popup
+
+    if (resolveNavigation) {
+        resolveNavigation(); // Nastavi navigaciju ako je next spremljen
+        resolveNavigation = null; // Resetiraj resolveNavigation nakon poziva
+    }
+};
+
+
+const cancelLeave = () => {
+    isNespremljenePromjenePopupVisible.value = false; // Sakrij popup
+
+    if (resolveNavigation) {
+        resolveNavigation(false); // Odbij navigaciju
+    }
+};
+
+
+// Upozorenje prilikom navigacije
+// router.beforeEach((to, from, next) => {
+//     if (isFormDirty.value) {
+//         // Spriječi promjenu rute i prikaži popup
+//         isNespremljenePromjenePopupVisible.value = true;
+
+//         // Postavi callback funkcije da čeka korisnikov odgovor
+//         const resolveNavigation = (proceed) => {
+//             if (proceed) {
+//                 // Omogući promjenu rute
+//                 isFormDirty.value = false; // ili što već treba
+//                 next(); // nastavi navigaciju
+//             } else {
+//                 // Odbij navigaciju
+//                 next(false); // ostani na trenutnoj ruti
+//             }
+//         };
+
+//         // Postavi callback za "Napusti" dugme u tvom popup-u
+//         const acceptButton = document.getElementById("acceptButton");
+//         const cancelButton = document.getElementById("cancelBtn");
+
+//         acceptButton.addEventListener("click", () => resolveNavigation(true));
+//         cancelButton.addEventListener("click", () => resolveNavigation(false));
+//     } else {
+//         next(); // Ako nema promjena, samo nastavi navigaciju
+//     }
+// });
+
+router.beforeEach((to, from, next) => {
+    if (isFormDirty.value) {
+        isNespremljenePromjenePopupVisible.value = true; // Pokaži popup
+        resolveNavigation = next; // Spremljen next kako bi kasnije mogli nastaviti ili odbiti navigaciju
+    } else {
         next();
     }
 });
 
 // Upozorenje prilikom refreša stranice
-const beforeWindowUnload = (e) => {
+const beforeWindowUnload = (event) => {
     if (isFormDirty.value) {
-        e.preventDefault();
-        e.returnValue = '';
+        // Postavi tvoj popup kao vidljiv
+        isNespremljenePromjenePopupVisible.value = false;
+
+        // Spriječi defaultni alert
+        event.preventDefault();
+
+        // Ukloni returnValue kako bi spriječio defaultni dialog
+        event.returnValue = ''; // ili ""
     }
 };
+
+onBeforeRouteLeave(() => {
+    // Upozorenje prilikom refreša stranice
+    window.addEventListener('beforeunload', beforeWindowUnload);
+})
 
 const obaveznaPolja = ref([
     'odabraniDatum',
@@ -413,39 +481,18 @@ watch(idIzracuna, async (newValue, oldValue) => {
     }
 });
 
-// function handleBeforeUnload(event) {
-//     // Provjeri da li su varijable promijenjene
-//     if (odabraniDatum.value !== null ||
-//         odabranaVrstaIzracuna.value !== '' ||
-//         odabranaKatastarskaOpcina.value !== null ||
-//         odabranaKatastarskaCestica.value !== '' ||
-//         odabranaVrstaObjekta.value !== null ||
-//         odabranaDjelatnost.value !== null ||
-//         odabranaSkupinaDjelatnosti.value !== null ||
-//         odabranaIspostava.value !== null ||
-//         odabraniPodrucniUred.value !== null ||
-//         nazivIzracuna.value !== null ||
-//         napomena.value !== null) {
-
-//         // Otvori dijalog za upozorenje
-//         event.preventDefault();
-//         event.returnValue = 'Imate nespremljene promjene. Jeste li sigurni da želite napustiti ovu stranicu?'; // Ovo je potrebno za kompatibilnost s različitim preglednicima
-//     }
-// }
-
-
-// onBeforeUnmount(() => {
-//     window.removeEventListener('beforeunload', handleBeforeUnload);
-// });
-
-
 onBeforeUnmount(() => {
     window.removeEventListener('beforeunload', beforeWindowUnload);
+    document.body.style.overflow = '';
 });
 
 onMounted(async () => {
     // Dodaj event listener za upozorenje prilikom refreša stranice
     window.addEventListener('beforeunload', beforeWindowUnload);
+
+    if (isNespremljenePromjenePopupVisible.value) {
+        document.body.style.overflow = 'hidden';
+    }
 
     // Resetiramo formu i store
     resetForm();
@@ -1129,7 +1176,16 @@ textarea {
     resize: none;
 }
 
-.pop-up {
+.alert-popup {
+    position: absolute;
+    width: 100%;
+    height: 100dvh;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+}
+
+/* .pop-up {
     display: none;
     position: absolute;
     top: 0;
@@ -1144,7 +1200,7 @@ textarea {
 .pop-up-content {
     width: 100%;
     height: 100%;
-}
+} */
 
 footer {
     justify-content: flex-end;
