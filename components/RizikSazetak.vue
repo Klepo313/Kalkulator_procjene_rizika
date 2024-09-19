@@ -411,7 +411,7 @@ import { ref, onMounted } from 'vue';
 import { getProcessGridData } from '~/service/fetchGridData';
 import { restructureData } from '~/utils/dataFormatter';
 
-const rizikSazetakRef = ref(null);
+const rizikSazetakRef = ref();
 const processData = ref([]);
 const structuredData = ref([]);
 
