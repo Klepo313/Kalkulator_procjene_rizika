@@ -21,7 +21,7 @@ export default defineNuxtConfig({
   // router: {
   //   middleware: ['auth'],
   // },
-  modules: ['@primevue/nuxt-module', '@pinia/nuxt', "@nuxt/eslint"],
+  modules: ['@primevue/nuxt-module', '@pinia/nuxt', "@nuxt/eslint", '@sidebase/nuxt-pdf'],
   primevue: {
     options: {
       components: {
