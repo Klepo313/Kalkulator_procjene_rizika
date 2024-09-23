@@ -35,12 +35,14 @@
                         </div>
                     </TabPanel>
                     <TabPanel value="1" class="tab-panel">
-                        <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'KR'" class="rizik-sazetak" />
-                        <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'KR'" />
-                        <span v-else>
-                            <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
-                            Nije odabrana vrsta izračuna
-                        </span>
+                        <div ref="rizikSazetakMjereRef">
+                            <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'KR'" class="rizik-sazetak" />
+                            <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'KR'" />
+                            <span v-else>
+                                <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
+                                Nije odabrana vrsta izračuna
+                            </span>
+                        </div>
                     </TabPanel>
                 </TabPanels>
             </Tabs>
@@ -54,9 +56,10 @@
                 <span class="action-icon">
                     <font-awesome-icon icon="expand" size="lg" />
                 </span>
-                <span class="action-icon" @click="downloadRizikSazetak($event)">
+                <button class="action-icon" :disabled="!structuredDataBezMjera || !structuredDataSaMjerama"
+                    @click="downloadRizikSazetak($event)"> <!--@click="downloadRizikSazetak($event)"-->
                     <font-awesome-icon icon="download" size="lg" />
-                </span>
+                </button>
             </div>
             <button @click="noviIzracun" class="footer-button">
                 <span>Novi predložak izračuna</span>
@@ -68,10 +71,12 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
 import TablicaRizika from '~/components/TablicaRizika.vue';
-import { useOpciStore } from '#imports';
-import { jsPDF } from 'jspdf';
-
+import { useOpciStore, useStructuredGridDataStore } from '#imports';
+import ExcelJS from 'exceljs';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 definePageMeta({
     middleware: [
@@ -80,10 +85,141 @@ definePageMeta({
     ],
 });
 
-const rizikSazetakRef = ref();
-const tablicaRizikaRef = ref();
+const rizikSazetakRef = ref(null);
+const rizikSazetakMjereRef = ref(null);
 
 const opciStore = useOpciStore();
+const structuredDataStore = useStructuredGridDataStore();
+
+// const ExcelCells = [
+//     "F19", "G19", "H19", "I19", "J19", "K19", "L19",
+//     "F20", "G20", "H20", "I20", "J20", "K20", "L20",
+//     "F21", "G21", "H21", "I21", "J21", "K21", "L21",
+//     "F22", "G22", "H22", "I22", "J22", "K22", "L22",
+
+//     "O19", "P19", "Q19", "R19", "S19", "T19", "U19",
+//     "O20", "P20", "Q20", "R20", "S20", "T20", "U20",
+//     "O21", "P21", "Q21", "R21", "S21", "T21", "U21",
+//     "O22", "P22", "Q22", "R22", "S22", "T22", "U22",
+
+//     "X19", "Y19", "Z19", "AA19", "AB19", "AC19", "AD19",
+//     "X20", "Y20", "Z20", "AA20", "AB20", "AC20", "AD20",
+//     "X21", "Y21", "Z21", "AA21", "AB21", "AC21", "AD21",
+//     "X22", "Y22", "Z22", "AA22", "AB22", "AC22", "AD22",
+
+//     "AG19", "AH19", "AI19", "AJ19", "AK19", "AL19", "AM19",
+//     "AG20", "AH20", "AI20", "AJ20", "AK20", "AL20", "AM20",
+//     "AG21", "AH21", "AI21", "AJ21", "AK21", "AL21", "AM21",
+//     "AG22", "AH22", "AI22", "AJ22", "AK22", "AL22", "AM22",
+
+//     "..."
+// ]
+
+// const attributeMappings = {
+//     history: {
+//         columns: ["F", "O", "X", "AG"],
+//         rowRanges: [
+//             { start: 19, end: 54, exclude: [[35, 42]] },  // F
+//             { start: 19, end: 54, exclude: [[23, 42]] },  // O
+//             { start: 19, end: 58, exclude: [] },          // X
+//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AG
+//         ]
+//     },
+//     p0_4_5: {
+//         columns: ["G", "P", "Y", "AH"],
+//         rowRanges: [
+//             { start: 19, end: 54, exclude: [[35, 42]] },  // G
+//             { start: 19, end: 54, exclude: [[23, 42]] },  // P
+//             { start: 19, end: 58, exclude: [] },          // Y
+//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AH
+//         ]
+//     },
+//     p1_4_5: {
+//         columns: ["H", "Q", "Z", "AI"],
+//         rowRanges: [
+//             { start: 19, end: 54, exclude: [[35, 42]] },  // H
+//             { start: 19, end: 54, exclude: [[23, 42]] },  // Q
+//             { start: 19, end: 58, exclude: [] },          // Z
+//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AI
+//         ]
+//     },
+//     p2_4_5: {
+//         columns: ["I", "R", "AA", "AJ"],
+//         rowRanges: [
+//             { start: 19, end: 54, exclude: [[35, 42]] },  // I
+//             { start: 19, end: 54, exclude: [[23, 42]] },  // R
+//             { start: 19, end: 58, exclude: [] },          // AA
+//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AJ
+//         ]
+//     },
+//     p0_8_5: {
+//         columns: ["J", "S", "AB", "AK"],
+//         rowRanges: [
+//             { start: 19, end: 54, exclude: [[35, 42]] },  // J
+//             { start: 19, end: 54, exclude: [[23, 42]] },  // S
+//             { start: 19, end: 58, exclude: [] },          // AB
+//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AK
+//         ]
+//     },
+//     p1_8_5: {
+//         columns: ["K", "T", "AC", "AL"],
+//         rowRanges: [
+//             { start: 19, end: 54, exclude: [[35, 42]] },  // K
+//             { start: 19, end: 54, exclude: [[23, 42]] },  // T
+//             { start: 19, end: 58, exclude: [] },          // AC
+//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AL
+//         ]
+//     },
+//     p2_8_5: {
+//         columns: ["L", "U", "AD", "AM"],
+//         rowRanges: [
+//             { start: 19, end: 54, exclude: [[35, 42]] },  // L
+//             { start: 19, end: 54, exclude: [[23, 42]] },  // U
+//             { start: 19, end: 58, exclude: [] },          // AD
+//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AM
+//         ]
+//     }
+// };
+
+const cellRanges = {
+    '11': { range: 'F19:L22' },
+    '12': { range: 'O19:U22' },
+    '13': { range: 'X19:AD22' },
+    '14': { range: 'AG19:AM22' },
+
+    '21': { range: 'F23:L26' },
+    '23': { range: 'X23:AD26' },
+    '24': { range: 'AG23:AM26' },
+
+    '31': { range: 'F27:L30' },
+    '33': { range: 'X27:AD30' },
+    '34': { range: 'AG27:AM30' },
+
+    '41': { range: 'F31:L34' },
+    '43': { range: 'X31:AD34' },
+    '44': { range: 'AG31:AM34' },
+
+    '53': { range: 'X35:AD38' },
+
+    '63': { range: 'X39:AD42' },
+
+    '71': { range: 'F43:L46' },
+    '72': { range: 'O43:U46' },
+    '73': { range: 'X43:AD46' },
+    '74': { range: 'AG43:AM46' },
+
+    '81': { range: 'F47:L50' },
+    '82': { range: 'O47:U50' },
+    '83': { range: 'X47:AD50' },
+    '84': { range: 'AG47:AM50' },
+
+    '91': { range: 'F51:L54' },
+    '92': { range: 'O51:U54' },
+    '93': { range: 'X51:AD54' },
+    '94': { range: 'AG51:AM54' },
+
+    '103': { range: 'X55:AD58' },
+};
 
 const idIzracuna = ref(
     useCookie('id_izracuna').value == '/' ||
@@ -91,6 +227,9 @@ const idIzracuna = ref(
         ? '/'
         : parseInt(useCookie('id_izracuna').value)
 );
+
+const structuredDataBezMjera = ref(computed(() => structuredDataStore.structuredDataBezMjera))
+const structuredDataSaMjerama = ref(computed(() => structuredDataStore.structuredDataSaMjerama))
 
 // Kreiramo referencu za pristup komponenti
 const vrstaIzracuna = ref(useCookie('vrsta_izracuna').value);
@@ -112,6 +251,7 @@ const djelatnost = computed(() =>
         ? null
         : opciStore.opci_podaci.djl_naziv
 );
+const vrstaObjektaId = computed(() => opciStore.opci_podaci.aiz_tvo_id);
 
 const displayItems = computed(() => [
     { value: katOpcinaSifra.value && katOpcina.value ? `${katOpcinaSifra.value} - ${katOpcina.value}` : '', suffix: ',' },
@@ -128,30 +268,187 @@ const noviIzracun = () => {
     navigateTo('/predlozak');
 }
 
-const downloadRizikSazetak = () => {
-    console.log('rizikSazetakRef: ', rizikSazetakRef.value.innerHTML);
-    // const doc = new jsPDF();
+const columns = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const doubleColumns = columns.map(col => columns.map(subCol => col + subCol)).flat(); // Generiraj dvo-slovne stupce
+const allColumns = [...columns, ...doubleColumns]; // Kombiniraj jednoslovne i dvo-slovne stupce
 
-    // if (vrstaIzracuna.value === 'Djelatnost' && rizikSazetakRef.value) {
-    //     // Pretpostavljam da RizikSazetak ima metodu za dohvat podataka
-    //     // const data = rizikSazetakRef.value.getDataForPDF(); // Zamijeni s pravom metodom
+function mapDataToCellRanges(structuredData, cellRanges) {
+    const cellData = [];
 
-    //     // Dodaj sadržaj u PDF
-    //     doc.text('Naslov', 10, 10); // Primjer dodavanja teksta
-    //     doc.text(rizikSazetakRef.value, 10, 20); // Dodaj ostale podatke
+    Object.keys(cellRanges).forEach(position => {
+        const { range } = cellRanges[position];
+        const [startCell, endCell] = range.split(':');
+        const startRow = parseInt(startCell.replace(/[^\d]/g, ''));
+        const endRow = parseInt(endCell.replace(/[^\d]/g, ''));
+        const columnIndex = allColumns.indexOf(startCell.replace(/[0-9]/g, '')); // Pronađi indeks stupca
 
-    //     // Preuzmi PDF
-    //     doc.save('rizik_sazetak.pdf');
-    // } else {
-    //     console.warn('Nije moguće preuzeti PDF, jer komponenta nije dostupna ili nije odabrana vrsta izračuna.');
-    // }
+        const rows = structuredData[position];
+
+        for (let row = startRow; row <= endRow; row++) {
+            const rowIndex = row - startRow; // Izračunaj indeks
+            if (rows && rows[rowIndex]) {
+                const rowData = rows[rowIndex];
+
+                // Mapa svakog atributa na odgovarajuću ćeliju
+                const cellMappings = [
+                    { cell: `${allColumns[columnIndex]}${row}`, value: rowData.history },
+                    { cell: `${allColumns[columnIndex + 1]}${row}`, value: rowData.p0_4_5 },
+                    { cell: `${allColumns[columnIndex + 2]}${row}`, value: rowData.p1_4_5 },
+                    { cell: `${allColumns[columnIndex + 3]}${row}`, value: rowData.p2_4_5 },
+                    { cell: `${allColumns[columnIndex + 4]}${row}`, value: rowData.p0_8_5 },
+                    { cell: `${allColumns[columnIndex + 5]}${row}`, value: rowData.p1_8_5 },
+                    { cell: `${allColumns[columnIndex + 6]}${row}`, value: rowData.p2_8_5 },
+                ];
+
+                cellMappings.forEach(mapping => {
+                    if (mapping.value !== undefined) {
+                        cellData.push({ cell: mapping.cell, value: mapping.value });
+                    }
+                });
+            } else {
+                console.warn(`No data for position ${position} at row index: ${rowIndex}`);
+            }
+        }
+    });
+
+    return cellData;
+}
+
+const test = () => {
+    const bezMjeraPopis = mapDataToCellRanges(structuredDataBezMjera.value, cellRanges);
+    const saMjeramaPopis = mapDataToCellRanges(structuredDataSaMjerama.value, cellRanges);
+    console.log("rezultat mapiranja (bez mjera): ", bezMjeraPopis);
+    console.log("rezultat mapiranja (sa mjerama): ", saMjeramaPopis);
+}
+
+const downloadRizikSazetak = async () => {
+    try {
+        // Fetch the Excel file from the server
+        const response = await axios.get('/blobs/DjelatnostTemplate.xlsx', {
+            responseType: 'blob',
+            headers: { 'content-type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+        });
+
+        // Convert the response to an ArrayBuffer
+        const arrayBuffer = await response.data.arrayBuffer();
+
+        // Use JSZip to handle the Excel file format (ZIP)
+        const typedArray = new Uint8Array(arrayBuffer);
+        const zip = await JSZip.loadAsync(typedArray);
+
+        // Load the Excel workbook using ExcelJS
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(arrayBuffer);
+
+        // Access the first worksheet (or by name if necessary)
+        const opciWorksheet = workbook.getWorksheet(1);
+        const bezMjeraWorksheet = workbook.getWorksheet('Izračun bez mjera prilagodbe');
+        const saMjeramaWorksheet = workbook.getWorksheet('Izračun s mjerama prilagodbe');
+
+        const bezMjeraPopis = mapDataToCellRanges(structuredDataBezMjera.value, cellRanges);
+        const saMjeramaPopis = mapDataToCellRanges(structuredDataSaMjerama.value, cellRanges);
+
+        // console.log("rezultat mapiranja (bez mjera): ", bezMjeraPopis);
+        // console.log("rezultat mapiranja (sa mjerama): ", saMjeramaPopis);
+
+        const logoBuffer = await axios.get('/static/images/KPKR_logo.svg', {
+            responseType: 'arraybuffer'
+        });
+        const matricaBuffer = await axios.get('/static/images/matrica_rizika.png', {
+            responseType: 'arraybuffer'
+        });
+
+        const logoId = workbook.addImage({
+            buffer: logoBuffer.data,  // Use the buffer from the response
+            extension: 'svg'  // Ensure the extension matches your image format
+        });
+        const matricaId = workbook.addImage({
+            buffer: matricaBuffer.data,  // Use the buffer from the response
+            extension: 'png'  // Ensure the extension matches your image format
+        });
+
+        opciWorksheet.addImage(logoId, {
+            tl: { col: 2, row: 2 },  // Top-left corner (C3)
+            br: { col: 9, row: 6 }  // Bottom-right corner (I6)
+        })
+
+        // LOGOTIP
+        bezMjeraWorksheet.addImage(logoId, {
+            tl: { col: 2, row: 2 },  // Top-left corner (C3)
+            br: { col: 9, row: 6 }  // Bottom-right corner (I6)
+        });
+        saMjeramaWorksheet.addImage(logoId, {
+            tl: { col: 2, row: 2 },  // Top-left corner (C3)
+            br: { col: 9, row: 6 }  // Bottom-right corner (I6)
+        });
+
+        // MATRICA RIZIKA
+        bezMjeraWorksheet.addImage(matricaId, {
+            tl: { col: 2, row: 60 },  // Top-left corner (C61)
+            br: { col: 21, row: 76 }  // Bottom-right corner (M7)
+        });
+        saMjeramaWorksheet.addImage(matricaId, {
+            tl: { col: 2, row: 60 },  // Top-left corner (C61)
+            br: { col: 21, row: 76 }  // Bottom-right corner (M7)
+        });
+
+        // Generiranje stringa iz filteredItems bez zareza na zadnjem elementu
+        const formattedString = filteredItems.value.map((item, index) => {
+            return `${item.value}${index !== filteredItems.value.length - 1 ? item.suffix + ' ' : ''}`;
+        }).join('');
+
+        console.log("formattedString: ", formattedString);
+
+        // Upiši string u ćeliju 'AM11'
+        bezMjeraWorksheet.getCell('AM11').value = formattedString;
+        saMjeramaWorksheet.getCell('AM11').value = formattedString;
+
+        // Upisivanje podataka u worksheet za bez mjera
+        bezMjeraPopis.forEach(({ cell, value }) => {
+            const [column, row] = cell.match(/([A-Z]+)(\d+)/).slice(1); // Odvoji stupac i red
+            const cellAddress = `${column}${row}`;
+            const parsedValue = isNaN(value) || value === null ? null : parseInt(value); // Provjeri je li vrijednost broj i nije null
+            bezMjeraWorksheet.getCell(cellAddress).value = parsedValue; // Postavi vrijednost ćelije
+        });
+
+        // Upisivanje podataka u worksheet za sa mjerama
+        saMjeramaPopis.forEach(({ cell, value }) => {
+            const [column, row] = cell.match(/([A-Z]+)(\d+)/).slice(1); // Odvoji stupac i red
+            const cellAddress = `${column}${row}`;
+            const parsedValue = isNaN(value) || value === null ? null : parseInt(value); // Provjeri je li vrijednost broj i nije null
+            saMjeramaWorksheet.getCell(cellAddress).value = parsedValue; // Postavi vrijednost ćelije
+        });
+
+
+        const vrstaIzracunaShort = vrstaIzracuna.value === 'Imovina' ? 'IM' : vrstaIzracuna.value === 'Djelatnost' ? 'DJ' : '';
+
+        let vrstaObjektaIdShort = '';
+        if (vrstaObjektaId.value === 50) vrstaObjektaIdShort = 'PO';
+        else if (vrstaObjektaId.value === 51) vrstaObjektaIdShort = 'GZ';
+        else if (vrstaObjektaId.value === 52) vrstaObjektaIdShort = 'PZ';
+
+        const katCesticaClean = katCestica.value ? katCestica.value.replace('/', '-') : '';
+
+        // Kreiraj ime datoteke koristeći nove varijable
+        const fileName = [
+            vrstaIzracunaShort,  // Dodaj vrstu izračuna (IM/DJ)
+            vrstaObjektaIdShort, // Dodaj vrstaObjektaId ako postoji (PO/GZ/PZ)
+            katOpcinaSifra.value + '-' + katOpcina.value,     // Dodaj katastarsku općinu
+            katCesticaClean      // Dodaj katastarsku česticu (zamijeni '/' s '-')
+        ].filter(Boolean).join('_') + '.xlsx';
+
+        console.log("fileName: ", fileName);
+
+        // Generate a buffer for the updated workbook and trigger file download
+        const updatedBuffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([updatedBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, fileName);
+
+    } catch (error) {
+        console.error('Error downloading or processing Excel file:', error);
+    }
 };
 
-
-
-const exportCSV = () => {
-    dt.value.exportCSV();
-};
 
 </script>
 
@@ -202,6 +499,13 @@ footer {
     display: flex;
     align-items: center;
     gap: 16px;
+}
+
+.actionButtons>button {
+    background: none;
+    color: var(--text-color);
+    padding: 0px;
+    height: auto;
 }
 
 /* .action-icon {
