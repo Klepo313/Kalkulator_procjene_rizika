@@ -410,6 +410,9 @@
 import { ref, onMounted } from 'vue';
 import { getProcessGridData } from '~/service/fetchGridData';
 import { restructureData } from '~/utils/dataFormatter';
+import { useStructuredGridDataStore } from '~/stores/main-store';
+
+const structuredDataStore = useStructuredGridDataStore();
 
 const rizikSazetakRef = ref();
 const processData = ref([]);
@@ -434,14 +437,21 @@ const processGridData = async () => {
     if (processData.value.message) {
         message.value = processData.value.message;
         showPopup.value = true;
-
-        // // Uklanjanje popup-a nakon 3 sekunde
-        // setTimeout(() => {
-        //     showPopup.value = false;
-        // }, 3000);
     } else {
         structuredData.value = restructureData(processData.value);
-        console.log("restructure proces: ", structuredData.value, structuredData.value['11'].length);
+        console.log("structuredData u komponenti: ", structuredData.value);
+
+        if (tip == 'RZ') {
+            structuredDataStore.clearStructureDataBezMjera();
+            structuredDataStore.setStructuredDataBezMjera(structuredData.value);
+            console.log("data bez mjera: ", structuredDataStore.structuredDataBezMjera);
+        } else if (tip == 'KR') {
+            structuredDataStore.clearStructureDataSaMjerama();
+            structuredDataStore.setStructuredDataSaMjerama(structuredData.value);
+            console.log("data sa mjerama: ", structuredDataStore.structuredDataSaMjerama);
+        } else {
+            console.log("Greška u tipu:", tip);
+        }
     }
     // console.log("proces: ", processData.value);
 
