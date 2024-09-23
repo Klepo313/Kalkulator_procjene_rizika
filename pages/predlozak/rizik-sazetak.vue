@@ -74,6 +74,7 @@ import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import TablicaRizika from '~/components/TablicaRizika.vue';
 import { useOpciStore, useStructuredGridDataStore } from '#imports';
+import { formatDateToDMY } from '#imports';
 import ExcelJS from 'exceljs';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -90,96 +91,6 @@ const rizikSazetakMjereRef = ref(null);
 
 const opciStore = useOpciStore();
 const structuredDataStore = useStructuredGridDataStore();
-
-// const ExcelCells = [
-//     "F19", "G19", "H19", "I19", "J19", "K19", "L19",
-//     "F20", "G20", "H20", "I20", "J20", "K20", "L20",
-//     "F21", "G21", "H21", "I21", "J21", "K21", "L21",
-//     "F22", "G22", "H22", "I22", "J22", "K22", "L22",
-
-//     "O19", "P19", "Q19", "R19", "S19", "T19", "U19",
-//     "O20", "P20", "Q20", "R20", "S20", "T20", "U20",
-//     "O21", "P21", "Q21", "R21", "S21", "T21", "U21",
-//     "O22", "P22", "Q22", "R22", "S22", "T22", "U22",
-
-//     "X19", "Y19", "Z19", "AA19", "AB19", "AC19", "AD19",
-//     "X20", "Y20", "Z20", "AA20", "AB20", "AC20", "AD20",
-//     "X21", "Y21", "Z21", "AA21", "AB21", "AC21", "AD21",
-//     "X22", "Y22", "Z22", "AA22", "AB22", "AC22", "AD22",
-
-//     "AG19", "AH19", "AI19", "AJ19", "AK19", "AL19", "AM19",
-//     "AG20", "AH20", "AI20", "AJ20", "AK20", "AL20", "AM20",
-//     "AG21", "AH21", "AI21", "AJ21", "AK21", "AL21", "AM21",
-//     "AG22", "AH22", "AI22", "AJ22", "AK22", "AL22", "AM22",
-
-//     "..."
-// ]
-
-// const attributeMappings = {
-//     history: {
-//         columns: ["F", "O", "X", "AG"],
-//         rowRanges: [
-//             { start: 19, end: 54, exclude: [[35, 42]] },  // F
-//             { start: 19, end: 54, exclude: [[23, 42]] },  // O
-//             { start: 19, end: 58, exclude: [] },          // X
-//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AG
-//         ]
-//     },
-//     p0_4_5: {
-//         columns: ["G", "P", "Y", "AH"],
-//         rowRanges: [
-//             { start: 19, end: 54, exclude: [[35, 42]] },  // G
-//             { start: 19, end: 54, exclude: [[23, 42]] },  // P
-//             { start: 19, end: 58, exclude: [] },          // Y
-//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AH
-//         ]
-//     },
-//     p1_4_5: {
-//         columns: ["H", "Q", "Z", "AI"],
-//         rowRanges: [
-//             { start: 19, end: 54, exclude: [[35, 42]] },  // H
-//             { start: 19, end: 54, exclude: [[23, 42]] },  // Q
-//             { start: 19, end: 58, exclude: [] },          // Z
-//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AI
-//         ]
-//     },
-//     p2_4_5: {
-//         columns: ["I", "R", "AA", "AJ"],
-//         rowRanges: [
-//             { start: 19, end: 54, exclude: [[35, 42]] },  // I
-//             { start: 19, end: 54, exclude: [[23, 42]] },  // R
-//             { start: 19, end: 58, exclude: [] },          // AA
-//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AJ
-//         ]
-//     },
-//     p0_8_5: {
-//         columns: ["J", "S", "AB", "AK"],
-//         rowRanges: [
-//             { start: 19, end: 54, exclude: [[35, 42]] },  // J
-//             { start: 19, end: 54, exclude: [[23, 42]] },  // S
-//             { start: 19, end: 58, exclude: [] },          // AB
-//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AK
-//         ]
-//     },
-//     p1_8_5: {
-//         columns: ["K", "T", "AC", "AL"],
-//         rowRanges: [
-//             { start: 19, end: 54, exclude: [[35, 42]] },  // K
-//             { start: 19, end: 54, exclude: [[23, 42]] },  // T
-//             { start: 19, end: 58, exclude: [] },          // AC
-//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AL
-//         ]
-//     },
-//     p2_8_5: {
-//         columns: ["L", "U", "AD", "AM"],
-//         rowRanges: [
-//             { start: 19, end: 54, exclude: [[35, 42]] },  // L
-//             { start: 19, end: 54, exclude: [[23, 42]] },  // U
-//             { start: 19, end: 58, exclude: [] },          // AD
-//             { start: 19, end: 54, exclude: [[35, 42], [55, 58]] }  // AM
-//         ]
-//     }
-// };
 
 const cellRanges = {
     '11': { range: 'F19:L22' },
@@ -238,6 +149,7 @@ onMounted(async () => {
     await opciStore.fetchCalculation(idIzracuna.value);
 })
 
+const datum = computed(() => opciStore.opci_podaci.aiz_datum);
 const katOpcinaSifra = computed(() => opciStore.opci_podaci.kop_sif);
 const katOpcina = computed(() => opciStore.opci_podaci.kop_naziv);
 const katCestica = computed(() =>
@@ -245,13 +157,17 @@ const katCestica = computed(() =>
         ? null
         : opciStore.opci_podaci.kcs_sif
 );
+const vrstaObjektaId = computed(() => opciStore.opci_podaci.aiz_tvo_id);
 const vrstaImovine = computed(() => opciStore.opci_podaci.tvo_naziv);
+const djelatnostSifra = computed(() => opciStore.opci_podaci.djl_sif)
 const djelatnost = computed(() =>
     opciStore.opci_podaci.djl_naziv === ''
         ? null
         : opciStore.opci_podaci.djl_naziv
 );
-const vrstaObjektaId = computed(() => opciStore.opci_podaci.aiz_tvo_id);
+const skupinaDjelatnosti = computed(() => opciStore.opci_podaci.djl_naziv_sk);
+const ispostava = computed(() => opciStore.opci_podaci.isp_naziv);
+const podrucniUred = computed(() => opciStore.opci_podaci.puk_naziv);
 
 const displayItems = computed(() => [
     { value: katOpcinaSifra.value && katOpcina.value ? `${katOpcinaSifra.value} - ${katOpcina.value}` : '', suffix: ',' },
@@ -341,7 +257,7 @@ const downloadRizikSazetak = async () => {
         await workbook.xlsx.load(arrayBuffer);
 
         // Access the first worksheet (or by name if necessary)
-        const opciWorksheet = workbook.getWorksheet(1);
+        const opciWorksheet = workbook.getWorksheet('Opći podaci');
         const bezMjeraWorksheet = workbook.getWorksheet('Izračun bez mjera prilagodbe');
         const saMjeramaWorksheet = workbook.getWorksheet('Izračun s mjerama prilagodbe');
 
@@ -369,7 +285,7 @@ const downloadRizikSazetak = async () => {
 
         opciWorksheet.addImage(logoId, {
             tl: { col: 2, row: 2 },  // Top-left corner (C3)
-            br: { col: 9, row: 6 }  // Bottom-right corner (I6)
+            br: { col: 8, row: 6 }  // Bottom-right corner (I6)
         })
 
         // LOGOTIP
@@ -391,6 +307,32 @@ const downloadRizikSazetak = async () => {
             tl: { col: 2, row: 60 },  // Top-left corner (C61)
             br: { col: 21, row: 76 }  // Bottom-right corner (M7)
         });
+
+        const opciPodaci = [
+            { value: formatDateToDMY(datum.value, '.') || '/', row: 14 },
+            { value: vrstaIzracuna.value || '/', row: 16 },
+            { value: katOpcinaSifra.value && katOpcina.value ? `${katOpcinaSifra.value} - ${katOpcina.value}` : '/', row: 18 },
+            { value: katCestica.value || '/', row: 20 },
+            { value: vrstaImovine.value || '/', row: 22 },
+            { value: djelatnostSifra.value && djelatnost.value ? `${djelatnostSifra.value} - ${djelatnost.value}` : '/', row: 24 },
+            { value: skupinaDjelatnosti.value || '/', row: 26 },
+            { value: ispostava.value || '/', row: 28 },
+            { value: podrucniUred.value || '/', row: 30 }
+        ];
+
+        opciPodaci.forEach(({ value, row }) => {
+            const cell = opciWorksheet.getCell(`H${row}`);
+            cell.value = value || '/';
+
+            if (cell.value == '/') {
+                // Ako je vrijednost '/', postavi italic i ukloni bold
+                cell.font = { italic: true, bold: false };
+            } else {
+                // Ako je vrijednost neki drugi string, postavi font size 18, bold i ne italic
+                cell.font = { size: 18, bold: true, italic: false };
+            }
+        });
+
 
         // Generiranje stringa iz filteredItems bez zareza na zadnjem elementu
         const formattedString = filteredItems.value.map((item, index) => {
