@@ -277,3 +277,24 @@ export const useAdaptStore = defineStore('adaptacijske-mjere', {
         }
     },
 });
+
+export const useStructuredGridDataStore = defineStore('structured-grid-data', {
+    state: () => ({
+        structuredDataBezMjera: {},
+        structuredDataSaMjerama: {}
+    }),
+    actions: {
+        setStructuredDataBezMjera(data: object) {
+            this.structuredDataBezMjera = data
+        },
+        setStructuredDataSaMjerama(data: object) {
+            this.structuredDataSaMjerama = data
+        },
+        clearStructureDataBezMjera() {
+            this.structuredDataBezMjera = {}
+        },
+        clearStructureDataSaMjerama() {
+            this.structuredDataSaMjerama = {}
+        }
+    },
+});
