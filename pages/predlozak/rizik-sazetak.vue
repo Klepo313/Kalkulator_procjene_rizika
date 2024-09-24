@@ -28,6 +28,7 @@
                         <div ref="rizikSazetakRef">
                             <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'RZ'" class="rizik-sazetak" />
                             <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
+                            <LegendaBoja v-if="vrstaIzracuna" class="legenda" />
                             <span v-else>
                                 <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
                                 Nije odabrana vrsta izračuna
@@ -38,6 +39,7 @@
                         <div ref="rizikSazetakMjereRef">
                             <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'KR'" class="rizik-sazetak" />
                             <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'KR'" />
+                            <LegendaBoja v-if="vrstaIzracuna" class="legenda" />
                             <span v-else>
                                 <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
                                 Nije odabrana vrsta izračuna
@@ -46,6 +48,7 @@
                     </TabPanel>
                 </TabPanels>
             </Tabs>
+
         </main>
         <footer>
             <button @click="navigateTo('/predlozak/mjere-prilagodbe')" class="footer-button">
@@ -53,7 +56,7 @@
                 <span>Mjere prilagodbe</span>
             </button>
             <div class="actionButtons">
-                <button class="action-icon" @click="togglePopup">
+                <button class="action-icon" @click="openPopup">
                     <font-awesome-icon icon="expand" size="lg" />
                 </button>
                 <button class="action-icon" :disabled="!structuredDataBezMjera || !structuredDataSaMjerama"
@@ -101,6 +104,85 @@
                 </div>
             </div>
         </div> -->
+
+        <!-- <div class="popup-expand">
+            <div class="expand-content">
+                <div class="icon close">
+                    <font-awesome-icon icon="xmark" />
+                </div>
+                <div class="icon left">
+                    <font-awesome-icon icon="chevron-left" />
+                </div>
+                <div class="icon right">
+                    <font-awesome-icon icon="chevron-right" />
+                </div>
+                <h1>
+                    Rezultat izračuna bez mjera prilagodbe
+                    <span class="h1-container">
+                        <span v-for="(item, index) in filteredItems" :key="index" class="h1-item">
+                            <div v-if="item.value">
+                                {{ item.value }}
+                                <span v-if="index !== filteredItems.length - 1">{{ item.suffix }}</span>
+                            </div>
+                        </span>
+                    </span>
+                </h1>
+                <div class="content-tabs">
+                    <div class="tab">
+                        <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'RZ'" class="rizik-sazetak" />
+                        <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
+                    </div>
+                    <div class="tab">
+                        <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'KR'" class="rizik-sazetak" />
+                            <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'KR'" />
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+        <div class="popup-expand" v-if="isPopupOpen">
+            <div class="expand-content">
+                <div class="icon close" @click="closePopup">
+                    <font-awesome-icon icon="xmark" />
+                </div>
+                <div class="icon left" @click="switchTab(-1)">
+                    <font-awesome-icon icon="chevron-left" />
+                </div>
+                <div class="icon right" @click="switchTab(1)">
+                    <font-awesome-icon icon="chevron-right" />
+                </div>
+
+                <!-- Dinamički H1 ovisno o tipu izračuna -->
+                <h1>
+                    {{ currentTabData.tip === 'RZ'
+                        ? 'Rezultat izračuna bez mjera prilagodbe'
+                        : 'Rezultat izračuna sa mjerama prilagodbe'
+                    }}
+                    <span class="h1-container">
+                        <span v-for="(item, index) in filteredItems" :key="index" class="h1-item">
+                            <div v-if="item.value">
+                                {{ item.value }}
+                                <span v-if="index !== filteredItems.length - 1">{{ item.suffix }}</span>
+                            </div>
+                        </span>
+                    </span>
+                </h1>
+                <transition :name="slideDirection">
+                    <div class="content-tabs" :key="currentTab">
+                        <div v-for="(tab, index) in tabs" :key="index" v-show="index === currentTab" class="tab">
+                            <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost' && tab.tip === 'RZ'" :tip="tab.tip"
+                                class="rizik-sazetak" />
+                            <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina' && tab.tip === 'RZ'" :tip="tab.tip" />
+                            <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost' && tab.tip === 'KR'" :tip="tab.tip"
+                                class="rizik-sazetak" />
+                            <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina' && tab.tip === 'KR'" :tip="tab.tip" />
+                        </div>
+                    </div>
+                </transition>
+            </div>
+        </div>
+
+
     </div>
 </template>
 
@@ -222,20 +304,38 @@ const vrstaIzracuna = ref(useCookie('vrsta_izracuna').value);
 
 const adaptMjere = computed(() => adaptStore.odabrane_mjere)
 
-const showPopup = ref(false);
-const currentView = ref('RZ');  // 'RZ' for without measures, 'KR' for with measures
+// Ref varijable za kontrolu popupa i tabova
+const isPopupOpen = ref(false);
+const previousTab = ref(0);
+const currentTab = ref(0);
+const tabs = ref([
+    { tip: 'RZ' },
+    { tip: 'KR' }
+]);
+const slideDirection = ref('slide-right');
 
-const togglePopup = () => {
-    showPopup.value = !showPopup.value;
-};
+const currentTabData = computed(() => tabs.value[currentTab.value]);
 
-const nextView = () => {
-    currentView.value = currentView.value === 'RZ' ? 'KR' : 'RZ';
-};
+// Funkcija za prebacivanje tabova
+function switchTab(direction) {
+    previousTab.value = currentTab.value;
+    currentTab.value = (currentTab.value + direction + tabs.value.length) % tabs.value.length;
 
-const previousView = () => {
-    currentView.value = currentView.value === 'KR' ? 'RZ' : 'KR';
-};
+    // Postavi smjer tranzicije
+    slideDirection.value = direction === 1 ? 'slide-right' : 'slide-left';
+}
+
+// Funkcija za otvaranje popupa
+function openPopup() {
+    isPopupOpen.value = true;
+    document.body.style.overflow = 'hidden'; // Spriječi scrollanje body-ja
+}
+
+// Funkcija za zatvaranje popupa
+function closePopup() {
+    isPopupOpen.value = false;
+    document.body.style.overflow = 'auto'; // Vrati scrollanje body-ja
+}
 
 onMounted(async () => {
     await opciStore.fetchCalculation(idIzracuna.value);
@@ -699,6 +799,14 @@ footer {
     height: 100% !important;
 }
 
+.tab-panel>div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
 .p-tab {
     opacity: 0.7;
     border: none;
@@ -763,53 +871,123 @@ main {
     height: 100%;
 }
 
-.legenda {
+/* .legenda {
     padding: 0px 15px;
-}
+} */
 
 .popup-expand {
     z-index: 99;
     position: fixed;
+    overflow: hidden;
+
     top: 0;
     left: 0;
     width: 100%;
     height: 100dvh;
+    padding: 13px;
+
     background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.expand-header h1 {
-    color: white;
-    text-align: center;
-}
-
-.header-details {
-    text-align: center;
-    color: white;
-}
-
-.arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    font-size: 2rem;
-}
-
-.arrow.left {
-    left: 20px;
-}
-
-.arrow.right {
-    right: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .expand-content {
+    width: 100%;
+    max-height: calc(100dvh - 26px - 39px);
+    padding: 26px 39px;
+    overflow-y: auto;
+
+    background-color: white;
+    border-radius: 5px;
+
     display: flex;
-    justify-content: space-around;
-    width: 80%;
-    height: 80%;
+    flex-direction: column;
+    gap: 26px;
+}
+
+.content-tabs {
+    padding-bottom: 26px;
+    width: 100%;
+    height: 100%;
+}
+
+.icon {
+    position: absolute;
+    aspect-ratio: 1/1;
+
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon:hover {
+    background-color: gainsboro;
+    cursor: pointer;
+}
+
+.left {
+    left: 19px;
+    top: 50%;
+}
+
+.right {
+    right: 19px;
+    top: 50%;
+}
+
+.close {
+    top: 26px;
+    right: 26px;
+}
+
+
+/* Slide tranzicije */
+.slide-right-enter-active,
+.slide-right-leave-active {
+    transition: all 0.2s ease;
+}
+
+.slide-right-enter,
+.slide-right-leave-to
+
+/* .slide-right-leave-active in <2.1.8 */
+    {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.slide-right-leave,
+.slide-right-enter-to
+
+/* .slide-right-enter-active in <2.1.8 */
+    {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.slide-left-enter-active,
+.slide-left-leave-active {
+    transition: all 0.2s ease;
+}
+
+.slide-left-enter,
+.slide-left-leave-to
+
+/* .slide-left-leave-active in <2.1.8 */
+    {
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+.slide-left-leave,
+.slide-left-enter-to
+
+/* .slide-left-enter-active in <2.1.8 */
+    {
+    transform: translateX(0);
+    opacity: 1;
 }
 </style>
