@@ -31,8 +31,7 @@
     "pinia": "^2.2.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.0.3",
-    "vue": "latest",
-    "xlsx": "^0.18.5"
+    "vue": "latest"
   },
   "devDependencies": {
     "@primevue/nuxt-module": "^4.0.3",
