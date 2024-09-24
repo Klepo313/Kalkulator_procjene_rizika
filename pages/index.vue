@@ -1,6 +1,11 @@
 <template>
     <div>
         <div class="body">
+            <button v-if="$route.path !== '/login'" class="logout" @click="doLogout">
+                <font-awesome-icon icon="arrow-right-from-bracket" class="logout-icon" />
+                Odjava
+            </button>
+
             <main>
                 <div class="image-container">
                     <img src="../images/KPKR_logo.svg" alt="logo">
@@ -16,10 +21,16 @@
 </template>
 
 <script setup>
+import { logout } from '~/service/logout';
 
 definePageMeta({
     pageTransition: { name: 'slide', mode: 'out-in' }
 });
+
+const doLogout = async () => {
+    await logout();
+    navigateTo('/login');
+};
 
 </script>
 
@@ -77,5 +88,29 @@ main {
     /* background-color: white;
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); */
+}
+
+.logout {
+    position: absolute;
+    top: 26px;
+    right: 26px;
+
+    background: none;
+    border: none;
+    color: var(--red);
+    font-weight: 600;
+}
+
+.logout:hover {
+    background-color: rgb(227, 227, 227);
+}
+
+.logout:active {
+    background-color: rgb(227, 227, 227);
+}
+
+.logout-icon,
+.plus-icon {
+    margin-right: 10px;
 }
 </style>
