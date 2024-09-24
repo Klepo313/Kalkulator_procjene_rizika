@@ -231,7 +231,7 @@
 
                 </div>
             </div>
-            <LegendaBoja v-if="structuredData" class="legenda" />
+            <!-- <LegendaBoja v-if="structuredData" class="legenda" /> -->
         </div>
         <!-- <span v-else style="font-style: italic;">
             Učitavanje podataka

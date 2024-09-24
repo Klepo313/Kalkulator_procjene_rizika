@@ -401,7 +401,7 @@
                 <div class="grid-item table-item sb-t sb-b sb-r" />
 
             </div>
-            <LegendaBoja v-if="structuredData" class="legenda" />
+            
         </div>
     </div>
 </template>
