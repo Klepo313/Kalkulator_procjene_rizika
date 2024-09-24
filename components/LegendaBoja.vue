@@ -73,7 +73,7 @@ import { getColorClass } from '#imports';
 
 <style scoped>
 .risk-matrix {
-    width: 100%;
+    width: 500px;
 
     display: flex;
     flex-direction: column;
@@ -82,7 +82,7 @@ import { getColorClass } from '#imports';
 }
 
 .matrix {
-    width: 60%;
+    width: 100%;
 
     display: flex;
     flex-direction: column;
