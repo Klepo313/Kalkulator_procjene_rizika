@@ -53,9 +53,9 @@
                 <span>Mjere prilagodbe</span>
             </button>
             <div class="actionButtons">
-                <span class="action-icon">
+                <button class="action-icon" @click="togglePopup">
                     <font-awesome-icon icon="expand" size="lg" />
-                </span>
+                </button>
                 <button class="action-icon" :disabled="!structuredDataBezMjera || !structuredDataSaMjerama"
                     @click="downloadRizikSazetak($event)"> <!--@click="downloadRizikSazetak($event)"-->
                     <font-awesome-icon icon="download" size="lg" />
@@ -66,6 +66,41 @@
                 <font-awesome-icon icon="arrow-right-long" style="margin-left: 5px;" />
             </button>
         </footer>
+        <!-- <div v-if="showPopup" class="popup-expand">
+            <div class="arrow left" @click="previousView">
+                <font-awesome-icon icon="chevron-left" />
+            </div>
+            <div class="arrow right" @click="nextView">
+                <font-awesome-icon icon="chevron-right" />
+            </div>
+            <div class="expand-header">
+                <h1>
+                    {{
+                        currentView === 'RZ'
+                            ? 'Rezultat izračuna bez mjera prilagodbe'
+                            : 'Rezultat izračuna s mjerama prilagodbe'
+                    }}
+                </h1>
+                <div class="header-details">
+                    <span v-for="(item, index) in filteredItems" :key="index" class="h1-item">
+                        <div v-if="item.value">
+                            {{ item.value }}
+                            <span v-if="index !== filteredItems.length - 1">{{ item.suffix }}</span>
+                        </div>
+                    </span>
+                </div>
+            </div>
+            <div class="expand-content">
+                <div class="content1">
+                    <RizikSazetak v-if="currentView === 'RZ'" :tip="'RZ'" class="rizik-sazetak" />
+                    <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
+                </div>
+                <div class="content2">
+                    <RizikSazetak v-if="currentView === 'KR'" :tip="'KR'" class="rizik-sazetak" />
+                    <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
+                </div>
+            </div>
+        </div> -->
     </div>
 </template>
 
@@ -73,8 +108,7 @@
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import TablicaRizika from '~/components/TablicaRizika.vue';
-import { useOpciStore, useStructuredGridDataStore } from '#imports';
-import { formatDateToDMY } from '#imports';
+import { useOpciStore, useStructuredGridDataStore, useAdaptStore, formatDateToDMY } from '#imports';
 import ExcelJS from 'exceljs';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -90,9 +124,10 @@ const rizikSazetakRef = ref(null);
 const rizikSazetakMjereRef = ref(null);
 
 const opciStore = useOpciStore();
+const adaptStore = useAdaptStore();
 const structuredDataStore = useStructuredGridDataStore();
 
-const cellRanges = {
+const djelatnostCellRanges = {
     '11': { range: 'F19:L22' },
     '12': { range: 'O19:U22' },
     '13': { range: 'X19:AD22' },
@@ -132,6 +167,46 @@ const cellRanges = {
     '103': { range: 'X55:AD58' },
 };
 
+const imovinaCellRanges = {
+    '11': { range: 'E19:K19' },
+    '12': { range: 'M19:S19' },
+    '13': { range: 'U19:AA19' },
+    '14': { range: 'AC19:AI19' },
+
+    '21': { range: 'E20:K20' },
+    '23': { range: 'U20:AA20' },
+    '24': { range: 'AC20:AI20' },
+
+    '31': { range: 'E21:K21' },
+    '33': { range: 'U21:AA21' },
+    '34': { range: 'AC21:AI21' },
+
+    '41': { range: 'E22:K22' },
+    '43': { range: 'U22:AA22' },
+    '44': { range: 'AC22:AI22' },
+
+    '53': { range: 'U23:AA23' },
+
+    '63': { range: 'U24:AA24' },
+
+    '71': { range: 'E25:K25' },
+    '72': { range: 'M25:S25' },
+    '73': { range: 'U25:AA25' },
+    '74': { range: 'AC25:AI25' },
+
+    '81': { range: 'E26:K26' },
+    '82': { range: 'M26:S26' },
+    '83': { range: 'U26:AA26' },
+    '84': { range: 'AC26:AI26' },
+
+    '91': { range: 'E27:K27' },
+    '92': { range: 'M27:S27' },
+    '93': { range: 'U27:AA27' },
+    '94': { range: 'AC27:AI27' },
+
+    '103': { range: 'U28:AA28' },
+}
+
 const idIzracuna = ref(
     useCookie('id_izracuna').value == '/' ||
         useCookie('id_izracuna') == undefined
@@ -145,8 +220,29 @@ const structuredDataSaMjerama = ref(computed(() => structuredDataStore.structure
 // Kreiramo referencu za pristup komponenti
 const vrstaIzracuna = ref(useCookie('vrsta_izracuna').value);
 
+const adaptMjere = computed(() => adaptStore.odabrane_mjere)
+
+const showPopup = ref(false);
+const currentView = ref('RZ');  // 'RZ' for without measures, 'KR' for with measures
+
+const togglePopup = () => {
+    showPopup.value = !showPopup.value;
+};
+
+const nextView = () => {
+    currentView.value = currentView.value === 'RZ' ? 'KR' : 'RZ';
+};
+
+const previousView = () => {
+    currentView.value = currentView.value === 'KR' ? 'RZ' : 'KR';
+};
+
 onMounted(async () => {
     await opciStore.fetchCalculation(idIzracuna.value);
+    if (adaptMjere.value.length == 0) {
+        console.log("uslo")
+        await adaptStore.fetchMetrictypes(idIzracuna.value);
+    }
 })
 
 const datum = computed(() => opciStore.opci_podaci.aiz_datum);
@@ -188,11 +284,11 @@ const columns = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const doubleColumns = columns.map(col => columns.map(subCol => col + subCol)).flat(); // Generiraj dvo-slovne stupce
 const allColumns = [...columns, ...doubleColumns]; // Kombiniraj jednoslovne i dvo-slovne stupce
 
-function mapDataToCellRanges(structuredData, cellRanges) {
+function mapDataToCellRanges(structuredData, djelatnostCellRanges) {
     const cellData = [];
 
-    Object.keys(cellRanges).forEach(position => {
-        const { range } = cellRanges[position];
+    Object.keys(djelatnostCellRanges).forEach(position => {
+        const { range } = djelatnostCellRanges[position];
         const [startCell, endCell] = range.split(':');
         const startRow = parseInt(startCell.replace(/[^\d]/g, ''));
         const endRow = parseInt(endCell.replace(/[^\d]/g, ''));
@@ -231,38 +327,59 @@ function mapDataToCellRanges(structuredData, cellRanges) {
 }
 
 const test = () => {
-    const bezMjeraPopis = mapDataToCellRanges(structuredDataBezMjera.value, cellRanges);
-    const saMjeramaPopis = mapDataToCellRanges(structuredDataSaMjerama.value, cellRanges);
+    const bezMjeraPopis = mapDataToCellRanges(structuredDataBezMjera.value, imovinaCellRanges);
+    const saMjeramaPopis = mapDataToCellRanges(structuredDataSaMjerama.value, imovinaCellRanges);
     console.log("rezultat mapiranja (bez mjera): ", bezMjeraPopis);
     console.log("rezultat mapiranja (sa mjerama): ", saMjeramaPopis);
+    console.log("adapt mjere: ", adaptMjere.value);
 }
 
 const downloadRizikSazetak = async () => {
     try {
+
+        // Generiranje stringa iz filteredItems bez zareza na zadnjem elementu
+        const formattedString = filteredItems.value.map((item, index) => {
+            return `${item.value}${index !== filteredItems.value.length - 1 ? item.suffix + ' ' : ''}`;
+        }).join('');
+
+        console.log("formattedString: ", formattedString);
+
+        let bezMjeraPopis = []
+        let saMjeramaPopis = []
+
         // Fetch the Excel file from the server
-        const response = await axios.get('/blobs/DjelatnostTemplate.xlsx', {
+        const djelatnostBlob = await axios.get('/blobs/DjelatnostTemplate.xlsx', {
+            responseType: 'blob',
+            headers: { 'content-type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+        });
+        const imovinaBlob = await axios.get('/blobs/ImovinaTemplate.xlsx', {
             responseType: 'blob',
             headers: { 'content-type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
         });
 
         // Convert the response to an ArrayBuffer
-        const arrayBuffer = await response.data.arrayBuffer();
+        const DjelatnostArrayBuffer = await djelatnostBlob.data.arrayBuffer();
+        const ImovinaArrayBuffer = await imovinaBlob.data.arrayBuffer();
 
         // Use JSZip to handle the Excel file format (ZIP)
-        const typedArray = new Uint8Array(arrayBuffer);
-        const zip = await JSZip.loadAsync(typedArray);
+        const DjelatnostTypedArray = new Uint8Array(DjelatnostArrayBuffer);
+        const zipDjelatnost = await JSZip.loadAsync(DjelatnostTypedArray);
+
+        const ImovinaTypedArray = new Uint8Array(ImovinaArrayBuffer);
+        const zipImovina = await JSZip.loadAsync(ImovinaTypedArray);
 
         // Load the Excel workbook using ExcelJS
         const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.load(arrayBuffer);
+        if (vrstaIzracuna.value == 'Djeltanost') {
+            await workbook.xlsx.load(DjelatnostArrayBuffer);
+        } else {
+            await workbook.xlsx.load(ImovinaArrayBuffer);
+        }
 
         // Access the first worksheet (or by name if necessary)
         const opciWorksheet = workbook.getWorksheet('Opći podaci');
         const bezMjeraWorksheet = workbook.getWorksheet('Izračun bez mjera prilagodbe');
         const saMjeramaWorksheet = workbook.getWorksheet('Izračun s mjerama prilagodbe');
-
-        const bezMjeraPopis = mapDataToCellRanges(structuredDataBezMjera.value, cellRanges);
-        const saMjeramaPopis = mapDataToCellRanges(structuredDataSaMjerama.value, cellRanges);
 
         // console.log("rezultat mapiranja (bez mjera): ", bezMjeraPopis);
         // console.log("rezultat mapiranja (sa mjerama): ", saMjeramaPopis);
@@ -281,31 +398,6 @@ const downloadRizikSazetak = async () => {
         const matricaId = workbook.addImage({
             buffer: matricaBuffer.data,  // Use the buffer from the response
             extension: 'png'  // Ensure the extension matches your image format
-        });
-
-        opciWorksheet.addImage(logoId, {
-            tl: { col: 2, row: 2 },  // Top-left corner (C3)
-            br: { col: 8, row: 6 }  // Bottom-right corner (I6)
-        })
-
-        // LOGOTIP
-        bezMjeraWorksheet.addImage(logoId, {
-            tl: { col: 2, row: 2 },  // Top-left corner (C3)
-            br: { col: 9, row: 6 }  // Bottom-right corner (I6)
-        });
-        saMjeramaWorksheet.addImage(logoId, {
-            tl: { col: 2, row: 2 },  // Top-left corner (C3)
-            br: { col: 9, row: 6 }  // Bottom-right corner (I6)
-        });
-
-        // MATRICA RIZIKA
-        bezMjeraWorksheet.addImage(matricaId, {
-            tl: { col: 2, row: 60 },  // Top-left corner (C61)
-            br: { col: 21, row: 76 }  // Bottom-right corner (M7)
-        });
-        saMjeramaWorksheet.addImage(matricaId, {
-            tl: { col: 2, row: 60 },  // Top-left corner (C61)
-            br: { col: 21, row: 76 }  // Bottom-right corner (M7)
         });
 
         const opciPodaci = [
@@ -333,17 +425,124 @@ const downloadRizikSazetak = async () => {
             }
         });
 
+        const adaptMjereData = adaptMjere.value; // Uzimanje podataka iz computed property
 
-        // Generiranje stringa iz filteredItems bez zareza na zadnjem elementu
-        const formattedString = filteredItems.value.map((item, index) => {
-            return `${item.value}${index !== filteredItems.value.length - 1 ? item.suffix + ' ' : ''}`;
-        }).join('');
+        // Definiraj početni red
+        const startingRow = 39;
 
-        console.log("formattedString: ", formattedString);
+        // Prolazak kroz adaptMjereData i dodavanje podataka u worksheet
+        adaptMjereData.forEach((mjera, index) => {
+            const row = startingRow + index;
 
-        // Upiši string u ćeliju 'AM11'
-        bezMjeraWorksheet.getCell('AM11').value = formattedString;
-        saMjeramaWorksheet.getCell('AM11').value = formattedString;
+            // Stupac C (tva_sif)
+            const tvaSifCell = opciWorksheet.getCell(`C${row}`);
+            tvaSifCell.value = mjera.tva_sif;
+            tvaSifCell.alignment = {
+                vertical: 'bottom',
+                horizontal: 'left'
+            }; // Poravnanje
+            tvaSifCell.font = {
+                size: 20,
+                italic: true
+            }; // Italic font
+
+            // Stupci H:AF (tva_naziv) - Spoji stupce
+            opciWorksheet.mergeCells(`H${row}:AF${row}`);
+            const tvaNazivCell = opciWorksheet.getCell(`H${row}`);
+            tvaNazivCell.value = mjera.tva_naziv;
+            tvaNazivCell.alignment = {
+                wrapText: true,
+                vertical: 'bottom',
+                horizontal: 'left'
+            }; // Prelamanje teksta i poravnanje
+            tvaNazivCell.font = {
+                size: 20,
+                bold: true,
+                italic: true
+            }; // Bold i italic font
+
+            // Stupac AH (tgr_naziv)
+            const tgrNazivCell = opciWorksheet.getCell(`AH${row}`);
+            tgrNazivCell.value = mjera.tgr_naziv;
+            tgrNazivCell.alignment = {
+                vertical: 'bottom',
+                horizontal: 'left'
+            }; // Poravnanje
+            tgrNazivCell.font = {
+                size: 20,
+                italic: true
+            }; // Italic font
+
+            // Postavi visinu retka na 60px
+            opciWorksheet.getRow(row).height = 60;
+        });
+
+        if (vrstaIzracuna.value == 'Djeltanost') {
+
+            bezMjeraPopis = mapDataToCellRanges(structuredDataBezMjera.value, djelatnostCellRanges);
+            saMjeramaPopis = mapDataToCellRanges(structuredDataSaMjerama.value, djelatnostCellRanges);
+
+            // LOGOTIP
+            opciWorksheet.addImage(logoId, {
+                tl: { col: 2, row: 2 },  // Top-left corner (C3)
+                br: { col: 8, row: 6 }  // Bottom-right corner (I6)
+            })
+            bezMjeraWorksheet.addImage(logoId, {
+                tl: { col: 2, row: 2 },  // Top-left corner (C3)
+                br: { col: 9, row: 6 }  // Bottom-right corner (I6)
+            });
+            saMjeramaWorksheet.addImage(logoId, {
+                tl: { col: 2, row: 2 },  // Top-left corner (C3)
+                br: { col: 9, row: 6 }  // Bottom-right corner (I6)
+            });
+
+            // MATRICA RIZIKA
+            bezMjeraWorksheet.addImage(matricaId, {
+                tl: { col: 2, row: 60 },  // Top-left corner (C61)
+                br: { col: 21, row: 76 }  // Bottom-right corner (M7)
+            });
+            saMjeramaWorksheet.addImage(matricaId, {
+                tl: { col: 2, row: 60 },  // Top-left corner (C61)
+                br: { col: 21, row: 76 }  // Bottom-right corner (M7)
+            });
+
+            // Upiši string u ćeliju 'AM11'
+            bezMjeraWorksheet.getCell('AM11').value = formattedString;
+            saMjeramaWorksheet.getCell('AM11').value = formattedString;
+
+        } else {
+
+            bezMjeraPopis = mapDataToCellRanges(structuredDataBezMjera.value, imovinaCellRanges);
+            saMjeramaPopis = mapDataToCellRanges(structuredDataSaMjerama.value, imovinaCellRanges);
+
+            // LOGOTIP
+            opciWorksheet.addImage(logoId, {
+                tl: { col: 2, row: 2 },  // Top-left corner (C3)
+                br: { col: 8, row: 6 }  // Bottom-right corner (I6)
+            })
+            bezMjeraWorksheet.addImage(logoId, {
+                tl: { col: 2, row: 2 },  // Top-left corner (C3)
+                br: { col: 8, row: 6 }  // Bottom-right corner (I6)
+            });
+            saMjeramaWorksheet.addImage(logoId, {
+                tl: { col: 2, row: 2 },  // Top-left corner (C3)
+                br: { col: 8, row: 6 }  // Bottom-right corner (I6)
+            });
+
+            // MATRICA RIZIKA
+            bezMjeraWorksheet.addImage(matricaId, {
+                tl: { col: 2, row: 30 },  // Top-left corner (C31)
+                br: { col: 11, row: 43 }  // Bottom-right corner (L43)
+            });
+            saMjeramaWorksheet.addImage(matricaId, {
+                tl: { col: 2, row: 30 },  // Top-left corner (C31)
+                br: { col: 11, row: 43 }  // Bottom-right corner (L43)
+            });
+
+            // Upiši string u ćeliju 'AI11'
+            bezMjeraWorksheet.getCell('AI11').value = formattedString;
+            saMjeramaWorksheet.getCell('AI11').value = formattedString;
+        }
 
         // Upisivanje podataka u worksheet za bez mjera
         bezMjeraPopis.forEach(({ cell, value }) => {
@@ -360,7 +559,6 @@ const downloadRizikSazetak = async () => {
             const parsedValue = isNaN(value) || value === null ? null : parseInt(value); // Provjeri je li vrijednost broj i nije null
             saMjeramaWorksheet.getCell(cellAddress).value = parsedValue; // Postavi vrijednost ćelije
         });
-
 
         const vrstaIzracunaShort = vrstaIzracuna.value === 'Imovina' ? 'IM' : vrstaIzracuna.value === 'Djelatnost' ? 'DJ' : '';
 
@@ -553,5 +751,51 @@ main {
 
 .legenda {
     padding: 0px 15px;
+}
+
+.popup-expand {
+    z-index: 99;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100dvh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.expand-header h1 {
+    color: white;
+    text-align: center;
+}
+
+.header-details {
+    text-align: center;
+    color: white;
+}
+
+.arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 2rem;
+}
+
+.arrow.left {
+    left: 20px;
+}
+
+.arrow.right {
+    right: 20px;
+}
+
+.expand-content {
+    display: flex;
+    justify-content: space-around;
+    width: 80%;
+    height: 80%;
 }
 </style>
