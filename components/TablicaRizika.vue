@@ -250,6 +250,9 @@
 import { ref, onMounted } from 'vue';
 import { getPropertyGridData } from '~/service/fetchGridData';
 import { restructureData } from '~/utils/dataFormatter';
+import { useStructuredGridDataStore } from '~/stores/main-store';
+
+const structuredDataStore = useStructuredGridDataStore();
 
 const propertyData = ref([]);
 const structuredData = ref([]);
@@ -271,21 +274,25 @@ vrstaIzracuna.value = useCookie('vrsta_izracuna').value;
 const propertyGridData = async () => {
     const data = await getPropertyGridData(idIzracuna.value, tip);
     propertyData.value = data.data;
-    propertyData.value = data.data;
     if (propertyData.value.message) {
         message.value = propertyData.value.message;
         showPopup.value = true;
-
-        // Uklanjanje popup-a nakon 3 sekunde
-        // setTimeout(() => {
-        //     showPopup.value = false;
-        // }, 3000);
     } else {
         structuredData.value = restructureData(propertyData.value);
-        console.log("restructure proces: ", structuredData.value, structuredData.value['11'].length);
-    }
+        console.log("structuredData u komponenti: ", structuredData.value);
 
-    structuredData.value = restructureData(propertyData.value);
+        if (tip == 'RZ') {
+            structuredDataStore.clearStructureDataBezMjera();
+            structuredDataStore.setStructuredDataBezMjera(structuredData.value);
+            console.log("data bez mjera: ", structuredDataStore.structuredDataBezMjera);
+        } else if (tip == 'KR') {
+            structuredDataStore.clearStructureDataSaMjerama();
+            structuredDataStore.setStructuredDataSaMjerama(structuredData.value);
+            console.log("data sa mjerama: ", structuredDataStore.structuredDataSaMjerama);
+        } else {
+            console.log("Greška u tipu:", tip);
+        }
+    }
 }
 
 onMounted(() => {
