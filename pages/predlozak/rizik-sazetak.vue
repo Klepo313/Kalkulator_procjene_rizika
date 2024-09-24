@@ -430,6 +430,20 @@ const downloadRizikSazetak = async () => {
         // Definiraj početni red
         const startingRow = 39;
 
+        if (adaptMjereData.length === 0) {
+            // Ako nema mjera, ispiši poruku u C39 ćeliju
+            const noMeasuresCell = opciWorksheet.getCell(`C${startingRow}`);
+            noMeasuresCell.value = 'Nema odabranih mjera prilagodbe';
+            noMeasuresCell.alignment = {
+                vertical: 'bottom',
+                horizontal: 'left'
+            }; // Poravnanje
+            noMeasuresCell.font = {
+                italic: true,
+                size: 20
+            }; // Italic font
+        }
+
         // Prolazak kroz adaptMjereData i dodavanje podataka u worksheet
         adaptMjereData.forEach((mjera, index) => {
             const row = startingRow + index;
