@@ -69,76 +69,6 @@
                 <font-awesome-icon icon="arrow-right-long" style="margin-left: 5px;" />
             </button>
         </footer>
-        <!-- <div v-if="showPopup" class="popup-expand">
-            <div class="arrow left" @click="previousView">
-                <font-awesome-icon icon="chevron-left" />
-            </div>
-            <div class="arrow right" @click="nextView">
-                <font-awesome-icon icon="chevron-right" />
-            </div>
-            <div class="expand-header">
-                <h1>
-                    {{
-                        currentView === 'RZ'
-                            ? 'Rezultat izračuna bez mjera prilagodbe'
-                            : 'Rezultat izračuna s mjerama prilagodbe'
-                    }}
-                </h1>
-                <div class="header-details">
-                    <span v-for="(item, index) in filteredItems" :key="index" class="h1-item">
-                        <div v-if="item.value">
-                            {{ item.value }}
-                            <span v-if="index !== filteredItems.length - 1">{{ item.suffix }}</span>
-                        </div>
-                    </span>
-                </div>
-            </div>
-            <div class="expand-content">
-                <div class="content1">
-                    <RizikSazetak v-if="currentView === 'RZ'" :tip="'RZ'" class="rizik-sazetak" />
-                    <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
-                </div>
-                <div class="content2">
-                    <RizikSazetak v-if="currentView === 'KR'" :tip="'KR'" class="rizik-sazetak" />
-                    <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
-                </div>
-            </div>
-        </div> -->
-
-        <!-- <div class="popup-expand">
-            <div class="expand-content">
-                <div class="icon close">
-                    <font-awesome-icon icon="xmark" />
-                </div>
-                <div class="icon left">
-                    <font-awesome-icon icon="chevron-left" />
-                </div>
-                <div class="icon right">
-                    <font-awesome-icon icon="chevron-right" />
-                </div>
-                <h1>
-                    Rezultat izračuna bez mjera prilagodbe
-                    <span class="h1-container">
-                        <span v-for="(item, index) in filteredItems" :key="index" class="h1-item">
-                            <div v-if="item.value">
-                                {{ item.value }}
-                                <span v-if="index !== filteredItems.length - 1">{{ item.suffix }}</span>
-                            </div>
-                        </span>
-                    </span>
-                </h1>
-                <div class="content-tabs">
-                    <div class="tab">
-                        <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'RZ'" class="rizik-sazetak" />
-                        <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
-                    </div>
-                    <div class="tab">
-                        <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'KR'" class="rizik-sazetak" />
-                            <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'KR'" />
-                    </div>
-                </div>
-            </div>
-        </div> -->
 
         <div class="popup-expand" v-if="isPopupOpen">
             <div class="expand-content">
@@ -168,17 +98,18 @@
                     </span>
                 </h1>
                 <transition :name="slideDirection">
-                    <div class="content-tabs" :key="currentTab">
-                        <div v-for="(tab, index) in tabs" :key="index" v-show="index === currentTab" class="tab">
-                            <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost' && tab.tip === 'RZ'" :tip="tab.tip"
+                    <div v-show="tabs.length > 0" class="content-tabs"> <!-- Dodano v-show ovdje -->
+                        <div v-for="(tab, index) in tabs" v-show="index === currentTab" :key="index" class="tab">
+                            <RizikSazetak v-show="vrstaIzracuna == 'Djelatnost' && tab.tip === 'RZ'" :tip="tab.tip"
                                 class="rizik-sazetak" />
-                            <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina' && tab.tip === 'RZ'" :tip="tab.tip" />
-                            <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost' && tab.tip === 'KR'" :tip="tab.tip"
+                            <TablicaRizika v-show="vrstaIzracuna == 'Imovina' && tab.tip === 'RZ'" :tip="tab.tip" />
+                            <RizikSazetak v-show="vrstaIzracuna == 'Djelatnost' && tab.tip === 'KR'" :tip="tab.tip"
                                 class="rizik-sazetak" />
-                            <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina' && tab.tip === 'KR'" :tip="tab.tip" />
+                            <TablicaRizika v-show="vrstaIzracuna == 'Imovina' && tab.tip === 'KR'" :tip="tab.tip" />
                         </div>
                     </div>
                 </transition>
+
             </div>
         </div>
 
@@ -899,13 +830,14 @@ main {
     background-color: white;
     border-radius: 5px;
 
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 26px;
 }
 
 .content-tabs {
-    padding-bottom: 26px;
+    /* padding-bottom: 26px; */
     width: 100%;
     height: 100%;
 }
@@ -929,18 +861,18 @@ main {
 }
 
 .left {
-    left: 19px;
+    left: 7px;
     top: 50%;
 }
 
 .right {
-    right: 19px;
+    right: 7px;
     top: 50%;
 }
 
 .close {
-    top: 26px;
-    right: 26px;
+    top: 7px;
+    right: 7px;
 }
 
 
