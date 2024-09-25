@@ -195,6 +195,9 @@
                 <font-awesome-icon icon="save" class="save-icon" />
                 Spremi
             </button>
+            <div v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" id="map" class="map">
+                <Map />
+            </div>
             <span v-else style="font-style: italic;">
                 Učitavanje podataka
                 <font-awesome-icon icon="spinner" spin />
