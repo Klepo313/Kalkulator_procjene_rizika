@@ -270,10 +270,8 @@ function closePopup() {
 
 onMounted(async () => {
     await opciStore.fetchCalculation(idIzracuna.value);
-    if (adaptMjere.value.length == 0) {
-        console.log("uslo")
-        await adaptStore.fetchMetrictypes(idIzracuna.value);
-    }
+    adaptStore.odabrane_mjere = [];
+    await adaptStore.fetchMetrictypes(idIzracuna.value);
 })
 
 const datum = computed(() => opciStore.opci_podaci.aiz_datum);
@@ -401,7 +399,7 @@ const downloadRizikSazetak = async () => {
 
         // Load the Excel workbook using ExcelJS
         const workbook = new ExcelJS.Workbook();
-        if (vrstaIzracuna.value == 'Djeltanost') {
+        if (vrstaIzracuna.value == 'Djelatnost') {
             await workbook.xlsx.load(DjelatnostArrayBuffer);
         } else {
             await workbook.xlsx.load(ImovinaArrayBuffer);
@@ -414,6 +412,9 @@ const downloadRizikSazetak = async () => {
 
         // console.log("rezultat mapiranja (bez mjera): ", bezMjeraPopis);
         // console.log("rezultat mapiranja (sa mjerama): ", saMjeramaPopis);
+
+        opciWorksheet.getCell('T11').value = idIzracuna.value;
+        console.log("id funkcija: ", idIzracuna.value)
 
         const logoBuffer = await axios.get('/static/images/KPKR_logo.svg', {
             responseType: 'arraybuffer'
@@ -457,7 +458,7 @@ const downloadRizikSazetak = async () => {
         });
 
         const adaptMjereData = adaptMjere.value; // Uzimanje podataka iz computed property
-
+        console.log(" adaptMjereData: ", adaptMjereData);
         // Definiraj početni red
         const startingRow = 39;
 
@@ -492,7 +493,7 @@ const downloadRizikSazetak = async () => {
             }; // Italic font
 
             // Stupci H:AF (tva_naziv) - Spoji stupce
-            opciWorksheet.mergeCells(`H${row}:AF${row}`);
+            opciWorksheet.mergeCells(`H${row}:T${row}`); // AF
             const tvaNazivCell = opciWorksheet.getCell(`H${row}`);
             tvaNazivCell.value = mjera.tva_naziv;
             tvaNazivCell.alignment = {
@@ -506,23 +507,23 @@ const downloadRizikSazetak = async () => {
                 italic: true
             }; // Bold i italic font
 
-            // Stupac AH (tgr_naziv)
-            const tgrNazivCell = opciWorksheet.getCell(`AH${row}`);
-            tgrNazivCell.value = mjera.tgr_naziv;
-            tgrNazivCell.alignment = {
-                vertical: 'bottom',
-                horizontal: 'left'
-            }; // Poravnanje
-            tgrNazivCell.font = {
-                size: 20,
-                italic: true
-            }; // Italic font
+            // // Stupac AH (tgr_naziv)
+            // const tgrNazivCell = opciWorksheet.getCell(`AH${row}`);
+            // tgrNazivCell.value = mjera.tgr_naziv;
+            // tgrNazivCell.alignment = {
+            //     vertical: 'bottom',
+            //     horizontal: 'left'
+            // }; // Poravnanje
+            // tgrNazivCell.font = {
+            //     size: 20,
+            //     italic: true
+            // }; // Italic font
 
             // Postavi visinu retka na 60px
             opciWorksheet.getRow(row).height = 60;
         });
 
-        if (vrstaIzracuna.value == 'Djeltanost') {
+        if (vrstaIzracuna.value == 'Djelatnost') {
 
             bezMjeraPopis = mapDataToCellRanges(structuredDataBezMjera.value, djelatnostCellRanges);
             saMjeramaPopis = mapDataToCellRanges(structuredDataSaMjerama.value, djelatnostCellRanges);
@@ -544,11 +545,11 @@ const downloadRizikSazetak = async () => {
             // MATRICA RIZIKA
             bezMjeraWorksheet.addImage(matricaId, {
                 tl: { col: 2, row: 60 },  // Top-left corner (C61)
-                br: { col: 21, row: 76 }  // Bottom-right corner (M7)
+                br: { col: 15, row: 76 }  // Bottom-right corner (M7)
             });
             saMjeramaWorksheet.addImage(matricaId, {
                 tl: { col: 2, row: 60 },  // Top-left corner (C61)
-                br: { col: 21, row: 76 }  // Bottom-right corner (M7)
+                br: { col: 15, row: 76 }  // Bottom-right corner (M7)
             });
 
             // Upiši string u ćeliju 'AM11'
