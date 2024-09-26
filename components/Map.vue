@@ -20,25 +20,52 @@ onMounted(async () => {
         const response = await fetch('/blobs/hrvatske_opcine.geojson');
         const geojsonData = await response.json();
 
-        // Dodaj sloj s hrvatskim općinama na mapu
-        const geojsonLayer = L.geoJSON(geojsonData, {
+        // Filtriraj samo općine s admin_level: 8
+        const ZupanijeFilteredData = {
+            ...geojsonData,
+            features: geojsonData.features.filter(feature => feature.properties.admin_level == 6)
+        };
+        const OpćineFilteredData = {
+            ...geojsonData,
+            features: geojsonData.features.filter(feature => feature.properties.admin_level == 7)
+        };
+
+        console.log("Filtrirana GeoJSON - ŽUPANIJE - data: ", ZupanijeFilteredData);
+        console.log("Filtrirana GeoJSON - OPĆINE - data: ", OpćineFilteredData);
+
+        // Dodaj sloj s zupanijama na mapu
+        const zupanijeLayer = L.geoJSON(ZupanijeFilteredData, {
+            style: {
+                color: 'red', // Stilovi za općine
+                weight: 2,
+                opacity: 0.2
+            },
+            onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                    const name = feature.properties.name || 'Nepoznata općina';
+                    console.log(`Županija: ${name}, Admin level: ${feature.properties.admin_level}`);
+                });
+            }
+        })
+
+        // Dodaj sloj s općinama na mapu
+        const opcineLayer = L.geoJSON(OpćineFilteredData, {
             style: {
                 color: 'blue', // Stilovi za općine
-                weight: 2,
+                weight: 1,
                 opacity: 0.3
             },
             onEachFeature: (feature, layer) => {
                 layer.on('click', () => {
-                    // Provjeri koja svojstva su dostupna u properties
-                    console.log('Općina:', feature.properties);
-
-                    // Ispiši specifično ime općine ako postoji
                     const name = feature.properties.name || 'Nepoznata općina';
-                    const adminLevel = feature.properties.admin_level || 'Nepoznata razina';
-                    console.log(`Općina: ${name}, Razina administracije: ${adminLevel}`);
+                    console.log(`Općina: ${name}, Admin level: ${feature.properties.admin_level}`);
                 });
             }
-        }).addTo(map);
+        })
+
+
+        zupanijeLayer.addTo(map);
+        opcineLayer.addTo(map);
     }
 });
 </script>
