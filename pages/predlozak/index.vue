@@ -971,7 +971,7 @@ h1 {
 }
 
 .main-grid {
-    width: 60%;
+    max-width: 700px;
     display: grid;
     grid-template-columns: 150px 1fr auto;
     grid-template-rows: repeat(10, 38px) auto;

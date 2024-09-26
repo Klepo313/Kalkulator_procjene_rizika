@@ -1,40 +1,50 @@
 <template>
-    <div>
-        <div>
-            <!-- Radio buttoni za odabir mape -->
-            <label>
-                <input type="radio" value="https://oss.uredjenazemlja.hr/map" v-model="selectedUrl" />
-                Uređena Zemlja
-            </label>
-            <label>
-                <input type="radio" value="https://geoportal.dgu.hr/" v-model="selectedUrl" />
-                Geoportal
-            </label>
-        </div>
-
-        <!-- Iframe koji prikazuje mapu prema odabranom URL-u -->
-        <iframe :src="selectedUrl" style="width: 100%; height: 600px; border: none;"></iframe>
-    </div>
+    <div id="map" style="height: 500px;"></div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted } from 'vue';
 
-// Početni URL koji će biti prikazan
-const selectedUrl = ref('https://oss.uredjenazemlja.hr/map');
+onMounted(async () => {
+    if (import.meta.client) {
+        const L = await import('leaflet');
+
+        const map = L.map('map').setView([45.8150, 15.9819], 7); // Središte Hrvatske
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Učitaj GeoJSON datoteku iz /public/blobs
+        const response = await fetch('/blobs/hrvatske_opcine.geojson');
+        const geojsonData = await response.json();
+
+        // Dodaj sloj s hrvatskim općinama na mapu
+        const geojsonLayer = L.geoJSON(geojsonData, {
+            style: {
+                color: 'blue', // Stilovi za općine
+                weight: 2,
+                opacity: 0.3
+            },
+            onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                    // Provjeri koja svojstva su dostupna u properties
+                    console.log('Općina:', feature.properties);
+
+                    // Ispiši specifično ime općine ako postoji
+                    const name = feature.properties.name || 'Nepoznata općina';
+                    const adminLevel = feature.properties.admin_level || 'Nepoznata razina';
+                    console.log(`Općina: ${name}, Razina administracije: ${adminLevel}`);
+                });
+            }
+        }).addTo(map);
+    }
+});
 </script>
 
 <style scoped>
-h3 {
-    margin-bottom: 10px;
-}
-
-label {
-    margin-right: 15px;
-    font-weight: bold;
-}
-
-iframe {
-    margin-top: 20px;
+#map {
+    height: 500px;
 }
 </style>
