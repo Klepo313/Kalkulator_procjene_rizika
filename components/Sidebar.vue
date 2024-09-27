@@ -74,17 +74,23 @@
                 </div> -->
             </div>
         </div>
-        <div :class="['profile-container', isCollapsed ? 'collapsed' : '']">
-            <div :class="['profile-content', isCollapsed ? 'collapsed' : '']">
-                <font-awesome-icon icon="circle-user" size="xl" />
-                <div :class="['profile-details', isCollapsed ? 'collapsed' : '']">
-                    <h4 :class="isCollapsed ? 'collapsed' : ''">{{ username }}</h4>
-                    <span :class="isCollapsed ? 'collapsed' : ''">{{ username + '@gmail.com' }}</span>
-                </div>
+        <div class="bottom-container">
+            <div :class="['back', isCollapsed ? 'collapsed' : '']" @click="navigateTo('/predlosci')">
+                <font-awesome-icon icon="arrow-left-long" />
+                <span v-if="!isCollapsed">Prethodni izračuni</span>
             </div>
-            <div :class="['logout-container', isCollapsed ? 'collapsed' : '']" @click="doLogout">
-                <font-awesome-icon :class="['logout-icon', isCollapsed ? 'collapsed' : '']"
-                    icon="arrow-right-from-bracket" />
+            <div :class="['profile-container', isCollapsed ? 'collapsed' : '']">
+                <div :class="['profile-content', isCollapsed ? 'collapsed' : '']">
+                    <font-awesome-icon icon="circle-user" size="xl" />
+                    <div :class="['profile-details', isCollapsed ? 'collapsed' : '']">
+                        <h4 :class="isCollapsed ? 'collapsed' : ''">{{ username }}</h4>
+                        <span :class="isCollapsed ? 'collapsed' : ''">{{ username + '@gmail.com' }}</span>
+                    </div>
+                </div>
+                <div :class="['logout-container', isCollapsed ? 'collapsed' : '']" @click="doLogout">
+                    <font-awesome-icon :class="['logout-icon', isCollapsed ? 'collapsed' : '']"
+                        icon="arrow-right-from-bracket" />
+                </div>
             </div>
         </div>
     </div>
@@ -279,6 +285,35 @@ h3 {
 .inactive {
     background-color: var(--bg-color);
     color: var(--text-color);
+}
+
+.bottom-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 26px;
+}
+
+.back {
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    color: var(--primary-color);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.back.collapsed {
+    justify-content: center;
+}
+
+.back:hover {
+    opacity: 1;
+    transform: translateX(-3px);
 }
 
 .profile-container {
