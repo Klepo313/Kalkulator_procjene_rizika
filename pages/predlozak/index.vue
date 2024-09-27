@@ -190,11 +190,15 @@
                     <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
             </form>
-            <button v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" id="saveBtn"
-                type="button" @click="saveFormData" :disabled="!isFormValid">
-                <font-awesome-icon icon="save" class="save-icon" />
-                Spremi
-            </button>
+            <div v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" class="spremiBtn-container">
+                <button id="saveBtn" type="button" @click="saveFormData" :disabled="!isFormValid">
+                    <font-awesome-icon icon="save" class="save-icon" />
+                    Spremi
+                </button>
+                <span>
+                    *Potrebno je popuniti sva obvezna polja kako bi se predložak mogao spremiti te nastaviti dalje.
+                </span>
+            </div>
             <div v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" id="map" class="map">
                 <Map />
             </div>
@@ -1060,6 +1064,16 @@ main {
 .map-link>span {
     margin-left: 5px;
     text-decoration: underline;
+}
+
+.spremiBtn-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.spremiBtn-container span {
+    font-style: italic;
 }
 
 #saveBtn {
