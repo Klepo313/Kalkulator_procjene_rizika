@@ -323,9 +323,9 @@ watch(
         if (initialDataSet.value) {
             // Usporedi trenutne vrijednosti s originalnim
 
-            console.log("Bilo je promjena");
+            // console.log("Bilo je promjena");
 
-            console.log("initial data set u watchu prije: ", initialDataSet.value)
+            // console.log("initial data set u watchu prije: ", initialDataSet.value)
 
             isFormDirty.value = JSON.stringify({
                 nazivIzracuna: nazivIzracuna.value,
@@ -341,21 +341,21 @@ watch(
                 napomena: napomena.value,
             }) !== JSON.stringify(initialFormData.value);
 
-            console.log("Nakon u watchu: ",
-                {
-                    nazivIzracuna: nazivIzracuna.value,
-                    odabraniDatum: odabraniDatum.value,
-                    odabranaVrstaIzracuna: odabranaVrstaIzracuna.value,
-                    odabranaKatastarskaOpcina: odabranaKatastarskaOpcina.value,
-                    odabranaKatastarskaCestica: odabranaKatastarskaCestica.value,
-                    odabranaVrstaObjekta: odabranaVrstaObjekta.value,
-                    odabranaDjelatnost: odabranaDjelatnost.value,
-                    odabranaSkupinaDjelatnosti: odabranaSkupinaDjelatnosti.value,
-                    odabranaIspostava: odabranaIspostava.value,
-                    odabraniPodrucniUred: odabraniPodrucniUred.value,
-                    napomena: napomena.value,
-                }
-            )
+            // console.log("Nakon u watchu: ",
+            //     {
+            //         nazivIzracuna: nazivIzracuna.value,
+            //         odabraniDatum: odabraniDatum.value,
+            //         odabranaVrstaIzracuna: odabranaVrstaIzracuna.value,
+            //         odabranaKatastarskaOpcina: odabranaKatastarskaOpcina.value,
+            //         odabranaKatastarskaCestica: odabranaKatastarskaCestica.value,
+            //         odabranaVrstaObjekta: odabranaVrstaObjekta.value,
+            //         odabranaDjelatnost: odabranaDjelatnost.value,
+            //         odabranaSkupinaDjelatnosti: odabranaSkupinaDjelatnosti.value,
+            //         odabranaIspostava: odabranaIspostava.value,
+            //         odabraniPodrucniUred: odabraniPodrucniUred.value,
+            //         napomena: napomena.value,
+            //     }
+            // )
         }
     },
     { deep: true }
@@ -720,11 +720,13 @@ const updateVrstaIzracuna = (event) => {
 const updateKatastarskaOpcina = () => {
     console.log("odabrana: ", odabranaKatastarskaOpcina.value.kop_id)
     if (odabranaKatastarskaOpcina.value) {
+        odabranaKatastarskaCestica.value = null;
         opciStore.opci_podaci.aiz_kop_id = odabranaKatastarskaOpcina.value.kop_id;
         opciStore.opci_podaci.kop_naziv = odabranaKatastarskaOpcina.value.kop_naziv;
         opciStore.opci_podaci.isp_naziv = odabranaKatastarskaOpcina.value.isp_naziv;
         opciStore.opci_podaci.puk_naziv = odabranaKatastarskaOpcina.value.puk_naziv;
 
+        console.log("Evo ide u fetch: ", odabranaKatastarskaOpcina.value.kop_id);
         fetchParticles(parseInt(odabranaKatastarskaOpcina.value.kop_id));
 
         odabranaIspostava.value = {
@@ -752,8 +754,11 @@ const updateKatastarskaCestica = (newValue) => {
 
     // Provjera ako postoji katastarska čestica u katastarskeCestice koja odgovara newValue
     const matchingCestica = katastarskeCestice.value.find(cestica => cestica.kcs_sif === newValue);
-
-    if (matchingCestica) {
+    if (newValue == '') {
+        opciStore.opci_podaci.aiz_kcs_id = 0;
+        opciStore.opci_podaci.kcs_sif = '';
+    }
+    else if (matchingCestica) {
         // Ako postoji, dohvati njena svojstva (kcs_id, kcs_sif)
         privremenaKatastarskaCestica.value = {
             ...matchingCestica,  // kopiramo svojstva matchingCestice
@@ -885,6 +890,9 @@ const fetchParticles = (id) => {
     console.log('odabranaKatastarskaOpcina:', odabranaKatastarskaOpcina.value);
     console.log('Id:', id);
 
+    opciStore.katastarske_cestice = [];
+    katastarskeCestice.value = []; // Očistimo katastarskeCestice
+
     // Pozivamo funkciju iz storea
     opciStore.fetchParticlesForMunicipalities(id).then(response => {
         if (!response) {
@@ -899,6 +907,7 @@ const fetchParticles = (id) => {
             messageCestica.value = response.message;
             console.log("poruka: ", messageCestica.value);
             katastarskeCestice.value = []; // Očistimo čestice ako nema podataka
+            opciStore.katastarske_cestice = [];
         } else if (response.particles) {
             // Ako postoje katastarske čestice, ažuriramo katastarskeCestice
             katastarskeCestice.value = response.particles;
@@ -1059,15 +1068,22 @@ main {
     border: var(--border);
     font-weight: 500;
 
+    background-color: var(--primary-color);
+    color: white;
+
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 5px;
 }
 
+#saveBtn * {
+    color: white;
+}
+
 
 #saveBtn:hover {
-    background-color: var(--primary-color);
+    background-color: var(--primary-color-hover);
     color: white;
 }
 
@@ -1083,7 +1099,7 @@ main {
 #saveBtn:disabled {
     background: rgb(216, 216, 216);
     /* Svijetlo siva pozadina */
-    color: black;
+    color: var(--text-color);
     /* border: none; */
     /* Boja teksta */
     cursor: not-allowed;
@@ -1094,12 +1110,16 @@ main {
     /* Smanjena vidljivost */
 }
 
+#saveBtn:disabled * {
+    color: var(--text-color);
+}
+
 #saveBtn:disabled:hover,
 #saveBtn:disabled:active,
 #saveBtn:disabled>.save-icon {
     background-color: rgb(232, 232, 232);
     /* Uklanja hover i active efekte */
-    color: black;
+    color: var(--text-color);
     /* Zadržava boju teksta */
 }
 
