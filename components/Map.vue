@@ -78,20 +78,9 @@ onMounted(async () => {
 
 <template>
     <div>
-        <div>
-            <!-- Radio buttoni za odabir mape -->
-            <label>
-                <input type="radio" value="https://oss.uredjenazemlja.hr/map" v-model="selectedUrl">
-                Uređena Zemlja
-            </label>
-            <label>
-                <input type="radio" value="https://geoportal.dgu.hr/" v-model="selectedUrl">
-                Geoportal
-            </label>
-        </div>
-
+        <h2 class="h2-katastar">Uređena zemlja</h2>
         <!-- Iframe koji prikazuje mapu prema odabranom URL-u -->
-        <iframe :src="selectedUrl" style="width: 100%; height: 600px; border: none;" />
+        <iframe :src="selectedUrl" style="width: 100%; height: 800px; border: none;" />
     </div>
 </template>
 
@@ -103,8 +92,10 @@ const selectedUrl = ref('https://oss.uredjenazemlja.hr/map');
 </script>
 
 <style scoped>
-h3 {
-    margin-bottom: 10px;
+h2 {
+    font-size: 18px;
+    border-bottom: 1px solid var(--primary-color);
+    color: var(--primary-color);
 }
 
 label {
