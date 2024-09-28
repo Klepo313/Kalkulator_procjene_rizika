@@ -16,8 +16,10 @@ const login = async (username, password) => {
 
         return {
             status: response.status,
-            // token: response.data.token,
-            username: response.data.userName
+            username: response.data.userName,
+            name: response.data.name,
+            surname: response.data.surname,
+            email: response.data.email,
         };
     } catch (error) {
         console.error('Login error: ' + error)
