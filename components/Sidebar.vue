@@ -83,8 +83,13 @@
                 <div :class="['profile-content', isCollapsed ? 'collapsed' : '']">
                     <font-awesome-icon icon="circle-user" size="xl" />
                     <div :class="['profile-details', isCollapsed ? 'collapsed' : '']">
-                        <h4 :class="isCollapsed ? 'collapsed' : ''">{{ username }}</h4>
-                        <span :class="isCollapsed ? 'collapsed' : ''">{{ username + '@gmail.com' }}</span>
+                        <h4 :class="isCollapsed ? 'collapsed' : ''"
+                            :style="{ fontSize: nameLength > 20 ? '14px' : 'initial' }" class="responsive-text">
+                            {{ capitalizeName(storedName + ' ' + storedSurname) }}
+                        </h4>
+                        <span :class="isCollapsed ? 'collapsed' : ''" class="responsive-text">
+                            {{ storedEmail ? storedEmail : username }}
+                        </span>
                     </div>
                 </div>
                 <div :class="['logout-container', isCollapsed ? 'collapsed' : '']" @click="doLogout">
@@ -118,6 +123,34 @@ const username = ref(
     useCookie('username').value == undefined ?
         'ime_prezime' : useCookie('username').value.toLowerCase()
 );
+
+let storedName = '';
+let storedSurname = '';
+let storedEmail = '';
+const nameLength = ref(0);
+
+if (import.meta.client) {
+    storedName = atob(localStorage.getItem('name') || '');
+    storedSurname = atob(localStorage.getItem('surname') || '');
+    storedEmail = localStorage.getItem('email')
+        ? atob(localStorage.getItem('email'))
+        : null;
+
+    nameLength.value = storedName.length + storedSurname.length;
+}
+
+// console.log("Ime:", storedName);
+// console.log("Prezime:", storedSurname);
+// console.log("Email:", storedEmail);
+// console.log("Duljina:", nameLength.value);
+
+function capitalizeName(fullName) {
+    return fullName
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
 
 const isDisabled = computed(() => idIzracuna.value === '/' || idIzracuna.value == 0);
 
@@ -327,6 +360,7 @@ h3 {
 }
 
 .profile-details {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 0px;
@@ -343,6 +377,16 @@ h3 {
 .profile-details>span {
     font-size: 14px;
     opacity: 0.6;
+}
+
+.responsive-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
+
+    font-size: clamp(12px, 2vw, 18px);
 }
 
 .profile-content {
