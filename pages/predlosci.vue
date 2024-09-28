@@ -60,7 +60,7 @@
                             </template>
                         </Column>
                         <Column field="puk_naziv" header="Područni ured" sortable style="width: 6%" />
-                        <Column field="objekt_djel" header="Objekt/djelatnost" sortable style="width: 20%" />
+                        <Column field="objekt_djel" header="Imovina/djelatnost" sortable style="width: 20%" />
 
                     </DataTable>
                 </div>
@@ -68,7 +68,7 @@
             <footer>
                 <nuxt-link to="/" class="footer-link">
                     <font-awesome-icon icon="arrow-left-long" />
-                    Homepage
+                    Početna stranica
                 </nuxt-link>
             </footer>
         </main>
