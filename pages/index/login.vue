@@ -69,6 +69,10 @@ csrfToken.value = null;
 const username = useCookie('username');
 username.value = null;
 
+const name = ref('');
+const surname = ref('');
+const email = ref('');
+
 onMounted(() => {
     spinnerIcon.value.style.display = "none";
     loginBtnText.value.style.display = "inline";
@@ -88,6 +92,19 @@ const checkLogin = async () => {
             console.log("response login: ", response)
             token.value = response.token;
             username.value = response.username;
+            name.value = response.name;
+            surname.value = response.surname;
+            email.value = response.email;
+            console.log("email login: ", email.value);
+
+            localStorage.setItem('name', btoa(name.value));
+            localStorage.setItem('surname', btoa(surname.value));
+
+            if (email.value) {
+                localStorage.setItem('email', btoa(email.value));
+            } else {
+                console.warn('Email nije dostupan, ne sprema se u localStorage.');
+            }
 
             const newCsrfToken = generateCsrfToken();
 
