@@ -83,11 +83,11 @@
 
                 <div class="grid-item header">Katastarska čestica</div>
                 <div class="grid-item">
-                    <AutoComplete v-model="odabranaKatastarskaCestica" :suggestions="filtriraneKatastarskeCestice"
-                        id="kcs" placeholder="Unesi katastarsku česticu" :virtual-scroller-options="{ itemSize: 38 }"
-                        option-label="kcs_sif" class="form-input" :disabled="!odabranaKatastarskaOpcina || status"
-                        @complete="searchKatastarskeCestice" @update:model-value="updateKatastarskaCestica"
-                        @item-select="onSelectKatastarskaCestica" />
+                    <AutoComplete id="kcs" v-model="odabranaKatastarskaCestica"
+                        :suggestions="filtriraneKatastarskeCestice" placeholder="Unesi katastarsku česticu"
+                        :virtual-scroller-options="{ itemSize: 38 }" option-label="kcs_sif" class="form-input"
+                        :disabled="!odabranaKatastarskaOpcina || status" @complete="searchKatastarskeCestice"
+                        @update:model-value="updateKatastarskaCestica" @item-select="onSelectKatastarskaCestica" />
                 </div>
                 <div class="grid-item info-div">
                     <font-awesome-icon v-if="messageCestica" :icon="'info-circle'" class="info-icon" />
@@ -191,7 +191,7 @@
                 </div>
             </form>
             <div v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" class="spremiBtn-container">
-                <button id="saveBtn" type="button" @click="saveFormData" :disabled="!isFormValid">
+                <button id="saveBtn" type="button" :disabled="!isFormValid" @click="saveFormData">
                     <font-awesome-icon icon="save" class="save-icon" />
                     Spremi
                 </button>
@@ -217,8 +217,8 @@
             </span> -->
         </main>
         <footer>
-            <button class="footer-button" @click="navigateTo('/kpkr/predlozak/mjere-prilagodbe')"
-                :disabled="idIzracuna == '/' || idIzracuna == 0">
+            <button class="footer-button" :disabled="idIzracuna == '/' || idIzracuna == 0"
+                @click="navigateTo('/kpkr/predlozak/mjere-prilagodbe')">
                 <span>Mjere prilagodbe</span>
                 <font-awesome-icon icon="arrow-right-long" />
             </button>
@@ -458,6 +458,11 @@ onBeforeRouteLeave(() => {
     window.addEventListener('beforeunload', beforeWindowUnload);
 })
 
+onBeforeUnmount(() => {
+    window.removeEventListener('beforeunload', beforeWindowUnload);
+    document.body.style.overflow = '';
+});
+
 const obaveznaPolja = ref([
     'odabraniDatum',
     'odabranaVrstaIzracuna',
@@ -489,11 +494,6 @@ watch(idIzracuna, async (newValue, oldValue) => {
         await opciStore.fetchCalculation(newValue);
         fillFormData();
     }
-});
-
-onBeforeUnmount(() => {
-    window.removeEventListener('beforeunload', beforeWindowUnload);
-    document.body.style.overflow = '';
 });
 
 onMounted(async () => {
