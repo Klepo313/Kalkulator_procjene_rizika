@@ -13,9 +13,9 @@
                         <DataTable :value="odabrane_mjere_computed" removableSort paginator :rows="5" stripedRows>
                             <template #empty> Nema odabranih mjera prilagodbe. </template>
                             <template #loading> Učitavanje odabranih mjera prilagodbe. Molimo pričekajte. </template>
-                            <Column field="tva_sif" header="Šifra" sortable style="width: auto"></Column>
-                            <Column field="tva_naziv" header="Naziv" sortable style="width: auto"></Column>
-                            <Column field="tgr_naziv" header="Grupa" sortable style="width: auto"></Column>
+                            <Column field="tva_sif" header="Šifra" sortable style="width: auto" />
+                            <Column field="tva_naziv" header="Naziv" sortable style="width: auto" />
+                            <Column field="tgr_naziv" header="Grupa" sortable style="width: auto" />
                         </DataTable>
                     </div>
                     <div class="mjere-list">
@@ -49,7 +49,7 @@
                                 </template>
                                 <template #empty> Nema mjera prilagodbe. </template>
                                 <template #loading> Učitavanje mjera prilagodbe. Molimo pričekajte. </template>
-                                <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+                                <Column selectionMode="multiple" headerStyle="width: 3rem" />
                                 <Column field="tva_sif" header="Šifra" style="min-width: 7rem">
                                     <template #body="{ data }">
                                         {{ data.tva_sif }}
