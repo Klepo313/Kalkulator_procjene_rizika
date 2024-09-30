@@ -34,6 +34,10 @@
     --red-hover: #8d2828;
     --red-focus: #461919;
     --red-soft: rgb(192, 57, 43);
+
+    --kesp-primary: #5F5727;
+    --kesp-primary-hover: #807434;
+    --kesp-primary-focus: #8d813b;
 }
 
 ::selection {

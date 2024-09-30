@@ -1,27 +1,7 @@
 <template>
     <div>
         <div class="body">
-            <div class="main-form">
-                <!-- <h2>Odaberi opciju</h2> -->
-                <div class="card-container">
-                    <div class="card" @click="navigateTo('/predlozak')">
-                        <font-awesome-icon icon="plus" />
-                        <span>
-                            Novi predložak <br> izračuna
-                        </span>
-                    </div>
-                    <div class="card" @click="navigateTo('/predlosci')">
-                        <font-awesome-icon icon="list-ul" />
-                        <span>
-                            Prethodni <br> izračuni
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <!-- <nuxt-link to="/login" class="footer-link" @click="navigateTo('/login')">
-                <font-awesome-icon icon="arrow-left-long" />
-                Prijava
-            </nuxt-link> -->
+            Kalkulator emisija stakleničkih plinova
         </div>
     </div>
 </template>

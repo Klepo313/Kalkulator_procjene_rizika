@@ -24,8 +24,8 @@
                     </Tab>
                 </TabList>
                 <TabPanels class="tab-panel">
-                    <TabPanel value="0" class="tab-panel">
-                        <div ref="rizikSazetakRef">
+                    <TabPanel value="0" class="tab-panel" ref="tabPanelRef">
+                        <div ref="rizikSazetakRef" class="sazetak-container">
                             <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'RZ'" class="rizik-sazetak" />
                             <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
                             <LegendaBoja v-if="vrstaIzracuna" class="legenda" />
@@ -51,18 +51,21 @@
 
         </main>
         <footer>
-            <button @click="navigateTo('/predlozak/mjere-prilagodbe')" class="footer-button">
+            <button @click="navigateTo('/kpkr/predlozak/mjere-prilagodbe')" class="footer-button">
                 <font-awesome-icon icon="arrow-left-long" style="margin-right: 5px;" />
                 <span>Mjere prilagodbe</span>
             </button>
             <div class="actionButtons">
-                <button class="action-icon" @click="openPopup">
+                <button class="action-icon expand" @click="openPopup">
                     <font-awesome-icon icon="expand" size="lg" />
+                    <span class="tooltip">Proširi prozor</span>
                 </button>
-                <button class="action-icon" :disabled="!structuredDataBezMjera || !structuredDataSaMjerama"
-                    @click="downloadRizikSazetak($event)"> <!--@click="downloadRizikSazetak($event)"-->
+                <button class="action-icon download" :disabled="!structuredDataBezMjera || !structuredDataSaMjerama"
+                    @click="downloadRizikSazetak($event)">
                     <font-awesome-icon icon="download" size="lg" />
+                    <span class="tooltip">Preuzmi izvještaj</span>
                 </button>
+
             </div>
             <button @click="noviIzracun" class="footer-button">
                 <span>Novi predložak izračuna</span>
@@ -132,6 +135,9 @@ definePageMeta({
         'id-izracuna'
     ],
 });
+
+const tabPanelRef = ref(null);
+const maxSazetakWidth = ref('100%'); // Inicijalna vrijednost
 
 const rizikSazetakRef = ref(null);
 const rizikSazetakMjereRef = ref(null);
@@ -272,6 +278,10 @@ onMounted(async () => {
     await opciStore.fetchCalculation(idIzracuna.value);
     adaptStore.odabrane_mjere = [];
     await adaptStore.fetchMetrictypes(idIzracuna.value);
+    const tabPanelWidth = tabPanelRef.value.clientWidth; // Dobij širinu tab panela
+    if (tabPanelWidth < 1100) {
+        maxSazetakWidth.value = '1400px'; // Postavi maksimalnu širinu
+    }
 })
 
 const datum = computed(() => opciStore.opci_podaci.aiz_datum);
@@ -306,7 +316,7 @@ const noviIzracun = () => {
     opciStore.clearOpciPodaci();
     useCookie('id_izracuna').value = '/';
     useCookie('vrsta_izracuna').value = null;
-    navigateTo('/predlozak');
+    navigateTo('/kpkr/predlozak');
 }
 
 const columns = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -682,6 +692,10 @@ footer {
 }
 
 .actionButtons {
+    position: relative;
+    border: none;
+    background: none;
+
     display: flex;
     align-items: center;
     gap: 16px;
@@ -694,14 +708,35 @@ footer {
     height: auto;
 }
 
-/* .action-icon {
-    color: gray;
-} */
+.tooltip {
+    visibility: hidden;
+    position: absolute;
+    background-color: var(--input-color);
+    color: var(--text-color);
+    text-align: center;
+    padding: 5px;
+    border: var(--border);
+    border-radius: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+    top: -35px;
+
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
 
 .action-icon:hover {
     color: var(--primary-color);
     cursor: pointer;
     /* color: gray; */
+}
+
+.action-icon:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
 }
 
 .reset-style {
@@ -729,6 +764,8 @@ footer {
 
 .tab-panel {
     height: 100% !important;
+    overflow: hidden;
+    overflow-x: auto;
 }
 
 .tab-panel>div {
@@ -737,6 +774,22 @@ footer {
     align-items: center;
     justify-content: center;
     gap: 20px;
+}
+
+.sazetak-container {
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+@media (max-width: 1400px) {
+    .sazetak-container {
+        /* width: 1400px; */
+        /* Širina kada je tab-panel uži od 1100px */
+        overflow-x: auto;
+        /* Omogućava horizontalno pomicanje */
+        white-space: nowrap;
+        /* Sprječava prelamanje teksta */
+    }
 }
 
 .p-tab {

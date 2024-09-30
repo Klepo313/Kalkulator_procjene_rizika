@@ -1,17 +1,45 @@
 <template>
     <div>
         <div class="body">
-            <button v-if="$route.path !== '/login'" class="logout" @click="doLogout">
-                <font-awesome-icon icon="arrow-right-from-bracket" class="logout-icon" />
-                Odjava
-            </button>
+            <header>
+                <div class="image-container">
+                    <img src="../public/static/images/atd_solucije_iz.png" alt="logo" class="header-image"
+                        @click="navigateTo('/')">
+                </div>
+                <button v-if="$route.path !== '/login'" class="logout" @click="doLogout">
+                    <font-awesome-icon icon="arrow-right-from-bracket" class="logout-icon" />
+                    Odjava
+                </button>
+            </header>
+
 
             <main>
-                <div class="image-container">
-                    <img src="../images/KPKR_logo.svg" alt="logo">
-                </div>
                 <div class="main-container">
-                    <NuxtPage style="width: 100%; height: 100%;" />
+                    <!-- <h1>Odaberi opciju</h1> -->
+                    <div class="card-container">
+                        <div v-for="(card, index) in cards" :key="index" class="card">
+                            <div class="image-container">
+                                <!-- Prikaži spinner ako slike još nisu učitane -->
+                                <font-awesome-icon v-if="!card.isLoaded" icon="spinner" spin />
+                                <img v-else :src="card.miniLogo" alt="logo" />
+                            </div>
+                            <div class="card-content">
+                                <!-- Prikaži spinner ako slike još nisu učitane -->
+                                <font-awesome-icon v-if="!card.isLoaded" icon="spinner" spin />
+                                <img v-else :src="card.textLogo" alt="logo" />
+                                <div class="btn">
+                                    <button :class="card.buttonClass" @mouseover="card.showTooltip = true"
+                                        @mouseleave="card.showTooltip = false" @click="navigateTo(card.navigation)">
+                                        Nastavi
+                                        <font-awesome-icon icon="arrow-right" />
+                                    </button>
+                                    <div v-if="card.tooltip.status === 1 && card.showTooltip" class="tooltip">
+                                        {{ card.tooltip.text }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </main>
 
@@ -21,10 +49,69 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { logout } from '~/service/logout';
 
 definePageMeta({
+    middleware: [
+        'auth'
+    ],
     pageTransition: { name: 'slide', mode: 'out-in' }
+});
+
+async function fetchImageAsBlob(imageId) {
+    const response = await fetch(`/static/images/${imageId}.svg`); // Dohvati sliku pomoću API poziva
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
+}
+
+const cards = ref([
+    {
+        miniLogoId: 'kpkr_logo_mini', // ID slike u bazi
+        textLogoId: 'kpkr_logo_text',
+        miniLogo: '',
+        textLogo: '',
+        buttonClass: 'kpkrBtn',
+        navigation: '/kpkr',
+        isLoaded: false,
+        showTooltip: false,
+        tooltip: {
+            text: 'Kalkulator procjene klimatskih rizika još nije u funkciji.',
+            status: 0
+        },
+        styles: {
+            primary: '#14521C',
+            hover: '#176221',
+            focus: '#1a7225'
+        }
+    },
+    {
+        miniLogoId: 'kesp_logo_mini',
+        textLogoId: 'kesp_logo_text',
+        miniLogo: '',
+        textLogo: '',
+        buttonClass: 'kespBtn',
+        navigation: '/',
+        isLoaded: false,
+        showTooltip: false,
+        tooltip: {
+            text: 'Kalkulator emisije stakleničkih plinova još nije u funkciji.',
+            status: 1
+        },
+        styles: {
+            primary: '#5F5727',
+            hover: '#807434',
+            focus: '#8d813b'
+        }
+    }
+])
+
+onMounted(async () => {
+    for (const card of cards.value) {
+        card.miniLogo = await fetchImageAsBlob(card.miniLogoId);
+        card.textLogo = await fetchImageAsBlob(card.textLogoId);
+        card.isLoaded = true;
+    }
 });
 
 const doLogout = async () => {
@@ -45,60 +132,176 @@ const doLogout = async () => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     width: 100%;
     height: 100dvh;
 }
 
+header {
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 26px;
+}
+
+header .image-container {
+    height: 37px;
+}
+
 main {
     width: 100%;
-    height: 100%;
+    height: 80%;
     padding: 26px;
 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: space-between;
-    gap: 20px;
+    gap: 60px;
 
     transition: flex-direction 0.5s ease;
 }
 
 .image-container,
-.main-container {
+.main-container,
+.card-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
 }
 
 .image-container {
+    width: auto;
     padding-left: 0px;
 }
 
 .image-container img {
-    max-width: 100%;
+    width: 100%;
 }
 
-.main-container {
-    width: 100%;
-    flex-direction: column;
-    gap: 30px;
+.header-image {
+    height: 100%;
+    /* Postavi visinu slike prema visini containera */
+    width: auto;
+    /* Zadrži omjer slike */
+    object-fit: contain;
+    /* Zadrži cijelu sliku unutar containera */
+    cursor: pointer;
+}
 
-    /* background-color: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); */
+.card-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.btn {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+}
+
+.btn button {
+    width: 100%;
+}
+
+.kespBtn {
+    background-color: var(--kesp-primary);
+}
+
+.kespBtn:hover {
+    background-color: var(--kesp-primary-hover);
+}
+
+.kespBtn:active {
+    background-color: var(--kesp-primary-focus);
+}
+
+.card {
+    padding: 20px;
+    width: 100%;
+    max-width: 300px;
+    height: 300px;
+    /* aspect-ratio: 1/1; */
+
+    font-size: 16px;
+    font-weight: bold;
+
+    background-color: var(--white-color);
+    border: 1px solid rgb(20, 82, 28, 0.2);
+    border-radius: var(--border-form-radius);
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 20px;
+}
+
+.card1 {
+    align-items: center;
+    justify-content: center;
+}
+
+.tooltip {
+    position: absolute;
+    top: -40px;
+    /* Pozicioniraj iznad gumba */
+    left: 50%;
+    transform: translateX(-50%);
+
+    border: var(--border);
+    border-radius: 5px;
+    background-color: var(--text-color);
+    color: white;
+
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+
+.btn:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* .card>.image-container {
+    width: 70%;
+} */
+
+.main-container,
+.card-container {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 30px;
 }
 
 .logout {
-    position: absolute;
+    /* position: absolute;
     top: 26px;
-    right: 26px;
+    right: 26px; */
 
     background: none;
     border: none;
     color: var(--red);
     font-weight: 600;
+    width: auto;
 }
 
 .logout:hover {

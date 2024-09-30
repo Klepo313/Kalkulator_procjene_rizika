@@ -1,8 +1,10 @@
 <template>
     <div>
         <div class="body">
-            <div class="login-form">
-                <!-- <h2>Prijava</h2> -->
+            <main>
+                <div class="image-container">
+                    <img src="../public/static/images/atd_solucije_iz.png" alt="atd_solucije_logo">
+                </div>
                 <form name="login-form" method="post" @submit.prevent="checkLogin" action="">
                     <div class="input-container">
                         <label for="username">Korisničko ime</label>
@@ -21,15 +23,15 @@
                         </span>
                     </button>
                 </form>
-            </div>
 
-            <transition name="alert">
-                <div class="alert" v-if="showAlert" ref="alert">
-                    <font-awesome-icon icon="info-circle" />
-                    <span>Pogrešno korisničko ime ili lozinka</span>
-                    <font-awesome-icon icon="xmark" size="xl" class="close-icon" @click="hideAlert" />
-                </div>
-            </transition>
+                <transition name="alert">
+                    <div class="alert" v-if="showAlert" ref="alert">
+                        <font-awesome-icon icon="info-circle" />
+                        <span>Pogrešno korisničko ime ili lozinka</span>
+                        <font-awesome-icon icon="xmark" size="xl" class="close-icon" @click="hideAlert" />
+                    </div>
+                </transition>
+            </main>
         </div>
     </div>
 </template>
@@ -146,7 +148,7 @@ const hideAlert = () => {
 <style scoped>
 .body {
     width: 100%;
-    height: 100%;
+    height: 100dvh;
 
     display: flex;
     align-items: center;
@@ -161,12 +163,28 @@ const hideAlert = () => {
     gap: 20px;
 
     padding: 26px;
-    width: 375px;
+    width: 100%;
 }
 
-
-form {
+.image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
+}
+
+.image-container img {
+    width: 60%;
+}
+
+main {
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: space-between;
+    gap: 40px;
 }
 
 h2 {
@@ -198,6 +216,7 @@ textarea:focus {
 }
 
 form {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 20px;

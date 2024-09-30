@@ -74,7 +74,7 @@
             </div>
         </main>
         <footer>
-            <button class="footer-btn" @click="navigateTo('/predlozak')">
+            <button class="footer-btn" @click="navigateTo('/kpkr/predlozak')">
                 <font-awesome-icon icon="arrow-left-long" style="margin-right: 10px;" />
                 Opći podaci
             </button>
@@ -131,7 +131,7 @@ onMounted(async () => {
 const isLoading = ref(true);
 
 const toRizikSazetak = () => {
-    navigateTo('/predlozak/rizik-sazetak');
+    navigateTo('/kpkr/predlozak/rizik-sazetak');
 };
 
 const filters = ref({

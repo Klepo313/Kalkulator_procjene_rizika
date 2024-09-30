@@ -1,7 +1,8 @@
 <template>
     <div class="body">
         <header>
-            <img src="../images/sidebar_logo.svg" alt="logo">
+            <img src="../../public/static/images/KPKR_logo_sidebar.svg" style="height: 100%; cursor: pointer;"
+                alt="logo" @click="navigateTo('/kpkr')">
             <div class="header-buttons">
                 <button class="novi-predlozak" @click="noviIzracun">
                     <font-awesome-icon icon="plus" class="plus-icon" />
@@ -60,13 +61,13 @@
                             </template>
                         </Column>
                         <Column field="puk_naziv" header="Područni ured" sortable style="width: 6%" />
-                        <Column field="objekt_djel" header="Imovina/djelatnost" sortable style="width: 20%" />
+                        <Column field="objekt_djel" header="Imovina/Djelatnost" sortable style="width: 20%" />
 
                     </DataTable>
                 </div>
             </div>
             <footer>
-                <nuxt-link to="/" class="footer-link">
+                <nuxt-link to="/kpkr" class="footer-link">
                     <font-awesome-icon icon="arrow-left-long" />
                     Početna stranica
                 </nuxt-link>
@@ -107,7 +108,7 @@ const onRowSelect = async () => {
 
     // Set the cookie values
     idIzracuna.value = odabraniIzracun.value.aiz_id;
-    navigateTo('/predlozak');
+    navigateTo('/kpkr/predlozak');
 };
 
 onMounted(async () => {
@@ -131,7 +132,7 @@ const doLogout = async () => {
 
 const noviIzracun = () => {
     idIzracuna.value = '/';
-    navigateTo('/predlozak');
+    navigateTo('/kpkr/predlozak');
 };
 </script>
 
@@ -287,5 +288,9 @@ main {
 
 .table {
     padding-top: 20px;
+}
+
+.footer-link:hover {
+    transform: translateX(-3px);
 }
 </style>

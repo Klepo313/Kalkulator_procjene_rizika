@@ -4,7 +4,7 @@
         <div :class="['sidebar-main', isCollapsed ? 'collapsed' : '']">
             <div :class="['sidebar-header', isCollapsed ? 'collapsed' : '']">
                 <img :class="['logo-image', isCollapsed ? 'collapsed' : '']" src="../images/KPKR_logo_sidebar.svg"
-                    alt="logo" style="cursor: pointer;" @click="navigateTo('/')">
+                    alt="logo" style="cursor: pointer;" @click="navigateTo('/kpkr')">
                 <font-awesome-icon :class="['narrow-icon', isCollapsed ? 'collapsed' : '']" icon="angles-left"
                     @click="toggleSidebar" />
             </div>
@@ -24,18 +24,18 @@
                 </div>
                 <div :class="['navigation', isCollapsed ? 'collapsed' : '']">
                     <nuxt-link
-                        :class="['nuxtlink-form', 'opci', isActiveRoute('/predlozak') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
-                        to="/predlozak">
+                        :class="['nuxtlink-form', 'opci', isActiveRoute('/kpkr/predlozak') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
+                        to="/kpkr/predlozak">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="map" />
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Opći podaci</h3>
                     </nuxt-link>
                     <nuxt-link :class="[
                         'nuxtlink-form',
                         'mjere',
-                        isActiveRoute('/predlozak/mjere-prilagodbe') ? 'active' : 'inactive',
+                        isActiveRoute('/kpkr/predlozak/mjere-prilagodbe') ? 'active' : 'inactive',
                         isCollapsed ? 'collapsed' : '',
                         isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je idIzracuna '/'
-                    ]" :to="isDisabled ? '#' : '/predlozak/mjere-prilagodbe'" :tabindex="isDisabled ? -1 : 0"
+                    ]" :to="isDisabled ? '#' : '/kpkr/predlozak/mjere-prilagodbe'" :tabindex="isDisabled ? -1 : 0"
                         :aria-disabled="isDisabled">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="ruler-horizontal" />
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Mjere prilagodbe</h3>
@@ -46,10 +46,10 @@
                 <nuxt-link :class="[
                     'nuxtlink-form',
                     'opci',
-                    isActiveRoute('/predlozak/rizik-sazetak') ? 'active' : 'inactive',
+                    isActiveRoute('/kpkr/predlozak/rizik-sazetak') ? 'active' : 'inactive',
                     isCollapsed ? 'collapsed' : '',
                     isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je idIzracuna '/'
-                ]" :to="isDisabled ? '#' : '/predlozak/rizik-sazetak'" :tabindex="isDisabled ? -1 : 0"
+                ]" :to="isDisabled ? '#' : '/kpkr/predlozak/rizik-sazetak'" :tabindex="isDisabled ? -1 : 0"
                     :aria-disabled="isDisabled">
                     <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-cells" />
                     <h3 :class="isCollapsed ? 'collapsed' : ''">Rezultat izračuna</h3>
@@ -75,10 +75,10 @@
             </div>
         </div>
         <div class="bottom-container">
-            <div :class="['back', isCollapsed ? 'collapsed' : '']" @click="navigateTo('/predlosci')">
+            <button :class="['back', isCollapsed ? 'collapsed' : '']" @click="navigateTo('/kpkr/predlosci')">
                 <font-awesome-icon icon="arrow-left-long" />
                 <span v-if="!isCollapsed">Prethodni izračuni</span>
-            </div>
+            </button>
             <div :class="['profile-container', isCollapsed ? 'collapsed' : '']">
                 <div :class="['profile-content', isCollapsed ? 'collapsed' : '']">
                     <font-awesome-icon icon="circle-user" size="xl" />
@@ -335,7 +335,9 @@ h3 {
 
     gap: 10px;
 
-    color: var(--primary-color);
+    color: var(--text-color);
+    background: none;
+    border: var(--border);
     font-weight: 500;
     cursor: pointer;
 }
@@ -345,6 +347,8 @@ h3 {
 }
 
 .back:hover {
+    color: white;
+    background: var(--primary-color);
     opacity: 1;
     transform: translateX(-3px);
 }

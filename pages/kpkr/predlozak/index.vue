@@ -196,7 +196,10 @@
                     Spremi
                 </button>
                 <span>
-                    *Potrebno je popuniti sva obvezna polja kako bi se predložak mogao spremiti te nastaviti dalje.
+                    *Potrebno je popuniti sva obvezna polja (<span class="required">*</span>) kako bi se predložak mogao
+                    spremiti i
+                    kako biste mogli
+                    nastaviti u sljedeći korak.
                 </span>
             </div>
             <div v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" id="map" class="map">
@@ -214,7 +217,7 @@
             </span> -->
         </main>
         <footer>
-            <button class="footer-button" @click="navigateTo('/predlozak/mjere-prilagodbe')"
+            <button class="footer-button" @click="navigateTo('/kpkr/predlozak/mjere-prilagodbe')"
                 :disabled="idIzracuna == '/' || idIzracuna == 0">
                 <span>Mjere prilagodbe</span>
                 <font-awesome-icon icon="arrow-right-long" />

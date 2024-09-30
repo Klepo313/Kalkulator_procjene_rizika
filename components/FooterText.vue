@@ -1,7 +1,7 @@
 <template>
     <div>
         <span>
-            &#169; ATD Solucije Sva prava pridržana
+            Sva prava pridržana &#169; ATD Solucije
         </span>
     </div>
 </template>

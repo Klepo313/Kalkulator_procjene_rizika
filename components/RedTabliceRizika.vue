@@ -85,8 +85,10 @@ const data = computed(() => props.data);
 
 /* < 0 */
 .lightgray {
+    color: #caedfb;
     background-color: #caedfb;
     font-style: italic;
+    user-select: none;
 }
 
 /* = 0 */
