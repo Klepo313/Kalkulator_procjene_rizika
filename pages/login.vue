@@ -41,6 +41,7 @@ import { ref, onMounted } from 'vue';
 import { navigateTo } from '#app';
 import { login } from '@/service/login'
 import { generateCsrfToken } from '~/utils/generateCSRFtoken';
+// import { encryptCookie, decryptCookie } from '~/utils/cookieUtils';
 
 definePageMeta({
     pageTransition: { name: 'slide', mode: 'out-in' }
@@ -86,6 +87,7 @@ const checkLogin = async () => {
     spinnerIcon.value.style.display = "inline";
 
     if (usernameInput.value.value && passwordInput.value.value) {
+        console.log(usernameInput.value.value, passwordInput.value.value)
         const response = await login(usernameInput.value.value, passwordInput.value.value);
 
         statusCode.value = response.status;
@@ -93,17 +95,18 @@ const checkLogin = async () => {
         if (statusCode.value == 200) {
             console.log("response login: ", response)
             token.value = response.token;
-            username.value = response.username;
+            username.value = encryptCookie(response.username);
+            console.log("username (enc): ", username.value);
             name.value = response.name;
             surname.value = response.surname;
             email.value = response.email;
             console.log("email login: ", email.value);
 
-            localStorage.setItem('name', btoa(name.value));
-            localStorage.setItem('surname', btoa(surname.value));
+            localStorage.setItem('name', name.value);
+            localStorage.setItem('surname', surname.value);
 
             if (email.value) {
-                localStorage.setItem('email', btoa(email.value));
+                localStorage.setItem('email', email.value);
             } else {
                 console.warn('Email nije dostupan, ne sprema se u localStorage.');
             }
