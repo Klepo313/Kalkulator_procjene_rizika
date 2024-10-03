@@ -95,8 +95,9 @@ const checkLogin = async () => {
         if (statusCode.value == 200) {
             console.log("response login: ", response)
             token.value = response.token;
-            username.value = encryptCookie(response.username);
-            console.log("username (enc): ", username.value);
+            username.value = response.username;
+            // username.value = encryptCookie(response.username);
+            // console.log("username (enc): ", username.value);
             name.value = response.name;
             surname.value = response.surname;
             email.value = response.email;
@@ -104,12 +105,6 @@ const checkLogin = async () => {
 
             localStorage.setItem('name', name.value);
             localStorage.setItem('surname', surname.value);
-
-            if (email.value) {
-                localStorage.setItem('email', email.value);
-            } else {
-                console.warn('Email nije dostupan, ne sprema se u localStorage.');
-            }
 
             const newCsrfToken = generateCsrfToken();
 
