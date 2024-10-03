@@ -108,6 +108,7 @@ import { useRoute } from 'vue-router';
 import { navigateTo } from '#app';
 import { logout } from '@/service/logout';
 import { useIzracunStore } from '~/stores/main-store';
+// import { decryptCookie } from '#imports';
 
 const izracunStore = useIzracunStore();
 
@@ -120,9 +121,21 @@ const idIzracuna = ref(
         : parseInt(useCookie('id_izracuna').value)
 );
 const username = ref(
-    useCookie('username').value == undefined ?
-        'ime_prezime' : useCookie('username').value.toLowerCase()
+    useCookie('username').value == undefined
+        ? 'ime_prezime'
+        : useCookie('username').value.toLowerCase()
 );
+// const idIzracuna = ref(
+//     useCookie('id_izracuna').value == '/' ||
+//         useCookie('id_izracuna') == 0
+//         ? '/'
+//         : parseInt(decryptCookie(useCookie('id_izracuna').value))
+// );
+// const username = ref(
+//     useCookie('username').value == undefined
+//         ? 'ime_prezime'
+//         : decryptCookie(useCookie('username').value).toLowerCase()
+// );
 
 let storedName = '';
 let storedSurname = '';
@@ -130,14 +143,23 @@ let storedEmail = '';
 const nameLength = ref(0);
 
 if (import.meta.client) {
-    storedName = atob(localStorage.getItem('name') || '');
-    storedSurname = atob(localStorage.getItem('surname') || '');
+    storedName = localStorage.getItem('name') || '';
+    storedSurname = localStorage.getItem('surname') || '';
     storedEmail = localStorage.getItem('email')
-        ? atob(localStorage.getItem('email'))
+        ? localStorage.getItem('email')
         : null;
 
     nameLength.value = storedName.length + storedSurname.length;
 }
+// if (import.meta.client) {
+//     storedName = atob(localStorage.getItem('name') || '');
+//     storedSurname = atob(localStorage.getItem('surname') || '');
+//     storedEmail = localStorage.getItem('email')
+//         ? atob(localStorage.getItem('email'))
+//         : null;
+
+//     nameLength.value = storedName.length + storedSurname.length;
+// }
 
 // console.log("Ime:", storedName);
 // console.log("Prezime:", storedSurname);
