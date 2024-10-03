@@ -75,6 +75,8 @@
 </template> -->
 
 <script setup>
+import { logout } from '~/service/logout';
+
 definePageMeta({
     middleware: [
         'auth'
@@ -92,6 +94,12 @@ idIzracuna.value = '/';
 
 const vrstaIzracuna = useCookie('vrsta_izracuna');
 vrstaIzracuna.value = null;
+
+const doLogout = async () => {
+    await logout();
+    navigateTo('/login');
+};
+
 
 </script>
 
