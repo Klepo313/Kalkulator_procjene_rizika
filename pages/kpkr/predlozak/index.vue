@@ -90,13 +90,12 @@
                         @update:model-value="updateKatastarskaCestica" @item-select="onSelectKatastarskaCestica" />
                 </div>
                 <div class="grid-item info-div">
-                    <font-awesome-icon v-if="messageCestica" :icon="'info-circle'" class="info-icon" />
-                    <span v-if="messageCestica" class="info-text"> {{
-                        messageCestica == `There is no particle data for given municipality.`
-                            ? `Ne postoje podaci o česticama za odabranu općinu.`
-                            : messageCestica
-                    }}
-                    </span>
+                    <font-awesome-icon v-if="messageCestica" v-tooltip.top="{
+                        value:
+                            messageCestica === 'There is no particle data for given municipality.'
+                                ? 'Ne postoje podaci o česticama za odabranu općinu.'
+                                : messageCestica
+                    }" :icon="'info-circle'" class="info-icon" />
                 </div>
 
                 <div class="grid-item header">
@@ -243,13 +242,19 @@ definePageMeta({
     ],
 });
 
+const idIzracuna = ref('');
 
-const idIzracuna = ref(
-    useCookie('id_izracuna').value == '/' ||
-        useCookie('id_izracuna') == undefined
-        ? '/'
-        : parseInt(useCookie('id_izracuna').value)
-);
+const initializeIdIzracuna = async () => {
+    const cookieValue = useCookie('id_izracuna').value;
+    const decryptedValue = await decryptCookie(cookieValue);
+    if (decryptedValue == '/' || decryptedValue == undefined) {
+        idIzracuna.value = '/';
+    } else {
+        idIzracuna.value = parseInt(decryptedValue);
+    }
+    console.log('idIzracuna', idIzracuna.value);
+}
+
 
 // const cookie = useCookie('id_izracuna');
 
@@ -258,17 +263,11 @@ const messageCestica = ref(null);
 
 // vrsta izracuna kolačić
 const vrstaIzracuna = useCookie('vrsta_izracuna', {
-    // httpOnly: true,
     maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
-    path: '/', // Cookie available throughout the app
-    secure: process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production // true, //process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production
-    sameSite: process.env.ENVIRONMENT === 'PRODUCTION' ? 'None' : 'Lax', // Use 'None' only in production
-    // secure: true, // Only send cookie over HTTPS
-    // sameSite: 'none' // Protect against CSRF attacks
+    path: '/',
+    secure: process.env.ENVIRONMENT === 'PRODUCTION', //process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production
+    sameSite: process.env.ENVIRONMENT === 'PRODUCTION' ? 'None' : 'Lax',
 });
-
-
-
 
 
 // Kreiramo instancu storea
@@ -328,12 +327,6 @@ watch(
     ],
     () => {
         if (initialDataSet.value) {
-            // Usporedi trenutne vrijednosti s originalnim
-
-            // console.log("Bilo je promjena");
-
-            // console.log("initial data set u watchu prije: ", initialDataSet.value)
-
             isFormDirty.value = JSON.stringify({
                 nazivIzracuna: nazivIzracuna.value,
                 odabraniDatum: odabraniDatum.value,
@@ -347,22 +340,6 @@ watch(
                 odabraniPodrucniUred: odabraniPodrucniUred.value,
                 napomena: napomena.value,
             }) !== JSON.stringify(initialFormData.value);
-
-            // console.log("Nakon u watchu: ",
-            //     {
-            //         nazivIzracuna: nazivIzracuna.value,
-            //         odabraniDatum: odabraniDatum.value,
-            //         odabranaVrstaIzracuna: odabranaVrstaIzracuna.value,
-            //         odabranaKatastarskaOpcina: odabranaKatastarskaOpcina.value,
-            //         odabranaKatastarskaCestica: odabranaKatastarskaCestica.value,
-            //         odabranaVrstaObjekta: odabranaVrstaObjekta.value,
-            //         odabranaDjelatnost: odabranaDjelatnost.value,
-            //         odabranaSkupinaDjelatnosti: odabranaSkupinaDjelatnosti.value,
-            //         odabranaIspostava: odabranaIspostava.value,
-            //         odabraniPodrucniUred: odabraniPodrucniUred.value,
-            //         napomena: napomena.value,
-            //     }
-            // )
         }
     },
     { deep: true }
@@ -400,35 +377,6 @@ const cancelLeave = () => {
     }
 };
 
-
-// Upozorenje prilikom navigacije
-// router.beforeEach((to, from, next) => {
-//     if (isFormDirty.value) {
-//         // Spriječi promjenu rute i prikaži popup
-//         isNespremljenePromjenePopupVisible.value = true;
-
-//         // Postavi callback funkcije da čeka korisnikov odgovor
-//         const resolveNavigation = (proceed) => {
-//             if (proceed) {
-//                 // Omogući promjenu rute
-//                 isFormDirty.value = false; // ili što već treba
-//                 next(); // nastavi navigaciju
-//             } else {
-//                 // Odbij navigaciju
-//                 next(false); // ostani na trenutnoj ruti
-//             }
-//         };
-
-//         // Postavi callback za "Napusti" dugme u tvom popup-u
-//         const acceptButton = document.getElementById("acceptButton");
-//         const cancelButton = document.getElementById("cancelBtn");
-
-//         acceptButton.addEventListener("click", () => resolveNavigation(true));
-//         cancelButton.addEventListener("click", () => resolveNavigation(false));
-//     } else {
-//         next(); // Ako nema promjena, samo nastavi navigaciju
-//     }
-// });
 
 router.beforeEach((to, from, next) => {
     if (isFormDirty.value) {
@@ -491,12 +439,21 @@ watch(() => odabranaVrstaIzracuna.value.tvz_naziv, (newVal) => {
 
 watch(idIzracuna, async (newValue, oldValue) => {
     if (newValue !== oldValue) {
-        await opciStore.fetchCalculation(newValue);
-        fillFormData();
+        console.log("Nova vrijednost ID izrakcije: ", newValue, "Stara vrijednost: ", oldValue);
+        if (newValue !== '/') {
+            await opciStore.fetchCalculation(newValue);
+            fillFormData();
+        } else {
+            console.log("Ništa brajo")
+            console.log("Podaci u storeu: ", opciStore.opci_podaci);
+        }
     }
 });
 
 onMounted(async () => {
+    // Pozovi funkciju kada se komponenta inicijalizuje
+    await initializeIdIzracuna();
+
     // Dodaj event listener za upozorenje prilikom refreša stranice
     window.addEventListener('beforeunload', beforeWindowUnload);
 
@@ -514,6 +471,7 @@ onMounted(async () => {
 
     // Provjeri da li je ID izračuna prazan
     if (idIzracuna.value !== '/') {
+        console.log("Je, evo uđe, ", idIzracuna.value);
         await opciStore.fetchCalculation(idIzracuna.value);
         fillFormData();
     } else {
@@ -646,7 +604,12 @@ const fillFormData = () => {
             puk_naziv: odabranaKatastarskaOpcina.value.puk_naziv
         }
 
-        vrstaIzracuna.value = odabranaVrstaIzracuna.value.tvz_naziv;
+        const setVrstaIzracuna = async () => {
+            // Čekamo rezultat encryptCookie funkcije
+            vrstaIzracuna.value = await encryptCookie(odabranaVrstaIzracuna.value.tvz_naziv);
+        }
+        setVrstaIzracuna();
+        // vrstaIzracuna.value = encryptCookie(odabranaVrstaIzracuna.value.tvz_naziv);
 
         if (odabranaVrstaIzracuna.value.tvz_naziv == 'Imovina') {
             odabranaDjelatnost.value = null;
@@ -831,11 +794,14 @@ const saveFormData = async () => {
 
             if (idIzracuna.value == '/') {
                 idIzracuna.value = parseInt(responseId)
+                const encyrptedId = await encryptCookie(idIzracuna.value);
+                console.log("Enkriptirana: ", encyrptedId);
                 izracunStore.idIzracuna = '/';
                 izracunStore.updateIdIzracuna(responseId);
-                document.cookie = "id_izracuna=" + encodeURIComponent(idIzracuna.value) + "; path=/";
+                document.cookie = "id_izracuna=" + encodeURIComponent(encyrptedId) + "; path=/";
+                // setCookie('id_izracuna', encyrptedId);
 
-                console.log('res-id: ', parseInt(idIzracuna.value));
+                console.log('res-id: ', parseInt(idIzracuna.value), 'enc-id: ', encyrptedId);
             }
 
             isFormDirty.value = false;

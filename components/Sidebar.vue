@@ -103,7 +103,7 @@
 
 
 <script setup>
-import { computed, defineEmits } from 'vue';
+import { computed, defineEmits, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { navigateTo } from '#app';
 import { logout } from '@/service/logout';
@@ -114,17 +114,53 @@ const izracunStore = useIzracunStore();
 
 // Koristite useRoute za dobivanje trenutne rute
 const route = useRoute();
-const idIzracuna = ref(
-    useCookie('id_izracuna').value == '/' ||
-        useCookie('id_izracuna') == 0
-        ? '/'
-        : parseInt(useCookie('id_izracuna').value)
-);
-const username = ref(
-    useCookie('username').value == undefined
-        ? 'ime_prezime'
-        : useCookie('username').value.toLowerCase()
-);
+// const idIzracuna = ref(
+//     useCookie('id_izracuna').value == '/' ||
+//         useCookie('id_izracuna') == 0
+//         ? '/'
+//         : parseInt(decryptCookie(useCookie('id_izracuna').value))
+// );
+const idIzracuna = ref('/');
+const username = ref('');
+const storedName = ref('');
+const storedSurname = ref('');
+const storedEmail = ref('');
+
+const initializeIdIzracuna = async () => {
+    const cookieValue = useCookie('id_izracuna').value;
+    const decryptedValue = await decryptCookie(cookieValue);
+    if (decryptedValue == '/' || decryptedValue == undefined || decryptedValue == 0 || decryptedValue == null) {
+        idIzracuna.value = '/';
+    } else {
+        idIzracuna.value = parseInt(decryptedValue);
+    }
+}
+
+// Asinhrona funkcija za postavljanje dekriptovanog username-a
+const initializeUsername = async () => {
+    const cookieValue = useCookie('username').value;
+    if (cookieValue) {
+        const decryptedValue = await decryptCookie(cookieValue);
+        username.value = decryptedValue.toLowerCase(); // Postavljanje dekriptovane vrednosti
+    }
+}
+
+async function initializeStoredData() {
+    if (import.meta.client) {
+        storedName.value = (await decryptCookie(localStorage.getItem('name'))) || '';
+        storedSurname.value = (await decryptCookie(localStorage.getItem('surname'))) || '';
+        storedEmail.value = localStorage.getItem('email')
+            ? await decryptCookie(localStorage.getItem('email'))
+            : null;
+    }
+}
+
+
+// const username = ref(
+//     useCookie('username').value == undefined
+//         ? 'ime_prezime'
+//         : decryptCookie(useCookie('username').value).toLowerCase()
+// );
 // const idIzracuna = ref(
 //     useCookie('id_izracuna').value == '/' ||
 //         useCookie('id_izracuna') == 0
@@ -137,20 +173,20 @@ const username = ref(
 //         : decryptCookie(useCookie('username').value).toLowerCase()
 // );
 
-let storedName = '';
-let storedSurname = '';
-let storedEmail = '';
-const nameLength = ref(0);
+// let storedName = '';
+// let storedSurname = '';
+// let storedEmail = '';
+// const nameLength = ref(0);
 
-if (import.meta.client) {
-    storedName = localStorage.getItem('name') || '';
-    storedSurname = localStorage.getItem('surname') || '';
-    storedEmail = localStorage.getItem('email')
-        ? localStorage.getItem('email')
-        : null;
+// if (import.meta.client) {
+//     storedName = decryptCookie(localStorage.getItem('name')) || '';
+//     storedSurname = decryptCookie(localStorage.getItem('surname')) || '';
+//     storedEmail = localStorage.getItem('email')
+//         ? decryptCookie(localStorage.getItem('email'))
+//         : null;
 
-    nameLength.value = storedName.length + storedSurname.length;
-}
+//     nameLength.value = storedName.length + storedSurname.length;
+// }
 // if (import.meta.client) {
 //     storedName = atob(localStorage.getItem('name') || '');
 //     storedSurname = atob(localStorage.getItem('surname') || '');
@@ -182,6 +218,12 @@ watch(() => izracunStore.idIzracuna, (newValue) => {
     console.log('idIzracuna updated:', newValue);
     idIzracuna.value = parseInt(newValue);
 });
+
+onMounted(async () => {
+    await initializeIdIzracuna();
+    await initializeUsername();
+    await initializeStoredData();
+})
 
 // Prima prop za stanje bočne trake
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -372,7 +414,7 @@ h3 {
     color: white;
     background: var(--primary-color);
     opacity: 1;
-    transform: translateX(-3px);
+    /* transform: translateX(-3px); */
 }
 
 .profile-container {

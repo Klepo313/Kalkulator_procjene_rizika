@@ -26,23 +26,23 @@
                 <TabPanels class="tab-panel">
                     <TabPanel value="0" class="tab-panel" ref="tabPanelRef">
                         <div ref="rizikSazetakRef" class="sazetak-container">
-                            <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'RZ'" class="rizik-sazetak" />
+                            <Djelatnost v-if="vrstaIzracuna == 'Djelatnost'" :tip="'RZ'" class="rizik-sazetak" />
                             <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
                             <LegendaBoja v-if="vrstaIzracuna" class="legenda" />
-                            <span v-else>
-                                <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
-                                Nije odabrana vrsta izračuna
+                            <span v-else style="font-style: italic;">
+                                Učitavanje podataka
+                                <font-awesome-icon icon="spinner" spin />
                             </span>
                         </div>
                     </TabPanel>
                     <TabPanel value="1" class="tab-panel">
                         <div ref="rizikSazetakMjereRef">
-                            <RizikSazetak v-if="vrstaIzracuna == 'Djelatnost'" :tip="'KR'" class="rizik-sazetak" />
+                            <Djelatnost v-if="vrstaIzracuna == 'Djelatnost'" :tip="'KR'" class="rizik-sazetak" />
                             <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'KR'" />
                             <LegendaBoja v-if="vrstaIzracuna" class="legenda" />
-                            <span v-else>
-                                <font-awesome-icon icon="info-circle" style="margin-right: 5px;" />
-                                Nije odabrana vrsta izračuna
+                            <span v-else style="font-style: italic;">
+                                Učitavanje podataka
+                                <font-awesome-icon icon="spinner" spin />
                             </span>
                         </div>
                     </TabPanel>
@@ -103,10 +103,10 @@
                 <transition :name="slideDirection">
                     <div v-show="tabs.length > 0" class="content-tabs"> <!-- Dodano v-show ovdje -->
                         <div v-for="(tab, index) in tabs" v-show="index === currentTab" :key="index" class="tab">
-                            <RizikSazetak v-show="vrstaIzracuna == 'Djelatnost' && tab.tip === 'RZ'" :tip="tab.tip"
+                            <Djelatnost v-show="vrstaIzracuna == 'Djelatnost' && tab.tip === 'RZ'" :tip="tab.tip"
                                 class="rizik-sazetak" />
                             <TablicaRizika v-show="vrstaIzracuna == 'Imovina' && tab.tip === 'RZ'" :tip="tab.tip" />
-                            <RizikSazetak v-show="vrstaIzracuna == 'Djelatnost' && tab.tip === 'KR'" :tip="tab.tip"
+                            <Djelatnost v-show="vrstaIzracuna == 'Djelatnost' && tab.tip === 'KR'" :tip="tab.tip"
                                 class="rizik-sazetak" />
                             <TablicaRizika v-show="vrstaIzracuna == 'Imovina' && tab.tip === 'KR'" :tip="tab.tip" />
                         </div>
@@ -226,18 +226,31 @@ const imovinaCellRanges = {
     '103': { range: 'U28:AA28' },
 }
 
-const idIzracuna = ref(
-    useCookie('id_izracuna').value == '/' ||
-        useCookie('id_izracuna') == undefined
-        ? '/'
-        : parseInt(useCookie('id_izracuna').value)
-);
+const idIzracuna = ref('/');
+
+const initializeIdIzracuna = async () => {
+    const cookieValue = useCookie('id_izracuna').value;
+    const decryptedValue = await decryptCookie(cookieValue);
+    if (decryptedValue == '/' || decryptedValue == undefined) {
+        idIzracuna.value = '/';
+    } else {
+        idIzracuna.value = parseInt(decryptedValue);
+    }
+}
 
 const structuredDataBezMjera = ref(computed(() => structuredDataStore.structuredDataBezMjera))
 const structuredDataSaMjerama = ref(computed(() => structuredDataStore.structuredDataSaMjerama))
 
 // Kreiramo referencu za pristup komponenti
-const vrstaIzracuna = ref(useCookie('vrsta_izracuna').value);
+const vrstaIzracuna = ref(null); // Inicijalno je null
+
+async function initializeVrstaIzracuna() {
+    const cookieValue = useCookie('vrsta_izracuna').value;
+    if (cookieValue) {
+        vrstaIzracuna.value = await decryptCookie(cookieValue); // Čekaj dekriptovanje kolačića
+    }
+    console.log("Vrsta izracuna: ", vrstaIzracuna.value);
+}
 
 const adaptMjere = computed(() => adaptStore.odabrane_mjere)
 
@@ -275,6 +288,9 @@ function closePopup() {
 }
 
 onMounted(async () => {
+    initializeIdIzracuna();
+    initializeVrstaIzracuna();
+
     await opciStore.fetchCalculation(idIzracuna.value);
     adaptStore.odabrane_mjere = [];
     await adaptStore.fetchMetrictypes(idIzracuna.value);

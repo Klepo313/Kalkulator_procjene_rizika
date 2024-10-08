@@ -19,7 +19,7 @@ export const useIzracunStore = defineStore('izracunStore', {
     actions: {
         updateIdIzracuna(newValue: string) {
             this.idIzracuna = newValue;
-            useCookie('id_izracuna').value = newValue;
+            // useCookie('id_izracuna').value = newValue;
         },
     },
 });

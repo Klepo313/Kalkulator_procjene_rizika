@@ -57,7 +57,7 @@
                                 </Column>
                                 <Column field="tva_naziv" header="Naziv" style="min-width: 14rem">
                                     <template #body="{ data }">
-                                        <div class="flex items-center gap-2">
+                                        <div :title="data.tva_opis" class="template-div flex items-center gap-2">
                                             <span>{{ data.tva_naziv }}</span>
                                         </div>
                                     </template>
@@ -102,16 +102,27 @@ definePageMeta({
 
 const adaptStore = useAdaptStore();
 
-const idIzracuna = ref(
-    useCookie('id_izracuna').value == '/' ?
-        '/' : parseInt(useCookie('id_izracuna').value)
-);
+const idIzracuna = ref('/');
+
+const initializeIdIzracuna = async () => {
+    const cookieValue = useCookie('id_izracuna').value;
+    const decryptedValue = await decryptCookie(cookieValue);
+    if (decryptedValue == '/' || decryptedValue == undefined) {
+        idIzracuna.value = '/';
+    } else {
+        idIzracuna.value = parseInt(decryptedValue);
+    }
+}
+
 
 onBeforeUnmount(() => {
     window.removeEventListener('resize', updateScrollHeight); // Ukloni listener prilikom unmounta
 });
 
 onMounted(async () => {
+    // Pozovi funkciju kada se komponenta inicijalizuje
+    await initializeIdIzracuna();
+
     updateScrollHeight(); // Postavi scrollHeight prilikom montiranja
     window.addEventListener('resize', updateScrollHeight); // Dodaj listener za promjenu veličine
 
@@ -241,6 +252,30 @@ const updateScrollHeight = () => {
 </script>
 
 <style scoped>
+/* .template-div {
+    position: relative;
+    display: inline-block;
+}
+
+.template-div[title]:hover:after {
+    content: attr(title);
+
+    font-size: 14px;
+    padding: 5px 10px;
+
+    color: white;
+    background-color: #272e32;
+    border: var(--border);
+    border-radius: var(--border-form-radius);
+
+    position: absolute;
+    z-index: 30;
+    top: 30px;
+    left: 0;
+    width: 500px;
+} */
+
+
 .mjere-list,
 .mjere-list-odabrane,
 .main-content-container {
@@ -465,6 +500,15 @@ th:last-child {
 
 .p-select-label.p-placeholder span {
     opacity: 0.4;
+}
+
+.ui-tooltip {
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px 0 #ddd;
+    -moz-box-shadow: 0 0 10px 0 #ddd;
+    -webkit-box-shadow: 0 0 10px 0 #ddd;
+    color: #666;
+    background: #f8f8f8;
 }
 
 

@@ -97,7 +97,13 @@ const loading = ref(true);
 const odabraniIzracun = ref();
 
 const idIzracuna = useCookie('id_izracuna');
-idIzracuna.value = '/';
+idIzracuna.value = null;
+const setIdIzracunaToSlash = async () => {
+    idIzracuna.value = await encryptCookie('/')
+    console.log("ID izračuna je (enc): ", idIzracuna.value)
+    console.log("ID izračuna je (dec): ", await decryptCookie(idIzracuna.value))
+    return idIzracuna.value
+};
 
 const vrstaIzracuna = useCookie('vrsta_izracuna');
 vrstaIzracuna.value = null;
@@ -107,12 +113,12 @@ const onRowSelect = async () => {
     console.log("Uspješno dohvaćen izračun.", odabraniIzracun.value);
 
     // Set the cookie values
-    idIzracuna.value = odabraniIzracun.value.aiz_id;
+    idIzracuna.value = await encryptCookie(odabraniIzracun.value.aiz_id);
     navigateTo('/kpkr/predlozak');
 };
 
 onMounted(async () => {
-    idIzracuna.value = '/';
+    // await setIdIzracunaToSlash();
     const data = await getCalculations();
     if (data) {
         if (data.message) {
@@ -130,8 +136,8 @@ const doLogout = async () => {
     navigateTo('/login');
 };
 
-const noviIzracun = () => {
-    idIzracuna.value = '/';
+const noviIzracun = async () => {
+    await setIdIzracunaToSlash();
     navigateTo('/kpkr/predlozak');
 };
 </script>

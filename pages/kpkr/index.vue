@@ -90,7 +90,9 @@ const idIzracuna = useCookie('id_izracuna', {
     secure: process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production // true, //process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production
     sameSite: process.env.ENVIRONMENT === 'PRODUCTION' ? 'None' : 'Lax', // Use 'None' only in production
 });
-idIzracuna.value = '/';
+const setIdIzracunaToSlash = async () => {
+    idIzracuna.value = await encryptCookie('/')
+}; setIdIzracunaToSlash();
 
 const vrstaIzracuna = useCookie('vrsta_izracuna');
 vrstaIzracuna.value = null;

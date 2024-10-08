@@ -58,15 +58,24 @@ const loginBtnText = ref(null);
 // State for showing/hiding the alert
 const showAlert = ref(false);
 
+const seconds = 150;
+
 const idIzracuna = useCookie('id_izracuna');
 idIzracuna.value = null;
 const vrstaIzracuna = useCookie('vrsta_izracuna');
 vrstaIzracuna.value = null;
 const csrfToken = useCookie('csrfToken', {
+    // maxAge: seconds, // 2.5 minute
     maxAge: 24 * 60 * 60, // 1 dan
     path: '/',
     secure: true,
 });
+// const csrfTokenExpiry = useCookie('csrfTokenExpiry', {
+//     // maxAge: 150, // 2.5 minute
+//     maxAge: 24 * 60 * 60, // 1 dan
+//     path: '/',
+//     secure: true,
+// });
 
 csrfToken.value = null;
 const username = useCookie('username');
@@ -95,21 +104,26 @@ const checkLogin = async () => {
         if (statusCode.value == 200) {
             console.log("response login: ", response)
             token.value = response.token;
-            username.value = response.username;
-            // username.value = encryptCookie(response.username);
-            // console.log("username (enc): ", username.value);
+            // username.value = response.username;
+            username.value = await encryptCookie(response.username);
+            console.log("username (enc): ", username.value);
             name.value = response.name;
             surname.value = response.surname;
             email.value = response.email;
             console.log("email login: ", email.value);
 
-            localStorage.setItem('name', name.value);
-            localStorage.setItem('surname', surname.value);
+            localStorage.setItem('name', await encryptCookie(name.value));
+            localStorage.setItem('surname', await encryptCookie(surname.value));
+            localStorage.setItem('email', await encryptCookie(email.value));
 
             const newCsrfToken = generateCsrfToken();
 
             // Ažuriraj CSRF token u kolačiću
             csrfToken.value = newCsrfToken;
+
+            // const expiryTime = new Date().getTime() + (seconds * 1000); // 150 sekundi (2.5 minute)
+            // csrfTokenExpiry.value = expiryTime; // Spremi timestamp vremena isteka
+            // console.log("csrf token expiry: ", new Date(expiryTime).toLocaleString());
 
             navigateTo('/');
         } else {

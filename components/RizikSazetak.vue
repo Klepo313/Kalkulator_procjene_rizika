@@ -401,7 +401,7 @@
                 <div class="grid-item table-item sb-t sb-b sb-r" />
 
             </div>
-            
+
         </div>
     </div>
 </template>
@@ -557,6 +557,7 @@ onMounted(() => {
     display: grid;
     grid-template-columns: repeat(37, 1fr);
     grid-template-rows: repeat(43, 1fr);
+    /* grid-auto-flow: dense; */
     margin: 0;
     padding: 0;
     background-color: white;

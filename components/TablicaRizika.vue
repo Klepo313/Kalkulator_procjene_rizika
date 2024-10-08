@@ -265,10 +265,23 @@ const props = defineProps({
 })
 const tip = props.tip;
 
-const idIzracuna = ref();
-const vrstaIzracuna = ref(); //
-idIzracuna.value = parseInt(useCookie('id_izracuna').value);
-vrstaIzracuna.value = useCookie('vrsta_izracuna').value;
+const idIzracuna = ref('/');
+const vrstaIzracuna = ref(null); // Inicijalno je null
+const initializeIdIzracuna = async () => {
+    const cookieValue = useCookie('id_izracuna').value;
+    const decryptedValue = await decryptCookie(cookieValue);
+    if (decryptedValue == '/' || decryptedValue == undefined) {
+        idIzracuna.value = '/';
+    } else {
+        idIzracuna.value = parseInt(decryptedValue);
+    }
+}
+async function initializeVrstaIzracuna() {
+    const cookieValue = useCookie('vrsta_izracuna').value;
+    if (cookieValue) {
+        vrstaIzracuna.value = await decryptCookie(cookieValue); // Čekaj dekriptovanje kolačića
+    }
+}
 
 
 const propertyGridData = async () => {
@@ -295,11 +308,10 @@ const propertyGridData = async () => {
     }
 }
 
-onMounted(() => {
-    if (vrstaIzracuna.value == 'Imovina') {
-        propertyGridData();
-    }
-
+onMounted(async () => {
+    await initializeIdIzracuna();
+    await initializeVrstaIzracuna();
+    await propertyGridData();
 })
 
 </script>
