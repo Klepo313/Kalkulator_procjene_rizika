@@ -57,9 +57,23 @@
                                 </Column>
                                 <Column field="tva_naziv" header="Naziv" style="min-width: 14rem">
                                     <template #body="{ data }">
-                                        <div :title="data.tva_opis" class="template-div flex items-center gap-2">
+                                        <div class="template-div flex items-center gap-2"
+                                            @click="toggleOp(data.tva_id, $event)">
                                             <span>{{ data.tva_naziv }}</span>
                                         </div>
+                                        <!-- Dinamički popover :title="data.tva_opis" -->
+                                        <Popover :ref="setPopoverRef(data.tva_id)">
+                                            <div class="popover">
+                                                <!-- {{ data.tva_opis }} -->
+
+                                                <ul>
+                                                    <!-- Razdvoji string na list iteme i prikazi ih -->
+                                                    <li v-for="(item, index) in splitOpis(data.tva_opis)" :key="index">
+                                                        {{ item }}
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </Popover>
                                     </template>
                                 </Column>
                                 <Column field="tgr_naziv" header="Grupa">
@@ -249,32 +263,38 @@ const updateScrollHeight = () => {
     }
 };
 
+// Objekt za praćenje svih popover ref-ova po ID-u
+const popoverRefs = ref({});
+
+// Funkcija za dinamično postavljanje ref-a
+const setPopoverRef = (id) => {
+    return (el) => {
+        if (el) {
+            popoverRefs.value[id] = el;
+        }
+    };
+};
+
+// Funkcija za prebacivanje popovera
+const toggleOp = (id, event) => {
+    const popover = popoverRefs.value[id];
+    if (popover) {
+        popover.toggle(event); // Otvori ili zatvori odgovarajući popover
+    }
+};
+
+// Funkcija za razdvajanje opisa po znaku '-'
+const splitOpis = (opis) => {
+    // Uklanjamo početni prazni element ako postoji
+    return opis.split('-').filter(item => item.trim() !== '').map(item => item.trim());
+};
+
 </script>
 
 <style scoped>
-/* .template-div {
-    position: relative;
-    display: inline-block;
+.template-div {
+    cursor: pointer;
 }
-
-.template-div[title]:hover:after {
-    content: attr(title);
-
-    font-size: 14px;
-    padding: 5px 10px;
-
-    color: white;
-    background-color: #272e32;
-    border: var(--border);
-    border-radius: var(--border-form-radius);
-
-    position: absolute;
-    z-index: 30;
-    top: 30px;
-    left: 0;
-    width: 500px;
-} */
-
 
 .mjere-list,
 .mjere-list-odabrane,
@@ -511,6 +531,28 @@ th:last-child {
     background: #f8f8f8;
 }
 
+.p-popover-content {
+    background-color: var(--input-color) !important;
+}
+
+.popover {
+    max-width: 600px;
+    background-color: var(--input-color);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.popover ul {
+    list-style-type: disc;
+    /* Ili možeš staviti 'none' za bez oznaka */
+    padding-left: 1.2rem;
+    /* Udaljenost lijevo za stavke liste */
+}
+
+.popover li {
+    margin-bottom: 0.3rem;
+    /* Razmak između stavki */
+}
 
 @media screen and (max-width: 1500px) {
     .main-content {
