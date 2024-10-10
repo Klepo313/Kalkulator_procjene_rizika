@@ -8,19 +8,19 @@
             <div class="progress-bar" />
         </div>
         <div class="sazetak">
-            <div v-if="structuredData" class="grid-table">
+            <div v-if="structuredData && isScenarijLoaded" class="grid-table">
                 <div class="grid-item nb"></div>
-                <div class="grid-item nb-r nb-b rcp">RCP 4.5</div>
-                <div class="grid-item nb-b rcp">RCP 8.5</div>
+                <div class="grid-item nb-r nb-b rcp">{{ scenarij }} 4.5</div>
+                <div class="grid-item nb-b rcp">{{ scenarij }} 8.5</div>
                 <div class="grid-item nb"></div>
-                <div class="grid-item nb-r nb-b rcp">RCP 4.5</div>
-                <div class="grid-item nb-b rcp">RCP 8.5</div>
+                <div class="grid-item nb-r nb-b rcp">{{ scenarij }} 4.5</div>
+                <div class="grid-item nb-b rcp">{{ scenarij }} 8.5</div>
                 <div class="grid-item nb"></div>
-                <div class="grid-item nb-r nb-b rcp">RCP 4.5</div>
-                <div class="grid-item nb-b rcp">RCP 8.5</div>
+                <div class="grid-item nb-r nb-b rcp">{{ scenarij }} 4.5</div>
+                <div class="grid-item nb-b rcp">{{ scenarij }} 8.5</div>
                 <div class="grid-item nb"></div>
-                <div class="grid-item nb-r nb-b rcp">RCP 4.5</div>
-                <div class="grid-item nb-b rcp">RCP 8.5</div>
+                <div class="grid-item nb-r nb-b rcp">{{ scenarij }} 4.5</div>
+                <div class="grid-item nb-b rcp">{{ scenarij }} 8.5</div>
 
                 <div class="grid-item vertical th" style="border-bottom: none;">Kronični</div>
                 <div class="grid-item vertical th">Akutni</div>
@@ -231,6 +231,10 @@
 
                 </div>
             </div>
+            <span v-else style="font-style: italic;">
+                Učitavanje podataka
+                <font-awesome-icon icon="spinner" spin />
+            </span>
             <!-- <LegendaBoja v-if="structuredData" class="legenda" /> -->
         </div>
         <!-- <span v-else style="font-style: italic;">
@@ -267,6 +271,9 @@ const tip = props.tip;
 
 const idIzracuna = ref('/');
 const vrstaIzracuna = ref(null); // Inicijalno je null
+const scenarij = ref('RCP');
+const isScenarijLoaded = ref(false);
+
 const initializeIdIzracuna = async () => {
     const cookieValue = useCookie('id_izracuna').value;
     const decryptedValue = await decryptCookie(cookieValue);
@@ -282,6 +289,15 @@ async function initializeVrstaIzracuna() {
         vrstaIzracuna.value = await decryptCookie(cookieValue); // Čekaj dekriptovanje kolačića
     }
 }
+const initializeScenarij = async () => {
+    const cookieValue = useCookie('scenarij').value;
+    if (cookieValue) {  // Ako kolačić postoji, dekriptiraj i postavi vrijednost
+        const decryptedValue = await decryptCookie(cookieValue);
+        scenarij.value = decryptedValue ? decryptedValue : scenarij.value;
+    }
+    console.log("Scenarij: ", scenarij.value);
+    isScenarijLoaded.value = true; // Oznaka da je inicijalizacija završena
+};
 
 
 const propertyGridData = async () => {
@@ -311,6 +327,7 @@ const propertyGridData = async () => {
 onMounted(async () => {
     await initializeIdIzracuna();
     await initializeVrstaIzracuna();
+    await initializeScenarij();
     await propertyGridData();
 })
 

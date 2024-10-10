@@ -188,6 +188,22 @@
                     <font-awesome-icon :icon="'info-circle'" style="display: none;" />
                     <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
+
+                <div class="grid-item header">Klimatski scenarij</div>
+                <div class="grid-item radio-button-container">
+                    <div class="radio-button">
+                        <RadioButton v-model="scenarij" inputId="rcp" name="scenarij" value="RCP" />
+                        <label for="rcp" class="ml-2">RCP</label>
+                    </div>
+                    <div class="radio-button">
+                        <RadioButton v-model="scenarij" inputId="ssp" name="scenarij" value="SSP" />
+                        <label for="ssp" class="ml-2">SSP</label>
+                    </div>
+                </div>
+                <div class="grid-item info-div">
+                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
+                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
+                </div>
             </form>
             <div v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" class="spremiBtn-container">
                 <button id="saveBtn" type="button" :disabled="!isFormValid" @click="saveFormData">
@@ -208,12 +224,6 @@
                 Učitavanje podataka
                 <font-awesome-icon icon="spinner" spin />
             </span>
-            <!-- <span class="map-link" @click="openMapPopUp">
-                <font-awesome-icon icon="arrow-up-right-from-square" />
-                <span>
-                    Otvori katastarsku mapu i odaberi česticu
-                </span>
-            </span> -->
         </main>
         <footer>
             <button class="footer-button" :disabled="idIzracuna == '/' || idIzracuna == 0"
@@ -243,6 +253,8 @@ definePageMeta({
 });
 
 const idIzracuna = ref('');
+const scenarijCookie = useCookie('scenarij'); // Kolačić 'scenarij'
+const isScenarijLoaded = ref(false);
 
 const initializeIdIzracuna = async () => {
     const cookieValue = useCookie('id_izracuna').value;
@@ -255,6 +267,19 @@ const initializeIdIzracuna = async () => {
     console.log('idIzracuna', idIzracuna.value);
 }
 
+const initializeScenarij = async () => {
+    const cookieValue = useCookie('scenarij').value; // Dohvati vrijednost iz kolačića
+    if (cookieValue) {  // Ako kolačić postoji
+        const decryptedValue = await decryptCookie(cookieValue); // Dekriptiraj
+        scenarij.value = decryptedValue ? decryptedValue : 'RCP'; // Postavi scenarij
+    } else {
+        scenarij.value = 'RCP'; // Ako kolačić ne postoji, postavi na 'RCP'
+    }
+    // Enkriptiraj novu vrijednost i postavi kolačić
+    const encryptedValue = await encryptCookie(scenarij.value);
+    useCookie('scenarij').value = encryptedValue; // Spremi u kolačić
+    isScenarijLoaded.value = true; // Oznaka da je inicijalizacija završena
+};
 
 // const cookie = useCookie('id_izracuna');
 
@@ -268,7 +293,6 @@ const vrstaIzracuna = useCookie('vrsta_izracuna', {
     secure: process.env.ENVIRONMENT === 'PRODUCTION', //process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production
     sameSite: process.env.ENVIRONMENT === 'PRODUCTION' ? 'None' : 'Lax',
 });
-
 
 // Kreiramo instancu storea
 const opciStore = useOpciStore();
@@ -295,6 +319,7 @@ const odabraniPodrucniUred = ref({
     puk_sif: null,
 });
 const napomena = ref();
+const scenarij = ref('RCP');
 
 const status = ref(0);
 const isSuccess = ref(true);
@@ -355,6 +380,13 @@ watch(isNespremljenePromjenePopupVisible, (newValue) => {
     }
 });
 
+// Gledaj promjenu vrijednosti 'scenarij' i spremaj u kolačić
+watch(scenarij, async (newValue) => {
+    if (newValue) {
+        const encryptedValue = await encryptCookie(newValue); // Enkriptiraj vrijednost
+        scenarijCookie.value = encryptedValue; // Spremi enkriptiranu vrijednost u kolačić
+    }
+});
 const router = useRouter();
 
 // Funkcija koja se poziva kad korisnik potvrdi napuštanje
@@ -453,6 +485,11 @@ watch(idIzracuna, async (newValue, oldValue) => {
 onMounted(async () => {
     // Pozovi funkciju kada se komponenta inicijalizuje
     await initializeIdIzracuna();
+    await initializeScenarij();
+    // if (scenarij.value) {
+    //     const encryptedValue = await encryptCookie(scenarij.value); // Enkriptiraj vrijednost
+    //     scenarijCookie.value = encryptedValue; // Spremi enkriptiranu vrijednost u kolačić
+    // }
 
     // Dodaj event listener za upozorenje prilikom refreša stranice
     window.addEventListener('beforeunload', beforeWindowUnload);
@@ -956,8 +993,14 @@ h1 {
     max-width: 700px;
     display: grid;
     grid-template-columns: 150px 1fr auto;
-    grid-template-rows: repeat(10, 38px) auto;
+    /* grid-template-rows: 38px; */
+    /* grid-template-rows: minmax(38px, 38px); */
+    grid-template-rows: repeat(10, 38px) auto 38px;
     gap: 5px;
+}
+
+.grid-item {
+    height: 100%;
 }
 
 .header-grid {
@@ -966,6 +1009,17 @@ h1 {
     grid-template-columns: 150px 1fr;
     grid-template-rows: 38px auto;
     gap: 5px;
+}
+
+.radio-button-container,
+.radio-button {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.radio-button {
+    gap: 10px;
 }
 
 .action-div {
@@ -1151,22 +1205,6 @@ input {
     padding: 2px 0px !important;
 }
 
-/*
-.p-inputtext.p-component.p-autocomplete-input.form-input {
-    width: 100% !important;
-    height: 100% !important;
-}
-
-.p-autocomplete {
-    width: 100% !important;
-    height: 100% !important;
-}
-
-.kcs {
-    width: 100% !important;
-} */
-
-
 .napomena {
     /* margin-top: 34px; */
     align-items: flex-start;
@@ -1190,23 +1228,6 @@ textarea {
     left: 0;
     overflow: hidden;
 }
-
-/* .pop-up {
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100dvh;
-    padding: 13px;
-
-    background: rgba(30, 30, 30, 0.4);
-}
-
-.pop-up-content {
-    width: 100%;
-    height: 100%;
-} */
 
 footer {
     justify-content: flex-end;
@@ -1238,13 +1259,8 @@ footer {
 }
 
 .prethodni {
-    /* background-color: none;
-    color: var(--text-color);
-    border: var(--border);
-    border-radius: var(--border-form-radius); */
     color: var(--primary-color);
     font-weight: bold;
-    /* text-decoration: underline; */
 }
 
 .prethodni * {

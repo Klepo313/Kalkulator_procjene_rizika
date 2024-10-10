@@ -109,6 +109,14 @@
                             <Djelatnost v-show="vrstaIzracuna == 'Djelatnost' && tab.tip === 'KR'" :tip="tab.tip"
                                 class="rizik-sazetak" />
                             <TablicaRizika v-show="vrstaIzracuna == 'Imovina' && tab.tip === 'KR'" :tip="tab.tip" />
+                            <!-- <Djelatnost v-if="isScenarijLoaded && vrstaIzracuna == 'Djelatnost' && tab.tip === 'RZ'"
+                                :tip="tab.tip" :scenarij="scenarij" class="rizik-sazetak" />
+                            <TablicaRizika v-if="isScenarijLoaded && vrstaIzracuna == 'Imovina' && tab.tip === 'RZ'"
+                                :tip="tab.tip" :scenarij="scenarij" />
+                            <Djelatnost v-if="isScenarijLoaded && vrstaIzracuna == 'Djelatnost' && tab.tip === 'KR'"
+                                :tip="tab.tip" :scenarij="scenarij" class="rizik-sazetak" />
+                            <TablicaRizika v-if="isScenarijLoaded && vrstaIzracuna == 'Imovina' && tab.tip === 'KR'"
+                                :tip="tab.tip" :scenarij="scenarij" /> -->
                         </div>
                     </div>
                 </transition>
@@ -227,6 +235,9 @@ const imovinaCellRanges = {
 }
 
 const idIzracuna = ref('/');
+const scenarij = ref('RCP');
+const isScenarijLoaded = ref(false); // Praćenje statusa inicijalizacije
+
 
 const initializeIdIzracuna = async () => {
     const cookieValue = useCookie('id_izracuna').value;
@@ -237,6 +248,16 @@ const initializeIdIzracuna = async () => {
         idIzracuna.value = parseInt(decryptedValue);
     }
 }
+
+const initializeScenarij = async () => {
+    const cookieValue = useCookie('scenarij').value;
+    if (cookieValue) {  // Ako kolačić postoji, dekriptiraj i postavi vrijednost
+        const decryptedValue = await decryptCookie(cookieValue);
+        scenarij.value = decryptedValue ? decryptedValue : scenarij.value;
+    }
+    console.log("Scenarij: ", scenarij.value);
+    isScenarijLoaded.value = true; // Oznaka da je inicijalizacija završena
+};
 
 const structuredDataBezMjera = ref(computed(() => structuredDataStore.structuredDataBezMjera))
 const structuredDataSaMjerama = ref(computed(() => structuredDataStore.structuredDataSaMjerama))
@@ -288,8 +309,9 @@ function closePopup() {
 }
 
 onMounted(async () => {
-    initializeIdIzracuna();
-    initializeVrstaIzracuna();
+    await initializeIdIzracuna();
+    await initializeVrstaIzracuna();
+    await initializeScenarij();
 
     await opciStore.fetchCalculation(idIzracuna.value);
     adaptStore.odabrane_mjere = [];
