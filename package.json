@@ -21,6 +21,7 @@
     "@primevue/core": "^4.0.3",
     "@primevue/themes": "^4.0.3",
     "axios": "^1.7.3",
+    "chart.js": "^4.4.4",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",
     "exceljs": "^4.4.0",

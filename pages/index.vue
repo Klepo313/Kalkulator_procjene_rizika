@@ -91,7 +91,7 @@ const cards = ref([
         miniLogo: '',
         textLogo: '',
         buttonClass: 'kespBtn',
-        navigation: '/',
+        navigation: '/kesp/predlozak',
         isLoaded: false,
         showTooltip: false,
         tooltip: {
@@ -103,7 +103,7 @@ const cards = ref([
             hover: '#807434',
             focus: '#8d813b'
         }
-    }
+    },
 ])
 
 onMounted(async () => {
