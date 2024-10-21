@@ -4,6 +4,25 @@
             <h1>{{ activeSectionTitle }}</h1>
 
             <div class="main-content">
+                <section>
+                    <div>
+                        <h2>Vremensko razdoblje izračuna</h2>
+                        <p>Vremensko razdoblje za kojeg se unose podaci</p>
+                    </div>
+                    <div class="razdoblje">
+                        <div>
+                            <label for="startDate">Početni datum</label>
+                            <DatePicker id="startDate" v-model="startDate" view="month" dateFormat="mm.yy" show-icon
+                                fluid icon-display="input" placeholder="Početni datum" @change="onStartDateChange" />
+                        </div>
+                        <div>
+                            <label for="endDate">Krajnji datum</label>
+                            <DatePicker id="endDate" v-model="endDate" view="month" dateFormat="mm.yy" show-icon fluid
+                                icon-display="input" placeholder="Krajnji datum" :disabled="!startDate"
+                                :min-date="startDate" />
+                        </div>
+                    </div>
+                </section>
                 <section id="sva-vozila">
                     <div>
                         <h2>Sva vozila (osobna, teretna, strojevi)</h2>
@@ -35,22 +54,32 @@
                                     {{ slotProps.index + 1 }}
                                 </template>
                             </Column>
+                            <Column field="vrstaVozila" header="Skupina vozila" sortable>
+                                <template #body="slotProps">
+                                    <font-awesome-icon :icon="getVehicleIcon(slotProps.data.vozilo.skupina)"
+                                        style="margin-right: 5px;" />
+                                    {{ slotProps.data.vozilo.skupina }}
+                                </template>
+                            </Column>
                             <Column field="vrstaVozila" header="Vrsta vozila" sortable>
                                 <template #body="slotProps">
-                                    <font-awesome-icon :icon="getVehicleIcon(slotProps.data.vrstaVozila)"
-                                        style="margin-right: 5px;" />
-                                    {{ slotProps.data.vrstaVozila }}
+                                    {{ slotProps.data.vozilo.vrsta }}
                                 </template>
                             </Column>
 
 
                             <Column field="gorivo" header="Gorivo" sortable>
                                 <template #body="slotProps">
-                                    <Tag :value="slotProps.data.gorivo"
-                                        :class="{ 'dizel-tag': slotProps.data.gorivo === 'Dizel' }" />
+                                    <Tag :value="slotProps.data.gorivo.value"
+                                        :class="{ 'dizel-tag': slotProps.data.gorivo.value === 'Dizel' }" />
                                 </template>
                             </Column>
-                            <Column field="potroseneLitre" header="Ukupan broj potrošenih litara" sortable />
+                            <Column field="potrosnjaGoriva" header="Ukupna potrošnja" sortable />
+                            <Column field="gorivo" header="Mjerna jedinica" sortable>
+                                <template #body="slotProps">
+                                    <span v-html="slotProps.data.gorivo.metric" />
+                                </template>
+                            </Column>
                             <Column field="emisije" header="Emisije CO2/kg" sortable>
                                 <template #body="slotProps">
                                     <span>{{ slotProps.data.emisije.toFixed(2) }}</span>
@@ -65,45 +94,59 @@
                             </template>
                         </DataTable>
 
+
+                        <!-- <div class="field">
+                                    <label for="vrstaVozila">Skupina vozila</label>
+                                    <Select id="vrstaVozila" v-model="vozilo.vozilo" :options="vrsteVozila"
+                                        option-label="label" option-value="value" placeholder="Odaberi skupinu vozila"
+                                        required>
+                                    </Select>
+                                </div>
+
+                                <div class="field">
+                                    <label for="vrstaVozila">Vrsta vozila</label>
+                                    <Select id="vrstaVozila" v-model="vozilo.vozilo" :options="vrsteVozila"
+                                        option-label="label" option-value="value" placeholder="Odaberi vrstu vozila"
+                                        required>
+                                    </Select>
+                                </div> -->
+
                         <!-- Dialog za Dodavanje/Uređivanje vozila -->
                         <Dialog v-model:visible="voziloDialogVisible" header="Dodaj vozilo" :modal="true"
                             :style="{ width: '450px' }" @hide="resetVoziloForm">
                             <form class="p-fluid" @submit.prevent="saveVozilo">
                                 <div class="field">
+                                    <label for="skupinaVozila">Skupina vozila</label>
+                                    <Select id="skupinaVozila" v-model="vozilo.vozilo.skupina" :options="vrsteVozila"
+                                        option-label="value" option-value="value" placeholder="Odaberi skupinu vozila"
+                                        required @change="onSkupinaChange" />
+                                </div>
+
+                                <div v-if="odabranaSkupina?.children?.length > 0" class="field">
                                     <label for="vrstaVozila">Vrsta vozila</label>
-                                    <Select id="vrstaVozila" v-model="vozilo.vrstaVozila" :options="vrsteVozila"
-                                        option-label="label" option-value="value" placeholder="Odaberi vrstu vozila"
-                                        required>
+                                    <Select id="vrstaVozila" v-model="vozilo.vozilo.vrsta"
+                                        :options="odabranaSkupina.children" option-label="value" option-value="value"
+                                        placeholder="Odaberi vrstu vozila" required />
+                                </div>
 
-                                        <!-- Prilagođavanje prikaza odabrane opcije -->
-                                        <!-- <template #value="slotProps">
-                                            <font-awesome-icon :icon="getVehicleIcon(slotProps.value)" class="mr-2" />
-                                            {{ slotProps.value }}
-                                        </template>
-
-                                        Prilagođavanje prikaza opcija u dropdownu 
-                                        <template #option="slotProps">
-                                            <font-awesome-icon :icon="getVehicleIcon(slotProps.option.value)"
-                                                class="mr-2" />
-                                            {{ slotProps.option.label }}
-                                        </template> -->
-                                    </Select>
-
-
+                                <div v-else-if="odabranaSkupina" class="field">
+                                    <label for="vrstaVozila">Vrsta vozila</label>
+                                    <InputText id="vrstaVozila" v-model="vozilo.vozilo.vrsta"
+                                        placeholder="Unesi vrstu vozila" required />
                                 </div>
 
                                 <div class="field">
                                     <label for="gorivo">Gorivo</label>
-                                    <Select id="gorivo" v-model="vozilo.gorivo" :options="vrsteGoriva"
+                                    <Select id="gorivo" v-model="vozilo.gorivo.value" :options="vrsteGoriva"
                                         option-label="label" option-value="value" placeholder="Odaberi vrstu goriva"
                                         required />
                                 </div>
 
                                 <div class="field">
-                                    <label for="potroseneLitre">Ukupan broj potrošenih litara</label>
-                                    <InputText id="potroseneLitre" v-model="vozilo.potroseneLitre"
+                                    <label for="potrosnjaGoriva">Ukupan broj potrošenih litara</label>
+                                    <InputText id="potrosnjaGoriva" v-model="vozilo.potrosnjaGoriva"
                                         placeholder="Unesi ukupan broj potrošenih litara" type="number" step="any"
-                                        min="0" required />
+                                        min="0" required :disabled="!vozilo.gorivo || !vozilo.gorivo.value" />
                                 </div>
 
                                 <div class="field">
@@ -127,16 +170,14 @@
                             :modal="true">
                             <div class="flex items-center gap-4">
                                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                                <span v-if="selectedVozilo" class="closeDialog">
-                                    Jeste li sigurni da želite obrisati vozilo:
-                                    <div style="margin-top: 10px;">
-                                        Vrsta vozila: <b>{{ selectedVozilo.vrstaVozila }}</b> <br>
-                                        Gorivo: <b>{{ selectedVozilo.gorivo }}</b> <br>
-                                        Ukupni broj potrošenih litara: <b>{{ selectedVozilo.potroseneLitre }}</b> <br>
-                                        Emisije CO<sub>2</sub> /kg: <b>{{ selectedVozilo.emisije }}</b>
-                                        ?
-                                    </div>
-                                </span>
+                                <template v-if="selectedVozilo">
+                                    Skupina vozila: <b>{{ selectedVozilo.vozilo.skupina }}</b> <br>
+                                    Vrsta vozila: <b>{{ selectedVozilo.vozilo.vrsta }}</b> <br>
+                                    Gorivo: <b>{{ selectedVozilo.gorivo.value }}</b> <br>
+                                    Potrošnja goriva: <b>{{ selectedVozilo.potrosnjaGoriva + ' ' +
+                                        selectedVozilo.gorivo.metric }}</b> <br>
+                                    Emisije: <b>{{ selectedVozilo.emisije }}</b>
+                                </template>
                             </div>
                             <template #footer>
                                 <button class="p-button p-component p-button-secondary" @click="deleteVozilo">
@@ -147,6 +188,7 @@
                                 </button>
                             </template>
                         </Dialog>
+
                     </div>
                 </section>
                 <section id="stacionarni-izvor">
@@ -187,6 +229,11 @@
                                     {{ slotProps.data.vrstaEnergenata.value }}
                                 </template>
                             </Column>
+                            <Column field="gorivo" header="Vrsta goriva">
+                                <template #body="slotProps">
+                                    {{ slotProps.data.vrstaGoriva }}
+                                </template>
+                            </Column>
 
                             <Column field="potrosnjaEnergenata" header="Potrošnja energenta" sortable />
 
@@ -211,24 +258,41 @@
                             </template>
                         </DataTable>
 
-
-                        <!-- Dialog za Dodavanje/Uređivanje vozila -->
+                        <!-- Dialog za Dodavanje/Uređivanje izvora -->
                         <Dialog v-model:visible="izvorDialogVisible" header="Dodaj vozilo" :modal="true"
                             :style="{ width: '450px' }" @hide="resetIzvorForm">
                             <form class="p-fluid" @submit.prevent="saveIzvor">
                                 <div class="field">
-                                    <label for="vrstaEnergenata">Vrsta energenata i jedinica za unos</label>
-                                    <Select id="vrstaEnergenata" v-model="izvor.vrstaEnergenata"
-                                        :options="vrsteEnergenata" :option-label="izvorOptionLabel"
-                                        :option-value="option" placeholder="Odaberi vrstu energenata i jedinica za unos"
-                                        required />
+                                    <label for="vrstaGoriva">Vrsta goriva</label>
+                                    <InputText id="vrstaGoriva" v-model="izvor.vrstaGoriva"
+                                        placeholder="Unesi vrstu goriva" type="text" required />
                                 </div>
 
                                 <div class="field">
-                                    <label for="potroseneLitre">Potrošnja energenata</label>
-                                    <InputText id="potroseneLitre" v-model="izvor.potrosnjaEnergenata"
+                                    <label for="vrstaEnergenata">Vrsta energenata</label>
+                                    <Select id="vrstaEnergenata" v-model="izvor.vrstaEnergenata"
+                                        :options="vrsteEnergenata" option-label="value"
+                                        placeholder="Odaberi vrstu energenta" required
+                                        @change="console.log(izvor.vrstaEnergenata)">
+                                        <!-- Prikazivanje opcija u dropdownu -->
+                                        <template #option="slotProps">
+                                            <span>{{ slotProps.option.value }} [{{ slotProps.option.metric }}]</span>
+                                        </template>
+                                        <!-- Prikazivanje odabrane opcije -->
+                                        <template #item="slotProps">
+                                            <span v-if="slotProps.modelValue">
+                                                {{ slotProps.modelValue.value }} [{{ slotProps.modelValue.metric }}]
+                                            </span>
+                                        </template>
+                                    </Select>
+                                </div>
+
+                                <div class="field">
+                                    <label for="potrosnjaGoriva">Potrošnja energenata</label>
+                                    <InputText id="potrosnjaGoriva" v-model="izvor.potrosnjaEnergenata"
                                         placeholder="Unesi ukupan broj potrošenih litara" type="number" step="any"
-                                        min="0" required />
+                                        min="0" required
+                                        :disabled="!izvor.vrstaEnergenata || !izvor.vrstaEnergenata.value" />
                                 </div>
 
                                 <div class="field">
@@ -253,6 +317,7 @@
                             <div class="flex items-center gap-4">
                                 <i class="pi pi-exclamation-triangle !text-3xl" />
                                 <template v-if="selectedIzvor">
+                                    Vrsta goriva: <b>{{ selectedIzvor.vrstaGoriva }}</b> <br>
                                     Vrsta energenata: <b
                                         v-html="selectedIzvor.vrstaEnergenata.value + ' [' + selectedIzvor.vrstaEnergenata.metric + ']'" />
                                     <br>
@@ -272,16 +337,16 @@
                         </Dialog>
                     </div>
                 </section>
-                <section id="ukupni-utrosak">
+                <!-- <section id="ukupni-utrosak">
                     <div>
-                        <h2>Ukupni utrošak</h2>
+                        <h2>Ukupni utrošak opsega 1</h2>
                         <p>Ukupan prikaz stakleničkih plinova - opseg 1</p>
                     </div>
                     <div class="datatable">
 
                         <DataTable :value="groupedData" row-group-mode="rowspan" group-rows-by="category"
                             sort-mode="single" sort-field="category" :sort-order="1" scrollable scroll-height="400px"
-                            table-style="min-width: 50rem" show-gridlines> <!--showGridlines column-resize-mode="fit"-->
+                            table-style="min-width: 50rem" show-gridlines>
                             <template #empty> Nema podataka za prikaz </template>
                             <Column header="No." header-style="width:3rem">
                                 <template #body="slotProps">
@@ -289,7 +354,6 @@
                                 </template>
                             </Column>
 
-                            <!-- Kategorije (Sva vozila, Stacionarni izvori) -->
                             <Column field="category" header="Kategorija">
                                 <template #body="slotProps">
                                     <span v-if="slotProps.data.category === 'Sva vozila'">
@@ -301,7 +365,6 @@
                                 </template>
                             </Column>
 
-                            <!-- Podkategorije (Vrste vozila, Vrste energenata) -->
                             <Column field="type" header="Vrsta vozila/energenata" />
 
                             <Column field="metric" header="Mjerna jedinica">
@@ -310,24 +373,18 @@
                                 </template>
                             </Column>
 
-
-
-                            <!-- Emisije po podkategorijama -->
                             <Column field="totalEmissions" header="Ukupne emisije (CO2/kg)">
                                 <template #body="slotProps">
                                     <span>{{ slotProps.data.emisije.toFixed(2) }}</span>
                                 </template>
                             </Column>
 
-                            <!-- Grupni footer za svaku kategoriju -->
                             <template #groupfooter>
                                 <div class="flex justify-end font-bold w-full mt-4">
                                     dada
                                 </div>
                             </template>
 
-
-                            <!-- Ukupne emisije za sve kategorije -->
                             <template #footer>
                                 <div class="flex justify-end font-bold w-full mt-4">
                                     Ukupno: <strong>{{ calculateTotalEmissions().toFixed(2)
@@ -337,7 +394,7 @@
 
                         </DataTable>
                     </div>
-                </section>
+                </section> -->
             </div>
             <div class="stats-content">
                 <div>
@@ -345,7 +402,7 @@
                         <font-awesome-icon icon="chart-pie" />
                         <h2 style="border-bottom: none; padding: 0">Statistika</h2>
                     </span>
-                    <p>Prikaz statističkih podataka za navedene kategorije opsega 1</p>
+                    <!-- <p>Prikaz statističkih podataka za navedene kategorije opsega 1</p> -->
                 </div>
                 <hr>
                 <div class="stats-table">
@@ -356,7 +413,7 @@
                         <Chart type="pie" :data="vozilaChartData" :options="chartOptions" class="w-full md:w-[30rem]" />
                     </div>
 
-                    <div class="chart-container">
+                    <div class="chart-container" style="margin-top: 20px;">
                         <span>
                             <p>Emisije CO<sub>2</sub>/kg - Stacionarni izvori</p>
                         </span>
@@ -364,19 +421,24 @@
                     </div>
                 </div>
             </div>
+            <button>Spremi</button>
         </main>
         <footer />
     </div>
 </template>
 
 <script setup>
+import Column from 'primevue/column';
 import { ref, watch } from 'vue';
+import { useKespStore } from '~/stores/main-store';
 
 definePageMeta({
     middleware: [
         'auth',
     ],
 });
+
+const kespStore = useKespStore();
 
 const setChartData = (labels, data, backgroundColors) => {
     return {
@@ -445,18 +507,28 @@ const izvoriChartData = computed(() => {
     return setChartData(
         vrsteEnergenata.value.map(type => type.label),
         izvoriEmisije.value,
-        ['#f78e3d', '#e8501e', '#b23b16'] // Možeš prilagoditi boje za stacionarne izvore
+        ['#8d813b', '#baac5a', '#575024'] // Možeš prilagoditi boje za stacionarne izvore
     );
 });
 
-const chartData = ref();
 const chartOptions = setChartOptions();
 
 const props = defineProps({
     sectionTitle: String,
 });
 
-const activeSectionTitle = ref('Opseg 1' || props.sectionTitle);
+const activeSectionTitle = ref('Opseg 1');
+
+const startDate = ref(null);
+const endDate = ref(null);
+
+// Funkcija za upravljanje promjenom početnog datuma
+const onStartDateChange = () => {
+    // Ako je postavljen novi početni datum, resetuj krajnji datum
+    if (endDate.value && endDate.value < startDate.value) {
+        endDate.value = null; // Resetuj krajnji datum ako je manji od novog početnog
+    }
+};
 
 // Pratimo promjene prop-a
 watch(() => props.sectionTitle, (newTitle) => {
@@ -465,9 +537,9 @@ watch(() => props.sectionTitle, (newTitle) => {
 
 const getVehicleIcon = (vrstaVozila) => {
     switch (vrstaVozila) {
-        case 'Osobno':
+        case 'Osobno vozilo':
             return 'car-side'; // Ikona za osobno vozilo
-        case 'Teretno':
+        case 'Teretno vozilo':
             return 'truck'; // Ikona za teretno vozilo
         case 'Stroj':
             return 'tractor'; // Ikona za stroj
@@ -482,7 +554,7 @@ const getIzvorIcon = (vrstaIzvora) => {
             return 'oil-can'; // Ikona za osobno vozilo
         case 'Plin':
             return 'gas-pump'; // Ikona za teretno vozilo
-        case 'Unp':
+        case 'UNP':
             return 'bottle-droplet'; // Ikona za stroj
         default:
             return null; // Default ikona ako nije specificirano
@@ -491,31 +563,79 @@ const getIzvorIcon = (vrstaIzvora) => {
 
 
 const vozila = ref([
-    { id: 1, redniBroj: 1, vrstaVozila: 'Osobno vozilo', gorivo: 'Benzin', potroseneLitre: 200, emisije: 48.6 },
-    { id: 2, redniBroj: 2, vrstaVozila: 'Osobno vozilo', gorivo: 'Dizel', potroseneLitre: 400, emisije: 97.2 },
+    {
+        id: 1,
+        redniBroj: 1,
+        vozilo: { skupina: 'Osobno vozilo', vrsta: 'Motocikli' },
+        gorivo: { value: 'Benzin', metric: 'L' },
+        potrosnjaGoriva: 200,
+        emisije: 48.6
+    },
+    {
+        id: 2,
+        redniBroj: 2,
+        vozilo: { skupina: 'Teretno vozilo', vrsta: 'Kamioni' },
+        gorivo: { value: 'Dizel', metric: 'L' },
+        potrosnjaGoriva: 400,
+        emisije: 97.2
+    },
 ]);
 
 const vrsteGoriva = ref([
-    { label: 'Benzin', value: 'Benzin' },
-    { label: 'Dizel', value: 'Dizel' },
+    { label: 'Benzin', value: 'Benzin', metric: 'L', koeficijent: 0.443 },
+    { label: 'Dizel', value: 'Dizel', metric: 'L', koeficijent: 0.243 },
 ]);
 
 const vrsteVozila = ref([
-    { label: 'Osobno', value: 'Osobno vozilo' },
-    { label: 'Teretno', value: 'Teretno vozilo' },
-    { label: 'Stroj', value: 'Stroj' },
+    {
+        label: 'Osobno',
+        value: 'Osobno vozilo',
+        children: [
+            { label: 'OV', value: 'Osobno vozilo' },
+            { label: 'DV', value: 'Dostavno vozilo (<3500kg)' },
+            { label: 'MT', value: 'Motocikli' }
+        ]
+    },
+    {
+        label: 'Teretno',
+        value: 'Teretno vozilo',
+        children: [
+            { label: 'KM', value: 'Kamioni' },
+            { label: 'TP', value: 'Tegljači s prikolicom' },
+            { label: 'DV', value: 'Dostavna vozila (>3500kg)' },
+        ]
+    },
+    { label: 'Stroj', value: 'Stroj', children: [] },
+]);
+
+const vrsteEnergenata = ref([
+    { label: 'Plin', value: 'Prirodni plin', metric: 'm³', metricHTML: 'm<sup>3</sup>', koeficijent: 1.6 },
+    { label: 'Ulje', value: 'Loživo ulje', metric: 'L', koeficijent: 2.6 },
+    { label: 'UNP', value: 'UNP', metric: 'L', koeficijent: 3.6 },
 ]);
 
 const izvori = ref([
     {
         id: 1,
-        vrstaEnergenata: { label: 'Plin', value: 'Prirodni plin', metric: 'm<sup>3</sup>', metricHTML: 'm<sup>3</sup>' },
+        vrstaGoriva: 'Plinski bojler',
+        vrstaEnergenata: {
+            label: vrsteEnergenata.value[0].label,
+            value: vrsteEnergenata.value[0].value,
+            metric: vrsteEnergenata.value[0].metric,
+            koeficijent: vrsteEnergenata.value[0].koeficijent
+        },
         potrosnjaEnergenata: 1200,
         emisije: 154.8
     },
     {
         id: 2,
-        vrstaEnergenata: { label: 'Ulje', value: 'Loživo ulje', metric: 'L' },
+        vrstaGoriva: 'Termogen',
+        vrstaEnergenata: {
+            label: vrsteEnergenata.value[1].label,
+            value: vrsteEnergenata.value[1].value,
+            metric: vrsteEnergenata.value[1].metric,
+            koeficijent: vrsteEnergenata.value[1].koeficijent
+        },
         potrosnjaEnergenata: 800,
         emisije: 103.2
     }
@@ -523,22 +643,27 @@ const izvori = ref([
 
 const izvor = ref({
     id: null,
-    vrstaEnergenata: null,
-    potrosnjaEnergenata: '',
-    emisije: '',
+    vrstaGoriva: '',
+    vrstaEnergenata: { value: '', metric: '' },
+    potrosnjaEnergenata: null,
+    emisije: null,
 })
 
-const vrsteEnergenata = ref([
-    { label: 'Ulje', value: 'Loživo ulje', metric: 'L' },
-    { label: 'Plin', value: 'Prirodni plin', metric: 'm<sup>3</sup>', metricHTML: 'm<sup>3</sup>' },
-    { label: 'Unp', value: 'UNP', metric: 'L' },
-])
+// Varijabla za pohranu odabrane skupine vozila
+const odabranaSkupina = ref(null);
 
-const izvorOptionLabel = (option) => {
-    const metric = option.metric === 'm<sup>3</sup>' ? 'm3' : option.metric;
-    return `${option.value} [${metric}]`;
+// Funkcija koja se poziva kada korisnik promijeni skupinu vozila
+const onSkupinaChange = () => {
+    // Pronađi odabranu skupinu vozila unutar vrsteVozila niza
+    odabranaSkupina.value = vrsteVozila.value.find(
+        (skupina) => skupina.value === vozilo.value?.vozilo?.skupina
+    );
+
+    // Resetiraj odabranu vrstu vozila kada se promijeni skupina
+    if (vozilo.value?.vozilo) {
+        vozilo.value.vozilo.vrsta = '';
+    }
 };
-
 
 const voziloDialogVisible = ref(false);
 const deleteVoziloDialog = ref(false);
@@ -547,10 +672,10 @@ const deleteIzvorDialog = ref(false);
 const vozilo = ref({
     id: null,
     redniBroj: null,
-    vrstaVozila: '',
-    gorivo: '',
-    potroseneLitre: '',
-    emisije: '',
+    vozilo: { skupina: '', vrsta: '' }, // Ispravna inicijalizacija vozilo objekta
+    gorivo: { value: '', metric: 'L' },
+    potrosnjaGoriva: null,
+    emisije: null
 });
 const selectedVozilo = ref(null);
 const selectedIzvor = ref(null);
@@ -569,24 +694,43 @@ const openNewIzvor = () => {
 };
 
 const saveVozilo = () => {
-    const potroseneLitreNum = parseFloat(vozilo.value.potroseneLitre);
-    vozilo.value.emisije = potroseneLitreNum * 0.243;
+    // Pronađi koeficijent goriva na osnovu odabranog tipa goriva
+    const odabranoGorivo = vrsteGoriva.value.find(g => g.value === vozilo.value.gorivo.value);
+
+    const potroseneLitreNum = parseFloat(vozilo.value.potrosnjaGoriva);
+
+    // Množenje potrošnje goriva s odgovarajućim koeficijentom goriva
+    vozilo.value.emisije = isNaN(potroseneLitreNum) || !odabranoGorivo
+        ? 0
+        : potroseneLitreNum * odabranoGorivo.koeficijent;
+
+    // Uvijek postavi 'L' kao metric za gorivo
+    vozilo.value.gorivo.metric = 'L';
 
     if (vozilo.value.id) {
         const index = vozila.value.findIndex(v => v.id === vozilo.value.id);
-        if (index !== -1) vozila.value[index] = { ...vozilo.value };
+        if (index !== -1) {
+            vozila.value[index] = { ...vozilo.value };
+        }
     } else {
         vozilo.value.id = Date.now(); // Generiši ID
         vozilo.value.redniBroj = vozila.value.length + 1;
         vozila.value.push({ ...vozilo.value });
     }
 
-    voziloDialogVisible.value = false;
+    voziloDialogVisible.value = false; // Zatvori dialog
+    odabranaSkupina.value = null;
 };
+
+
 
 const saveIzvor = () => {
     const potrosnjaEnergenataNum = parseFloat(izvor.value.potrosnjaEnergenata);
-    izvor.value.emisije = potrosnjaEnergenataNum * 0.00243;
+
+    // Izračunaj emisije na temelju koeficijenta iz odabranog energenta
+    if (izvor.value.vrstaEnergenata && potrosnjaEnergenataNum) {
+        izvor.value.emisije = potrosnjaEnergenataNum * izvor.value.vrstaEnergenata.koeficijent;
+    }
 
     if (izvor.value.id) {
         const index = izvori.value.findIndex(v => v.id === izvor.value.id);
@@ -597,7 +741,9 @@ const saveIzvor = () => {
     }
 
     izvorDialogVisible.value = false;
-}
+};
+
+
 
 
 const openVoziloDeleteDialog = () => {
@@ -622,53 +768,58 @@ const deleteIzvor = () => {
         izvori.value.splice(index, 1);
     }
     deleteIzvorDialog.value = false;
-    selectedIzvor.value = null; // Reset selected vozilo
+    selectedIzvor.value = null;
 };
 
+
+// Funkcija za resetiranje forme
 const resetVoziloForm = () => {
     vozilo.value = {
         id: null,
         redniBroj: null,
-        vrstaVozila: '',
-        gorivo: '',
-        potroseneLitre: '',
-        emisije: '',
+        vozilo: { skupina: '', vrsta: '' },
+        gorivo: { value: '', metric: '' },
+        potrosnjaGoriva: null,
+        emisije: null,
     };
 };
 const resetIzvorForm = () => {
     izvor.value = {
         id: null,
-        vrstaEnergenata: '',
+        vrstaGoriva: '',
+        vrstaEnergenata: { value: '', metric: '', koeficijent: 0 },
         potrosnjaEnergenata: '',
         emisije: '',
     };
 };
 
+
 // Grupiranje podataka u dvije kategorije
-const groupedData = computed(() => {
-    // Mapiramo sve podkategorije unutar kategorija
-    const vozilaData = vrsteVozila.value.map(type => ({
-        category: 'Sva vozila',
-        type: type.value,
-        metric: 'L',
-        emisije: calculateSubcategoryEmissions('vozila', type.value)
-    }));
+// const groupedData = computed(() => {
+//     // Mapiramo sve podkategorije unutar kategorija
+//     const vozilaData = vrsteVozila.value.map(type => ({
+//         category: 'Sva vozila',
+//         type: type.value,
+//         metric: 'L',
+//         emisije: calculateSubcategoryEmissions('vozila', type.value)
+//     }));
 
-    const izvoriData = vrsteEnergenata.value.map(type => ({
-        category: 'Stacionarni izvori',
-        type: type.value,
-        metric: type.metric,
-        emisije: calculateSubcategoryEmissions('izvori', type.value)
-    }));
+//     const izvoriData = vrsteEnergenata.value.map(type => ({
+//         category: 'Stacionarni izvori',
+//         type: type.value,
+//         metric: type.metric,
+//         emisije: calculateSubcategoryEmissions('izvori', type.value)
+//     }));
 
-    return [...vozilaData, ...izvoriData];
-});
+//     return [...vozilaData, ...izvoriData];
+// });
 
 // Funkcija koja računa ukupne emisije za svaku podkategoriju
 const calculateSubcategoryEmissions = (category, type) => {
+    console.log("calculateSubcategoryEmissions: ", category, type);
     if (category === 'vozila') {
         return vozila.value
-            .filter(v => v.vrstaVozila === type)
+            .filter(v => v.vozilo.skupina === type)
             .reduce((total, v) => total + (v.emisije || 0), 0);
     } else if (category === 'izvori') {
         return izvori.value
@@ -679,21 +830,21 @@ const calculateSubcategoryEmissions = (category, type) => {
 };
 
 // Funkcija koja računa ukupne emisije po kategoriji (Sva vozila ili Stacionarni izvori)
-const calculateCategoryTotal = (category) => {
-    if (category === 'Sva vozila') {
-        return vozila.value.reduce((total, v) => total + (v.emisije || 0), 0);
-    } else if (category === 'Stacionarni izvori') {
-        return izvori.value.reduce((total, i) => total + (i.emisije || 0), 0);
-    }
-    return 0;
-};
+// const calculateCategoryTotal = (category) => {
+//     if (category === 'Sva vozila') {
+//         return vozila.value.reduce((total, v) => total + (v.emisije || 0), 0);
+//     } else if (category === 'Stacionarni izvori') {
+//         return izvori.value.reduce((total, i) => total + (i.emisije || 0), 0);
+//     }
+//     return 0;
+// };
 
-// Funkcija koja računa ukupne emisije za sve kategorije
-const calculateTotalEmissions = () => {
-    const totalVozila = vozila.value.reduce((total, v) => total + (v.emisije || 0), 0);
-    const totalIzvori = izvori.value.reduce((total, i) => total + (i.emisije || 0), 0);
-    return totalVozila + totalIzvori;
-};
+// // Funkcija koja računa ukupne emisije za sve kategorije
+// const calculateTotalEmissions = () => {
+//     const totalVozila = vozila.value.reduce((total, v) => total + (v.emisije || 0), 0);
+//     const totalIzvori = izvori.value.reduce((total, i) => total + (i.emisije || 0), 0);
+//     return totalVozila + totalIzvori;
+// };
 
 
 // Reagirati na promjene u vozilima i izvorima
@@ -770,15 +921,28 @@ watch(selectedVozilo, (newValue) => {
     }
 });
 
-watch(() => vozilo.value.potroseneLitre, (newVal) => {
-    const potroseneLitreNum = parseFloat(newVal)
-    vozilo.value.emisije = isNaN(potroseneLitreNum) ? 0 : potroseneLitreNum * 0.243
-})
+watch(() => vozilo.value.potrosnjaGoriva, (newVal) => {
+    const odabranoGorivo = vrsteGoriva.value.find(g => g.value === vozilo.value.gorivo.value);
+    const potroseneLitreNum = parseFloat(newVal);
+
+    // Ažuriraj emisije samo ako postoji odabrano gorivo i važeći unos potrošnje
+    vozilo.value.emisije = isNaN(potroseneLitreNum) || !odabranoGorivo
+        ? 0
+        : potroseneLitreNum * odabranoGorivo.koeficijent;
+});
+
 
 watch(() => izvor.value.potrosnjaEnergenata, (newVal) => {
-    const potrosnjaEnergenataNum = parseFloat(newVal)
-    izvor.value.emisije = isNaN(potrosnjaEnergenataNum) ? 0 : potrosnjaEnergenataNum * 0.129
-})
+    const potrosnjaEnergenataNum = parseFloat(newVal);
+    const odabraniEnergent = vrsteEnergenata.value.find(e => e.value === izvor.value.vrstaEnergenata.value);
+    console.log(potrosnjaEnergenataNum, odabraniEnergent);
+
+    if (odabraniEnergent && !isNaN(potrosnjaEnergenataNum)) {
+        izvor.value.emisije = potrosnjaEnergenataNum * odabraniEnergent.koeficijent;
+    } else {
+        izvor.value.emisije = 0;
+    }
+});
 
 </script>
 
@@ -829,6 +993,20 @@ main>div {
     display: flex;
     flex-direction: column;
     gap: 26px;
+}
+
+.razdoblje {
+    max-width: 500px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.razdoblje>div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .stats-content {
