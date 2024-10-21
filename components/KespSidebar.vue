@@ -94,12 +94,28 @@
                     <div v-if="!section.collapsed" :class="['navigation', isCollapsed ? 'collapsed' : '']">
                         <nuxt-link v-for="(link, linkIndex) in section.links" :key="linkIndex"
                             :class="['nuxtlink-form', 'opci', isActiveRoute(link.to) ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
-                            @click.prevent="handleLinkClick(section.title, link.to)">
+                            :to="link.to">
                             <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" :icon="link.icon" />
                             <h3 :class="isCollapsed ? 'collapsed' : ''">{{ link.label }}</h3>
                         </nuxt-link>
+                        <!-- <nuxt-link
+                            :class="['nuxtlink-form', 'opci', isActiveRoute('/kesp/ukupni-utrosak') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
+                            @click.prevent="handleLinkClick('ukupni-utrosak', '/kesp/ukupni-utrosak')">
+                            <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="list-ul" />
+                            <h3 :class="isCollapsed ? 'collapsed' : ''">Ukupni utrošak</h3>
+                        </nuxt-link> -->
                     </div>
                 </div>
+                <!-- <div :class="['sidebar-section', isCollapsed ? 'collapsed' : '']">
+
+                    <div :class="['navigation', isCollapsed ? 'collapsed' : '']">
+                        <nuxt-link
+                            :class="['nuxtlink-form', 'opci', isActiveRoute('/kesp/ukupni-utrošak') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']">
+                            <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="list-ul" />
+                            <h3 :class="isCollapsed ? 'collapsed' : ''">Ukupni utrošak</h3>
+                        </nuxt-link>
+                    </div>
+                </div> -->
             </div>
 
             <!-- <div :class="['sidebar-content', isCollapsed ? 'collapsed' : '']">
@@ -183,7 +199,8 @@ const sections = ref([
         collapsed: false,
         links: [
             { label: 'Opseg 1', to: '/kesp/predlozak', icon: 'car', isActive: false },
-            { label: 'Opseg 2', to: '/kesp/predlozak/opseg2', icon: 'plug-circle-bolt', isActive: false },
+            { label: 'GHG opseg 2', to: '/kesp/predlozak/opseg2', icon: 'bolt', isActive: false },
+            { label: 'Pregled', to: '/kesp/predlozak/pregled', icon: 'list-ol', isActive: false },
         ],
     },
 ]);
