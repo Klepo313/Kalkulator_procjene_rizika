@@ -298,3 +298,121 @@ export const useStructuredGridDataStore = defineStore('structured-grid-data', {
         }
     },
 });
+
+export const useKespStore = defineStore('kesp-store', {
+    state: () => ({
+        vozila: [
+            {
+                id: 1,
+                redniBroj: 1,
+                vozilo: { skupina: 'Osobno vozilo', vrsta: 'Motocikli' },
+                gorivo: { value: 'Benzin', metric: 'L' },
+                potrosnjaGoriva: 200,
+                emisije: 48.6
+            },
+            {
+                id: 2,
+                redniBroj: 2,
+                vozilo: { skupina: 'Teretno vozilo', vrsta: 'Kamioni' },
+                gorivo: { value: 'Dizel', metric: 'L' },
+                potrosnjaGoriva: 400,
+                emisije: 97.2
+            },
+        ],
+        vrsteGoriva: [
+            { label: 'Benzin', value: 'Benzin', metric: 'L', koeficijent: 0.443 },
+            { label: 'Dizel', value: 'Dizel', metric: 'L', koeficijent: 0.243 },
+        ],
+        vrsteVozila: [
+            {
+                label: 'Osobno',
+                value: 'Osobno vozilo',
+                children: [
+                    { label: 'OV', value: 'Osobno vozilo' },
+                    { label: 'DV', value: 'Dostavno vozilo (<3500kg)' },
+                    { label: 'MT', value: 'Motocikli' }
+                ]
+            },
+            {
+                label: 'Teretno',
+                value: 'Teretno vozilo',
+                children: [
+                    { label: 'KM', value: 'Kamioni' },
+                    { label: 'TP', value: 'Tegljači s prikolicom' },
+                    { label: 'DV', value: 'Dostavna vozila (>3500kg)' },
+                ]
+            },
+            { label: 'Stroj', value: 'Stroj', children: [] },
+        ],
+        vrsteEnergenata: [
+            { label: 'Plin', value: 'Prirodni plin', metric: 'm³', metricHTML: 'm<sup>3</sup>', koeficijent: 1.6 },
+            { label: 'Ulje', value: 'Loživo ulje', metric: 'L', koeficijent: 2.6 },
+            { label: 'UNP', value: 'UNP', metric: 'L', koeficijent: 3.6 },
+        ],
+        vozilo: {
+            id: null,
+            redniBroj: null,
+            vozilo: { skupina: '', vrsta: '' }, // Ispravna inicijalizacija vozilo objekta
+            gorivo: { value: '', metric: 'L' },
+            potrosnjaGoriva: null,
+            emisije: null
+        },
+
+        // IZVORI
+
+        izvori: [
+            {
+                id: 1,
+                vrstaGoriva: 'Plinski bojler',
+                vrstaEnergenata: {
+                    label: 'Plin',
+                    value: 'Prirodni plin',
+                    metric: 'm³',
+                    koeficijent: 1.6
+                },
+                potrosnjaEnergenata: 1200,
+                emisije: 154.8
+            },
+            {
+                id: 2,
+                vrstaGoriva: 'Termogen',
+                vrstaEnergenata: {
+                    label: 'Ulje',
+                    value: 'Loživo ulje',
+                    metric: 'L',
+                    koeficijent: 2.6
+                },
+                potrosnjaEnergenata: 800,
+                emisije: 103.2
+            }
+        ],
+        izvor: {
+            id: null,
+            vrstaGoriva: '',
+            vrstaEnergenata: { value: '', metric: '' },
+            potrosnjaEnergenata: null,
+            emisije: null,
+        },
+    }),
+    actions: {
+        resetVoziloForm() {
+            this.vozilo = {
+                id: null,
+                redniBroj: null,
+                vozilo: { skupina: '', vrsta: '' },
+                gorivo: { value: '', metric: 'L' },
+                potrosnjaGoriva: null,
+                emisije: null
+            };
+        },
+        resetIzvorForm() {
+            this.izvor = {
+                id: null,
+                vrstaGoriva: '',
+                vrstaEnergenata: { value: '', metric: '' },
+                potrosnjaEnergenata: null,
+                emisije: null,
+            };
+        }
+    }
+});
