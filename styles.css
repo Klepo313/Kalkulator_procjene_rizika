@@ -49,6 +49,10 @@ body {
     background-color: var(--bg-color);
 }
 
+p {
+    opacity: 0.8;
+}
+
 .p-inputtext {
     width: 100%;
 }
@@ -111,6 +115,35 @@ footer {
 
 .footer-btn {
     width: auto;
+}
+
+
+.razdoblje {
+    max-width: 500px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.razdoblje>div,
+.razdoblje>div>div,
+.razdoblje>span {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.razdoblje>div {
+    flex-direction: row;
+}
+
+.razdoblje>span {
+    width: auto;
+}
+
+.required {
+    color: var(--red-soft);
 }
 
 /* Globalni CSS za fade tranziciju */

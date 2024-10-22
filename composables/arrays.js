@@ -1,3 +1,41 @@
+// import { ref, computed } from 'vue';
+// import { useIzracunStore } from '#imports';
+// import { initializeCookie } from "~/utils/initializeCookie";
+
+// // const scenarij = ref('');
+
+// // const initializeScenarij = async () => {
+// //     const cookieValue = await initializeCookie('scenarij'); // Dohvati vrijednost iz kolačića
+// //     let scen;
+// //     if (cookieValue) {  // Ako kolačić postoji
+// //         scen = cookieValue ? cookieValue : 'RCP'; // Postavi scenarij
+// //     } else {
+// //         scen = 'RCP'; // Ako kolačić ne postoji, postavi na 'RCP'
+// //     }
+// //     return scen;
+// // };
+
+// // scenarij.value = await initializeScenarij();
+
+// const izracunStore = useIzracunStore();
+
+// // // Postavi scenarij na temelju kolačića
+// // const initializeScenarij = async () => {
+// //     console.log("Scenarij:", izracunStore.scenarij);
+// //     const cookieValue = await initializeCookie('scenarij');
+// //     if (cookieValue) {
+// //         izracunStore.updateScenarij(cookieValue); // Ažuriraj store s vrijednosti iz kolačića
+// //     } else {
+// //         izracunStore.updateScenarij('RCP'); // Postavi zadanu vrijednost ako kolačić ne postoji
+// //     }
+// // };
+
+// // // Inicijaliziraj scenarij iz kolačića
+// // initializeScenarij();
+
+// // Koristi `computed` da budeš uvijek usklađen s vrijednostima iz store-a
+// const scenarij = ref(izracunStore.scenarij)
+
 const firstRow = ref([
     { class: 'grid-item vertical tablegreen th nb-b', label: 'Kronični', rowStart: 1, rowSpan: 28, colSpan: 1 }, // Započinje u 1. redu i traje 26 redova
     { class: 'grid-item vertical tablegreen th', label: 'Akutni', rowStart: 29, rowSpan: 16, colSpan: 1 }, // Započinje odmah nakon "Kronični", tj. u 27. redu
@@ -23,8 +61,8 @@ const thirdRow = ref([
     { class: 'grid-item nb', label: '', colSpan: 1, rowSpan: 1 },
     { class: 'grid-item tablegreen nb', label: '', colSpan: 1, rowSpan: 1 },
     { class: 'grid-item tablegreen nb', label: '', colSpan: 1, rowSpan: 1 },
-    { class: 'grid-item pad5 darkgreen nb-r nb-t nb-b', label: 'RCP 4.5', colSpan: 3, rowSpan: 1 },
-    { class: 'grid-item pad5 darkgreen nb-b nb-t sb-w-l', label: 'RCP 8.5', colSpan: 3, rowSpan: 1 },
+    { class: 'grid-item pad5 darkgreen nb-r nb-t nb-b', label: `RCP 4.5`, colSpan: 3, rowSpan: 1 },
+    { class: 'grid-item pad5 darkgreen nb-b nb-t sb-w-l', label: `SSP 8.5`, colSpan: 3, rowSpan: 1 },
 ])
 
 const fourthRow = ref([
