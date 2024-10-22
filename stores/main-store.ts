@@ -14,15 +14,31 @@ import { addMetricType, removeMetricType } from '~/service/alterMetrictypes';
 
 export const useIzracunStore = defineStore('izracunStore', {
     state: () => ({
-        idIzracuna: useCookie('id_izracuna').value,
+        idIzracuna: '',
+        scenarij: '',
     }),
     actions: {
         updateIdIzracuna(newValue: string) {
             this.idIzracuna = newValue;
             // useCookie('id_izracuna').value = newValue;
         },
+
+        updateScenarij(newValue: string) {
+            this.scenarij = newValue;
+        }
     },
 });
+
+// export const useAuthStore = defineStore('auth', {
+//     state: () => ({
+//         isLoggedIn: false,
+//     }),
+//     actions: {
+//         setLoginStatus(status: boolean) {
+//             this.isLoggedIn = status;
+//         },
+//     },
+// });
 
 export const useOpciStore = defineStore('opci-podaci', {
     state: () => ({
@@ -299,7 +315,34 @@ export const useStructuredGridDataStore = defineStore('structured-grid-data', {
     },
 });
 
-export const useKespStore = defineStore('kesp-store', {
+export const useKespStore = defineStore('kespStore', {
+    state: () => ({
+        godina: new Date(2022, 0, 1),
+        datumOd: new Date(2022, 0, 1), // January 1st, 2022
+        datumDo: new Date(2022, 11, 31), // December 31st, 2022
+    }),
+    actions: {
+        setGodina(godina: number) {
+            this.godina = new Date(godina, 0, 1);
+            this.setDatumOd(godina);
+            this.setDatumDo(godina);
+        },
+        setDatumOd(godina: number) {
+            this.datumOd = new Date(godina, 0, 1); // January 1st
+        },
+        setDatumDo(godina: number) {
+            this.datumDo = new Date(godina, 11, 31); // December 31st
+        },
+    },
+    getters: {
+        getGodina: (state) => state.godina,
+        getDatumOd: (state) => state.datumOd,
+        getDatumDo: (state) => state.datumDo,
+    }
+});
+
+export const useVehicleStore = defineStore('vehicleStore', {
+    // State: definisanje početnog stanja
     state: () => ({
         vozila: [
             {
@@ -318,10 +361,6 @@ export const useKespStore = defineStore('kesp-store', {
                 potrosnjaGoriva: 400,
                 emisije: 97.2
             },
-        ],
-        vrsteGoriva: [
-            { label: 'Benzin', value: 'Benzin', metric: 'L', koeficijent: 0.443 },
-            { label: 'Dizel', value: 'Dizel', metric: 'L', koeficijent: 0.243 },
         ],
         vrsteVozila: [
             {
@@ -344,22 +383,46 @@ export const useKespStore = defineStore('kesp-store', {
             },
             { label: 'Stroj', value: 'Stroj', children: [] },
         ],
-        vrsteEnergenata: [
-            { label: 'Plin', value: 'Prirodni plin', metric: 'm³', metricHTML: 'm<sup>3</sup>', koeficijent: 1.6 },
-            { label: 'Ulje', value: 'Loživo ulje', metric: 'L', koeficijent: 2.6 },
-            { label: 'UNP', value: 'UNP', metric: 'L', koeficijent: 3.6 },
+        vrsteGoriva: [
+            { label: 'Benzin', value: 'Benzin', metric: 'L', koeficijent: 0.443 },
+            { label: 'Dizel', value: 'Dizel', metric: 'L', koeficijent: 0.243 },
         ],
         vozilo: {
-            id: null,
-            redniBroj: null,
-            vozilo: { skupina: '', vrsta: '' }, // Ispravna inicijalizacija vozilo objekta
-            gorivo: { value: '', metric: 'L' },
+            id: 0,
+            redniBroj: 0,
+            vozilo: { skupina: '', vrsta: '' },
+            gorivo: { value: '', metric: '' },
             potrosnjaGoriva: null,
-            emisije: null
+            emisije: null,
         },
+        voziloDialogVisible: false,
+        deleteVoziloDialog: false,
+    }),
 
-        // IZVORI
+    // Getters: za obračunate vrednosti
+    getters: {
+        totalEmissionsFromVehicles(state) {
+            return state.vozila.reduce((total, v) => total + v.emisije, 0);
+        },
+    },
 
+    // Actions: za funkcije koje manipulišu stanjem
+    actions: {
+        resetVoziloForm() {
+            this.vozilo = {
+                id: 0,
+                redniBroj: 0,
+                vozilo: { skupina: '', vrsta: '' },
+                gorivo: { value: '', metric: '' },
+                potrosnjaGoriva: null,
+                emisije: null,
+            };
+        },
+    },
+});
+
+export const useIzvoriStore = defineStore('izvori-store', {
+    state: () => ({
         izvori: [
             {
                 id: 1,
@@ -393,25 +456,143 @@ export const useKespStore = defineStore('kesp-store', {
             potrosnjaEnergenata: null,
             emisije: null,
         },
+        vrsteEnergenata: [
+            { label: 'Plin', value: 'Prirodni plin', metric: 'm³', koeficijent: 1.6 },
+            { label: 'Ulje', value: 'Loživo ulje', metric: 'L', koeficijent: 2.6 },
+            { label: 'UNP', value: 'UNP', metric: 'L', koeficijent: 3.6 },
+        ]
     }),
     actions: {
-        resetVoziloForm() {
-            this.vozilo = {
-                id: null,
-                redniBroj: null,
-                vozilo: { skupina: '', vrsta: '' },
-                gorivo: { value: '', metric: 'L' },
-                potrosnjaGoriva: null,
-                emisije: null
-            };
-        },
         resetIzvorForm() {
             this.izvor = {
                 id: null,
                 vrstaGoriva: '',
                 vrstaEnergenata: { value: '', metric: '' },
                 potrosnjaEnergenata: null,
-                emisije: null,
+                emisije: null
+            }
+        },
+    },
+})
+
+export const useOpseg2Store = defineStore('opseg2-store', {
+    state: () => ({
+        selectedYear: 0, // Odabrana godina
+        izracuni: [
+            {
+                id: 1,
+                energija: 'Električna energija',
+                neobnovljivo: null,
+                obnovljivo: null,
+                ukupno: 0,
+                emisije: 0,
+                koeficijent: 0.12 // Koeficijent za emisije CO2
+            },
+            {
+                id: 2,
+                energija: 'Toplinska energija',
+                neobnovljivo: null,
+                obnovljivo: null,
+                ukupno: 0,
+                emisije: 0,
+                koeficijent: 0.4 // Koeficijent za emisije CO2
+            }
+        ]
+    }),
+    actions: {
+        updateIzracuni() {
+            if (this.selectedYear) {
+                // Ovdje dodaj logiku za ažuriranje podataka na osnovu odabrane godine
+                console.log(`Odabrana godina: ${this.selectedYear}`);
+            }
+        },
+
+        updateCalculations(rowData: { neobnovljivo: number; obnovljivo: number; ukupno: number; emisije: number; koeficijent: number; }) {
+            const neobnovljivo = rowData.neobnovljivo || 0;
+            const obnovljivo = rowData.obnovljivo || 0;
+            rowData.ukupno = neobnovljivo + obnovljivo;
+            rowData.emisije = rowData.ukupno * rowData.koeficijent;
+        },
+
+        onCellEditComplete(event: { preventDefault?: any; data?: any; newValue?: any; field?: any; }) {
+            const { data, newValue, field } = event;
+
+            switch (field) {
+                case 'neobnovljivo':
+                case 'obnovljivo':
+                    if (this.isPositiveInteger(newValue)) {
+                        data[field] = newValue;
+                        this.updateCalculations(data); // Ažuriraj izračune nakon unosa
+                    } else {
+                        event.preventDefault(); // Spriječi unos ako nije pozitivan cijeli broj
+                    }
+                    break;
+
+                default:
+                    if (newValue.trim().length > 0) {
+                        data[field] = newValue;
+                        this.updateCalculations(data); // Ažuriraj izračune nakon unosa
+                    } else {
+                        event.preventDefault(); // Spriječi unos ako je prazan
+                    }
+                    break;
+            }
+        },
+
+        isPositiveInteger(val: unknown) {
+            let str = String(val).trim();
+
+            if (!str) {
+                return false;
+            }
+
+            str = str.replace(/^0+/, '') || '0';
+            const n = Math.floor(Number(str));
+
+            return n !== Infinity && String(n) === str && n >= 0;
+        }
+    },
+
+    getters: {
+        yearOptions() {
+            const years = [];
+            for (let year = 2015; year < new Date().getFullYear(); year++) {
+                years.push({ year });
+            }
+            return years;
+        },
+
+        totalEmissions() {
+            return this.izracuni.reduce((total: number, row: { emisije: number; }) => total + row.emisije, 0).toFixed(2);
+        },
+
+        combinedChartData() {
+            const hasData = this.izracuni.some(row => row.neobnovljivo !== null || row.obnovljivo !== null);
+            const labels = this.izracuni.map((row: { energija: number; }) => row.energija);
+            const data = this.izracuni.map((row: { emisije: number; }) => row.emisije);
+
+            if (!hasData) {
+                return {
+                    labels,
+                    datasets: [
+                        {
+                            data: [0, 0], // Prikazuje [0, 0] kada nema podataka
+                            backgroundColor: ['#2cc23f', '#1e822a'], // Zeleno za električnu energiju, žuto za toplinsku
+                            hoverBackgroundColor: ['#2cc23a', '#1e8211']
+                        }
+                    ]
+                };
+            }
+
+            return {
+                labels,
+                datasets: [
+                    {
+                        data,
+                        backgroundColor: ['#2cc23f', '#1e822a'], // Zeleno za električnu energiju, žuto za toplinsku
+                        hoverBackgroundColor: ['#2cc23a', '#1e8211']
+                    }
+                ]
             };
         }
     }
