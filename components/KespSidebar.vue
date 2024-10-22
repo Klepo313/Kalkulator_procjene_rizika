@@ -198,9 +198,9 @@ const sections = ref([
         icon: 'list',
         collapsed: false,
         links: [
+            { label: 'Pregled', to: '/kesp/predlozak/pregled', icon: 'list-ol', isActive: false },
             { label: 'Opseg 1', to: '/kesp/predlozak', icon: 'car', isActive: false },
             { label: 'GHG opseg 2', to: '/kesp/predlozak/opseg2', icon: 'bolt', isActive: false },
-            { label: 'Pregled', to: '/kesp/predlozak/pregled', icon: 'list-ol', isActive: false },
         ],
     },
 ]);

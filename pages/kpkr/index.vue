@@ -1,11 +1,6 @@
 <template>
     <div>
         <div class="body">
-            <!-- <button v-if="$route.path !== '/login'" class="logout" @click="doLogout">
-                <font-awesome-icon icon="arrow-right-from-bracket" class="logout-icon" />
-                Odjava
-            </button> -->
-
             <header>
                 <div class="image-container">
                     <img src="../../public/static/images/atd_solucije_iz.png" alt="logo" class="header-image"
@@ -25,7 +20,7 @@
                     <div class="main-form">
                         <!-- <h2>Odaberi opciju</h2> -->
                         <div class="card-container">
-                            <div class="card" @click="navigateTo('/kpkr/predlozak')">
+                            <div class="card" @click="noviIzracun">
                                 <font-awesome-icon icon="plus" />
                                 <span>
                                     Novi predložak <br> izračuna
@@ -51,28 +46,6 @@
     </div>
 </template>
 
-<!-- <template>
-    <div>
-        <div class="body">
-            <div class="main-form">
-                <div class="card-container">
-                    <div class="card" @click="navigateTo('/predlozak')">
-                        <font-awesome-icon icon="plus" />
-                        <span>
-                            Novi predložak <br> izračuna
-                        </span>
-                    </div>
-                    <div class="card" @click="navigateTo('/predlosci')">
-                        <font-awesome-icon icon="list-ul" />
-                        <span>
-                            Prethodni <br> izračuni
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</template> -->
 
 <script setup>
 import { logout } from '~/service/logout';
@@ -84,24 +57,21 @@ definePageMeta({
     pageTransition: { name: 'slide', mode: 'out-in' }
 });
 
-const idIzracuna = useCookie('id_izracuna', {
-    maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
-    path: '/', // Cookie available throughout the app
-    secure: process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production // true, //process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production
-    sameSite: process.env.ENVIRONMENT === 'PRODUCTION' ? 'None' : 'Lax', // Use 'None' only in production
-});
-const setIdIzracunaToSlash = async () => {
-    idIzracuna.value = await encryptCookie('/')
-}; setIdIzracunaToSlash();
-
-const vrstaIzracuna = useCookie('vrsta_izracuna');
-vrstaIzracuna.value = null;
+const noviIzracun = async () => {
+    await setCookie('id-izracuna', '/');
+    navigateTo('/kpkr/predlozak');
+};
 
 const doLogout = async () => {
     await logout();
     navigateTo('/login');
 };
 
+onMounted(async () => {
+    await deleteCookie('id-izracuna');
+    await deleteCookie('vrsta-izracuna');
+    await deleteCookie('scenarij');
+})
 
 </script>
 

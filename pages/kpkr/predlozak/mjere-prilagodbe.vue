@@ -58,7 +58,9 @@
                                 <Column field="tva_naziv" header="Naziv" style="min-width: 14rem">
                                     <template #body="{ data }">
                                         <div class="template-div flex items-center gap-2"
-                                            @click="toggleOp(data.tva_id, $event)">
+                                            @click="toggleOp(data.tva_id, $event)"
+                                            @mouseenter="toggleOp(data.tva_id, $event)"
+                                            @mouseleave="toggleOp(data.tva_id, $event)">
                                             <span>{{ data.tva_naziv }}</span>
                                         </div>
                                         <!-- Dinamički popover :title="data.tva_opis" -->
@@ -110,23 +112,14 @@ import Checkbox from 'primevue/checkbox';
 definePageMeta({
     middleware: [
         'auth',
-        'id-izracuna'
+        'izracun',
+        // 'id-izracun'
     ],
 });
 
 const adaptStore = useAdaptStore();
 
-const idIzracuna = ref('/');
-
-const initializeIdIzracuna = async () => {
-    const cookieValue = useCookie('id_izracuna').value;
-    const decryptedValue = await decryptCookie(cookieValue);
-    if (decryptedValue == '/' || decryptedValue == undefined) {
-        idIzracuna.value = '/';
-    } else {
-        idIzracuna.value = parseInt(decryptedValue);
-    }
-}
+const idIzracuna = ref('');
 
 
 onBeforeUnmount(() => {
@@ -135,14 +128,14 @@ onBeforeUnmount(() => {
 
 onMounted(async () => {
     // Pozovi funkciju kada se komponenta inicijalizuje
-    await initializeIdIzracuna();
+    idIzracuna.value = await initializeCookie('id-izracuna');
 
     updateScrollHeight(); // Postavi scrollHeight prilikom montiranja
     window.addEventListener('resize', updateScrollHeight); // Dodaj listener za promjenu veličine
 
     adaptStore.odabrane_mjere = [];
     adaptStore.adaptacijske_mjere = [];
-    if (!(idIzracuna.value == '/')) {
+    if (idIzracuna.value) {
         await adaptStore.fetchMetrictypes(idIzracuna.value);
         await adaptStore.fetchMetrictypes();
         console.log('Uspješno dohvaćene odabrane mjere.', adaptStore.odabrane_mjere);
@@ -166,8 +159,6 @@ const filters = ref({
 const selectedMjera = ref(null);
 
 const mjere = computed(() => adaptStore.adaptacijske_mjere);
-// const filteredMjere = ref(mjere.value);
-// const filteredMjere = ref(computed(() => mjere.value));
 const filteredMjere = ref([]); // Inicijalno prazan niz
 
 // Koristite watchEffect da automatski sinkronizirate filteredMjere s mjere

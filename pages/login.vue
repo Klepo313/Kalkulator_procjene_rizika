@@ -47,8 +47,14 @@ definePageMeta({
     pageTransition: { name: 'slide', mode: 'out-in' }
 });
 
+// const accessToken = useCookie('csrf-token', {
+//     maxAge: 60 * 60 * 24, // 1 day
+//     secure: true,
+//     httpOnly: true,
+//     path: '/'
+// })
+
 const statusCode = ref(0);
-const token = ref('');
 const usernameInput = ref(null);
 const passwordInput = ref(null);
 const alert = ref(null);
@@ -60,32 +66,17 @@ const showAlert = ref(false);
 
 const seconds = 150;
 
-const idIzracuna = useCookie('id_izracuna');
-idIzracuna.value = null;
-const vrstaIzracuna = useCookie('vrsta_izracuna');
-vrstaIzracuna.value = null;
-const csrfToken = useCookie('csrfToken', {
-    // maxAge: seconds, // 2.5 minute
-    maxAge: 24 * 60 * 60, // 1 dan
-    path: '/',
-    secure: true,
-});
-// const csrfTokenExpiry = useCookie('csrfTokenExpiry', {
-//     // maxAge: 150, // 2.5 minute
-//     maxAge: 24 * 60 * 60, // 1 dan
-//     path: '/',
-//     secure: true,
-// });
+onMounted(async () => {
 
-csrfToken.value = null;
-const username = useCookie('username');
-username.value = null;
+    await deleteCookie('accessToken');
+    await deleteCookie('id-izracuna');
+    await deleteCookie('vrsta-izracuna');
+    await deleteCookie('scenarij');
+    await deleteCookie('username');
+    await deleteCookie('name');
+    await deleteCookie('surname');
+    await deleteCookie('email');
 
-const name = ref('');
-const surname = ref('');
-const email = ref('');
-
-onMounted(() => {
     spinnerIcon.value.style.display = "none";
     loginBtnText.value.style.display = "inline";
 });
@@ -103,23 +94,19 @@ const checkLogin = async () => {
 
         if (statusCode.value == 200) {
             console.log("response login: ", response)
-            token.value = response.token;
-            // username.value = response.username;
-            username.value = await encryptCookie(response.username);
-            console.log("username (enc): ", username.value);
-            name.value = response.name;
-            surname.value = response.surname;
-            email.value = response.email;
-            console.log("email login: ", email.value);
-
-            localStorage.setItem('name', await encryptCookie(name.value));
-            localStorage.setItem('surname', await encryptCookie(surname.value));
-            localStorage.setItem('email', await encryptCookie(email.value));
 
             const newCsrfToken = generateCsrfToken();
+            // accessToken.value = newCsrfToken;
+            await setCookie('accessToken', newCsrfToken);
+            await setCookie('username', response.username);
+            await setCookie('name', response.name);
+            await setCookie('surname', response.surname);
+            await setCookie('email', response.email);
+
+            // const newCsrfToken = generateCsrfToken();
 
             // Ažuriraj CSRF token u kolačiću
-            csrfToken.value = newCsrfToken;
+            // csrfToken.value = newCsrfToken;
 
             // const expiryTime = new Date().getTime() + (seconds * 1000); // 150 sekundi (2.5 minute)
             // csrfTokenExpiry.value = expiryTime; // Spremi timestamp vremena isteka

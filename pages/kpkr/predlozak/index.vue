@@ -244,6 +244,8 @@ import Textarea from "primevue/textarea";
 import { ref, onMounted, onBeforeUnmount } from "vue" //onBeforeMount
 import { useOpciStore, useIzracunStore } from '~/stores/main-store';
 import { formatDateToDMY } from '~/utils/dateFormatter'
+import { setCookie, getCookie, encryptCookie, decryptCookie } from '~/utils/cookieUtils';
+import { initializeCookie } from "~/utils/initializeCookie";
 
 definePageMeta({
     middleware: [
@@ -253,31 +255,19 @@ definePageMeta({
 });
 
 const idIzracuna = ref('');
-const scenarijCookie = useCookie('scenarij'); // Kolačić 'scenarij'
+const vrstaIzracuna = ref('');
+
 const isScenarijLoaded = ref(false);
 
-const initializeIdIzracuna = async () => {
-    const cookieValue = useCookie('id_izracuna').value;
-    const decryptedValue = await decryptCookie(cookieValue);
-    if (decryptedValue == '/' || decryptedValue == undefined) {
-        idIzracuna.value = '/';
-    } else {
-        idIzracuna.value = parseInt(decryptedValue);
-    }
-    console.log('idIzracuna', idIzracuna.value);
-}
-
 const initializeScenarij = async () => {
-    const cookieValue = useCookie('scenarij').value; // Dohvati vrijednost iz kolačića
+    const cookieValue = await initializeCookie('scenarij'); // Dohvati vrijednost iz kolačića
+    console.log("scenarij: ", cookieValue)
     if (cookieValue) {  // Ako kolačić postoji
-        const decryptedValue = await decryptCookie(cookieValue); // Dekriptiraj
-        scenarij.value = decryptedValue ? decryptedValue : 'RCP'; // Postavi scenarij
+        scenarij.value = cookieValue ? cookieValue : 'RCP'; // Postavi scenarij
     } else {
         scenarij.value = 'RCP'; // Ako kolačić ne postoji, postavi na 'RCP'
     }
-    // Enkriptiraj novu vrijednost i postavi kolačić
-    const encryptedValue = await encryptCookie(scenarij.value);
-    useCookie('scenarij').value = encryptedValue; // Spremi u kolačić
+    izracunStore.updateScenarij(scenarij.value);
     isScenarijLoaded.value = true; // Oznaka da je inicijalizacija završena
 };
 
@@ -287,12 +277,6 @@ const messageCestica = ref(null);
 // const messageDjeltanost = ref(null);
 
 // vrsta izracuna kolačić
-const vrstaIzracuna = useCookie('vrsta_izracuna', {
-    maxAge: 60 * 60 * 24 * 7, // Cookie will expire in 7 days
-    path: '/',
-    secure: process.env.ENVIRONMENT === 'PRODUCTION', //process.env.ENVIRONMENT === 'PRODUCTION', // Secure cookies in production
-    sameSite: process.env.ENVIRONMENT === 'PRODUCTION' ? 'None' : 'Lax',
-});
 
 // Kreiramo instancu storea
 const opciStore = useOpciStore();
@@ -319,7 +303,7 @@ const odabraniPodrucniUred = ref({
     puk_sif: null,
 });
 const napomena = ref();
-const scenarij = ref('RCP');
+const scenarij = ref('');
 
 const status = ref(0);
 const isSuccess = ref(true);
@@ -383,8 +367,10 @@ watch(isNespremljenePromjenePopupVisible, (newValue) => {
 // Gledaj promjenu vrijednosti 'scenarij' i spremaj u kolačić
 watch(scenarij, async (newValue) => {
     if (newValue) {
-        const encryptedValue = await encryptCookie(newValue); // Enkriptiraj vrijednost
-        scenarijCookie.value = encryptedValue; // Spremi enkriptiranu vrijednost u kolačić
+        // const encryptedValue = await encryptCookie(newValue); // Enkriptiraj vrijednost
+        await setCookie('scenarij', newValue); // Spremi enkriptiranu vrijednost u kolačić
+        izracunStore.updateScenarij(newValue);
+        console.log("scenarij: ", izracunStore.scenarij)
     }
 });
 const router = useRouter();
@@ -476,20 +462,16 @@ watch(idIzracuna, async (newValue, oldValue) => {
             await opciStore.fetchCalculation(newValue);
             fillFormData();
         } else {
-            console.log("Ništa brajo")
             console.log("Podaci u storeu: ", opciStore.opci_podaci);
         }
     }
 });
 
 onMounted(async () => {
-    // Pozovi funkciju kada se komponenta inicijalizuje
-    await initializeIdIzracuna();
+
+    idIzracuna.value = await initializeCookie('id-izracuna');
+    vrstaIzracuna.value = await initializeCookie('vrsta-izracuna');
     await initializeScenarij();
-    // if (scenarij.value) {
-    //     const encryptedValue = await encryptCookie(scenarij.value); // Enkriptiraj vrijednost
-    //     scenarijCookie.value = encryptedValue; // Spremi enkriptiranu vrijednost u kolačić
-    // }
 
     // Dodaj event listener za upozorenje prilikom refreša stranice
     window.addEventListener('beforeunload', beforeWindowUnload);
@@ -643,7 +625,8 @@ const fillFormData = () => {
 
         const setVrstaIzracuna = async () => {
             // Čekamo rezultat encryptCookie funkcije
-            vrstaIzracuna.value = await encryptCookie(odabranaVrstaIzracuna.value.tvz_naziv);
+            await setCookie('vrsta-izracuna', odabranaVrstaIzracuna.value.tvz_naziv);
+            // vrstaIzracuna.value = await encryptCookie(odabranaVrstaIzracuna.value.tvz_naziv);
         }
         setVrstaIzracuna();
         // vrstaIzracuna.value = encryptCookie(odabranaVrstaIzracuna.value.tvz_naziv);
@@ -831,14 +814,13 @@ const saveFormData = async () => {
 
             if (idIzracuna.value == '/') {
                 idIzracuna.value = parseInt(responseId)
-                const encyrptedId = await encryptCookie(idIzracuna.value);
-                console.log("Enkriptirana: ", encyrptedId);
+
+                await setCookie('id-izracuna', idIzracuna.value);
+
                 izracunStore.idIzracuna = '/';
                 izracunStore.updateIdIzracuna(responseId);
-                document.cookie = "id_izracuna=" + encodeURIComponent(encyrptedId) + "; path=/";
-                // setCookie('id_izracuna', encyrptedId);
 
-                console.log('res-id: ', parseInt(idIzracuna.value), 'enc-id: ', encyrptedId);
+                console.log('res-id: ', parseInt(idIzracuna.value));
             }
 
             isFormDirty.value = false;

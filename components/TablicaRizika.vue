@@ -269,33 +269,19 @@ const props = defineProps({
 })
 const tip = props.tip;
 
-const idIzracuna = ref('/');
+const idIzracuna = ref('');
 const vrstaIzracuna = ref(null); // Inicijalno je null
-const scenarij = ref('RCP');
+const scenarij = ref('');
 const isScenarijLoaded = ref(false);
 
-const initializeIdIzracuna = async () => {
-    const cookieValue = useCookie('id_izracuna').value;
-    const decryptedValue = await decryptCookie(cookieValue);
-    if (decryptedValue == '/' || decryptedValue == undefined) {
-        idIzracuna.value = '/';
-    } else {
-        idIzracuna.value = parseInt(decryptedValue);
-    }
-}
-async function initializeVrstaIzracuna() {
-    const cookieValue = useCookie('vrsta_izracuna').value;
-    if (cookieValue) {
-        vrstaIzracuna.value = await decryptCookie(cookieValue); // Čekaj dekriptovanje kolačića
-    }
-}
+
 const initializeScenarij = async () => {
-    const cookieValue = useCookie('scenarij').value;
-    if (cookieValue) {  // Ako kolačić postoji, dekriptiraj i postavi vrijednost
-        const decryptedValue = await decryptCookie(cookieValue);
-        scenarij.value = decryptedValue ? decryptedValue : scenarij.value;
+    const cookieValue = await initializeCookie('scenarij'); // Dohvati vrijednost iz kolačića
+    if (cookieValue) {  // Ako kolačić postoji
+        scenarij.value = cookieValue ? cookieValue : 'RCP'; // Postavi scenarij
+    } else {
+        scenarij.value = 'RCP'; // Ako kolačić ne postoji, postavi na 'RCP'
     }
-    console.log("Scenarij: ", scenarij.value);
     isScenarijLoaded.value = true; // Oznaka da je inicijalizacija završena
 };
 
@@ -325,9 +311,10 @@ const propertyGridData = async () => {
 }
 
 onMounted(async () => {
-    await initializeIdIzracuna();
-    await initializeVrstaIzracuna();
+    idIzracuna.value = await initializeCookie('id-izracuna');
+    vrstaIzracuna.value = await initializeCookie('vrsta-izracuna');
     await initializeScenarij();
+
     await propertyGridData();
 })
 

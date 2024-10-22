@@ -140,7 +140,7 @@ import { saveAs } from 'file-saver';
 definePageMeta({
     middleware: [
         'auth',
-        'id-izracuna'
+        'izracun'
     ],
 });
 
@@ -234,28 +234,17 @@ const imovinaCellRanges = {
     '103': { range: 'U28:AA28' },
 }
 
-const idIzracuna = ref('/');
-const scenarij = ref('RCP');
+const idIzracuna = ref('');
+const scenarij = ref('');
 const isScenarijLoaded = ref(false); // Praćenje statusa inicijalizacije
 
-
-const initializeIdIzracuna = async () => {
-    const cookieValue = useCookie('id_izracuna').value;
-    const decryptedValue = await decryptCookie(cookieValue);
-    if (decryptedValue == '/' || decryptedValue == undefined) {
-        idIzracuna.value = '/';
-    } else {
-        idIzracuna.value = parseInt(decryptedValue);
-    }
-}
-
 const initializeScenarij = async () => {
-    const cookieValue = useCookie('scenarij').value;
-    if (cookieValue) {  // Ako kolačić postoji, dekriptiraj i postavi vrijednost
-        const decryptedValue = await decryptCookie(cookieValue);
-        scenarij.value = decryptedValue ? decryptedValue : scenarij.value;
+    const cookieValue = await initializeCookie('scenarij'); // Dohvati vrijednost iz kolačića
+    if (cookieValue) {  // Ako kolačić postoji
+        scenarij.value = cookieValue ? cookieValue : 'RCP'; // Postavi scenarij
+    } else {
+        scenarij.value = 'RCP'; // Ako kolačić ne postoji, postavi na 'RCP'
     }
-    console.log("Scenarij: ", scenarij.value);
     isScenarijLoaded.value = true; // Oznaka da je inicijalizacija završena
 };
 
@@ -264,14 +253,6 @@ const structuredDataSaMjerama = ref(computed(() => structuredDataStore.structure
 
 // Kreiramo referencu za pristup komponenti
 const vrstaIzracuna = ref(null); // Inicijalno je null
-
-async function initializeVrstaIzracuna() {
-    const cookieValue = useCookie('vrsta_izracuna').value;
-    if (cookieValue) {
-        vrstaIzracuna.value = await decryptCookie(cookieValue); // Čekaj dekriptovanje kolačića
-    }
-    console.log("Vrsta izracuna: ", vrstaIzracuna.value);
-}
 
 const adaptMjere = computed(() => adaptStore.odabrane_mjere)
 
@@ -309,8 +290,8 @@ function closePopup() {
 }
 
 onMounted(async () => {
-    await initializeIdIzracuna();
-    await initializeVrstaIzracuna();
+    idIzracuna.value = await initializeCookie('id-izracuna');
+    vrstaIzracuna.value = await initializeCookie('vrsta-izracuna');
     await initializeScenarij();
 
     await opciStore.fetchCalculation(idIzracuna.value);

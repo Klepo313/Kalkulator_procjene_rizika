@@ -78,10 +78,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { navigateTo, useCookie } from '#app';
+import { navigateTo } from '#app';
 import { logout } from '@/service/logout';
 import { getCalculations } from '@/service/fetchCalculations';
 import { formatDateToDMY } from '@/utils/dateFormatter';
+import { setCookie, deleteCookie } from '~/utils/cookieUtils';
 
 definePageMeta({
     middleware: 'auth',
@@ -96,29 +97,18 @@ const loading = ref(true);
 
 const odabraniIzracun = ref();
 
-const idIzracuna = useCookie('id_izracuna');
-idIzracuna.value = null;
-const setIdIzracunaToSlash = async () => {
-    idIzracuna.value = await encryptCookie('/')
-    console.log("ID izračuna je (enc): ", idIzracuna.value)
-    console.log("ID izračuna je (dec): ", await decryptCookie(idIzracuna.value))
-    return idIzracuna.value
-};
-
-const vrstaIzracuna = useCookie('vrsta_izracuna');
-vrstaIzracuna.value = null;
-
 const onRowSelect = async () => {
-    //const data = await getCalculation(odabraniIzracun.value.aiz_id);
     console.log("Uspješno dohvaćen izračun.", odabraniIzracun.value);
-
-    // Set the cookie values
-    idIzracuna.value = await encryptCookie(odabraniIzracun.value.aiz_id);
+    await setCookie('id-izracuna', odabraniIzracun.value.aiz_id);
     navigateTo('/kpkr/predlozak');
 };
 
 onMounted(async () => {
-    // await setIdIzracunaToSlash();
+
+    await deleteCookie('id-izracuna');
+    await deleteCookie('vrsta-izracuna');
+    await deleteCookie('scenarij');
+
     const data = await getCalculations();
     if (data) {
         if (data.message) {
@@ -137,7 +127,7 @@ const doLogout = async () => {
 };
 
 const noviIzracun = async () => {
-    await setIdIzracunaToSlash();
+    await setCookie('id-izracuna', '/');
     navigateTo('/kpkr/predlozak');
 };
 </script>

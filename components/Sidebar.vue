@@ -85,10 +85,10 @@
                     <div :class="['profile-details', isCollapsed ? 'collapsed' : '']">
                         <h4 :class="isCollapsed ? 'collapsed' : ''"
                             :style="{ fontSize: nameLength > 20 ? '14px' : 'initial' }" class="responsive-text">
-                            {{ capitalizeName(storedName + ' ' + storedSurname) }}
+                            {{ capitalizeName(name + ' ' + surname) }}
                         </h4>
                         <span :class="isCollapsed ? 'collapsed' : ''" class="responsive-text">
-                            {{ storedEmail ? storedEmail : username }}
+                            {{ email == null ? email : username.toLowerCase() }}
                         </span>
                     </div>
                 </div>
@@ -108,99 +108,16 @@ import { useRoute } from 'vue-router';
 import { navigateTo } from '#app';
 import { logout } from '@/service/logout';
 import { useIzracunStore } from '~/stores/main-store';
-// import { decryptCookie } from '#imports';
 
 const izracunStore = useIzracunStore();
 
-// Koristite useRoute za dobivanje trenutne rute
 const route = useRoute();
-// const idIzracuna = ref(
-//     useCookie('id_izracuna').value == '/' ||
-//         useCookie('id_izracuna') == 0
-//         ? '/'
-//         : parseInt(decryptCookie(useCookie('id_izracuna').value))
-// );
-const idIzracuna = ref('/');
+
+const idIzracuna = ref('');
 const username = ref('');
-const storedName = ref('');
-const storedSurname = ref('');
-const storedEmail = ref('');
-
-const initializeIdIzracuna = async () => {
-    const cookieValue = useCookie('id_izracuna').value;
-    const decryptedValue = await decryptCookie(cookieValue);
-    if (decryptedValue == '/' || decryptedValue == undefined || decryptedValue == 0 || decryptedValue == null) {
-        idIzracuna.value = '/';
-    } else {
-        idIzracuna.value = parseInt(decryptedValue);
-    }
-}
-
-// Asinhrona funkcija za postavljanje dekriptovanog username-a
-const initializeUsername = async () => {
-    const cookieValue = useCookie('username').value;
-    if (cookieValue) {
-        const decryptedValue = await decryptCookie(cookieValue);
-        username.value = decryptedValue.toLowerCase(); // Postavljanje dekriptovane vrednosti
-    }
-}
-
-async function initializeStoredData() {
-    if (import.meta.client) {
-        storedName.value = (await decryptCookie(localStorage.getItem('name'))) || '';
-        storedSurname.value = (await decryptCookie(localStorage.getItem('surname'))) || '';
-        storedEmail.value = localStorage.getItem('email')
-            ? await decryptCookie(localStorage.getItem('email'))
-            : null;
-    }
-}
-
-
-// const username = ref(
-//     useCookie('username').value == undefined
-//         ? 'ime_prezime'
-//         : decryptCookie(useCookie('username').value).toLowerCase()
-// );
-// const idIzracuna = ref(
-//     useCookie('id_izracuna').value == '/' ||
-//         useCookie('id_izracuna') == 0
-//         ? '/'
-//         : parseInt(decryptCookie(useCookie('id_izracuna').value))
-// );
-// const username = ref(
-//     useCookie('username').value == undefined
-//         ? 'ime_prezime'
-//         : decryptCookie(useCookie('username').value).toLowerCase()
-// );
-
-// let storedName = '';
-// let storedSurname = '';
-// let storedEmail = '';
-// const nameLength = ref(0);
-
-// if (import.meta.client) {
-//     storedName = decryptCookie(localStorage.getItem('name')) || '';
-//     storedSurname = decryptCookie(localStorage.getItem('surname')) || '';
-//     storedEmail = localStorage.getItem('email')
-//         ? decryptCookie(localStorage.getItem('email'))
-//         : null;
-
-//     nameLength.value = storedName.length + storedSurname.length;
-// }
-// if (import.meta.client) {
-//     storedName = atob(localStorage.getItem('name') || '');
-//     storedSurname = atob(localStorage.getItem('surname') || '');
-//     storedEmail = localStorage.getItem('email')
-//         ? atob(localStorage.getItem('email'))
-//         : null;
-
-//     nameLength.value = storedName.length + storedSurname.length;
-// }
-
-// console.log("Ime:", storedName);
-// console.log("Prezime:", storedSurname);
-// console.log("Email:", storedEmail);
-// console.log("Duljina:", nameLength.value);
+const name = ref('');
+const surname = ref('');
+const email = ref('');
 
 function capitalizeName(fullName) {
     return fullName
@@ -220,9 +137,11 @@ watch(() => izracunStore.idIzracuna, (newValue) => {
 });
 
 onMounted(async () => {
-    await initializeIdIzracuna();
-    await initializeUsername();
-    await initializeStoredData();
+    idIzracuna.value = await initializeCookie('id-izracuna');
+    username.value = await initializeCookie('username');
+    name.value = await initializeCookie('name');
+    surname.value = await initializeCookie('surname');
+    email.value = await initializeCookie('email');
 })
 
 // Prima prop za stanje bočne trake

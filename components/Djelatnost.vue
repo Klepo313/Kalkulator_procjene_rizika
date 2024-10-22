@@ -101,7 +101,7 @@ import { useStructuredGridDataStore } from '~/stores/main-store';
 import {
     firstRow,
     secondRow,
-    thirdRow,
+    // thirdRow,
     fourthRow,
     popisPozicija,
     gridHeaderItemConfig,
@@ -124,23 +124,22 @@ const props = defineProps({
 })
 const tip = props.tip; // 'RZ' ili 'KR'
 
-const idIzracuna = ref('/');
+const idIzracuna = ref('');
 const vrstaIzracuna = ref(null); // Inicijalno je null
-const initializeIdIzracuna = async () => {
-    const cookieValue = useCookie('id_izracuna').value;
-    const decryptedValue = await decryptCookie(cookieValue);
-    if (decryptedValue == '/' || decryptedValue == undefined) {
-        idIzracuna.value = '/';
-    } else {
-        idIzracuna.value = parseInt(decryptedValue);
-    }
-}
-async function initializeVrstaIzracuna() {
-    const cookieValue = useCookie('vrsta_izracuna').value;
-    if (cookieValue) {
-        vrstaIzracuna.value = await decryptCookie(cookieValue); // Čekaj dekriptovanje kolačića
-    }
-}
+const scenarij = ref('');
+
+const initializeScenarij = async () => {
+    const cookieValue = await initializeCookie('scenarij');
+    scenarij.value = cookieValue ? cookieValue : 'RCP'; // Postavi scenarij na temelju kolačića ili default
+};
+
+const thirdRow = computed(() => [
+    { class: 'grid-item nb', label: '', colSpan: 1, rowSpan: 1 },
+    { class: 'grid-item tablegreen nb', label: '', colSpan: 1, rowSpan: 1 },
+    { class: 'grid-item tablegreen nb', label: '', colSpan: 1, rowSpan: 1 },
+    { class: 'grid-item pad5 darkgreen nb-r nb-t nb-b', label: `${scenarij.value} 4.5`, colSpan: 3, rowSpan: 1 },
+    { class: 'grid-item pad5 darkgreen nb-b nb-t sb-w-l', label: `${scenarij.value} 8.5`, colSpan: 3, rowSpan: 1 },
+]);
 
 const processGridData = async () => {
     const data = await getProcessGridData(idIzracuna.value, tip);
@@ -170,8 +169,10 @@ const processGridData = async () => {
 }
 
 onMounted(async () => {
-    await initializeIdIzracuna();
-    await initializeVrstaIzracuna();
+    idIzracuna.value = await initializeCookie('id-izracuna');
+    vrstaIzracuna.value = await initializeCookie('vrsta-izracuna');
+    await initializeScenarij();
+
     await processGridData();
 })
 
@@ -396,20 +397,12 @@ function getDynamicClass(index, row) {
 function getFirstElementClass(index) {
     const firstElementClasses = ['pink', 'lightgreen', 'lightblue', 'headergray'];
     if (index === 0) {
-        console.log("index: ", index);
-        console.log("klasa: ", firstElementClasses[0] || '');
         return firstElementClasses[0];
     } else if (index === 9) {
-        console.log("index: ", index);
-        console.log("klasa: ", firstElementClasses[1] || '');
         return firstElementClasses[1];
     } else if (index === 18) {
-        console.log("index: ", index);
-        console.log("klasa: ", firstElementClasses[2] || '');
         return firstElementClasses[2];
     } else if (index === 27) {
-        console.log("index: ", index);
-        console.log("klasa: ", firstElementClasses[3] || '');
         return firstElementClasses[3];
     }
 

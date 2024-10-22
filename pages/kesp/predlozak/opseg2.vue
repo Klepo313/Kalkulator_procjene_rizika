@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <div class="body">
         <main>
             <h1>{{ 'GHG opseg 2' }}</h1>
@@ -26,20 +26,6 @@
                         </span>
                     </div>
                     <div class="data-item">
-                        <!-- <Toolbar class="mb-6" style="display: flex; gap: 5px;">
-                            <template #start>
-                                <button class="dodaj-btn" @click="openNewIzracun">
-                                    <font-awesome-icon icon="plus" />
-                                    Dodaj izračun
-                                </button>
-                            </template>
-<template #end>
-                                <button class="ukloni-btn" :disabled="!selectedIzracun"
-                                    @click="openIzracunDeleteDialog">
-                                    <font-awesome-icon icon="minus" /> Ukloni izračun
-                                </button>
-                            </template>
-</Toolbar> -->
 
                         <DataTable :value="izracuni" show-gridlines edit-mode="cell" :rows="5" data-key="id"
                             @cell-edit-complete="onCellEditComplete">
@@ -106,45 +92,7 @@
                             </template>
                         </DataTable>
 
-                        <!-- <Dialog v-model:visible="voziloDialogVisible" header="Dodaj vozilo" :modal="true"
-                            :style="{ width: '450px' }" @hide="resetVoziloForm">
-                            <form class="p-fluid" @submit.prevent="saveVozilo">
-                                <div class="field">
-                                    <label for="skupinaVozila">Skupina vozila</label>
-                                    <Select id="skupinaVozila" v-model="vozilo.vozilo.skupina" :options="vrsteVozila"
-                                        option-label="value" option-value="value" placeholder="Odaberi skupinu vozila"
-                                        @change="onSkupinaChange" required />
-                                </div>
 
-                                <div class="field">
-                                    <label for="gorivo">Gorivo</label>
-                                    <Select id="gorivo" v-model="vozilo.gorivo.value" :options="vrsteGoriva"
-                                        option-label="label" option-value="value" placeholder="Odaberi vrstu goriva"
-                                        required />
-                                </div>
-
-                                <div class="field">
-                                    <label for="potrosnjaGoriva">Ukupan broj potrošenih litara</label>
-                                    <InputText id="potrosnjaGoriva" v-model="vozilo.potrosnjaGoriva"
-                                        placeholder="Unesi ukupan broj potrošenih litara" type="number" step="any"
-                                        min="0" required :disabled="!vozilo.gorivo || !vozilo.gorivo.value" />
-                                </div>
-
-                                <div class="field">
-                                    <label for="emisije">Emisije CO2/kg</label>
-                                    <InputText id="emisije" v-model="vozilo.emisije" placeholder="Emisija CO2/kg"
-                                        readonly />
-                                </div>
-
-                                <div class="dialog-footer">
-                                    <button type="button" class="p-button p-component p-button-secondary"
-                                        @click="voziloDialogVisible = false">
-                                        Odustani
-                                    </button>
-                                    <button class="submitBtn" type="submit">Spremi</button>
-                                </div>
-                            </form>
-                        </Dialog> -->
                     </div>
                 </section>
             </div>
@@ -169,10 +117,199 @@
         </main>
         <footer />
     </div>
+</template> -->
+
+<template>
+    <div class="body">
+        <main>
+            <h1>{{ 'GHG opseg 2' }}</h1>
+            <div class="main-content">
+                <section class="main-heading">
+                    <div>
+                        <h2>Metoda izračuna:</h2>
+                        <p>
+                            U GHG Scope 2 (Opseg 2) spada potrošnja električne energije kupljena od opskrbljivača i
+                            potrošnja toplinske energije nabavljene od dobavljača.
+                            <br>
+                            Podaci o količini mogu se očitati sa mjerila (ukoliko postoji) ili sa računa dobavljača.
+                        </p>
+                    </div>
+                </section>
+                <section>
+                    <div>
+                        <h2>Vremensko razdoblje izračuna</h2>
+                        <p>Vremensko razdoblje za kojeg se unose podaci</p>
+                    </div>
+                    <div class="razdoblje">
+                        <!-- <VremenskoRazdoblje /> -->
+                        <span>
+                            <label for="godina">
+                                Godina<span class="required">*</span>
+                            </label>
+                            <DatePicker v-model="godina" show-icon fluid icon-display="input" view="year"
+                                date-format="yy" placeholder="Godina izračuna" readonly @change="onYearChange" />
+                        </span>
+                        <div>
+                            <div>
+                                <label for="startDate">
+                                    Početak razdoblja<span class="required">*</span>
+                                </label>
+                                <DatePicker id="startDate" v-model="datumOd" date-format="dd.mm.yy" show-icon fluid
+                                    icon-display="input" placeholder="Početni datum" readonly />
+                            </div>
+                            <div>
+                                <label for="endDate">
+                                    Kraj razdoblja<span class="required">*</span>
+                                </label>
+                                <DatePicker id="endDate" v-model="datumDo" date-format="dd.mm.yy" show-icon fluid
+                                    icon-display="input" placeholder="Krajnji datum" readonly />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="main-data">
+                    <div class="data-heading">
+                        <h2>Izračun GHG opseg 2</h2>
+                        <p>Unesi podatke neobnovljivih i obnovljivih izvora energije</p>
+                    </div>
+                    <div class="data-item">
+                        <DataTable :value="opseg2Store.izracuni" show-gridlines edit-mode="cell" :rows="5" data-key="id"
+                            @cell-edit-complete="onCellEditComplete">
+
+                            <Column header="No.">
+                                <template #body="slotProps">
+                                    {{ slotProps.index + 1 }}
+                                </template>
+                            </Column>
+
+                            <Column header="Energija" field="energija">
+                                <template #body="slotProps">
+                                    <template v-if="slotProps.data.energija === 'Električna energija'">
+                                        <font-awesome-icon icon="bolt-lightning" style="margin-right: 5px;" />
+                                        {{ slotProps.data.energija }}
+                                    </template>
+                                    <template v-else-if="slotProps.data.energija === 'Toplinska energija'">
+                                        <font-awesome-icon icon="mug-hot" style="margin-right: 5px;" />
+                                        {{ slotProps.data.energija }}
+                                    </template>
+                                </template>
+                            </Column>
+
+                            <Column header="Neobnovljivo (kWh)" field="neobnovljivo">
+                                <template #editor="slotProps">
+                                    <InputNumber v-model="slotProps.data.neobnovljivo" :show-buttons="true"
+                                        mode="decimal" @change="updateCalculations(slotProps.data)" />
+                                </template>
+                                <template #body="slotProps">
+                                    {{ slotProps.data.neobnovljivo !== null ? slotProps.data.neobnovljivo : '' }}
+                                </template>
+                            </Column>
+
+                            <Column header="Obnovljivo (kWh)" field="obnovljivo">
+                                <template #editor="slotProps">
+                                    <InputNumber v-model="slotProps.data.obnovljivo" :show-buttons="true" mode="decimal"
+                                        @change="updateCalculations(slotProps.data)" />
+                                </template>
+                                <template #body="slotProps">
+                                    {{ slotProps.data.obnovljivo !== null ? slotProps.data.obnovljivo : '' }}
+                                </template>
+                            </Column>
+
+                            <Column header="Ukupna potrošnja (kWh)" field="ukupno">
+                                <template #body="slotProps">
+                                    {{ slotProps.data.ukupno }}
+                                </template>
+                            </Column>
+
+                            <Column header="Emisije CO2/kg" field="emisije">
+                                <template #body="slotProps">
+                                    {{ slotProps.data.emisije.toFixed(2) }}
+                                </template>
+                            </Column>
+
+                            <template #footer>
+                                <div class="total-emissions">
+                                    <div>
+                                        <span>Ukupno emisija CO<sub>2</sub>: </span>
+                                        <strong>{{ totalEmissions }}</strong> kg
+                                    </div>
+                                </div>
+                            </template>
+                        </DataTable>
+                    </div>
+                </section>
+            </div>
+            <div class="stats-content">
+                <!-- <div>
+                    <span class="stats-title">
+                        <font-awesome-icon icon="chart-pie" />
+                        <h2 style="border-bottom: none; padding: 0">Statistika</h2>
+                    </span>
+                </div> -->
+                <!-- <hr> -->
+                <div class="stats-table">
+                    <div class="chart-container">
+                        <span>
+                            <p>Ukupne emisije CO<sub>2</sub>/kg</p>
+                        </span>
+                        <Chart type="pie" :data="combinedChartData" :options="chartOptions"
+                            class="w-full md:w-[30rem]" />
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer />
+    </div>
 </template>
 
+
 <script setup>
+import { ref, computed, watch } from 'vue';
+import { useOpseg2Store } from '~/stores/main-store';
+
+const opseg2Store = useOpseg2Store(); // Inicijaliziraj store
+const kespStore = useKespStore();
+const godina = computed({
+    get: () => kespStore.godina,
+    set: (value) => kespStore.setGodina(value),
+});
+
+const datumOd = computed(() => kespStore.datumOd);
+const datumDo = computed(() => kespStore.datumDo);
+
+// Ukupne emisije
+const totalEmissions = computed(() => opseg2Store.totalEmissions); // Preuzmi ukupne emisije iz getter-a
+
+// Funkcija za završetak uređivanja ćelije
+const onCellEditComplete = (event) => {
+    opseg2Store.onCellEditComplete(event); // Poziva akciju za uređivanje ćelija
+};
+
+// Kombinovani podaci za grafikon
+const combinedChartData = computed(() => opseg2Store.combinedChartData); // Preuzmi podatke za grafikon iz getter-a
+
+// Opcije za grafikon
+const setChartOptions = () => {
+    return {
+        plugins: {
+            legend: {
+                labels: {
+                    usePointStyle: true,
+                    color: '#000' // Default color
+                }
+            }
+        }
+    };
+};
+
+const chartOptions = setChartOptions(); // Postavi opcije za grafikon
+</script>
+
+<!-- <script setup>
 import { ref, computed } from 'vue';
+import { useOpseg2Store } from '~/stores/main-store';
+
+const opseg2Store = useOpseg2Store();
 
 // Opcije godina od 2015. do 2022.
 const yearOptions = computed(() => {
@@ -320,7 +457,7 @@ const setChartOptions = () => {
 
 const chartOptions = setChartOptions();
 
-</script>
+</script> -->
 
 <style scoped>
 .body {
@@ -388,12 +525,79 @@ section>div {
     /* text-transform: uppercase; */
 }
 
+strong {
+    /* color: green; */
+    text-decoration: underline;
+    font-size: 16px;
+}
+
 .data-heading span {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
+
+
+.stats-content {
+    /* background-color: var(--bg-color); */
+    padding: 20px;
+    padding-top: 0px;
+    /* border-radius: var(--border-form-radius); */
+    /* border: var(--border); */
+    max-width: 300px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.stats-content>div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.stats-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--kesp-primary);
+}
+
+.stats-title * {
+    color: var(--kesp-primary);
+}
+
+.stats-table {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.chart-container>span {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.chart-h3 {
+    color: var(--text-color);
+}
+
+hr {
+    width: 100%;
+    border: none;
+    border-top: var(--border-line-sidebar);
+}
+
+h3 {
+    font-weight: 500;
+}
 
 .dodaj-btn,
 .ukloni-btn,
@@ -447,5 +651,34 @@ section>div {
 
 .ukloni-btn:disabled * {
     color: black;
+}
+
+
+.razdoblje {
+    max-width: 500px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.razdoblje>div,
+.razdoblje>div>div,
+.razdoblje>span {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.razdoblje>div {
+    flex-direction: row;
+}
+
+.razdoblje>span {
+    width: auto;
+}
+
+.required {
+    color: var(--red-soft);
 }
 </style>
