@@ -31,3 +31,40 @@ export async function decryptCookie(encryptedValue) {
         return decrypted; // Ako nije JSON, vrati kao običan string
     }
 }
+
+const setCookie = async (name, value) => {
+    await $fetch('/api/cookies', {
+        method: 'POST',
+        body: {
+            name, // Pošalji ime kolačića u body
+            value, // Pošalji vrijednost kolačića u body
+        },
+    });
+};
+
+const getCookie = async (name) => {
+    const response = await $fetch('/api/cookies', {
+        params: {
+            name, // Dodaj ime kolačića kao parametar
+        },
+    });
+    console.log(response[name]);
+    return response[name];
+};
+
+
+const deleteCookie = async (name) => {
+    await $fetch('/api/cookies', {
+        method: 'DELETE',
+        body: {
+            name, // Dodaj ime kolačića kao parametar
+        },
+    });
+};
+
+
+export {
+    setCookie,
+    getCookie,
+    deleteCookie
+}

@@ -11,15 +11,6 @@ const getSecKey = async () => {
         console.error('Error fetching secure data:', error);
     }
 };
-// const getSecKey = async () => {
-//     try {
-//         const response = await axios.get(`${base_url}/user/secKey`);
-//         console.log("Response:", response.data);
-//         return response.data.secretKey;
-//     } catch (error) {
-//         console.error('Error fetching secure data:', error);
-//     }
-// };
 
 export {
     getSecKey,
