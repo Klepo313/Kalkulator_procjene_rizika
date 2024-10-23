@@ -8,7 +8,7 @@ console.log("mode: ", process.env.NODE_ENV)
 const isDev = process.env.NODE_ENV === 'development';
 const base_url = isDev
     ? `http://localhost:4000`
-    : `https://cadastre-server-mz7l.onrender.com` // `https://cadastre-server.onrender.com`;
+    : `http://localhost:4000` //`https://cadastre-server-1.onrender.com` //VUE-produkcija: `https://cadastre-server-mz7l.onrender.com` // `https://cadastre-server.onrender.com`;
 
 export {
     local_url,
