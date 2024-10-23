@@ -62,7 +62,7 @@ export default defineNuxtConfig({
   plugins: [
     '@/plugins/fontawesome.js',
     // '@/plugins/primevue.js',
-    '~/plugins/encryptCookies.js',
+    // '~/plugins/encryptCookies.js',
   ],
   build: {
     transpile: ['@fortawesome/vue-fontawesome'],
