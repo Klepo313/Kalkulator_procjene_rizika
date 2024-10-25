@@ -41,18 +41,14 @@ import { ref, onMounted } from 'vue';
 import { navigateTo } from '#app';
 import { login } from '@/service/login'
 import { generateCsrfToken } from '~/utils/generateCSRFtoken';
+import { useUserStore } from '~/stores/main-store';
 // import { encryptCookie, decryptCookie } from '~/utils/cookieUtils';
 
 definePageMeta({
     pageTransition: { name: 'slide', mode: 'out-in' }
 });
 
-// const accessToken = useCookie('csrf-token', {
-//     maxAge: 60 * 60 * 24, // 1 day
-//     secure: true,
-//     httpOnly: true,
-//     path: '/'
-// })
+const userStore = useUserStore();
 
 const statusCode = ref(0);
 const usernameInput = ref(null);
@@ -66,16 +62,43 @@ const showAlert = ref(false);
 
 const seconds = 150;
 
+const cookiesToDelete = [
+    'accessToken',
+    'scenarij',
+    'username',
+    'name',
+    'surname',
+    'email',
+    'id-izracuna',
+    'vrsta-izracuna',
+];
+
 onMounted(async () => {
 
-    await deleteCookie('accessToken');
-    await deleteCookie('id-izracuna');
-    await deleteCookie('vrsta-izracuna');
-    await deleteCookie('scenarij');
-    await deleteCookie('username');
-    await deleteCookie('name');
-    await deleteCookie('surname');
-    await deleteCookie('email');
+    try {
+
+        // deleteCookie(cookiesToDelete);
+
+        // for (const cookie of cookies) {
+        //     console.log("cookie: ", cookie);
+        //     const value = await getCookie(cookie);
+        //     console.log("value: ", value);
+        //     if (value) {
+        //         await deleteCookie(cookie);
+        //     }
+        // }
+        // await deleteCookie('accessToken');
+        // await deleteCookie('scenarij');
+        // await deleteCookie('username');
+        // await deleteCookie('name');
+        // await deleteCookie('surname');
+        // await deleteCookie('email');
+
+        // await deleteCookie('id-izracuna');
+        // await deleteCookie('vrsta-izracuna');
+    } catch (error) {
+        console.error('Greška prilikom brisanja kolačića:', error);
+    }
 
     spinnerIcon.value.style.display = "none";
     loginBtnText.value.style.display = "inline";
@@ -96,12 +119,20 @@ const checkLogin = async () => {
             console.log("response login: ", response)
 
             const newCsrfToken = generateCsrfToken();
-            // accessToken.value = newCsrfToken;
-            await setCookie('accessToken', newCsrfToken);
-            await setCookie('username', response.username);
-            await setCookie('name', response.name);
-            await setCookie('surname', response.surname);
-            await setCookie('email', response.email);
+
+            userStore.updateAll({
+                name: response.name,
+                surname: response.surname,
+                username: response.username
+            })
+
+            setCookie({ name: 'accessToken', value: newCsrfToken })
+
+            // await setCookie('accessToken', newCsrfToken);
+            // await setCookie('username', response.username);
+            // await setCookie('name', response.name);
+            // await setCookie('surname', response.surname);
+            // await setCookie('email', response.email);
 
             // const newCsrfToken = generateCsrfToken();
 
