@@ -29,7 +29,7 @@
                                 <img v-else :src="card.textLogo" alt="logo" />
                                 <div class="btn">
                                     <button :class="card.buttonClass" @mouseover="card.showTooltip = true"
-                                        @mouseleave="card.showTooltip = false" @click="navigateTo(card.navigation)">
+                                        @mouseleave="card.showTooltip = false" @click="navigateTo(card.navigation);">
                                         Nastavi
                                         <font-awesome-icon icon="arrow-right" />
                                     </button>
@@ -51,6 +51,7 @@
 <script setup>
 import { ref } from 'vue';
 import { logout } from '~/service/logout';
+import { useUserStore } from '~/stores/main-store';
 
 definePageMeta({
     middleware: [
@@ -58,6 +59,8 @@ definePageMeta({
     ],
     pageTransition: { name: 'slide', mode: 'out-in' }
 });
+
+const userStore = useUserStore();
 
 async function fetchImageAsBlob(imageId) {
     const response = await fetch(`/static/images/${imageId}.svg`); // Dohvati sliku pomoću API poziva
@@ -91,12 +94,12 @@ const cards = ref([
         miniLogo: '',
         textLogo: '',
         buttonClass: 'kespBtn',
-        navigation: '/kesp/predlozak',
+        navigation: '/kesp/predlosci',
         isLoaded: false,
         showTooltip: false,
         tooltip: {
             text: 'Kalkulator emisije stakleničkih plinova još nije u funkciji.',
-            status: 1
+            status: 0
         },
         styles: {
             primary: '#5F5727',
@@ -107,6 +110,13 @@ const cards = ref([
 ])
 
 onMounted(async () => {
+    const res = await userStore.getAll;
+    console.log({
+        username: res.username,
+        name: res.name,
+        surname: res.surname,
+        email: res.email
+    })
     for (const card of cards.value) {
         card.miniLogo = await fetchImageAsBlob(card.miniLogoId);
         card.textLogo = await fetchImageAsBlob(card.textLogoId);
