@@ -187,7 +187,7 @@
                         <span>
                             <p>Emisije CO<sub>2</sub> t/god - Opseg 2</p>
                         </span>
-                        <Chart type="pie" :data="combinedChartData" :options="chartOptions"
+                        <Chart type="polarArea" :data="combinedChartData" :options="chartOptions"
                             class="w-full md:w-[30rem]" />
                     </div>
                 </div>
@@ -204,15 +204,6 @@ const opseg2Store = useOpseg2Store(); // Inicijaliziraj store
 const kespStore = useKespStore();
 // Dohvati podatke iz storeova
 const vehicleStore = useVehicleStore();
-const izvoriStore = useIzvoriStore();
-
-// Definiši unapred kategorije
-const categories = [
-    { category: 'Osobna vozila', totalEmissions: 0 },
-    { category: 'Teretna vozila', totalEmissions: 0 },
-    { category: 'Strojevi', totalEmissions: 0 },
-    { category: 'Stacionarni izvori', totalEmissions: 0 },
-];
 
 const groupedData = computed(() => {
     // Kreiramo grupirane podatke na osnovu strukture vrsteVozila
@@ -282,12 +273,29 @@ const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
 const opis = computed(() => kespStore.naziv);
 const napomena = computed(() => kespStore.napomena);
 
-const combinedChartData = computed(() => opseg2Store.combinedChartData); // Preuzmi podatke za grafikon iz getter-a
+const izracuni = computed(() => opseg2Store.izracuni);
+
+// const combinedChartData = computed(() => opseg2Store.combinedChartData); // Preuzmi podatke za grafikon iz getter-a
+const combinedChartData = computed(() => {
+    const labels = izracuni.value.map(row => row.energija);
+    const data = izracuni.value.map(row => row.emisije);
+
+    return {
+        labels,
+        datasets: [
+            {
+                data,
+                backgroundColor: ['#f8ae5b', '#ffc875'], // Zeleno za električnu energiju, žuto za toplinsku
+                hoverBackgroundColor: ['#f8ae5b', '#ffc875']
+            }
+        ]
+    };
+}); // Preuzmi podatke za grafikon iz getter-a
 
 const emissionsPieData = computed(() => {
     const labels = groupedData.value.map(item => item.category);
     const data = groupedData.value.map(item => item.totalEmissions);
-    const backgroundColors = ['#2cc23f', '#1e822a', '#0f4215', '#8d813b']; // Color for each category
+    const backgroundColors = ['#3e2b61', '#57447a', '#715e94', '#241147']; // Color for each category
 
     return {
         labels,
