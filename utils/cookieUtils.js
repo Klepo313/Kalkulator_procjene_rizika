@@ -32,36 +32,101 @@
 //     }
 // }
 
+import axios from 'axios';
 import { base_url } from "#imports";
 
-const setCookie = async (name, value) => {
-    await $fetch(`${base_url}/user/set-cookie`, {  // Dodano `${base_url}/user/set_cookie`
-        method: 'POST',
-        body: {
-            name, // Pošalji ime kolačića u body
-            value, // Pošalji vrijednost kolačića u body
-        },
+// const setCookie = async (name, value) => {
+//     const response = await axios.post(`${base_url}/user/set-cookie`, {
+//         name: name,
+//         value: value
+//     }, {
+//         withCredentials: true, // Ensure cookies are included in requests
+//     });
+
+//     console.log(response.data);
+//     return response.data;
+// };
+
+// const getCookie = async (name) => {
+//     const response = await axios.get(`${base_url}/user/get-cookie`, {  // Dodano `${base_url}/user/get_cookie`
+//         params: {
+//             name, // Dodaj ime kolačića kao parametar
+//         },
+//     });
+//     console.log(response.data);
+//     return response.data;
+// };
+
+// const deleteCookie = async (name) => {
+//     const response = await axios.delete(`${base_url}/user/delete-cookie`, {  // Dodano `${base_url}/user/delete_cookie`
+//         params: {
+//             name, // Pošalji ime kolačića u body
+//         },
+//     });
+
+//     console.log(response.data);
+//     return response.data;
+// };
+
+const setCookie = async (cookies) => {
+    // Ensure cookies is an array
+    const cookieArray = Array.isArray(cookies) ? cookies : [{ name: cookies.name, value: cookies.value }];
+
+    const response = await axios.post(`${base_url}/user/set-cookie`, cookieArray, {
+        withCredentials: true, // Ensure cookies are included in requests
     });
+
+    console.log(response.data);
+    return response.data;
 };
 
-const getCookie = async (name) => {
-    const response = await $fetch(`${base_url}/user/get-cookie`, {  // Dodano `${base_url}/user/get_cookie`
+const getCookie = async (names) => {
+    let response;
+
+    // Check if names is an array
+    if (Array.isArray(names)) {
+        // For an array, join the names with a comma for the query string
+        const nameString = names.join(',');
+        console.log("Name string for array: ", nameString);
+
+        response = await axios.get(`${base_url}/user/get-cookie`, {
+            params: {
+                names: nameString // Send as a comma-separated string
+            },
+            withCredentials: true,
+        });
+    } else {
+        // For a single name, send it directly
+        console.log("Single name: ", names);
+
+        response = await axios.get(`${base_url}/user/get-cookie`, {
+            params: {
+                names: names // Send the single name directly
+            },
+            withCredentials: true,
+        });
+    }
+
+    console.log(response.data);
+    return response.data; // This should return an object containing all requested cookie values
+};
+
+
+
+const deleteCookie = async (names) => {
+    // Ensure names is an array
+    const cookieNames = Array.isArray(names) ? names : [names];
+
+    const response = await axios.delete(`${base_url}/user/delete-cookie`, {
         params: {
-            name, // Dodaj ime kolačića kao parametar
+            name: cookieNames.join(','), // Join the array into a comma-separated string
         },
     });
-    console.log(response[name]);
-    return response[name];
+
+    console.log(response.data);
+    return response.data;
 };
 
-const deleteCookie = async (name) => {
-    await $fetch(`${base_url}/user/delete-cookie`, {  // Dodano `${base_url}/user/delete_cookie`
-        method: 'DELETE',
-        body: {
-            name, // Pošalji ime kolačića u body
-        },
-    });
-};
 
 export {
     setCookie,

@@ -1,3 +1,4 @@
+// /utils/initializeCookie.js
 import { getCookie } from './cookieUtils';
 
 const initializeCookie = async (name) => {

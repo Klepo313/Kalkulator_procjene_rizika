@@ -135,7 +135,18 @@ footer {
 }
 
 .razdoblje>div {
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.opisnap {
+    width: 100%;
+    grid-column: span 2;
+}
+
+textarea {
+    resize: vertical;
+    max-height: 100px;
 }
 
 .razdoblje>span {
