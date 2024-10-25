@@ -18,6 +18,23 @@
 
 <script setup>
 
+import { useUserStore, useIzracunStore } from '~/stores/main-store';
+const userStore = useUserStore();
+const izracunStore = useIzracunStore();
+
+onMounted(async () => {
+
+  await userStore.initializeUser()
+  console.log("Inicijalizacija storea: ", {
+    name: userStore.name,
+    surname: userStore.surname,
+    username: userStore.username,
+    email: userStore.email
+  });
+
+})
+
+
 const title = ref('Kalkulator procjene rizika')
 const description = ref('Kalkulator procjene rizika')
 
