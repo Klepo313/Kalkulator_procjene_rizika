@@ -467,7 +467,7 @@ h3 {
     display: flex;
     align-items: center;
     gap: 10px;
-    background-color: var(--bg-color);
+    background-color: var(--kesp-bg);
     border-radius: var(--border-form-radius);
     padding-left: 20px;
     color: var(--text-color);
@@ -521,12 +521,12 @@ h3 {
 }
 
 .inactive {
-    background-color: var(--bg-color);
+    background-color: var(--kesp-bg);
     color: var(--text-color);
 }
 
 .inactive:hover {
-    background-color: var(--input-hover-color);
+    background-color: var(--nuxtlink-hover);
 }
 
 .active * {
@@ -534,7 +534,7 @@ h3 {
 }
 
 .inactive {
-    background-color: var(--bg-color);
+    background-color: var(--kesp-bg);
     color: var(--text-color);
 }
 

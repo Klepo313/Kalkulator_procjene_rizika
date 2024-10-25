@@ -168,6 +168,7 @@
                     <div class="data-item">
                         <DataTable :value="izracuni" show-gridlines edit-mode="cell" :rows="5" data-key="id"
                             @cell-edit-complete="onCellEditComplete">
+                            <template #empty> Nema energija </template>
                             <Column header="No.">
                                 <template #body="slotProps">
                                     {{ slotProps.index + 1 }}
@@ -339,7 +340,7 @@ const onCellEditComplete = (event) => {
 const combinedChartData = computed(() => opseg2Store.combinedChartData); // Preuzmi podatke za grafikon iz getter-a
 
 const O2polarChartData = computed(() => {
-    const baseColor = '#5F5727';
+    const baseColor = '#f8ae5b';
     const ukupnoPoEnergiji = {};
 
     // Grupiraj ukupnu potrošnju energije po tipu energije

@@ -80,7 +80,7 @@
                                     </div>
                                 </template>
                             </Column>
-                            <Column field="vrstaVozila" header="Emisija" sortable>
+                            <Column field="vrstaVozila" header="Vrste vozila/uređaja" sortable>
                                 <template #body="slotProps">
                                     <span v-if="slotProps.data.vozilo.vrsta">
                                         {{ slotProps.data.vozilo.vrsta }}
@@ -109,7 +109,7 @@
                                     ]" />
                                 </template>
                             </Column>
-                            <Column field="potrosnjaGoriva" header="Potrošnja energenta" sortable />
+                            <Column field="potrosnjaGoriva" header="Potrošnja goriva" sortable />
                             <Column field="gorivo" header="Mjerna jedinica" sortable>
                                 <template #body="slotProps">
                                     <span v-html="slotProps.data.gorivo.metric" />
@@ -499,7 +499,7 @@ watch(() => vehicleStore.vozilo.gorivo.label, (newLabel) => {
 });
 
 const chartData = computed(() => {
-    const baseColor = '#2cc23f';
+    const baseColor = '#241147';
     const emisijePoSkupini = {};
 
     console.log("Vozila: ", vozila.value);
@@ -527,7 +527,7 @@ const chartData = computed(() => {
 });
 
 const polarChartData = computed(() => {
-    const baseColor = '#5F5727';
+    const baseColor = '#de9441';
     const potrosnjaPoSkupini = {};
 
     // Pravilno grupisanje potrošnje goriva po svakoj skupini
@@ -1109,7 +1109,7 @@ strong {
     justify-content: center;
     gap: 10px;
 
-    background-color: var(--primary-color);
+    background-color: var(--kesp-primary);
     color: white;
 }
 
@@ -1120,12 +1120,12 @@ strong {
 
 .dodaj-btn:hover,
 .submitBtn:hover {
-    background-color: var(--primary-color-hover);
+    background-color: var(--kesp-primary-hover);
 }
 
 .dodaj-btn:active,
 .submitBtn:active {
-    background-color: var(--primary-color-focus);
+    background-color: var(--kesp-primary-focus);
 }
 
 .ukloni-btn {

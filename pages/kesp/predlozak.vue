@@ -80,6 +80,8 @@ const mainStyles = computed(() => ({
     display: flex;
     gap: 25px;
     overflow: visible;
+
+    background-color: var(--kesp-bg);
 }
 
 .sidebar {
