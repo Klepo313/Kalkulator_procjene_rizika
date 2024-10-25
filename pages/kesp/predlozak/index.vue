@@ -136,7 +136,7 @@
                                 <div class="field">
                                     <label for="skupinaVozila">Izvor emisija</label>
                                     <Select id="skupinaVozila" v-model="vehicleStore.vozilo.vozilo.skupina"
-                                        :options="vrstaVozila" option-label="value" option-value="value"
+                                        :options="vehicleStore.vrsteVozila" option-label="value" option-value="value"
                                         placeholder="Odaberi skupinu vozila" required @change="onSkupinaChange" />
                                 </div>
 
@@ -156,8 +156,9 @@
                                 <div class="field">
                                     <label for="gorivo">Gorivo</label>
                                     <Select id="gorivo" v-model="vehicleStore.vozilo.gorivo.label"
-                                        :options="vrsteGoriva" option-label="value" option-value="label"
-                                        placeholder="Odaberi vrstu goriva" required />
+                                        :options="selectedFuelOptions" option-label="value" option-value="label"
+                                        placeholder="Odaberi vrstu goriva" required
+                                        :disabled="!vehicleStore.vozilo.vozilo.skupina" />
                                 </div>
 
                                 <div class="field">
@@ -449,6 +450,17 @@ const vozila = computed(() => vehicleStore.vozila);
 const vrstaVozila = computed(() => vehicleStore.vrsteVozila);
 const vrsteGoriva = computed(() => vehicleStore.vrsteGoriva);
 
+const selectedFuelOptions = computed(() => {
+    return vehicleStore.filteredVrsteGoriva;
+});
+
+// const selectedFuelOptions = computed(() => {
+//     // Filtriramo vrste goriva po odabranom `uge_id` u `skupina`
+//     return vehicleStore.vrsteGoriva.filter(
+//         (gorivo) => gorivo.uge_id === vehicleStore.vozilo.vozilo?.id
+//     )
+// })
+
 const kespId = ref(null);
 
 onMounted(async () => {
@@ -543,8 +555,6 @@ const polarChartData = computed(() => {
     };
 });
 
-
-
 // Opcije za chart
 const chartOptions = {
     responsive: true,
@@ -638,9 +648,19 @@ const onSkupinaChange = () => {
         (skupina) => skupina.value === vehicleStore.vozilo?.vozilo?.skupina
     );
 
+    // Ažuriraj vrste goriva prema odabranoj skupini
+    if (odabranaSkupina.value) {
+        vehicleStore.filteredVrsteGoriva = vehicleStore.vrsteGoriva.filter(
+            (gorivo) => gorivo.uge_id === odabranaSkupina.value.id
+        );
+    } else {
+        vehicleStore.filteredVrsteGoriva = [];
+    }
+
     // Resetiraj odabranu vrstu vozila kada se promijeni skupina
     if (vehicleStore.vozilo?.vozilo) {
         vehicleStore.vozilo.vozilo.vrsta = '';
+        vehicleStore.vozilo.gorivo.label = ''; // Resetiraj odabrano gorivo
     }
 };
 

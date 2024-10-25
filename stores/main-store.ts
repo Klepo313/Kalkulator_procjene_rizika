@@ -154,17 +154,6 @@ export const useUserStore = defineStore('user-store', {
     }
 });
 
-// export const useAuthStore = defineStore('auth', {
-//     state: () => ({
-//         isLoggedIn: false,
-//     }),
-//     actions: {
-//         setLoginStatus(status: boolean) {
-//             this.isLoggedIn = status;
-//         },
-//     },
-// });
-
 export const useOpciStore = defineStore('opci-podaci', {
     state: () => ({
         opci_podaci: {
@@ -496,6 +485,7 @@ export const useVehicleStore = defineStore('vehicleStore', {
         vozila: [],
         vrsteVozila: [],
         vrsteGoriva: [],
+        filteredVrsteGoriva: [],
         vozilo: {
             id: null,
             uiz_id: null,
@@ -592,7 +582,8 @@ export const useVehicleStore = defineStore('vehicleStore', {
 
             for (const gorivo of goriva) {
                 this.vrsteGoriva.push({
-                    id: parseInt(gorivo.uvg_id),
+                    id: parseInt(gorivo.ufe_id),
+                    uge_id: parseInt(gorivo.ufe_uge_id),
                     label: gorivo.uvg_knaziv,
                     value: gorivo.uvg_naziv,
                     metric: gorivo.uvg_jedmj,
