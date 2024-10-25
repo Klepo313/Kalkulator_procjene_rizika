@@ -38,7 +38,7 @@ onMounted(async () => {
     vehicleStore.resetData();
     opseg2Store.clearStore();
 
-    await kespStore.fetchHeader(kespId);
+    await kespStore.fetchHeader(kespId.value);
     await opseg2Store.fetchEnergySources(kespId.value);
     await vehicleStore.fetchVehicles(kespId.value);
     await vehicleStore.fetchEmissions();
