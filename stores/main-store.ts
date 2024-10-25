@@ -9,24 +9,149 @@ import { getCalculation } from '~/service/fetchCalculation';
 import { getMetricTypes } from '~/service/fetchMetrictypes';
 import { saveForm } from '~/service/saveForm';
 import { addMetricType, removeMetricType } from '~/service/alterMetrictypes';
+import { getHeader } from '~/service/kesp/fetchHeader';
+
+import { getCookie, setCookie, deleteCookie } from '#imports';
+import { getEmmisionGroups, getFuelTypes, getVehicles, getVehiclesForEmmisionGroups } from '~/service/kesp/fetchVoziloData';
+import { getEnergySources } from '~/service/kesp/fetchOpseg2';
 
 //import { formatDateToISO } from '~/utils/dateFormatter';
 
-export const useIzracunStore = defineStore('izracunStore', {
+export const useIzracunStore = defineStore('izracun-store', {
     state: () => ({
         idIzracuna: '',
+        vrstaIzracuna: '',
         scenarij: '',
     }),
     actions: {
         updateIdIzracuna(newValue: string) {
             this.idIzracuna = newValue;
-            // useCookie('id_izracuna').value = newValue;
+            setCookie({ name: 'id-izracuna', value: newValue });
         },
-
+        updateVrstaIzracuna(newValue: string) {
+            this.vrstaIzracuna = newValue;
+            setCookie({ name: 'vrsta-izracuna', value: newValue });
+        },
         updateScenarij(newValue: string) {
             this.scenarij = newValue;
+            setCookie({ name: 'scenarij', value: newValue });
+        },
+        updateAll(newValue: { idIzracuna: number, vrstaIzracuna: string, scenarij: string }) {
+            this.idIzracuna = newValue.idIzracuna;
+            this.vrstaIzracuna = newValue.vrstaIzracuna;
+            this.scenarij = newValue.scenarij;
+            setCookie([
+                { name: 'id-izracuna', value: newValue.idIzracuna },
+                { name: 'vrsta-izracuna', value: newValue.vrstaIzracuna },
+                { name: 'scenarij', value: newValue.scenarij },
+            ])
+
+        },
+        async initializeIzracun() {
+            const response = await getCookie(
+                ['id-izracuna', 'vrsta-izracuna', 'scenarij']
+            );
+            this.idIzracuna = response['id-izracuna'] || 0;
+            this.vrstaIzracuna = response['vrsta-izracuna'] || '';
+            this.scenarij = response['scenarij'] || '';
+        },
+        clearStore() {
+            deleteCookie(['id-izracuna', 'vrsta-izracuna', 'scenarij']);
+            this.idIzracuna = 0;
+            this.vrstaIzracuna = '';
+            this.scenarij = '';
+        }
+    }
+})
+
+export const useUserStore = defineStore('user-store', {
+    state: () => ({
+        name: '',
+        surname: '',
+        username: '',
+        email: '',
+    }),
+    actions: {
+        updateName(newValue: string) {
+            this.name = newValue;
+            setCookie({ name: 'name', value: newValue });
+        },
+        updateSurname(newValue: string) {
+            this.surname = newValue;
+            setCookie({ name: 'surname', value: newValue });
+        },
+        updateUsername(newValue: string) {
+            this.username = newValue;
+            setCookie({ name: 'username', value: newValue });
+        },
+        updateEmail(newValue: string) {
+            this.email = newValue;
+            if (newValue) setCookie({ name: 'email', value: newValue });
+        },
+        updateAll(newValue: { name: string, surname: string, username: string }) {
+            this.name = newValue.name;
+            this.surname = newValue.surname;
+            this.username = newValue.username;
+            // this.email = newValue.email;
+            setCookie([
+                { name: 'name', value: newValue.name },
+                { name: 'surname', value: newValue.surname },
+                { name: 'username', value: newValue.username },
+                // { name: 'email', value: newValue.email },
+            ])
+        },
+        async initializeUser() {
+            const response = await getCookie(['name', 'surname', 'username', 'email']);
+            this.name = response['name'] || '';
+            this.surname = response['surname'] || '';
+            this.username = response['username'] || '';
+            this.email = response['email'] || null;
+        },
+        clearStore() {
+            deleteCookie(['name', 'surname', 'username', 'email']);
+            this.name = '';
+            this.surname = '';
+            this.username = '';
+            this.email = '';
         }
     },
+    getters: {
+        getName: async (state) => {
+            if (state.name) return state.name;
+            const res = await getCookie('name');
+            return res['name'] || '';
+        },
+        getSurname: async (state) => {
+            if (state.surname) return state.surname;
+            const res = await getCookie('surname');
+            return res['surname'] || '';
+        },
+        getUsername: async (state) => {
+            if (state.username) return state.username;
+            const res = await getCookie('username');
+            return res['username'] || '';
+        },
+        getEmail: async (state) => {
+            if (state.email) return state.email;
+            const res = await getCookie('email');
+            return res['email'] || null;
+        },
+        getAll: async (state) => {
+            if (state.name && state.surname && state.username && state.email) return {
+                name: state.name,
+                surname: state.surname,
+                username: state.username,
+                email: state.email
+            };
+            const response = await getCookie(['name', 'surname', 'username', 'email']);
+            return {
+                name: response['name'] || '',
+                surname: response['surname'] || '',
+                username: response['username'] || '',
+                email: response['email'] || null,
+            };
+        }
+    }
 });
 
 // export const useAuthStore = defineStore('auth', {
@@ -317,6 +442,8 @@ export const useStructuredGridDataStore = defineStore('structured-grid-data', {
 
 export const useKespStore = defineStore('kespStore', {
     state: () => ({
+        naziv: '',
+        napomena: '',
         godina: new Date(2022, 0, 1),
         datumOd: new Date(2022, 0, 1), // January 1st, 2022
         datumDo: new Date(2022, 11, 31), // December 31st, 2022
@@ -333,6 +460,28 @@ export const useKespStore = defineStore('kespStore', {
         setDatumDo(godina: number) {
             this.datumDo = new Date(godina, 11, 31); // December 31st
         },
+        async fetchHeader(id: number) {
+            console.log("id: ", id)
+            try {
+                const response = await getHeader(id);
+                if (response) {
+                    this.naziv = response.uiz_opis;
+                    this.napomena = response.Uiz_napomena || '';
+                    this.datumOd = response.uiz_datod;
+                    this.datumDo = response.uiz_datdo;
+                }
+                return response;
+            } catch (error) {
+                console.error('Error fetching header:', error);
+            }
+        },
+        clearStore() {
+            this.naziv = '';
+            this.napomena = '';
+            this.godina = new Date(2022, 0, 1);
+            this.datumOd = new Date(2022, 0, 1);
+            this.datumDo = new Date(2022, 11, 31);
+        }
     },
     getters: {
         getGodina: (state) => state.godina,
@@ -344,56 +493,26 @@ export const useKespStore = defineStore('kespStore', {
 export const useVehicleStore = defineStore('vehicleStore', {
     // State: definisanje početnog stanja
     state: () => ({
-        vozila: [
-            {
-                id: 1,
-                redniBroj: 1,
-                vozilo: { skupina: 'Osobno vozilo', vrsta: 'Motocikli' },
-                gorivo: { value: 'Benzin', metric: 'L' },
-                potrosnjaGoriva: 200,
-                emisije: 48.6
-            },
-            {
-                id: 2,
-                redniBroj: 2,
-                vozilo: { skupina: 'Teretno vozilo', vrsta: 'Kamioni' },
-                gorivo: { value: 'Dizel', metric: 'L' },
-                potrosnjaGoriva: 400,
-                emisije: 97.2
-            },
-        ],
-        vrsteVozila: [
-            {
-                label: 'Osobno',
-                value: 'Osobno vozilo',
-                children: [
-                    { label: 'OV', value: 'Osobno vozilo' },
-                    { label: 'DV', value: 'Dostavno vozilo (<3500kg)' },
-                    { label: 'MT', value: 'Motocikli' }
-                ]
-            },
-            {
-                label: 'Teretno',
-                value: 'Teretno vozilo',
-                children: [
-                    { label: 'KM', value: 'Kamioni' },
-                    { label: 'TP', value: 'Tegljači s prikolicom' },
-                    { label: 'DV', value: 'Dostavna vozila (>3500kg)' },
-                ]
-            },
-            { label: 'Stroj', value: 'Stroj', children: [] },
-        ],
-        vrsteGoriva: [
-            { label: 'Benzin', value: 'Benzin', metric: 'L', koeficijent: 0.443 },
-            { label: 'Dizel', value: 'Dizel', metric: 'L', koeficijent: 0.243 },
-        ],
+        vozila: [],
+        vrsteVozila: [],
+        vrsteGoriva: [],
         vozilo: {
-            id: 0,
-            redniBroj: 0,
-            vozilo: { skupina: '', vrsta: '' },
-            gorivo: { value: '', metric: '' },
-            potrosnjaGoriva: null,
-            emisije: null,
+            id: null,
+            uiz_id: null,
+            uge_id: null,
+            vozilo: {
+                id: null,
+                skupina: '',
+                vrsta: ''
+            },
+            gorivo: {
+                id: null,
+                label: '',
+                value: '',
+                metric: '',
+            },
+            potrosnjaGoriva: 0.00,
+            emisije: 0.00
         },
         voziloDialogVisible: false,
         deleteVoziloDialog: false,
@@ -408,14 +527,105 @@ export const useVehicleStore = defineStore('vehicleStore', {
 
     // Actions: za funkcije koje manipulišu stanjem
     actions: {
+        async fetchVehicles(id: number) {
+            const vozila = await getVehicles(id);
+
+            for (const vozilo of vozila) {
+                this.vozila.push({
+                    id: parseInt(vozilo.usi_id),
+                    uiz_id: parseInt(vozilo.usi_uiz_id),
+                    uge_id: parseInt(vozilo.usi_uge_id),
+                    vozilo: {
+                        id: vozilo.usi_uvv_id,
+                        skupina: vozilo.uge_naziv,
+                        vrsta: vozilo.uvv_naziv
+                    },
+                    gorivo: {
+                        id: vozilo.usi_uvg_id,
+                        label: vozilo.uvg_knaziv,
+                        value: vozilo.uvg_naziv,
+                        metric: vozilo.usi_jmj,
+                    },
+                    potrosnjaGoriva: parseFloat(vozilo.usi_kolicina),
+                    emisije: parseFloat(vozilo.usi_emisija)
+                })
+            }
+        },
+        async fetchEmissions() {
+            const vrste_vozila = await getEmmisionGroups();
+
+            // Iteriramo kroz vrste vozila i dohvacamo kategorije
+            for (const vrsta of vrste_vozila) {
+                const cats = await getVehiclesForEmmisionGroups(parseInt(vrsta.uge_id));
+
+                // Provjera da li je cats niz ili objekt sa porukom
+                if (Array.isArray(cats)) {
+                    // Ako je cats niz, mapiramo children
+                    this.vrsteVozila.push({
+                        id: parseInt(vrsta.uge_id),
+                        label: vrsta.uge_sif,
+                        value: vrsta.uge_naziv,
+                        children: cats.map(cat => {
+                            // Kreiramo kratku kraticu od dva slova (prvo slovo svake od prve dvije riječi)
+                            const kratica = cat.uvv_naziv.split(' ').slice(0, 2).map(word => word[0]).join('');
+
+                            return {
+                                id: parseInt(cat.uvv_id),
+                                label: kratica.toUpperCase(), // Kratica dvoslovna u velikim slovima
+                                value: cat.uvv_naziv
+                            };
+                        })
+                    });
+                } else {
+                    // Ako nije niz, postavljamo prazan children niz
+                    this.vrsteVozila.push({
+                        id: parseInt(vrsta.uge_id),
+                        label: vrsta.uge_sif,
+                        value: vrsta.uge_naziv,
+                        children: [] // Prazan niz kada nema children
+                    });
+                }
+            }
+        },
+        async fetchFuels() {
+            const goriva = await getFuelTypes();
+
+            for (const gorivo of goriva) {
+                this.vrsteGoriva.push({
+                    id: parseInt(gorivo.uvg_id),
+                    label: gorivo.uvg_knaziv,
+                    value: gorivo.uvg_naziv,
+                    metric: gorivo.uvg_jedmj,
+                    koeficijent: parseFloat(gorivo.uvg_koefco2)
+                })
+            }
+
+            console.log("goriva: ", this.vrsteGoriva)
+        },
+        resetData() {
+            this.vozila = [];
+            this.vrsteVozila = [];
+            this.vrsteGoriva = [];
+        },
+
         resetVoziloForm() {
             this.vozilo = {
-                id: 0,
-                redniBroj: 0,
-                vozilo: { skupina: '', vrsta: '' },
-                gorivo: { value: '', metric: '' },
-                potrosnjaGoriva: null,
-                emisije: null,
+                id: null,
+                uiz_id: null,
+                uge_id: null,
+                vozilo: {
+                    id: null,
+                    skupina: '',
+                    vrsta: ''
+                },
+                gorivo: {
+                    id: null,
+                    label: '',
+                    value: '',
+                    metric: '',
+                },
+                potrosnjaGoriva: '',
+                emisije: ''
             };
         },
     },
@@ -477,79 +687,60 @@ export const useIzvoriStore = defineStore('izvori-store', {
 
 export const useOpseg2Store = defineStore('opseg2-store', {
     state: () => ({
-        selectedYear: 0, // Odabrana godina
-        izracuni: [
-            {
-                id: 1,
-                energija: 'Električna energija',
-                neobnovljivo: null,
-                obnovljivo: null,
-                ukupno: 0,
-                emisije: 0,
-                koeficijent: 0.12 // Koeficijent za emisije CO2
-            },
-            {
-                id: 2,
-                energija: 'Toplinska energija',
-                neobnovljivo: null,
-                obnovljivo: null,
-                ukupno: 0,
-                emisije: 0,
-                koeficijent: 0.4 // Koeficijent za emisije CO2
-            }
-        ]
+        izracuni: []
     }),
     actions: {
-        updateIzracuni() {
-            if (this.selectedYear) {
-                // Ovdje dodaj logiku za ažuriranje podataka na osnovu odabrane godine
-                console.log(`Odabrana godina: ${this.selectedYear}`);
+        async fetchEnergySources(id) {
+            try {
+                const energySources = await getEnergySources(id);
+                for (const source of energySources) {
+                    this.izracuni.push({
+                        id: parseInt(source.use_id) || null,
+                        uiz_id: parseInt(source.use_uiz_id) || null,
+                        uvn_id: parseInt(source.use_uvn_id) || null,
+                        energija: source.uvn_naziv || '',
+                        neobnovljivo: Number(source.use_neobnovljivo) || null,
+                        obnovljivo: Number(source.use_obnovljivo) || null,
+                        ukupno: Number(source.use_ukupno) || 0.00,
+                        emisije: parseFloat(source.use_emisija) || 0.00,
+                        koeficijent: source.use_uvn_id == 76 ? 0.288 : 0.133
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching energy sources:', error);
             }
         },
-
-        updateCalculations(rowData: { neobnovljivo: number; obnovljivo: number; ukupno: number; emisije: number; koeficijent: number; }) {
-            const neobnovljivo = rowData.neobnovljivo || 0;
-            const obnovljivo = rowData.obnovljivo || 0;
+        clearStore() {
+            this.izracuni = [];
+        },
+        updateCalculations(rowData) {
+            const neobnovljivo = Number(rowData.neobnovljivo) || 0;
+            const obnovljivo = Number(rowData.obnovljivo) || 0;
             rowData.ukupno = neobnovljivo + obnovljivo;
             rowData.emisije = rowData.ukupno * rowData.koeficijent;
         },
-
-        onCellEditComplete(event: { preventDefault?: any; data?: any; newValue?: any; field?: any; }) {
+        onCellEditComplete(event) {
             const { data, newValue, field } = event;
+            const parsedValue = Number(newValue);
 
-            switch (field) {
-                case 'neobnovljivo':
-                case 'obnovljivo':
-                    if (this.isPositiveInteger(newValue)) {
-                        data[field] = newValue;
-                        this.updateCalculations(data); // Ažuriraj izračune nakon unosa
-                    } else {
-                        event.preventDefault(); // Spriječi unos ako nije pozitivan cijeli broj
-                    }
-                    break;
-
-                default:
-                    if (newValue.trim().length > 0) {
-                        data[field] = newValue;
-                        this.updateCalculations(data); // Ažuriraj izračune nakon unosa
-                    } else {
-                        event.preventDefault(); // Spriječi unos ako je prazan
-                    }
-                    break;
+            if (field === 'neobnovljivo' || field === 'obnovljivo') {
+                if (this.isPositiveInteger(parsedValue)) {
+                    data[field] = parsedValue;
+                    this.updateCalculations(data);
+                } else {
+                    event.preventDefault();
+                }
+            } else {
+                if (String(newValue).trim().length > 0) {
+                    data[field] = newValue;
+                    this.updateCalculations(data);
+                } else {
+                    event.preventDefault();
+                }
             }
         },
-
-        isPositiveInteger(val: unknown) {
-            let str = String(val).trim();
-
-            if (!str) {
-                return false;
-            }
-
-            str = str.replace(/^0+/, '') || '0';
-            const n = Math.floor(Number(str));
-
-            return n !== Infinity && String(n) === str && n >= 0;
+        isPositiveInteger(val) {
+            return Number.isInteger(val) && val >= 0;
         }
     },
 
