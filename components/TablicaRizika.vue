@@ -310,10 +310,20 @@ const propertyGridData = async () => {
     }
 }
 
+const cookiesToGet = ['id-izracuna', 'vrsta-izracuna', 'scenarij'];
+
 onMounted(async () => {
-    idIzracuna.value = await initializeCookie('id-izracuna');
-    vrstaIzracuna.value = await initializeCookie('vrsta-izracuna');
-    await initializeScenarij();
+    try {
+        const cookieData = await initializeCookie(cookiesToGet);
+
+        idIzracuna.value = cookieData['id-izracuna'] || '';
+        vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
+        scenarij.value = cookieData['scenarij'] || 'RCP';
+        isScenarijLoaded.value = true;
+
+    } catch (error) {
+        console.error("Error loading cookies: ", error);
+    }
 
     await propertyGridData();
 })

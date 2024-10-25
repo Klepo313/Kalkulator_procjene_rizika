@@ -88,7 +88,7 @@
                             {{ capitalizeName(name + ' ' + surname) }}
                         </h4>
                         <span :class="isCollapsed ? 'collapsed' : ''" class="responsive-text">
-                            {{ email == null ? email : username.toLowerCase() }}
+                            {{ email == null ? username.toLowerCase() : email }}
                         </span>
                     </div>
                 </div>
@@ -129,19 +129,31 @@ function capitalizeName(fullName) {
 
 const isDisabled = computed(() => idIzracuna.value === '/' || idIzracuna.value == 0);
 
-console.log("sidebar: ", idIzracuna.value);
-
 watch(() => izracunStore.idIzracuna, (newValue) => {
     console.log('idIzracuna updated:', newValue);
     idIzracuna.value = parseInt(newValue);
 });
 
+const cookiesToGet = ['id-izracuna', 'username', 'name', 'surname', 'email'];
+
 onMounted(async () => {
-    idIzracuna.value = await initializeCookie('id-izracuna');
-    username.value = await initializeCookie('username');
-    name.value = await initializeCookie('name');
-    surname.value = await initializeCookie('surname');
-    email.value = await initializeCookie('email');
+    try {
+        const cookieData = await initializeCookie(cookiesToGet);
+        idIzracuna.value = cookieData['id-izracuna'] || '';
+        username.value = cookieData['username'] || '';
+        name.value = cookieData['name'] || '';
+        surname.value = cookieData['surname'] || '';
+        email.value = cookieData['email'] || null;
+        console.log("email sidebar: ", email.value)
+    } catch (error) {
+        console.error("Error loading cookies: ", error);
+    }
+
+    // idIzracuna.value = await initializeCookie('id-izracuna');
+    // username.value = await initializeCookie('username');
+    // name.value = await initializeCookie('name');
+    // surname.value = await initializeCookie('surname');
+    // email.value = await initializeCookie('email');
 })
 
 // Prima prop za stanje bočne trake

@@ -168,10 +168,14 @@ const processGridData = async () => {
     //console.log(structuredData.value["11"])
 }
 
+const cookiesToGet = ['id-izracuna', 'vrsta-izracuna', 'scenarij'];
+
 onMounted(async () => {
-    idIzracuna.value = await initializeCookie('id-izracuna');
-    vrstaIzracuna.value = await initializeCookie('vrsta-izracuna');
-    await initializeScenarij();
+    const cookieData = await initializeCookie(cookiesToGet);
+
+    idIzracuna.value = cookieData['id-izracuna'] || '';
+    vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
+    scenarij.value = cookieData['scenarij'] || 'RCP';
 
     await processGridData();
 })
