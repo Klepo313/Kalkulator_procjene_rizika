@@ -35,9 +35,14 @@
     --red-focus: #461919;
     --red-soft: rgb(192, 57, 43);
 
-    --kesp-primary: #5F5727;
-    --kesp-primary-hover: #807434;
-    --kesp-primary-focus: #8d813b;
+    /* --kesp-primary: #5F5727; */
+    --kesp-primary: #241147;
+    --kesp-primary-hover: #2f185c;
+    --kesp-primary-focus: #3e2374;
+    --kesp-bg: #f9f6ff;
+    --nuxtlink-hover: #f3ecff;
+    --nuxtlink-focus: #f9f6ff;
+    --nuxtlink-active: #f9f6ff;
 }
 
 ::selection {
