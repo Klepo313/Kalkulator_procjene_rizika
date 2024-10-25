@@ -142,13 +142,6 @@
                     </div>
                     <div class="razdoblje">
                         <!-- <VremenskoRazdoblje /> -->
-                        <span>
-                            <label for="godina">
-                                Godina<span class="required">*</span>
-                            </label>
-                            <DatePicker v-model="godina" show-icon fluid icon-display="input" view="year"
-                                date-format="yy" placeholder="Godina izračuna" readonly @change="onYearChange" />
-                        </span>
                         <div>
                             <div>
                                 <label for="startDate">
@@ -173,9 +166,8 @@
                         <p>Unesi podatke neobnovljivih i obnovljivih izvora energije</p>
                     </div>
                     <div class="data-item">
-                        <DataTable :value="opseg2Store.izracuni" show-gridlines edit-mode="cell" :rows="5" data-key="id"
+                        <DataTable :value="izracuni" show-gridlines edit-mode="cell" :rows="5" data-key="id"
                             @cell-edit-complete="onCellEditComplete">
-
                             <Column header="No.">
                                 <template #body="slotProps">
                                     {{ slotProps.index + 1 }}
@@ -201,7 +193,12 @@
                                         mode="decimal" @change="updateCalculations(slotProps.data)" />
                                 </template>
                                 <template #body="slotProps">
-                                    {{ slotProps.data.neobnovljivo !== null ? slotProps.data.neobnovljivo : '' }}
+                                    <span v-if="slotProps.data.neobnovljivo">
+                                        {{ slotProps.data.neobnovljivo }}
+                                    </span>
+                                    <span v-else style="'font-style: italic; opacity: 0.6;">
+                                        {{ 'Ispunite polje' }}
+                                    </span>
                                 </template>
                             </Column>
 
@@ -211,7 +208,12 @@
                                         @change="updateCalculations(slotProps.data)" />
                                 </template>
                                 <template #body="slotProps">
-                                    {{ slotProps.data.obnovljivo !== null ? slotProps.data.obnovljivo : '' }}
+                                    <span v-if="slotProps.data.obnovljivo">
+                                        {{ slotProps.data.obnovljivo }}
+                                    </span>
+                                    <span v-else style="'font-style: italic; opacity: 0.6;">
+                                        {{ 'Ispunite polje' }}
+                                    </span>
                                 </template>
                             </Column>
 
@@ -236,6 +238,7 @@
                                 </div>
                             </template>
                         </DataTable>
+
                     </div>
                 </section>
             </div>
@@ -251,9 +254,34 @@
                     <div class="chart-container">
                         <span>
                             <p>Ukupne emisije CO<sub>2</sub>/kg</p>
+                            <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('pie')" />
                         </span>
                         <Chart type="pie" :data="combinedChartData" :options="chartOptions"
                             class="w-full md:w-[30rem]" />
+                    </div>
+                    <div class="chart-container" style="margin-top: 20px;">
+                        <span>
+                            <p>Ukupna potrošnja energije (kWh)</p>
+                            <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('polar')" />
+                        </span>
+                        <Chart type="polarArea" :data="O2polarChartData" :options="chartOptions"
+                            class="w-full md:w-[30rem]" />
+                    </div>
+                </div>
+                <!-- Fullscreen Chart Modal -->
+                <div v-if="fullscreenChart" class="fullscreen-overlay" @click="closeFullscreen">
+                    <div class="fullscreen-chart" @click.stop>
+                        <font-awesome-icon icon="times" class="close-icon" @click="closeFullscreen" />
+                        <span v-if="fullscreenChart === 'pie'">
+                            <h2>Emisije CO<sub>2</sub>/kg</h2>
+                        </span>
+                        <span v-if="fullscreenChart === 'polar'">
+                            <h2>Ukupna potrošnja energije (kWh)</h2>
+                        </span>
+                        <Chart v-if="fullscreenChart === 'pie'" type="pie" :data="combinedChartData"
+                            :options="chartOptions" class="fullscreen-chart-content" />
+                        <Chart v-if="fullscreenChart === 'polar'" type="polarArea" :data="O2polarChartData"
+                            :options="chartOptions" class="fullscreen-chart-content" />
                     </div>
                 </div>
             </div>
@@ -269,13 +297,35 @@ import { useOpseg2Store } from '~/stores/main-store';
 
 const opseg2Store = useOpseg2Store(); // Inicijaliziraj store
 const kespStore = useKespStore();
-const godina = computed({
-    get: () => kespStore.godina,
-    set: (value) => kespStore.setGodina(value),
-});
 
-const datumOd = computed(() => kespStore.datumOd);
-const datumDo = computed(() => kespStore.datumDo);
+const izracuni = computed(() => opseg2Store.izracuni);
+const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
+const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
+
+const kespId = ref(null);
+
+onMounted(async () => {
+    const res = await initializeCookie('kesp-id');
+    kespId.value = parseInt(res['kesp-id']);
+    // opseg2Store.clearStore();
+    // await opseg2Store.fetchEnergySources(kespId.value);
+})
+
+const fullscreenChart = ref(null);
+
+function openFullscreen(chartType) {
+    fullscreenChart.value = chartType;
+    document.body.style.overflow = 'hidden'; // Disable scrolling
+}
+
+function closeFullscreen() {
+    fullscreenChart.value = null;
+    document.body.style.overflow = ''; // Re-enable scrolling
+}
+
+onBeforeUnmount(() => {
+    document.body.style.overflow = ''; // Reset overflow on component unmount
+});
 
 // Ukupne emisije
 const totalEmissions = computed(() => opseg2Store.totalEmissions); // Preuzmi ukupne emisije iz getter-a
@@ -287,6 +337,34 @@ const onCellEditComplete = (event) => {
 
 // Kombinovani podaci za grafikon
 const combinedChartData = computed(() => opseg2Store.combinedChartData); // Preuzmi podatke za grafikon iz getter-a
+
+const O2polarChartData = computed(() => {
+    const baseColor = '#5F5727';
+    const ukupnoPoEnergiji = {};
+
+    // Grupiraj ukupnu potrošnju energije po tipu energije
+    izracuni.value.forEach((entry) => {
+        const { energija, ukupno } = entry;
+        ukupnoPoEnergiji[energija] = (ukupnoPoEnergiji[energija] || 0) + ukupno;
+    });
+
+    const labels = Object.keys(ukupnoPoEnergiji);
+    const data = Object.values(ukupnoPoEnergiji);
+    const colors = labels.map((_, index) => shadeColor(baseColor, index * 10));
+
+    console.log("Ukupno po energiji: ", ukupnoPoEnergiji, labels, data, colors);
+
+    return {
+        labels,
+        datasets: [
+            {
+                data,
+                backgroundColor: colors,
+                hoverBackgroundColor: colors,
+            },
+        ],
+    };
+});
 
 // Opcije za grafikon
 const setChartOptions = () => {
@@ -578,10 +656,33 @@ strong {
     gap: 20px;
 }
 
+
+.expand-icon,
+.close-icon {
+    padding: 7px;
+    background-color: none;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.expand-icon:hover,
+.close-icon:hover {
+    background-color: var(--input-hover-color);
+}
+
+.expand-icon:active,
+.close-icon:active {
+    background-color: var(--input-focus-color);
+}
+
 .chart-container>span {
     text-align: center;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
     gap: 5px;
 }
 
@@ -680,5 +781,83 @@ h3 {
 
 .required {
     color: var(--red-soft);
+}
+
+
+.fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 26px;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.fullscreen-chart {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    padding: 26px;
+    border-radius: 5px;
+    animation: scaleUp 0.3s ease;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+}
+
+.fullscreen-chart-content {
+    margin: auto;
+    width: 100%;
+    height: 90%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fullscreen-chart-content>canvas {
+    margin: auto;
+}
+
+/* .fullscreen-chart-content>canvas {
+    max-width: 30vw;
+    max-height: 40vh;
+} */
+
+.close-icon {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleUp {
+    from {
+        transform: scale(0.8);
+    }
+
+    to {
+        transform: scale(1);
+    }
 }
 </style>

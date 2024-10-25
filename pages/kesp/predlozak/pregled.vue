@@ -10,15 +10,15 @@
                         <p>Vremensko razdoblje za kojeg se prikazuju podaci</p>
                     </div>
                     <div class="razdoblje">
-                        <!-- <VremenskoRazdoblje /> -->
-                        <span>
-                            <label for="godina">
-                                Godina<span class="required">*</span>
-                            </label>
-                            <DatePicker v-model="godina" show-icon fluid icon-display="input" view="year"
-                                date-format="yy" placeholder="Godina izračuna" readonly @change="onYearChange" />
-                        </span>
+                        <!-- <VremenskoRazdoblje style="width: 100%;" /> -->
                         <div>
+                            <div v-if="opis" class="opisnap">
+                                <label for="opis">
+                                    Naziv
+                                </label>
+                                <InputText v-model="opis" type="text" id="opis" placeholder="Naziv nije unešen"
+                                    readonly />
+                            </div>
                             <div>
                                 <label for="startDate">
                                     Početak razdoblja<span class="required">*</span>
@@ -33,6 +33,14 @@
                                 <DatePicker id="endDate" v-model="datumDo" date-format="dd.mm.yy" show-icon fluid
                                     icon-display="input" placeholder="Krajnji datum" readonly />
                             </div>
+                            <div v-if="napomena" class="opisnap">
+                                <label for="napomena">
+                                    Napomena
+                                </label>
+                                <Textarea v-model="napomena" id="napomena" placeholder="Napomena nije unešena"
+                                    readonly />
+                            </div>
+
                         </div>
                     </div>
                 </section>
@@ -77,7 +85,7 @@
 
                             <template #footer>
                                 <div class="flex justify-end font-bold w-full mt-4">
-                                    Ukupno - Opseg 1: <strong>{{ calculateTotalEmissions().toFixed(2) }}</strong>
+                                    Ukupno: <strong>{{ calculateTotalEmissions().toFixed(2) }}</strong>
                                     CO<sub>2</sub> t/god
                                 </div>
                             </template>
@@ -137,7 +145,7 @@
                         <template #footer>
                             <div class="total-emissions">
 
-                                <span>Ukupno - Opseg 2: </span>
+                                <span>Ukupno: </span>
                                 <strong>{{ totalEmissions }}</strong> CO<sub>2</sub> t/god
 
                             </div>
@@ -206,28 +214,46 @@ const categories = [
     { category: 'Stacionarni izvori', totalEmissions: 0 },
 ];
 
-// Funkcija za grupisanje podataka i izračun emisija
 const groupedData = computed(() => {
-    const grouped = JSON.parse(JSON.stringify(categories)); // Duboko kloniranje kategorija
+    // Kreiramo grupirane podatke na osnovu strukture vrsteVozila
+    return vehicleStore.vrsteVozila.map(vrsta => {
+        // Filtriramo vozila koja pripadaju trenutnoj vrsti vozila
+        const vozilaForVrsta = vehicleStore.vozila.filter(vozilo => vozilo.vozilo.skupina === vrsta.value);
 
-    // Grupisanje podataka iz vozila
-    vehicleStore.vozila.forEach(vozilo => {
-        if (vozilo.vozilo.skupina === 'Osobno vozilo') {
-            grouped[0].totalEmissions += vozilo.emisije; // Osobna vozila
-        } else if (vozilo.vozilo.skupina === 'Teretno vozilo') {
-            grouped[1].totalEmissions += vozilo.emisije; // Teretna vozila
-        } else if (vozilo.vozilo.skupina === 'Stroj') {
-            grouped[2].totalEmissions += vozilo.emisije; // Strojevi
-        }
+        // Izračunavamo ukupne emisije za trenutnu vrstu vozila
+        const totalEmissions = vozilaForVrsta.reduce((sum, vozilo) => sum + vozilo.emisije, 0);
+
+        // Vraćamo objekt s podacima za trenutnu vrstu vozila
+        return {
+            category: vrsta.value,
+            totalEmissions
+        };
     });
-
-    // Grupisanje podataka iz izvora
-    izvoriStore.izvori.forEach(izvor => {
-        grouped[3].totalEmissions += izvor.emisije; // Stacionarni izvori
-    });
-
-    return grouped;
 });
+
+
+// Funkcija za grupisanje podataka i izračun emisija
+// const groupedData = computed(() => {
+//     const grouped = JSON.parse(JSON.stringify(categories)); // Duboko kloniranje kategorija
+
+//     // Grupisanje podataka iz vozila
+//     vehicleStore.vozila.forEach(vozilo => {
+//         if (vozilo.vozilo.skupina === 'Osobno vozilo') {
+//             grouped[0].totalEmissions += vozilo.emisije; // Osobna vozila
+//         } else if (vozilo.vozilo.skupina === 'Teretno vozilo') {
+//             grouped[1].totalEmissions += vozilo.emisije; // Teretna vozila
+//         } else if (vozilo.vozilo.skupina === 'Stroj') {
+//             grouped[2].totalEmissions += vozilo.emisije; // Strojevi
+//         }
+//     });
+
+//     // Grupisanje podataka iz izvora
+//     izvoriStore.izvori.forEach(izvor => {
+//         grouped[3].totalEmissions += izvor.emisije; // Stacionarni izvori
+//     });
+
+//     return grouped;
+// });
 
 // Funkcija za izračun ukupnih emisija
 const calculateTotalEmissions = () => {
@@ -244,13 +270,17 @@ const combinedEmissions = computed(() => {
     return ukupno;
 });
 
-const godina = computed({
-    get: () => kespStore.godina,
-    set: (value) => kespStore.setGodina(value),
-});
+const kespId = ref(null);
 
-const datumOd = computed(() => kespStore.datumOd);
-const datumDo = computed(() => kespStore.datumDo);
+onMounted(async () => {
+    const res = await initializeCookie('kesp-id');
+    kespId.value = parseInt(res['kesp-id']);
+})
+
+const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
+const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
+const opis = computed(() => kespStore.naziv);
+const napomena = computed(() => kespStore.napomena);
 
 const combinedChartData = computed(() => opseg2Store.combinedChartData); // Preuzmi podatke za grafikon iz getter-a
 
@@ -408,28 +438,8 @@ strong,
     text-decoration: underline;
 }
 
-.razdoblje {
-    max-width: 500px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.razdoblje>div,
-.razdoblje>div>div,
-.razdoblje>span {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
 .razdoblje>div {
-    flex-direction: row;
-}
-
-.razdoblje>span {
-    width: auto;
+    gap: 10px;
 }
 
 

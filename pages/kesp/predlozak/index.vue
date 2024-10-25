@@ -11,24 +11,24 @@
                     </div>
                     <div class="razdoblje">
                         <!-- <VremenskoRazdoblje /> -->
-                        <span>
+                        <!-- <span>
                             <label for="godina">
                                 Godina<span class="required">*</span>
                             </label>
                             <DatePicker v-model="godina" show-icon fluid icon-display="input" view="year"
                                 date-format="yy" placeholder="Godina izračuna" readonly @change="onYearChange" />
-                        </span>
+                        </span> -->
                         <div>
                             <div>
                                 <label for="startDate">
-                                    Početak razdoblja<span class="required">*</span>
+                                    Početak razdoblja: <!--<span class="required">*</span>-->
                                 </label>
                                 <DatePicker id="startDate" v-model="datumOd" date-format="dd.mm.yy" show-icon fluid
                                     icon-display="input" placeholder="Početni datum" readonly />
                             </div>
                             <div>
                                 <label for="endDate">
-                                    Kraj razdoblja<span class="required">*</span>
+                                    Kraj razdoblja: <!--<span class="required">*</span>-->
                                 </label>
                                 <DatePicker id="endDate" v-model="datumDo" date-format="dd.mm.yy" show-icon fluid
                                     icon-display="input" placeholder="Krajnji datum" readonly />
@@ -38,8 +38,10 @@
                 </section>
                 <section id="sva-vozila">
                     <div>
-                        <h2>Sva vozila (osobna, teretna, strojevi)</h2>
-                        <p>Potrošnja goriva u litrama</p>
+                        <h2>Staklenički plinovi</h2>
+                        <p>Ukupna potrošnja i emisije CO<sub>2</sub>/kg stakleničkih plinova.</p>
+                        <!-- <h2>Sva vozila (osobna, teretna, strojevi)</h2>
+                        <p>Potrošnja goriva u litrama</p> -->
                     </div>
                     <div class="datatable">
                         <!-- Toolbar za Dodavanje/Uklanjanje vozila -->
@@ -47,20 +49,19 @@
                             <template #start>
                                 <button class="dodaj-btn" @click="openNewVozilo">
                                     <font-awesome-icon icon="plus" />
-                                    Dodaj vozilo
+                                    Dodaj emisiju
                                 </button>
                             </template>
                             <template #end>
                                 <button class="ukloni-btn" :disabled="!selectedVozilo" @click="openVoziloDeleteDialog">
-                                    <font-awesome-icon icon="minus" /> Ukloni vozilo
+                                    <font-awesome-icon icon="minus" /> Ukloni emisiju
                                 </button>
                             </template>
                         </Toolbar>
 
                         <!-- DataTable za prikaz vozila -->
-                        <DataTable v-model:selection="selectedVozilo" :value="vehicleStore.vozila" removable-sort
-                            show-gridlines selection-mode="single" :rows="5" data-key="id"
-                            @row-edit-save="onRowEditSave">
+                        <DataTable v-model:selection="selectedVozilo" :value="vozila" removable-sort show-gridlines
+                            selection-mode="single" :rows="5" data-key="id" striped-rows @row-edit-save="onRowEditSave">
                             <template #empty> Nema odabranih vozila </template>
 
                             <Column header="No.">
@@ -68,27 +69,47 @@
                                     {{ slotProps.index + 1 }}
                                 </template>
                             </Column>
-                            <Column field="vrstaVozila" header="Skupina vozila" sortable>
+                            <Column field="vrstaVozila" header="Izvor emisija" sortable>
                                 <template #body="slotProps">
-                                    <font-awesome-icon :icon="getVehicleIcon(slotProps.data.vozilo.skupina)"
-                                        style="margin-right: 5px;" />
-                                    {{ slotProps.data.vozilo.skupina }}
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <font-awesome-icon :icon="getVehicleIcon(slotProps.data.vozilo.skupina)"
+                                            style="margin-right: 5px;" />
+                                        <span>
+                                            {{ slotProps.data.vozilo.skupina }}
+                                        </span>
+                                    </div>
                                 </template>
                             </Column>
-                            <Column field="vrstaVozila" header="Vrsta vozila" sortable>
+                            <Column field="vrstaVozila" header="Emisija" sortable>
                                 <template #body="slotProps">
-                                    {{ slotProps.data.vozilo.vrsta }}
+                                    <span v-if="slotProps.data.vozilo.vrsta">
+                                        {{ slotProps.data.vozilo.vrsta }}
+                                    </span>
+                                    <span v-else style="font-style: italic; opacity: 0.6;">
+                                        Nije odabrano
+                                    </span>
                                 </template>
                             </Column>
+
 
 
                             <Column field="gorivo" header="Gorivo" sortable>
                                 <template #body="slotProps">
-                                    <Tag :value="slotProps.data.gorivo.value"
-                                        :class="{ 'dizel-tag': slotProps.data.gorivo.value === 'Dizel' }" />
+                                    <Tag :value="slotProps.data.gorivo.value" :class="[
+                                        {
+                                            'dizel-tag': slotProps.data.gorivo.label === (
+                                                'Dizel' || 'Biodizel' || 'B20 biodizel' || 'Biodizel'
+                                            )
+                                        },
+                                        { 'jet-tag': slotProps.data.gorivo.label === 'JETFU' },
+                                        { 'lozulje-tag': slotProps.data.gorivo.label === 'Lož ulje' },
+                                        { 'lpg-tag': slotProps.data.gorivo.label === ('LNG' || 'LPG') },
+                                        { 'cng-tag': slotProps.data.gorivo.label === 'CNG' },
+                                        { 'etanol-tag': slotProps.data.gorivo.label === 'Etanol' },
+                                    ]" />
                                 </template>
                             </Column>
-                            <Column field="potrosnjaGoriva" header="Ukupna potrošnja" sortable />
+                            <Column field="potrosnjaGoriva" header="Potrošnja energenta" sortable />
                             <Column field="gorivo" header="Mjerna jedinica" sortable>
                                 <template #body="slotProps">
                                     <span v-html="slotProps.data.gorivo.metric" />
@@ -96,51 +117,51 @@
                             </Column>
                             <Column field="emisije" header="Emisije CO2/kg" sortable>
                                 <template #body="slotProps">
-                                    <span>{{ slotProps.data.emisije.toFixed(2) }}</span>
+                                    <span>{{ parseFloat(slotProps.data.emisije).toFixed(2) }}</span>
                                 </template>
                             </Column>
                             <template #footer>
                                 <div class="total-emissions">
                                     <div>
                                         Ukupno: <strong>{{ total.toFixed(2) }}</strong> CO<sub>2</sub>/kg
-                                    </div>
+                                    </div> <!--.toFixed(2)-->
                                 </div>
                             </template>
                         </DataTable>
 
                         <!-- Dialog za Dodavanje/Uređivanje vozila -->
-                        <Dialog v-model:visible="voziloDialogVisible" header="Dodaj vozilo" :modal="true"
+                        <Dialog v-model:visible="voziloDialogVisible" header="Dodaj emisiju" :modal="true"
                             :style="{ width: '450px' }" @hide="vehicleStore.resetVoziloForm">
                             <form class="p-fluid" @submit.prevent="saveVozilo">
                                 <div class="field">
-                                    <label for="skupinaVozila">Skupina vozila</label>
+                                    <label for="skupinaVozila">Izvor emisija</label>
                                     <Select id="skupinaVozila" v-model="vehicleStore.vozilo.vozilo.skupina"
-                                        :options="vehicleStore.vrsteVozila" option-label="value" option-value="value"
+                                        :options="vrstaVozila" option-label="value" option-value="value"
                                         placeholder="Odaberi skupinu vozila" required @change="onSkupinaChange" />
                                 </div>
 
                                 <div v-if="odabranaSkupina?.children?.length > 0" class="field">
-                                    <label for="vrstaVozila">Vrsta vozila</label>
+                                    <label for="vrstaVozila">Emisija</label>
                                     <Select id="vrstaVozila" v-model="vehicleStore.vozilo.vozilo.vrsta"
                                         :options="odabranaSkupina.children" option-label="value" option-value="value"
                                         placeholder="Odaberi vrstu vozila" required />
                                 </div>
 
                                 <div v-else-if="odabranaSkupina" class="field">
-                                    <label for="vrstaVozila">Vrsta vozila</label>
+                                    <label for="vrstaVozila">Emisija</label>
                                     <InputText id="vrstaVozila" v-model="vehicleStore.vozilo.vozilo.vrsta"
                                         placeholder="Unesi vrstu vozila" required />
                                 </div>
 
                                 <div class="field">
                                     <label for="gorivo">Gorivo</label>
-                                    <Select id="gorivo" v-model="vehicleStore.vozilo.gorivo.value"
-                                        :options="vehicleStore.vrsteGoriva" option-label="label" option-value="value"
+                                    <Select id="gorivo" v-model="vehicleStore.vozilo.gorivo.label"
+                                        :options="vrsteGoriva" option-label="value" option-value="label"
                                         placeholder="Odaberi vrstu goriva" required />
                                 </div>
 
                                 <div class="field">
-                                    <label for="potrosnjaGoriva">Ukupan broj potrošenih litara</label>
+                                    <label for="potrosnjaGoriva">Potrošnja energenata</label>
                                     <InputText id="potrosnjaGoriva" v-model="vehicleStore.vozilo.potrosnjaGoriva"
                                         placeholder="Unesi ukupan broj potrošenih litara" type="number" step="any"
                                         min="0" required
@@ -164,17 +185,17 @@
                         </Dialog>
 
                         <!-- Confirm Dialog za brisanje -->
-                        <Dialog v-model:visible="deleteVoziloDialog" :style="{ width: '450px' }" header="Ukloni vozilo"
+                        <Dialog v-model:visible="deleteVoziloDialog" :style="{ width: '450px' }" header="Ukloni emisiju"
                             :modal="true">
                             <div class="flex items-center gap-4">
                                 <i class="pi pi-exclamation-triangle !text-3xl" />
                                 <template v-if="selectedVozilo">
-                                    Skupina vozila: <b>{{ selectedVozilo.vozilo.skupina }}</b> <br>
-                                    Vrsta vozila: <b>{{ selectedVozilo.vozilo.vrsta }}</b> <br>
+                                    Izvor emisija: <b>{{ selectedVozilo.vozilo.skupina }}</b> <br>
+                                    Emisija: <b>{{ selectedVozilo.vozilo.vrsta || '/' }}</b> <br>
                                     Gorivo: <b>{{ selectedVozilo.gorivo.value }}</b> <br>
-                                    Potrošnja goriva: <b>{{ selectedVozilo.potrosnjaGoriva + ' ' +
+                                    Potrošnja energenata: <b>{{ selectedVozilo.potrosnjaGoriva + ' ' +
                                         selectedVozilo.gorivo.metric }}</b> <br>
-                                    Emisije: <b>{{ selectedVozilo.emisije }}</b>
+                                    Emisije CO<sub>2</sub>/kg: <b>{{ selectedVozilo.emisije }}</b>
                                 </template>
                             </div>
                             <template #footer>
@@ -189,13 +210,12 @@
 
                     </div>
                 </section>
-                <section id="stacionarni-izvor">
+                <!-- <section id="stacionarni-izvor">
                     <div>
                         <h2>Stacionarni izvor</h2>
                         <p>Emisije CO<sub>2</sub> iz vlastitih izvora za proizvodnju električne i toplinske energije</p>
                     </div>
                     <div class="datatable">
-                        <!-- Toolbar za Dodavanje/Uklanjanje vozila -->
                         <Toolbar class="mb-6" style="display: flex; gap: 5px;">
                             <template #start>
                                 <button class="dodaj-btn" @click="openNewIzvor">
@@ -210,7 +230,6 @@
                             </template>
                         </Toolbar>
 
-                        <!-- DataTable za prikaz stacionarnih izvora -->
                         <DataTable v-model:selection="selectedIzvor" :value="izvoriStore.izvori" removable-sort
                             show-gridlines selection-mode="single" :rows="5" data-key="id"
                             @row-edit-save="onRowEditSave">
@@ -257,7 +276,6 @@
                             </template>
                         </DataTable>
 
-                        <!-- Dialog za Dodavanje/Uređivanje izvora -->
                         <Dialog v-model:visible="izvorDialogVisible" header="Dodaj vozilo" :modal="true"
                             :style="{ width: '450px' }" @hide="izvoriStore.resetIzvorForm">
                             <form class="p-fluid" @submit.prevent="saveIzvor">
@@ -272,11 +290,11 @@
                                     <Select id="vrstaEnergenata" v-model="izvoriStore.izvor.vrstaEnergenata"
                                         :options="izvoriStore.vrsteEnergenata" option-label="value"
                                         placeholder="Odaberi vrstu energenta" required>
-                                        <!-- Prikazivanje opcija u dropdownu -->
+                                        
                                         <template #option="slotProps">
                                             <span>{{ slotProps.option.value }} [{{ slotProps.option.metric }}]</span>
                                         </template>
-                                        <!-- Prikazivanje odabrane opcije -->
+                                        
                                         <template #item="slotProps">
                                             <span v-if="slotProps.modelValue">
                                                 {{ slotProps.modelValue.value }} [{{ slotProps.modelValue.metric }}]
@@ -309,7 +327,6 @@
                             </form>
                         </Dialog>
 
-                        <!-- Confirm Dialog za brisanje -->
                         <Dialog v-model:visible="deleteIzvorDialog" :style="{ width: '450px' }"
                             header="Ukloni stacionarni izvor" :modal="true">
                             <div class="flex items-center gap-4">
@@ -334,7 +351,7 @@
                             </template>
                         </Dialog>
                     </div>
-                </section>
+                </section> -->
             </div>
             <div class="stats-content">
                 <!-- <div>
@@ -345,22 +362,44 @@
                 </div> -->
                 <!-- <hr> -->
                 <div class="stats-table">
+                    <!-- CO2 Emissions Chart -->
                     <div class="chart-container">
                         <span>
-                            <p>Emisije CO<sub>2</sub>/kg - Sva vozila</p>
+                            <p>Emisije CO<sub>2</sub>/kg</p>
+                            <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('pie')" />
                         </span>
-                        <Chart type="pie" :data="vozilaChartData" :options="chartOptions" class="w-full md:w-[30rem]" />
+                        <Chart type="pie" :data="chartData" :options="chartOptions" class="w-full md:w-[30rem]" />
                     </div>
 
+                    <!-- Energy Consumption Chart -->
                     <div class="chart-container" style="margin-top: 20px;">
                         <span>
-                            <p>Emisije CO<sub>2</sub>/kg - Stacionarni izvori</p>
+                            <p>Potrošnja energenata</p>
+                            <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('polar')" />
                         </span>
-                        <Chart type="pie" :data="izvoriChartData" :options="chartOptions" class="w-full md:w-[30rem]" />
+                        <Chart type="polarArea" :data="polarChartData" :options="chartOptions"
+                            class="w-full md:w-[30rem]" />
+                    </div>
+
+                    <!-- Fullscreen Chart Modal -->
+                    <div v-if="fullscreenChart" class="fullscreen-overlay" @click="closeFullscreen">
+                        <div class="fullscreen-chart" @click.stop>
+                            <font-awesome-icon icon="times" class="close-icon" @click="closeFullscreen" />
+                            <span v-if="fullscreenChart === 'pie'">
+                                <h2>Emisije CO<sub>2</sub>/kg</h2>
+                            </span>
+                            <span v-if="fullscreenChart === 'polar'">
+                                <h2>Potrošnja energenata</h2>
+                            </span>
+                            <Chart v-if="fullscreenChart === 'pie'" type="pie" :data="chartData" :options="chartOptions"
+                                class="fullscreen-chart-content" />
+                            <Chart v-if="fullscreenChart === 'polar'" type="polarArea" :data="polarChartData"
+                                :options="chartOptions" class="fullscreen-chart-content" />
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="spremiBtn-container">
+            <!-- <div class="spremiBtn-container">
                 <button id="saveBtn" type="button" @click="saveFormData">
                     <font-awesome-icon icon="save" class="save-icon" />
                     Spremi
@@ -371,7 +410,7 @@
                     kako biste mogli
                     nastaviti u sljedeći korak.
                 </span>
-            </div>
+            </div> -->
         </main>
         <footer />
     </div>
@@ -380,16 +419,17 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useVehicleStore, useIzvoriStore, useOpseg2Store, useKespStore } from '~/stores/main-store';
+import { shadeColor } from '~/utils/getColorClass';
 
 definePageMeta({
     middleware: [
         'auth',
+        'kesp'
     ],
 });
 
 const vehicleStore = useVehicleStore();
 const izvoriStore = useIzvoriStore();
-const opseg2Store = useOpseg2Store();
 const kespStore = useKespStore();
 
 // Kompjutirane vrijednosti za pristup iz storea
@@ -398,88 +438,142 @@ const kespStore = useKespStore();
 // const datumDo = computed(() => kespStore.datumDo);
 
 // Create computed properties for the store values
-const godina = computed({
-    get: () => kespStore.godina,
-    set: (value) => kespStore.setGodina(value),
+// const godina = computed({
+//     get: () => kespStore.godina,
+//     set: (value) => kespStore.setGodina(value),
+// });
+
+const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
+const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
+const vozila = computed(() => vehicleStore.vozila);
+const vrstaVozila = computed(() => vehicleStore.vrsteVozila);
+const vrsteGoriva = computed(() => vehicleStore.vrsteGoriva);
+
+const kespId = ref(null);
+
+onMounted(async () => {
+    // vehicleStore.resetData();
+    const res = await initializeCookie('kesp-id');
+    kespId.value = parseInt(res['kesp-id']);
+
+    // await vehicleStore.fetchVehicles(kespId.value);
+    // await vehicleStore.fetchEmissions();
+    // await vehicleStore.fetchFuels();
+})
+
+// Prvo dodajemo watch funkciju koja će pratiti promenu `gorivo.value` u storeu
+
+watch(() => vehicleStore.vozilo.gorivo.label, (newLabel) => {
+    // Pronalazimo odgovarajući objekt u `vrsteGoriva` na osnovu `label`
+    const odabranoGorivo = vehicleStore.vrsteGoriva.find(gorivo => gorivo.label === newLabel);
+
+    // Ako je pronađeno odgovarajuće gorivo, ažuriramo sve podatke u `vehicleStore.vozilo.gorivo`
+    if (odabranoGorivo) {
+        vehicleStore.vozilo.gorivo.id = odabranoGorivo.id;
+        vehicleStore.vozilo.gorivo.label = odabranoGorivo.label;
+        vehicleStore.vozilo.gorivo.value = odabranoGorivo.value;
+        vehicleStore.vozilo.gorivo.metric = odabranoGorivo.metric;
+        vehicleStore.vozilo.gorivo.koeficijent = odabranoGorivo.koeficijent;
+    } else {
+        // Ako odabrano gorivo nije pronađeno, resetujemo `gorivo` podobjekt
+        vehicleStore.vozilo.gorivo = {
+            id: null,
+            label: '',
+            value: '',
+            metric: '',
+            koeficijent: 0,
+        };
+    }
 });
 
-const datumOd = computed(() => kespStore.datumOd);
-const datumDo = computed(() => kespStore.datumDo);
+const chartData = computed(() => {
+    const baseColor = '#2cc23f';
+    const emisijePoSkupini = {};
 
+    console.log("Vozila: ", vozila.value);
 
+    vozila.value.forEach((vozilo) => {
+        const { skupina } = vozilo.vozilo;
+        // console.log("Skupina: ", skupina, "Emisije po skupini: ", emisijePoSkupini[skupina]);
+        emisijePoSkupini[skupina] = (emisijePoSkupini[skupina] || 0) + vozilo.emisije;
+    });
 
-const setChartData = (labels, data, backgroundColors) => {
+    const labels = Object.keys(emisijePoSkupini);
+    const data = Object.values(emisijePoSkupini);
+    const colors = labels.map((_, index) => shadeColor(baseColor, index * 10));
+
     return {
         labels,
         datasets: [
             {
                 data,
-                backgroundColor: backgroundColors,
-                hoverBackgroundColor: backgroundColors.map(color => color) // Možeš dodati nijanse ako želiš
-            }
-        ]
+                backgroundColor: colors,
+                hoverBackgroundColor: colors,
+            },
+        ],
     };
-};
+});
 
-const setChartOptions = () => {
-    if (import.meta.client) {
-        const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue('--p-text-color');
+const polarChartData = computed(() => {
+    const baseColor = '#5F5727';
+    const potrosnjaPoSkupini = {};
 
-        return {
-            plugins: {
-                legend: {
-                    labels: {
-                        usePointStyle: true,
-                        color: textColor
-                    }
-                }
-            }
-        };
-    }
+    // Pravilno grupisanje potrošnje goriva po svakoj skupini
+    vozila.value.forEach((vozilo) => {
+        const { skupina } = vozilo.vozilo;
+        const potrosnjaGoriva = parseFloat(vozilo.potrosnjaGoriva) || 0;
+        potrosnjaPoSkupini[skupina] = (potrosnjaPoSkupini[skupina] || 0) + potrosnjaGoriva;
+    });
 
-    // Fallback if it's on the server
+    const labels = Object.keys(potrosnjaPoSkupini);
+    const data = Object.values(potrosnjaPoSkupini);
+    const colors = labels.map((_, index) => shadeColor(baseColor, index * 10));
+
+    console.log("Potrošnja po skupini: ", potrosnjaPoSkupini, labels, data, colors);
+
     return {
-        plugins: {
-            legend: {
-                labels: {
-                    usePointStyle: true,
-                    color: '#000' // Default color in case of server-side rendering
-                }
-            }
-        }
+        labels,
+        datasets: [
+            {
+                data,
+                backgroundColor: colors,
+                hoverBackgroundColor: colors,
+            },
+        ],
     };
+});
+
+
+
+// Opcije za chart
+const chartOptions = {
+    responsive: true,
+    plugins: {
+        legend: {
+            position: 'top',
+        },
+    },
 };
-
-// Izračun emisija po podkategorijama za vozila
-const vozilaEmisije = computed(() => {
-    return vehicleStore.vrsteVozila.map(type => calculateSubcategoryEmissions('vozila', type.value));
-});
-
-// Izračun emisija po podkategorijama za stacionarne izvore
-const izvoriEmisije = computed(() => {
-    return izvoriStore.vrsteEnergenata.map(type => calculateSubcategoryEmissions('izvori', type.value));
-});
 
 // Graf za kategoriju 'Sva vozila'
-const vozilaChartData = computed(() => {
-    return setChartData(
-        ['Osobno vozilo', 'Teretno vozilo', 'Stroj'],
-        vozilaEmisije.value,
-        ['#2cc23f', '#1e822a', '#0f4215'] // Boje za pie chart
-    );
-});
+// const vozilaChartData = computed(() => {
+//     return setChartData(
+//         ['Osobna vozila', 'Teretna vozila', 'Strojevi', 'Stacionarni izvori'],
+//         vozilaEmisije.value,
+//         ['#2cc23f', '#1e822a', '#215a28', '#0f4215'] // Boje za pie chart
+//     );
+// });
 
 // Graf za kategoriju 'Stacionarni izvori'
-const izvoriChartData = computed(() => {
-    return setChartData(
-        izvoriStore.vrsteEnergenata.map(type => type.label),
-        izvoriEmisije.value,
-        ['#8d813b', '#baac5a', '#575024'] // Možeš prilagoditi boje za stacionarne izvore
-    );
-});
+// const izvoriChartData = computed(() => {
+//     return setChartData(
+//         izvoriStore.vrsteEnergenata.map(type => type.label),
+//         izvoriEmisije.value,
+//         ['#8d813b', '#baac5a', '#575024'] // Možeš prilagoditi boje za stacionarne izvore
+//     );
+// });
 
-const chartOptions = setChartOptions();
+// const chartOptions = setChartOptions();
 
 const props = defineProps({
     sectionTitle: String,
@@ -490,42 +584,46 @@ const activeSectionTitle = ref('Opseg 1');
 const startDate = ref(null);
 const endDate = ref(null);
 
-// Funkcija za upravljanje promjenom početnog datuma
-const onStartDateChange = () => {
-    // Ako je postavljen novi početni datum, resetuj krajnji datum
-    if (endDate.value && endDate.value < startDate.value) {
-        endDate.value = null; // Resetuj krajnji datum ako je manji od novog početnog
-    }
-};
-
 // Pratimo promjene prop-a
 watch(() => props.sectionTitle, (newTitle) => {
     activeSectionTitle.value = newTitle;
 });
 
+// const getVehicleIcon = (vrstaVozila) => {
+//     switch (vrstaVozila) {
+//         case 'Osobno vozilo':
+//             return 'car-side'; // Ikona za osobno vozilo
+//         case 'Teretno vozilo':
+//             return 'truck'; // Ikona za teretno vozilo
+//         case 'Stroj':
+//             return 'tractor'; // Ikona za stroj
+//         case 'Lož ulje':
+//             return 'oil-can'; // Ikona za osobno vozilo
+//         case ('Biodizel', '"B20 biodizel"'):
+//             return 'gas-pump'; // Ikona za teretno vozilo
+//         case ('UNP', 'LPG', 'CNG', 'E85 Etanol'):
+//             return 'bottle-droplet'; // Ikona za stroj
+//         default:
+//             return 'car'; // Default ikona ako nije specificirano
+//     }
+// };
+
 const getVehicleIcon = (vrstaVozila) => {
     switch (vrstaVozila) {
-        case 'Osobno vozilo':
+        case 'Osobna vozila':
             return 'car-side'; // Ikona za osobno vozilo
-        case 'Teretno vozilo':
+        case 'Teretna vozila':
             return 'truck'; // Ikona za teretno vozilo
-        case 'Stroj':
+        case 'Strojevi':
             return 'tractor'; // Ikona za stroj
-        default:
-            return 'car'; // Default ikona ako nije specificirano
-    }
-};
-
-const getIzvorIcon = (vrstaIzvora) => {
-    switch (vrstaIzvora) {
-        case 'Ulje':
+        case 'Lož ulje':
             return 'oil-can'; // Ikona za osobno vozilo
-        case 'Plin':
+        case ('Biodizel', 'B20 biodizel', 'Stacionarni izvori'):
             return 'gas-pump'; // Ikona za teretno vozilo
-        case 'UNP':
+        case ('UNP', 'LPG', 'CNG', 'E85 Etanol'):
             return 'bottle-droplet'; // Ikona za stroj
         default:
-            return null; // Default ikona ako nije specificirano
+            return 'car'; // Default ikona ako nije specificirano
     }
 };
 
@@ -569,17 +667,17 @@ const openNewIzvor = () => {
 
 const saveVozilo = () => {
     // Pronađi koeficijent goriva na osnovu odabranog tipa goriva
-    const odabranoGorivo = vehicleStore.vrsteGoriva.find(g => g.value === vehicleStore.vozilo.gorivo.value);
+    const odabranoGorivo = vehicleStore.vrsteGoriva.find(g => g.label === vehicleStore.vozilo.gorivo.label);
 
-    const potroseneLitreNum = parseFloat(vehicleStore.vozilo.potrosnjaGoriva);
+    const potroseneLitreNum = parseFloat(vehicleStore.vozilo.potrosnjaGoriva) || 0;
 
     // Množenje potrošnje goriva s odgovarajućim koeficijentom goriva
-    vehicleStore.vozilo.emisije = isNaN(potroseneLitreNum) || !odabranoGorivo
-        ? 0
-        : potroseneLitreNum * odabranoGorivo.koeficijent;
+    vehicleStore.vozilo.emisije = odabranoGorivo
+        ? potroseneLitreNum * odabranoGorivo.koeficijent
+        : 0;
 
     // Uvijek postavi 'L' kao metric za gorivo
-    vehicleStore.vozilo.gorivo.metric = 'L';
+    vehicleStore.vozilo.gorivo.metric = odabranoGorivo?.metric || '';
 
     if (vehicleStore.vozilo.id) {
         const index = vehicleStore.vozila.findIndex(v => v.id === vehicleStore.vozilo.id);
@@ -615,6 +713,22 @@ const saveIzvor = () => {
 
     izvorDialogVisible.value = false;
 };
+
+const fullscreenChart = ref(null);
+
+function openFullscreen(chartType) {
+    fullscreenChart.value = chartType;
+    document.body.style.overflow = 'hidden'; // Disable scrolling
+}
+
+function closeFullscreen() {
+    fullscreenChart.value = null;
+    document.body.style.overflow = ''; // Re-enable scrolling
+}
+
+onBeforeUnmount(() => {
+    document.body.style.overflow = ''; // Reset overflow on component unmount
+});
 
 const openVoziloDeleteDialog = () => {
     deleteVoziloDialog.value = true;
@@ -661,7 +775,7 @@ const emissionsByType = computed(() => {
 
     vehicleStore.vozila.forEach((v) => {
         const vrsta = v.vrstaVozila;
-        const emisije = v.emisije || 0;
+        const emisije = parseFloat(v.emisije) || 0;
 
         // Inicijaliziraj ili dodaj emisije za svaku vrstu
         if (!result[vrsta]) {
@@ -699,8 +813,12 @@ watch(selectedVozilo, (newValue) => {
 });
 
 watch(() => vehicleStore.vozilo.potrosnjaGoriva, (newVal) => {
-    const odabranoGorivo = vehicleStore.vrsteGoriva.find(g => g.value === vehicleStore.vozilo.gorivo.value);
+    console.log("vrsteGoriva u watch: ", vrsteGoriva.value);
+    console.log("Vozilo u watch: ", vehicleStore.vozilo)
+    const odabranoGorivo = vrsteGoriva.value.find(g => g.label === vehicleStore.vozilo.gorivo.label);
     const potroseneLitreNum = parseFloat(newVal);
+
+    console.log("odabrano gorivo: ", odabranoGorivo);
 
     // Ažuriraj emisije samo ako postoji odabrano gorivo i važeći unos potrošnje
     vehicleStore.vozilo.emisije = isNaN(potroseneLitreNum) || !odabranoGorivo
@@ -709,16 +827,16 @@ watch(() => vehicleStore.vozilo.potrosnjaGoriva, (newVal) => {
 });
 
 
-watch(() => izvoriStore.izvor.potrosnjaEnergenata, (newVal) => {
-    const potrosnjaEnergenataNum = parseFloat(newVal);
-    const odabraniEnergent = izvoriStore.vrsteEnergenata.find(e => e.value === izvoriStore.izvor.vrstaEnergenata.value);
+// watch(() => izvoriStore.izvor.potrosnjaEnergenata, (newVal) => {
+//     const potrosnjaEnergenataNum = parseFloat(newVal);
+//     const odabraniEnergent = izvoriStore.vrsteEnergenata.find(e => e.value === izvoriStore.izvor.vrstaEnergenata.value);
 
-    if (odabraniEnergent && !isNaN(potrosnjaEnergenataNum)) {
-        izvoriStore.izvor.emisije = potrosnjaEnergenataNum * odabraniEnergent.koeficijent;
-    } else {
-        izvoriStore.izvor.emisije = 0;
-    }
-});
+//     if (odabraniEnergent && !isNaN(potrosnjaEnergenataNum)) {
+//         izvoriStore.izvor.emisije = potrosnjaEnergenataNum * odabraniEnergent.koeficijent;
+//     } else {
+//         izvoriStore.izvor.emisije = 0;
+//     }
+// });
 
 </script>
 
@@ -788,7 +906,18 @@ main>div {
 }
 
 .razdoblje>div {
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.opisnap {
+    width: 100%;
+    grid-column: span 2;
+}
+
+textarea {
+    resize: vertical;
+    max-height: 100px;
 }
 
 .razdoblje>span {
@@ -834,10 +963,32 @@ main>div {
     gap: 20px;
 }
 
+.expand-icon,
+.close-icon {
+    padding: 7px;
+    background-color: none;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.expand-icon:hover,
+.close-icon:hover {
+    background-color: var(--input-hover-color);
+}
+
+.expand-icon:active,
+.close-icon:active {
+    background-color: var(--input-focus-color);
+}
+
 .chart-container>span {
     text-align: center;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
     gap: 5px;
 }
 
@@ -990,6 +1141,32 @@ strong {
     /* Ako želiš promijeniti i boju teksta */
 }
 
+.jet-tag {
+    background-color: lightskyblue;
+    color: var(--text-color);
+}
+
+.lozulje-tag {
+    background-color: gold;
+    color: var(--text-color);
+}
+
+.lpg-tag,
+.lng-tag {
+    background-color: var(--red-soft);
+    color: white;
+}
+
+.cng-tag {
+    background-color: green;
+    color: white;
+}
+
+.etanol-tag {
+    background-color: lightslategray;
+    color: white;
+}
+
 
 #saveBtn {
     width: 150px;
@@ -1052,8 +1229,84 @@ strong {
     /* Zadržava boju teksta */
 }
 
-
 footer {
     justify-content: flex-end;
+}
+
+.fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 26px;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.fullscreen-chart {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    padding: 26px;
+    border-radius: 5px;
+    animation: scaleUp 0.3s ease;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+}
+
+.fullscreen-chart-content {
+    margin: auto;
+    width: 100%;
+    height: 90%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fullscreen-chart-content>canvas {
+    margin: auto;
+}
+
+/* .fullscreen-chart-content>canvas {
+    max-width: 30vw;
+    max-height: 40vh;
+} */
+
+.close-icon {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleUp {
+    from {
+        transform: scale(0.8);
+    }
+
+    to {
+        transform: scale(1);
+    }
 }
 </style>

@@ -16,12 +16,34 @@
 
 import { ref, computed, watch } from 'vue'
 import KespSidebar from '~/components/KespSidebar.vue';
+import { useKespStore } from '#imports';
 
 definePageMeta({
     middleware: [
         'auth',
     ],
 });
+
+const vehicleStore = useVehicleStore();
+const kespStore = useKespStore();
+const opseg2Store = useOpseg2Store();
+
+const kespId = ref(null);
+
+onMounted(async () => {
+    const res = await initializeCookie('kesp-id');
+    kespId.value = parseInt(res['kesp-id']);
+
+    kespStore.clearStore();
+    vehicleStore.resetData();
+    opseg2Store.clearStore();
+
+    await kespStore.fetchHeader(kespId);
+    await opseg2Store.fetchEnergySources(kespId.value);
+    await vehicleStore.fetchVehicles(kespId.value);
+    await vehicleStore.fetchEmissions();
+    await vehicleStore.fetchFuels();
+})
 
 const activeSectionTitle = ref('');
 
