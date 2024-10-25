@@ -154,10 +154,10 @@
                     <div :class="['profile-details', isCollapsed ? 'collapsed' : '']">
                         <h4 :class="isCollapsed ? 'collapsed' : ''"
                             :style="{ fontSize: nameLength > 20 ? '14px' : 'initial' }" class="responsive-text">
-                            {{ capitalizeName(storedName + ' ' + storedSurname) }}
+                            {{ capitalizeName(name + ' ' + surname) }}
                         </h4>
                         <span :class="isCollapsed ? 'collapsed' : ''" class="responsive-text">
-                            {{ storedEmail ? storedEmail : username }}
+                            {{ email ? email : username.toLowerCase() }}
                         </span>
                     </div>
                 </div>
@@ -187,9 +187,9 @@ const router = useRouter();
 
 const idIzracuna = ref('/');
 const username = ref('');
-const storedName = ref('');
-const storedSurname = ref('');
-const storedEmail = ref('');
+const name = ref('');
+const surname = ref('');
+const email = ref('');
 
 // Definiramo sections
 const sections = ref([
@@ -198,9 +198,9 @@ const sections = ref([
         icon: 'list',
         collapsed: false,
         links: [
-            { label: 'Pregled', to: '/kesp/predlozak/pregled', icon: 'list-ol', isActive: false },
             { label: 'Opseg 1', to: '/kesp/predlozak', icon: 'car', isActive: false },
             { label: 'GHG opseg 2', to: '/kesp/predlozak/opseg2', icon: 'bolt', isActive: false },
+            { label: 'Pregled', to: '/kesp/predlozak/pregled', icon: 'list-ol', isActive: false },
         ],
     },
 ]);
@@ -231,33 +231,33 @@ const toggleSection = (index) => {
 };
 
 const initializeIdIzracuna = async () => {
-    const cookieValue = useCookie('id_izracuna').value;
-    const decryptedValue = await decryptCookie(cookieValue);
-    if (decryptedValue == '/' || decryptedValue == undefined || decryptedValue == 0 || decryptedValue == null) {
+    const cookieValue = await initializeCookie('kesp-id');
+    if (cookieValue == '/' || cookieValue == undefined || cookieValue == 0 || cookieValue == null) {
         idIzracuna.value = '/';
     } else {
-        idIzracuna.value = parseInt(decryptedValue);
+        idIzracuna.value = parseInt(cookieValue);
     }
+    console.log("KESP-ID: ", idIzracuna.value);
 }
 
 // Asinhrona funkcija za postavljanje dekriptovanog username-a
-const initializeUsername = async () => {
-    const cookieValue = useCookie('username').value;
-    if (cookieValue) {
-        const decryptedValue = await decryptCookie(cookieValue);
-        username.value = decryptedValue.toLowerCase(); // Postavljanje dekriptovane vrednosti
-    }
-}
+// const initializeUsername = async () => {
+//     const cookieValue = useCookie('username').value;
+//     if (cookieValue) {
+//         const decryptedValue = await decryptCookie(cookieValue);
+//         username.value = decryptedValue.toLowerCase(); // Postavljanje dekriptovane vrednosti
+//     }
+// }
 
-async function initializeStoredData() {
-    if (import.meta.client) {
-        storedName.value = (await decryptCookie(localStorage.getItem('name'))) || '';
-        storedSurname.value = (await decryptCookie(localStorage.getItem('surname'))) || '';
-        storedEmail.value = localStorage.getItem('email')
-            ? await decryptCookie(localStorage.getItem('email'))
-            : null;
-    }
-}
+// async function initializeStoredData() {
+//     if (import.meta.client) {
+//         storedName.value = (await decryptCookie(localStorage.getItem('name'))) || '';
+//         storedSurname.value = (await decryptCookie(localStorage.getItem('surname'))) || '';
+//         storedEmail.value = localStorage.getItem('email')
+//             ? await decryptCookie(localStorage.getItem('email'))
+//             : null;
+//     }
+// }
 
 function capitalizeName(fullName) {
     return fullName
@@ -272,12 +272,6 @@ watch(() => izracunStore.idIzracuna, (newValue) => {
     idIzracuna.value = parseInt(newValue);
 });
 
-onMounted(async () => {
-    await initializeIdIzracuna();
-    await initializeUsername();
-    await initializeStoredData();
-})
-
 // Prima prop za stanje bočne trake
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps(['isCollapsed'])
@@ -285,24 +279,23 @@ const props = defineProps(['isCollapsed'])
 // Emitira događaj za prebacivanje stanja bočne trake
 const emit = defineEmits(['toggle-sidebar', 'updateActiveSection'])
 
-const activeHash = ref('');
-
+// const activeHash = ref('');
 
 const toggleSidebar = () => {
     emit('toggle-sidebar')
     // isCollapsed.value = !isCollapsed.value;
 }
 
-const handleLinkClick = (sectionTitle, linkTo) => {
-    emit('updateActiveSection', sectionTitle); // Emitiramo događaj
-    const [path, hash] = linkTo.split('#');
-    router.push({ path, hash: `#${hash}` }).then(() => {
-        const element = document.getElementById(hash);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
-    });
-};
+// const handleLinkClick = (sectionTitle, linkTo) => {
+//     emit('updateActiveSection', sectionTitle); // Emitiramo događaj
+//     const [path, hash] = linkTo.split('#');
+//     router.push({ path, hash: `#${hash}` }).then(() => {
+//         const element = document.getElementById(hash);
+//         if (element) {
+//             element.scrollIntoView({ behavior: 'smooth' });
+//         }
+//     });
+// };
 
 // Updated isActiveRoute function to consider both path and hash
 // const isActiveRoute = (pathWithHash) => {
@@ -315,51 +308,67 @@ const isActiveRoute = (link) => {
 };
 
 // Function to navigate to the desired section
-const scrollToHash = (hash) => {
-    const element = document.getElementById(hash);
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-    }
-};
+// const scrollToHash = (hash) => {
+//     const element = document.getElementById(hash);
+//     if (element) {
+//         element.scrollIntoView({ behavior: 'smooth' });
+//     }
+// };
 
-// Watch for route changes to handle hash navigation
-router.afterEach((to) => {
-    if (to.hash) {
-        scrollToHash(to.hash.substring(1)); // Remove the '#' from the hash
+// // Watch for route changes to handle hash navigation
+// router.afterEach((to) => {
+//     if (to.hash) {
+//         scrollToHash(to.hash.substring(1)); // Remove the '#' from the hash
+//     }
+// });
+
+const cookiesToGet = ['kesp-id', 'username', 'name', 'surname', 'email'];
+
+onMounted(async () => {
+    try {
+        const cookieData = await initializeCookie(cookiesToGet);
+        idIzracuna.value = cookieData['kesp-id'] || null;
+        username.value = cookieData['username'] || '';
+        name.value = cookieData['name'] || '';
+        surname.value = cookieData['surname'] || '';
+        email.value = cookieData['email'] || null;
+        console.log(idIzracuna.value, username.value, name.value, surname.value, email.value);
+    } catch (error) {
+        console.error("Error loading cookies: ", error);
     }
-});
+})
 
 // Učitavanje sekcija i promjena # u URL-u
-onMounted(() => {
-    // Ako URL nema #, dodajemo #osobna
-    // if (!router.currentRoute.value.hash) {
-    //     router.push({ path: '/kesp/predlozak', hash: '#osobna' });
-    // }
+// onMounted(() => {
+//     // Ako URL nema #, dodajemo #osobna
+//     // if (!router.currentRoute.value.hash) {
+//     //     router.push({ path: '/kesp/predlozak', hash: '#osobna' });
+//     // }
 
-    // Uzimamo trenutni hash i označavamo odgovarajući link
-    const currentHash = router.currentRoute.value.hash;
-    highlightActiveLink(currentHash);
-});
+//     // Uzimamo trenutni hash i označavamo odgovarajući link
+//     const currentHash = router.currentRoute.value.hash;
+//     highlightActiveLink(currentHash);
+// });
 
 // Funkcija za označavanje aktivnog nuxt-linka
-const highlightActiveLink = (hash) => {
-    sections.value.forEach(section => {
-        section.links.forEach(link => {
-            if (link.to === `/kesp/predlozak${hash}`) {
-                link.isActive = true;
-            } else {
-                link.isActive = false;
-            }
-        });
-    });
-};
+// const highlightActiveLink = (hash) => {
+//     sections.value.forEach(section => {
+//         section.links.forEach(link => {
+//             if (link.to === `/kesp/predlozak${hash}`) {
+//                 link.isActive = true;
+//             } else {
+//                 link.isActive = false;
+//             }
+//         });
+//     });
+// };
 
 
-// Pratimo promjene hash-a
-watch(activeHash, (newHash) => {
-    console.log("promjena u hashu: ", newHash);
-    highlightActiveLink(newHash);
-});
+// // Pratimo promjene hash-a
+// watch(activeHash, (newHash) => {
+//     console.log("promjena u hashu: ", newHash);
+//     highlightActiveLink(newHash);
+// });
 
 const doLogout = async () => {
     await logout();

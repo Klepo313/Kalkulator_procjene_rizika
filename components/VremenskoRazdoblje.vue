@@ -1,23 +1,28 @@
 <template>
     <div class="razdoblje">
-        <span>
-            <label for="godina">
-                Godina<span class="required">*</span>
-            </label>
-            <DatePicker v-model="godina" show-icon fluid icon-display="input" view="year" date-format="yy"
-                placeholder="Godina izračuna" readonly @change="onYearChange" />
-        </span>
         <div>
+            <div class="opisnap">
+                <label for="opis">
+                    Naziv
+                </label>
+                <InputText type="text" id="opis" readonly />
+            </div>
+            <div class="opisnap">
+                <label for="napomena">
+                    Napomena
+                </label>
+                <Textarea id="napomena" readonly />
+            </div>
             <div>
                 <label for="startDate">
-                    Početni datum<span class="required">*</span>
+                    Početak razdoblja<span class="required">*</span>
                 </label>
                 <DatePicker id="startDate" v-model="datumOd" date-format="dd.mm.yy" show-icon fluid icon-display="input"
                     placeholder="Početni datum" readonly />
             </div>
             <div>
                 <label for="endDate">
-                    Krajnji datum<span class="required">*</span>
+                    Kraj razdoblja<span class="required">*</span>
                 </label>
                 <DatePicker id="endDate" v-model="datumDo" date-format="dd.mm.yy" show-icon fluid icon-display="input"
                     placeholder="Krajnji datum" readonly />
@@ -61,11 +66,13 @@ console.log(datumOd.value, datumDo.value, godina.value);
 }
 
 .razdoblje>div {
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 }
 
-.razdoblje>span {
-    width: auto;
+.opisnap {
+    width: 100%;
+    grid-column: span 2;
 }
 
 .required {
