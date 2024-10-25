@@ -289,10 +289,22 @@ function closePopup() {
     document.body.style.overflow = 'auto'; // Vrati scrollanje body-ja
 }
 
+const cookiesToGet = ['id-izracuna', 'vrsta-izracuna', 'scenarij'];
+
 onMounted(async () => {
-    idIzracuna.value = await initializeCookie('id-izracuna');
-    vrstaIzracuna.value = await initializeCookie('vrsta-izracuna');
-    await initializeScenarij();
+    try {
+        const cookieData = await initializeCookie(cookiesToGet);
+
+        idIzracuna.value = cookieData['id-izracuna'] || '';
+        vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
+        scenarij.value = cookieData['scenarij'] || 'RCP';
+        isScenarijLoaded.value = true;
+
+        console.log("cookieData: ", vrstaIzracuna.value, idIzracuna.value, scenarij.value);
+
+    } catch (error) {
+        console.error("Error loading cookies: ", error);
+    }
 
     await opciStore.fetchCalculation(idIzracuna.value);
     adaptStore.odabrane_mjere = [];

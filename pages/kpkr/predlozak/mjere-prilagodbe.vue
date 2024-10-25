@@ -128,7 +128,9 @@ onBeforeUnmount(() => {
 
 onMounted(async () => {
     // Pozovi funkciju kada se komponenta inicijalizuje
-    idIzracuna.value = await initializeCookie('id-izracuna');
+    const cookieData = await initializeCookie('id-izracuna');
+    idIzracuna.value = cookieData['id-izracuna'] || '';
+    console.log('ID izračuna je: ', idIzracuna.value);
 
     updateScrollHeight(); // Postavi scrollHeight prilikom montiranja
     window.addEventListener('resize', updateScrollHeight); // Dodaj listener za promjenu veličine

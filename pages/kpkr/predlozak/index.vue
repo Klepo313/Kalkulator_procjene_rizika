@@ -244,7 +244,7 @@ import Textarea from "primevue/textarea";
 import { ref, onMounted, onBeforeUnmount } from "vue" //onBeforeMount
 import { useOpciStore, useIzracunStore } from '~/stores/main-store';
 import { formatDateToDMY } from '~/utils/dateFormatter'
-import { setCookie, getCookie, encryptCookie, decryptCookie } from '~/utils/cookieUtils';
+import { setCookie } from '~/utils/cookieUtils';
 import { initializeCookie } from "~/utils/initializeCookie";
 
 definePageMeta({
@@ -368,7 +368,7 @@ watch(isNespremljenePromjenePopupVisible, (newValue) => {
 watch(scenarij, async (newValue) => {
     if (newValue) {
         // const encryptedValue = await encryptCookie(newValue); // Enkriptiraj vrijednost
-        await setCookie('scenarij', newValue); // Spremi enkriptiranu vrijednost u kolačić
+        await setCookie({ name: 'scenarij', value: newValue }); // Spremi enkriptiranu vrijednost u kolačić
         izracunStore.updateScenarij(newValue);
         console.log("scenarij: ", izracunStore.scenarij)
     }
@@ -467,11 +467,33 @@ watch(idIzracuna, async (newValue, oldValue) => {
     }
 });
 
+const cookiesToGet = ['id-izracuna', 'vrsta-izracuna', 'scenarij'];
+
 onMounted(async () => {
 
-    idIzracuna.value = await initializeCookie('id-izracuna');
-    vrstaIzracuna.value = await initializeCookie('vrsta-izracuna');
-    await initializeScenarij();
+    try {
+        const cookieData = await initializeCookie(cookiesToGet);
+
+        idIzracuna.value = cookieData['id-izracuna'] || '';
+        vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
+
+        // Handle the scenarij case
+        if (cookieData['scenarij'] === null) {
+            scenarij.value = 'RCP';
+            await setCookie({ name: 'scenarij', value: 'RCP' });
+        } else {
+            scenarij.value = cookieData['scenarij'];
+        }
+
+        isScenarijLoaded.value = true;
+
+    } catch (error) {
+        console.error("Error loading cookies: ", error);
+    }
+
+    // idIzracuna.value = await initializeCookie('id-izracuna');
+    // vrstaIzracuna.value = await initializeCookie('vrsta-izracuna');
+    // await initializeScenarij();
 
     // Dodaj event listener za upozorenje prilikom refreša stranice
     window.addEventListener('beforeunload', beforeWindowUnload);
@@ -625,7 +647,7 @@ const fillFormData = () => {
 
         const setVrstaIzracuna = async () => {
             // Čekamo rezultat encryptCookie funkcije
-            await setCookie('vrsta-izracuna', odabranaVrstaIzracuna.value.tvz_naziv);
+            await setCookie({ name: 'vrsta-izracuna', value: odabranaVrstaIzracuna.value.tvz_naziv });
             // vrstaIzracuna.value = await encryptCookie(odabranaVrstaIzracuna.value.tvz_naziv);
         }
         setVrstaIzracuna();
@@ -815,7 +837,7 @@ const saveFormData = async () => {
             if (idIzracuna.value == '/') {
                 idIzracuna.value = parseInt(responseId)
 
-                await setCookie('id-izracuna', idIzracuna.value);
+                await setCookie({ name: 'id-izracuna', value: idIzracuna.value });
 
                 izracunStore.idIzracuna = '/';
                 izracunStore.updateIdIzracuna(responseId);

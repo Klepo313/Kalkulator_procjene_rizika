@@ -97,17 +97,21 @@ const loading = ref(true);
 
 const odabraniIzracun = ref();
 
+const cookiesToDelete = [
+    'scenarij',
+    'id-izracuna',
+    'vrsta-izracuna',
+];
+
 const onRowSelect = async () => {
     console.log("Uspješno dohvaćen izračun.", odabraniIzracun.value);
-    await setCookie('id-izracuna', odabraniIzracun.value.aiz_id);
+    await setCookie({ name: 'id-izracuna', value: odabraniIzracun.value.aiz_id });
     navigateTo('/kpkr/predlozak');
 };
 
 onMounted(async () => {
 
-    await deleteCookie('id-izracuna');
-    await deleteCookie('vrsta-izracuna');
-    await deleteCookie('scenarij');
+    deleteCookie(cookiesToDelete);
 
     const data = await getCalculations();
     if (data) {
@@ -127,7 +131,7 @@ const doLogout = async () => {
 };
 
 const noviIzracun = async () => {
-    await setCookie('id-izracuna', '/');
+    await setCookie({ name: 'id-izracuna', value: '/' });
     navigateTo('/kpkr/predlozak');
 };
 </script>

@@ -49,6 +49,9 @@
 
 <script setup>
 import { logout } from '~/service/logout';
+import { useIzracunStore } from '#imports';
+
+const izracunStore = useIzracunStore();
 
 definePageMeta({
     middleware: [
@@ -57,8 +60,14 @@ definePageMeta({
     pageTransition: { name: 'slide', mode: 'out-in' }
 });
 
-const noviIzracun = async () => {
-    await setCookie('id-izracuna', '/');
+const cookiesToDelete = [
+    'scenarij',
+    'id-izracuna',
+    'vrsta-izracuna',
+];
+
+const noviIzracun = () => {
+    izracunStore.updateIdIzracuna('/');
     navigateTo('/kpkr/predlozak');
 };
 
@@ -68,9 +77,9 @@ const doLogout = async () => {
 };
 
 onMounted(async () => {
-    await deleteCookie('id-izracuna');
-    await deleteCookie('vrsta-izracuna');
-    await deleteCookie('scenarij');
+    // const res = await initializeCookie(['username', 'surname']);
+    // console.log("username: ", res['username'], "surname: ", res.surname);
+    izracunStore.clearStore();
 })
 
 </script>
