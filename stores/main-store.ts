@@ -14,6 +14,7 @@ import { getHeader } from '~/service/kesp/fetchHeader';
 import { getCookie, setCookie, deleteCookie } from '#imports';
 import { getEmmisionGroups, getFuelTypes, getVehicles, getVehiclesForEmmisionGroups } from '~/service/kesp/fetchVoziloData';
 import { getEnergySources } from '~/service/kesp/fetchOpseg2';
+import { updateEnergyItem } from '~/service/kesp/postRequests';
 
 //import { formatDateToISO } from '~/utils/dateFormatter';
 
@@ -70,6 +71,7 @@ export const useUserStore = defineStore('user-store', {
         surname: '',
         username: '',
         email: '',
+        roles: []
     }),
     actions: {
         updateName(newValue: string) {
@@ -88,15 +90,21 @@ export const useUserStore = defineStore('user-store', {
             this.email = newValue;
             if (newValue) setCookie({ name: 'email', value: newValue });
         },
-        updateAll(newValue: { name: string, surname: string, username: string }) {
+        updateRoles(newValue: any) {
+            this.roles = newValue;
+            setCookie({ name: 'roles', value: newValue });
+        },
+        updateAll(newValue: { name: string, surname: string, username: string, roles: any }) {
             this.name = newValue.name;
             this.surname = newValue.surname;
             this.username = newValue.username;
+            this.roles = newValue.roles;
             // this.email = newValue.email;
             setCookie([
                 { name: 'name', value: newValue.name },
                 { name: 'surname', value: newValue.surname },
                 { name: 'username', value: newValue.username },
+                { name: 'roles', value: newValue.roles },
                 // { name: 'email', value: newValue.email },
             ])
         },
@@ -108,11 +116,12 @@ export const useUserStore = defineStore('user-store', {
             this.email = response['email'] || null;
         },
         clearStore() {
-            deleteCookie(['name', 'surname', 'username', 'email']);
+            deleteCookie(['name', 'surname', 'username', 'email', 'roles']);
             this.name = '';
             this.surname = '';
             this.username = '';
             this.email = '';
+            this.roles = [];
         }
     },
     getters: {
@@ -137,18 +146,20 @@ export const useUserStore = defineStore('user-store', {
             return res['email'] || null;
         },
         getAll: async (state) => {
-            if (state.name && state.surname && state.username && state.email) return {
+            if (state.name && state.surname && state.username && state.roles) return {
                 name: state.name,
                 surname: state.surname,
                 username: state.username,
-                email: state.email
+                email: state.email,
+                roles: state.roles
             };
-            const response = await getCookie(['name', 'surname', 'username', 'email']);
+            const response = await getCookie(['name', 'surname', 'username', 'email', 'roles']);
             return {
                 name: response['name'] || '',
                 surname: response['surname'] || '',
                 username: response['username'] || '',
                 email: response['email'] || null,
+                roles: response['roles'] || []
             };
         }
     }
@@ -497,6 +508,7 @@ export const useVehicleStore = defineStore('vehicleStore', {
             },
             gorivo: {
                 id: null,
+                uvg_id: null,
                 label: '',
                 value: '',
                 metric: '',
@@ -520,25 +532,49 @@ export const useVehicleStore = defineStore('vehicleStore', {
         async fetchVehicles(id: number) {
             const vozila = await getVehicles(id);
 
-            for (const vozilo of vozila) {
-                this.vozila.push({
-                    id: parseInt(vozilo.usi_id),
-                    uiz_id: parseInt(vozilo.usi_uiz_id),
-                    uge_id: parseInt(vozilo.usi_uge_id),
-                    vozilo: {
-                        id: vozilo.usi_uvv_id,
-                        skupina: vozilo.uge_naziv,
-                        vrsta: vozilo.uvv_naziv
-                    },
-                    gorivo: {
-                        id: vozilo.usi_uvg_id,
-                        label: vozilo.uvg_knaziv,
-                        value: vozilo.uvg_naziv,
-                        metric: vozilo.usi_jmj,
-                    },
-                    potrosnjaGoriva: parseFloat(vozilo.usi_kolicina),
-                    emisije: parseFloat(vozilo.usi_emisija)
-                })
+            if (!vozila.message) {
+                for (const vozilo of vozila) {
+                    this.vozila.push({
+                        id: parseInt(vozilo.usi_id),
+                        uiz_id: parseInt(vozilo.usi_uiz_id),
+                        uge_id: parseInt(vozilo.usi_uge_id),
+                        vozilo: {
+                            id: vozilo.usi_uvv_id,
+                            skupina: vozilo.uge_naziv,
+                            vrsta: vozilo.usi_uvv_naziv
+                        },
+                        gorivo: {
+                            id: vozilo.usi_uvg_id,
+                            label: vozilo.uvg_knaziv,
+                            value: vozilo.uvg_naziv,
+                            metric: vozilo.usi_jmj,
+                        },
+                        potrosnjaGoriva: parseFloat(vozilo.usi_kolicina),
+                        emisije: parseFloat(vozilo.usi_emisija)
+                    })
+                    // vozilo: {
+                    //     id: null,
+                    //     uiz_id: null,
+                    //     uge_id: null,
+                    //     vozilo: {
+                    //         uvv_id: null,
+                    //         skupina: '',
+                    //         vrsta: ''
+                    //     },
+                    //     gorivo: {
+                    //         id: null,
+                    //         uvg_id: null,
+                    //         label: '',
+                    //         value: '',
+                    //         metric: '',
+                    //     },
+                    //     potrosnjaGoriva: 0.00,
+                    //     emisije: 0.00
+                    // },
+                }
+            } else {
+                this.vozila = [];
+                console.log("Nema vozila");
             }
         },
         async fetchEmissions() {
@@ -583,6 +619,7 @@ export const useVehicleStore = defineStore('vehicleStore', {
             for (const gorivo of goriva) {
                 this.vrsteGoriva.push({
                     id: parseInt(gorivo.ufe_id),
+                    uvg_id: parseInt(gorivo.uvg_id),
                     uge_id: parseInt(gorivo.ufe_uge_id),
                     label: gorivo.uvg_knaziv,
                     value: gorivo.uvg_naziv,
@@ -681,7 +718,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
         izracuni: []
     }),
     actions: {
-        async fetchEnergySources(id) {
+        async fetchEnergySources(id: number) {
             try {
                 const energySources = await getEnergySources(id);
                 for (const source of energySources) {
@@ -709,15 +746,48 @@ export const useOpseg2Store = defineStore('opseg2-store', {
             const obnovljivo = Number(rowData.obnovljivo) || 0;
             rowData.ukupno = neobnovljivo + obnovljivo;
             rowData.emisije = rowData.ukupno * rowData.koeficijent;
+
+            console.log(" rowData: ", rowData)
         },
-        onCellEditComplete(event) {
+        async onCellEditComplete(event) {
             const { data, newValue, field } = event;
             const parsedValue = Number(newValue);
 
+            console.log("data: ", data, "newValue: ", newValue, "field: ", field, "parsedValue: ", parsedValue);
+
+            data[field] = parsedValue;
+
             if (field === 'neobnovljivo' || field === 'obnovljivo') {
                 if (this.isPositiveInteger(parsedValue)) {
-                    data[field] = parsedValue;
-                    this.updateCalculations(data);
+                    const energyItem = {
+                        p_use_id: data.id,
+                        p_uiz_id: data.uiz_id,
+                        p_uvn_id: data.uvn_id,
+                        p_neobnovljivo: data.neobnovljivo || 0,
+                        p_obnovljivo: data.obnovljivo || 0
+                    }
+
+                    console.log("energyItem: ", energyItem)
+
+                    try {
+                        const response = await updateEnergyItem(energyItem);
+
+                        const { id, status } = response;
+
+                        if (status === 200) {
+                            const use_id = parseInt(id);
+                            console.log(`Energy item updated with ID: ${use_id}`);
+
+                            this.updateCalculations(data);
+                            return status;
+                        } else {
+                            console.error(`Failed to update energy item with ID: ${id}`);
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Error updating energy item:', error);
+                        return;
+                    }
                 } else {
                     event.preventDefault();
                 }
@@ -729,9 +799,40 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                     event.preventDefault();
                 }
             }
+
+            /*
+            const energyItem = {
+                p_use_id: rowData.id,
+                p_uiz_id: rowData.uiz_id,
+                p_uvn_id: rowData.uvn_id,
+                p_neobnovljivo: neobnovljivo,
+                p_obnovljivo: obnovljivo
+            }
+
+            try {
+                const response = await updateEnergyItem(energyItem);
+
+                const { id, status } = response;
+
+                if (status === 200) {
+                    const use_id = parseInt(id);
+                    console.log(`Energy item updated with ID: ${use_id}`);
+
+                   
+                } else {
+                    console.error(`Failed to update energy item with ID: ${id}`);
+                    return;
+                }
+
+            } catch (error) {
+                console.error('Error updating energy item:', error);
+                return;
+            }
+            
+            */
         },
         isPositiveInteger(val) {
-            return Number.isInteger(val) && val >= 0;
+            return Number.isInteger(val) && val > 0;
         }
     },
 
