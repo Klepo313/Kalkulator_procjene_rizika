@@ -142,13 +142,15 @@ definePageMeta({
     middleware: 'auth',
 });
 
+const kespStore = useKespStore();
+
 const toast = useToast();
 
 const filters = ref({
     global: { value: '', matchMode: 'contains' }
 });
 
-const izracuni = ref([]);
+const izracuni = computed(() => kespStore.predlosci);
 const loading = ref(true);
 
 const opis = ref(null);
@@ -192,14 +194,7 @@ onMounted(async () => {
 
     deleteCookie(cookiesToDelete);
 
-    const data = await getKespCalculations();
-    if (data) {
-        if (data.message) {
-            izracuni.value = [];
-        } else {
-            izracuni.value = data;
-        }
-    }
+    await kespStore.fetchPredlosci();
     console.log(izracuni.value)
     loading.value = false;
 
@@ -218,6 +213,10 @@ const doLogout = async () => {
     navigateTo('/login');
 };
 
+const showSuccess = (dod, ddo) => {
+    toast.add({ severity: 'success', summary: 'Uspješno dodan izračun', detail: `Dodan izračun za razdoblje od ${dod} do ${ddo}`, life: 3000 });
+};
+
 const showError = () => {
     toast.add({ severity: 'error', summary: 'Došlo je do greške!', detail: `Dodavanje novog predloška nije uspjelo.`, life: 3000 });
 };
@@ -233,21 +232,9 @@ const addIzracun = async () => {
     console.log(header);
 
     try {
-        const response = await postHeader(header);
-        const { id, status } = response;
-
-        if (status === 200) {
-            const kespId = parseInt(id);
-            if (kespId && !isNaN(kespId)) {
-                await setCookie({ name: 'kesp-id', value: kespId });
-            } else {
-                console.log("Kesp ID nije validan.");
-            }
-        } else {
-            console.log("Greska pri dodavanju izračuna.");
-            showError();
-        }
-
+        const res = await kespStore.addPredlozak(header);
+        if (res) showSuccess(datumOd.value, datumDo.value);
+        else showError();
     } catch (error) {
         console.log("Greska pri dodavanju izračuna.", error);
         showError();

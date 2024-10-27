@@ -14,7 +14,8 @@ import { getHeader } from '~/service/kesp/fetchHeader';
 import { getCookie, setCookie, deleteCookie } from '#imports';
 import { getEmmisionGroups, getFuelTypes, getVehicles, getVehiclesForEmmisionGroups } from '~/service/kesp/fetchVoziloData';
 import { getEnergySources } from '~/service/kesp/fetchOpseg2';
-import { updateEnergyItem } from '~/service/kesp/postRequests';
+import { postHeader, updateEnergyItem } from '~/service/kesp/postRequests';
+import { getKespCalculations } from '~/service/kesp/fetchKespCalculations';
 
 //import { formatDateToISO } from '~/utils/dateFormatter';
 
@@ -443,6 +444,7 @@ export const useStructuredGridDataStore = defineStore('structured-grid-data', {
 
 export const useKespStore = defineStore('kespStore', {
     state: () => ({
+        predlosci: [],
         naziv: '',
         napomena: '',
         godina: new Date(2022, 0, 1),
@@ -450,6 +452,61 @@ export const useKespStore = defineStore('kespStore', {
         datumDo: new Date(2022, 11, 31), // December 31st, 2022
     }),
     actions: {
+        async fetchPredlosci() {
+            try {
+                const data = await getKespCalculations();
+                if (data) {
+                    if (data.message) {
+                        this.predlosci = [];
+                    } else {
+                        this.predlosci = data;
+                    }
+                } else {
+                    this.predlosci = [];
+                    console.log('Error fetching calculations:', data);
+                }
+
+            } catch (error) {
+                console.error('Error fetching calculations:', error);
+            }
+        },
+        async addPredlozak(header) {
+            try {
+                const response = await postHeader(header);
+                const { id, status } = response;
+
+                if (status === 200) {
+                    const kespId = parseInt(id);
+                    if (kespId && !isNaN(kespId)) {
+                        // Kreiraj novi objekt u traženoj strukturi
+                        const newPredlozak = {
+                            uiz_id: kespId,
+                            uiz_datum: header.l_datum,
+                            uiz_datod: header.l_datod,
+                            uiz_datdo: header.l_datdo,
+                            uiz_opis: header.l_opis,
+                            uiz_napomena: header.l_napomena
+                        };
+
+                        // Dodaj u predloške
+                        await setCookie({ name: 'kesp-id', value: kespId });
+                        this.predlosci.push(newPredlozak);
+                    } else {
+                        console.log("Kesp ID nije validan.");
+                    }
+
+                    return 1;
+                } else {
+                    console.log("Greška pri dodavanju izračuna.");
+                    return 0;
+                }
+
+            } catch (error) {
+                console.log("Greška pri dodavanju izračuna.", error);
+                return 0;
+            }
+        },
+
         setGodina(godina: number) {
             this.godina = new Date(godina, 0, 1);
             this.setDatumOd(godina);
@@ -467,7 +524,7 @@ export const useKespStore = defineStore('kespStore', {
                 const response = await getHeader(id);
                 if (response) {
                     this.naziv = response.uiz_opis;
-                    this.napomena = response.Uiz_napomena || '';
+                    this.napomena = response.uiz_napomena || '';
                     this.datumOd = response.uiz_datod;
                     this.datumDo = response.uiz_datdo;
                 }

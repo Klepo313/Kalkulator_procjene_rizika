@@ -19,7 +19,7 @@ const postHeader = async (header) => {
         console.log(response.data)
 
         return {
-            data: response.data.fn_spremi_ugo_izracun,
+            id: response.data.fn_spremi_ugo_izracun,
             status: response.status
         };
     } catch (error) {
