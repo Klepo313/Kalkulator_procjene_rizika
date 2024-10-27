@@ -33,7 +33,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="download-container">
+                        <div class="download-container" @click="downloadPDF">
                             <font-awesome-icon icon="download" />
                             Upute za korištenje
                         </div>
@@ -65,6 +65,20 @@ const cookiesToDelete = [
     'id-izracuna',
     'vrsta-izracuna',
 ];
+
+function downloadPDF() {
+    // Putanja do PDF datoteke u /static/blobs
+    const filePath = '/blobs/Uputa za korištenje_v1.0.pdf'; // Zamijenite 'upute.pdf' stvarnim imenom vaše datoteke
+
+    // Kreirajte nevidljivi link element
+    const link = document.createElement('a');
+    link.href = filePath;
+    link.download = 'Uputa za korištenje_v1.0.pdf'; // Naziv pod kojim će se datoteka preuzeti
+
+    // Simulirajte klik na link
+    link.click();
+}
+
 
 const noviIzracun = () => {
     izracunStore.updateIdIzracuna('/');
