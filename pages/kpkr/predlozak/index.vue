@@ -157,6 +157,22 @@
                     <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
 
+                <div class="grid-item header">Klimatski scenarij</div>
+                <div class="grid-item radio-button-container">
+                    <div class="radio-button">
+                        <RadioButton v-model="scenarij" inputId="rcp" name="scenarij" value="RCP" />
+                        <label for="rcp" class="ml-2">RCP</label>
+                    </div>
+                    <div class="radio-button">
+                        <RadioButton v-model="scenarij" inputId="ssp" name="scenarij" value="SSP" />
+                        <label for="ssp" class="ml-2">SSP</label>
+                    </div>
+                </div>
+                <div class="grid-item info-div">
+                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
+                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
+                </div>
+
                 <div class="grid-item header">Ispostava</div>
                 <div class="grid-item">
                     <InputText class="form-input dataInput" type="text"
@@ -189,21 +205,7 @@
                     <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
 
-                <div class="grid-item header">Klimatski scenarij</div>
-                <div class="grid-item radio-button-container">
-                    <div class="radio-button">
-                        <RadioButton v-model="scenarij" inputId="rcp" name="scenarij" value="RCP" />
-                        <label for="rcp" class="ml-2">RCP</label>
-                    </div>
-                    <div class="radio-button">
-                        <RadioButton v-model="scenarij" inputId="ssp" name="scenarij" value="SSP" />
-                        <label for="ssp" class="ml-2">SSP</label>
-                    </div>
-                </div>
-                <div class="grid-item info-div">
-                    <font-awesome-icon :icon="'info-circle'" style="display: none;" />
-                    <!-- <span class="info-text">{{ messageCestica }}</span> -->
-                </div>
+
             </form>
             <div v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" class="spremiBtn-container">
                 <button id="saveBtn" type="button" :disabled="!isFormValid" @click="saveFormData">
@@ -999,7 +1001,7 @@ h1 {
     grid-template-columns: 150px 1fr auto;
     /* grid-template-rows: 38px; */
     /* grid-template-rows: minmax(38px, 38px); */
-    grid-template-rows: repeat(10, 38px) auto 38px;
+    grid-template-rows: repeat(11, 38px) auto;
     gap: 5px;
 }
 
