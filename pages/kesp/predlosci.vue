@@ -1,10 +1,11 @@
 <template>
     <div class="body">
+        <Toast />
         <header>
             <img src="../../public/static/images/KESP_logo_sidebar.svg" style="height: 100%; cursor: pointer;"
                 alt="logo" @click="navigateTo('/kpkr')">
             <div class="header-buttons">
-                <button class="novi-predlozak" @click="noviIzracun">
+                <button class="novi-predlozak" @click="noviDialogVisible = true">
                     <font-awesome-icon icon="plus" class="plus-icon" />
                     Novi predložak
                 </button>
@@ -75,6 +76,56 @@
                 </nuxt-link>
             </footer>
         </main>
+        <Dialog v-model:visible="noviDialogVisible" header="Novi predložak" :modal="true" :style="{ width: '450px' }"
+            @hide="resetForm">
+            <form class="pop-up-novo" @submit.prevent="addIzracun">
+                <div class="opisnap">
+                    <label for="opis">
+                        Naziv
+                    </label>
+                    <InputText v-model="opis" type="text" id="opis" placeholder="Unesi naziv" />
+                </div>
+                <div>
+                    <label for="startDate">
+                        Početak razdoblja<span class="required">*</span>
+                    </label>
+                    <DatePicker id="startDate" v-model="datumOd" date-format="dd.mm.yy" show-icon fluid
+                        icon-display="input" placeholder="Unesi datum" required :invalid="datOdError"
+                        @blur="setEndDate" />
+                </div>
+                <div>
+                    <label for="endDate">
+                        Kraj razdoblja<span class="required">*</span>
+                    </label>
+                    <DatePicker id="endDate" v-model="datumDo" date-format="dd.mm.yy" show-icon fluid
+                        icon-display="input" placeholder="Unesi datum" required :invalid="datDoError" />
+                </div>
+                <div class="opisnap">
+                    <label for="napomena">
+                        Napomena
+                    </label>
+                    <Textarea v-model="napomena" id="napomena" placeholder="Unesi napomenu" />
+                </div>
+                <div class="dialog-footer">
+                    <span class="p-button p-component p-button-secondary" @click="noviDialogVisible = false">
+                        Odustani
+                    </span>
+                    <button type="submit" class="submitBtn">
+                        <font-awesome-icon icon="plus" class="dialog-plus-icom" />
+                        Novi predložak
+                    </button>
+                </div>
+            </form>
+            <!-- <template #footer>
+                
+            </template> -->
+            <!-- <div class="dialog-footer">
+                    <span class="p-button p-component p-button-secondary secondary" @click="noviDialogVisible = false">
+                        Odustani
+                    </span>
+                    <button class="submitBtn" type="submit">Spremi</button>
+                </div> -->
+        </Dialog>
     </div>
 </template>
 
@@ -85,10 +136,13 @@ import { logout } from '@/service/logout';
 import { getKespCalculations } from '~/service/kesp/fetchKespCalculations';
 import { formatDateToDMY, getYearsRange } from '@/utils/dateFormatter';
 import { setCookie, deleteCookie } from '~/utils/cookieUtils';
+import { postHeader } from '~/service/kesp/postRequests';
 
 definePageMeta({
     middleware: 'auth',
 });
+
+const toast = useToast();
 
 const filters = ref({
     global: { value: '', matchMode: 'contains' }
@@ -97,16 +151,41 @@ const filters = ref({
 const izracuni = ref([]);
 const loading = ref(true);
 
+const opis = ref(null);
+const datumOd = ref(null);
+const datumDo = ref(null);
+const napomena = ref(null);
+
+const datOdError = computed(() => !datumOd.value);
+const datDoError = computed(() => !datumDo.value);
+
 const odabraniIzracun = ref();
 
 const cookiesToDelete = [
     'kesp-id',
 ];
 
+function setEndDate() {
+    if (datumOd.value) {
+        const endYear = datumOd.value.getFullYear();
+        datumDo.value = new Date(endYear, 11, 31); // 31.12.endYear
+    }
+}
+
 const onRowSelect = async () => {
     console.log("Uspješno dohvaćen izračun.", odabraniIzracun.value);
     await setCookie({ name: 'kesp-id', value: odabraniIzracun.value.uiz_id });
     navigateTo('/kesp/predlozak');
+};
+
+const noviDialogVisible = ref(false);
+
+const resetForm = () => {
+    opis.value = null;
+    datumOd.value = null;
+    datumDo.value = null;
+    napomena.value = null;
+    noviDialogVisible.value = false;
 };
 
 onMounted(async () => {
@@ -123,6 +202,15 @@ onMounted(async () => {
     }
     console.log(izracuni.value)
     loading.value = false;
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth(); // Mjeseci u JavaScriptu su od 0 (siječanj) do 11 (prosinac)
+
+    // Postavi datum na 01.01. prošle godine ili iste godine ako je prosinac
+    const startYear = month === 11 ? year : year - 1;
+    datumOd.value = new Date(startYear, 0, 1); // 01.01.startYear
+    setEndDate();
 });
 
 const doLogout = async () => {
@@ -130,10 +218,45 @@ const doLogout = async () => {
     navigateTo('/login');
 };
 
-const noviIzracun = async () => {
-    // await setCookie({ name: 'kesp-id', value: odabraniIzracun.value.uiz_id });
-    navigateTo('/kesp/predlozak');
+const showError = () => {
+    toast.add({ severity: 'error', summary: 'Došlo je do greške!', detail: `Dodavanje novog predloška nije uspjelo.`, life: 3000 });
 };
+
+const addIzracun = async () => {
+    const header = {
+        l_datum: formatDateToDMY(new Date(), '-'),
+        l_datod: formatDateToDMY(datumOd.value, '-'),
+        l_datdo: formatDateToDMY(datumDo.value, '-'),
+        l_opis: opis.value || null,
+        l_napomena: napomena.value || null
+    }
+    console.log(header);
+
+    try {
+        const response = await postHeader(header);
+        const { id, status } = response;
+
+        if (status === 200) {
+            const kespId = parseInt(id);
+            if (kespId && !isNaN(kespId)) {
+                await setCookie({ name: 'kesp-id', value: kespId });
+            } else {
+                console.log("Kesp ID nije validan.");
+            }
+        } else {
+            console.log("Greska pri dodavanju izračuna.");
+            showError();
+        }
+
+    } catch (error) {
+        console.log("Greska pri dodavanju izračuna.", error);
+        showError();
+    }
+
+
+    // navigateTo('/kesp/predlozak');
+}
+
 </script>
 
 <style scoped>
@@ -233,6 +356,14 @@ button {
     background-color: var(--kesp-primary);
 }
 
+button:hover {
+    background-color: var(--kesp-primary-hover);
+}
+
+button:focus {
+    background-color: var(--kesp-primary-focus);
+}
+
 h1 {
     font-size: 20px;
     padding-bottom: 7px;
@@ -263,6 +394,83 @@ h1 {
 .plus-icon {
     margin-right: 10px;
 }
+
+.dialog-plus-icom {
+    margin-right: 0px;
+}
+
+.dialog-footer {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 5px;
+
+    margin-top: 20px;
+}
+
+.submitBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    background-color: var(--kesp-primary);
+    color: white;
+}
+
+.submitBtn * {
+    color: white;
+}
+
+.submitBtn:hover {
+    background-color: var(--kesp-primary-hover);
+}
+
+.submitBtn:active {
+    background-color: var(--kesp-primary-focus);
+}
+
+.secondary {
+    background-color: none !important;
+}
+
+form,
+form>div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.opisnap {
+    width: 100%;
+    grid-column: span 2;
+}
+
+.invalid {
+    border-radius: 7px;
+    border: 1px solid red !important;
+}
+
+.error {
+    padding: 5px 0px;
+
+    color: red;
+    font-size: smaller;
+}
+
+textarea {
+    resize: vertical;
+    max-height: 100px;
+}
+
 
 main {
     width: 100%;
