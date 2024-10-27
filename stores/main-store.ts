@@ -109,11 +109,12 @@ export const useUserStore = defineStore('user-store', {
             ])
         },
         async initializeUser() {
-            const response = await getCookie(['name', 'surname', 'username', 'email']);
+            const response = await getCookie(['name', 'surname', 'username', 'email', 'roles']);
             this.name = response['name'] || '';
             this.surname = response['surname'] || '';
             this.username = response['username'] || '';
             this.email = response['email'] || null;
+            this.roles = response['roles'] || [];
         },
         clearStore() {
             deleteCookie(['name', 'surname', 'username', 'email', 'roles']);
