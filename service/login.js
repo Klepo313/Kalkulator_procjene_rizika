@@ -20,6 +20,7 @@ const login = async (username, password) => {
             name: response.data.name,
             surname: response.data.surname,
             email: response.data.email,
+            roles: response.data.roles,
         };
     } catch (error) {
         console.error('Login error: ' + error)
