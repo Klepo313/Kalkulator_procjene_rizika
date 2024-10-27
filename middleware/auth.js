@@ -21,6 +21,7 @@
 
 // middleware/auth.js
 import { defineNuxtRouteMiddleware, navigateTo, useCookie, useRequestHeaders } from '#app';
+import { checkLogin } from '~/service/checkLogin';
 import { initializeCookie } from "~/utils/initializeCookie";
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
@@ -36,7 +37,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     } else {
         console.log("client");
         // Ako smo na klijentu, koristimo Nuxtov `useCookie` hook za dohvaćanje kolačića
-        csrfToken = await initializeCookie('accessToken');
+        // csrfToken = await initializeCookie('accessToken');
+        csrfToken = await checkLogin();
     }
 
     // Ako nema tokena, preusmjeravamo na login
