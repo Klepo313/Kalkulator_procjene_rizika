@@ -2,10 +2,10 @@
 export function formatDateToDMY(dateString, delimiter) {
     const date = new Date(dateString);
 
-    // Get day, month, and year
-    const day = String(date.getUTCDate()).padStart(2, '0'); // pad with leading zero if needed
-    const month = String(date.getUTCMonth()).padStart(2, '0'); // January is 0!
-    const year = date.getUTCFullYear();
+    // Get day, month, and year in local time
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // January is 0, so add 1
+    const year = date.getFullYear();
 
     if (delimiter == '.') {
         return `${parseInt(day)}${delimiter}${month}${delimiter}${year}`;
@@ -13,6 +13,7 @@ export function formatDateToDMY(dateString, delimiter) {
         return `${year}${delimiter}${month}${delimiter}${day}`;
     }
 }
+
 
 export function formatDMYtoYMD(dateString) {
     const [day, month, year] = dateString.split('.');
@@ -42,4 +43,3 @@ export function getYearsRange(datod, datdo) {
     // Ako su različite, prikaži raspon godina
     return `${startYear} - ${endYear}`;
 }
-
