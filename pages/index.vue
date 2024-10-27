@@ -15,16 +15,13 @@
 
             <main>
                 <div class="main-container">
-                    <!-- <h1>Odaberi opciju</h1> -->
                     <div class="card-container">
-                        <div v-for="(card, index) in cards" :key="index" class="card">
+                        <div v-for="(card, index) in filteredCards" :key="index" class="card">
                             <div class="image-container">
-                                <!-- Prikaži spinner ako slike još nisu učitane -->
                                 <font-awesome-icon v-if="!card.isLoaded" icon="spinner" spin />
                                 <img v-else :src="card.miniLogo" alt="logo" />
                             </div>
                             <div class="card-content">
-                                <!-- Prikaži spinner ako slike još nisu učitane -->
                                 <font-awesome-icon v-if="!card.isLoaded" icon="spinner" spin />
                                 <img v-else :src="card.textLogo" alt="logo" />
                                 <div class="btn">
@@ -39,9 +36,14 @@
                                 </div>
                             </div>
                         </div>
+                        <div v-if="filteredCards.length === 0">
+                            <h3 class="no-results">Nema prava na aplikacije</h3>
+                            <p class="no-results">Nemate pravo pristupa nekoj od aplikacija</p>
+                        </div>
                     </div>
                 </div>
             </main>
+
 
             <FooterText class="footer-text" />
         </div>
@@ -62,6 +64,8 @@ definePageMeta({
 
 const userStore = useUserStore();
 
+const roles = ref([null])
+
 async function fetchImageAsBlob(imageId) {
     const response = await fetch(`/static/images/${imageId}.svg`); // Dohvati sliku pomoću API poziva
     const blob = await response.blob();
@@ -70,6 +74,7 @@ async function fetchImageAsBlob(imageId) {
 
 const cards = ref([
     {
+        role: 'AP001',
         miniLogoId: 'kpkr_logo_mini', // ID slike u bazi
         textLogoId: 'kpkr_logo_text',
         miniLogo: '',
@@ -89,6 +94,7 @@ const cards = ref([
         }
     },
     {
+        role: 'AP002',
         miniLogoId: 'kesp_logo_mini',
         textLogoId: 'kesp_logo_text',
         miniLogo: '',
@@ -109,13 +115,19 @@ const cards = ref([
     },
 ])
 
+const filteredCards = computed(() => {
+    return cards.value.filter(card => roles.value.includes(card.role));
+});
+
 onMounted(async () => {
     const res = await userStore.getAll;
+    roles.value = res.roles;
     console.log({
         username: res.username,
         name: res.name,
         surname: res.surname,
-        email: res.email
+        email: res.email,
+        roles: res.roles
     })
     for (const card of cards.value) {
         card.miniLogo = await fetchImageAsBlob(card.miniLogoId);

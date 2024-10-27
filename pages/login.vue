@@ -123,7 +123,8 @@ const checkLogin = async () => {
             userStore.updateAll({
                 name: response.name,
                 surname: response.surname,
-                username: response.username
+                username: response.username,
+                roles: response.roles
             })
 
             setCookie({ name: 'accessToken', value: newCsrfToken })
