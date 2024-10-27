@@ -1,126 +1,6 @@
-<!-- <template>
-    <div class="body">
-        <main>
-            <h1>{{ 'GHG opseg 2' }}</h1>
-            <div class="main-content">
-                <section class="main-heading">
-                    <div>
-                        <h2>Metoda izračuna:</h2>
-                        <p>
-                            U GHG Scope 2 (Opseg 2) spada potrošnja električne
-                            energije kupljena od opskrbljivača i
-                            potrošnja toplinske energije nabavljene od dobavljača.
-                            <br>
-                            Podaci o količini mogu se očitati sa mjerila (ukoliko posoji) ili sa računa dobavljača.
-
-                        </p>
-                    </div>
-                </section>
-                <section class="main-data">
-                    <div class="data-heading">
-                        <h2>Izračun GHG opseg 2</h2>
-                        <span>
-                            <label for="godina">Godina</label>
-                            <Dropdown id="godina" v-model="selectedYear" :options="yearOptions" optionLabel="year"
-                                placeholder="Odaberi godinu" @change="updateIzracuni" />
-                        </span>
-                    </div>
-                    <div class="data-item">
-
-                        <DataTable :value="izracuni" show-gridlines edit-mode="cell" :rows="5" data-key="id"
-                            @cell-edit-complete="onCellEditComplete">
-
-                            <Column header="No.">
-                                <template #body="slotProps">
-                                    {{ slotProps.index + 1 }}
-                                </template>
-                            </Column>
-
-                            <Column header="Energija" field="energija">
-                                <template #body="slotProps">
-                                    <template v-if="slotProps.data.energija === 'Električna energija'">
-                                        <font-awesome-icon icon="bolt-lightning" style="margin-right: 5px;" />
-                                        {{ slotProps.data.energija }}
-                                    </template>
-                                    <template v-else-if="slotProps.data.energija === 'Toplinska energija'">
-                                        <font-awesome-icon icon="mug-hot" style="margin-right: 5px;" />
-                                        {{ slotProps.data.energija }}
-                                    </template>
-                                </template>
-                            </Column>
-
-
-                            <Column header="Neobnovljivo (kWh)" field="neobnovljivo">
-                                <template #editor="slotProps">
-                                    <InputNumber v-model="slotProps.data.neobnovljivo" :show-buttons="true"
-                                        mode="decimal" @change="updateCalculations(slotProps.data)" />
-                                </template>
-                                <template #body="slotProps">
-                                    {{ slotProps.data.neobnovljivo !== null ? slotProps.data.neobnovljivo : '' }}
-                                </template>
-                            </Column>
-
-                            <Column header="Obnovljivo (kWh)" field="obnovljivo">
-                                <template #editor="slotProps">
-                                    <InputNumber v-model="slotProps.data.obnovljivo" :show-buttons="true" mode="decimal"
-                                        @change="updateCalculations(slotProps.data)" />
-                                </template>
-                                <template #body="slotProps">
-                                    {{ slotProps.data.obnovljivo !== null ? slotProps.data.obnovljivo : '' }}
-                                </template>
-                            </Column>
-
-                            <Column header="Ukupna potrošnja (kWh)" field="ukupno" sortable>
-                                <template #body="slotProps">
-                                    {{ slotProps.data.ukupno }}
-                                </template>
-                            </Column>
-
-                            <Column header="Emisije CO2/kg" field="emisije" sortable>
-                                <template #body="slotProps">
-                                    {{ slotProps.data.emisije.toFixed(2) }}
-                                </template>
-                            </Column>
-
-                            <template #footer>
-                                <div class="total-emissions">
-                                    <div>
-                                        <span>Ukupno emisija CO<sub>2</sub>: </span>
-                                        <strong>{{ totalEmissions }}</strong> kg
-                                    </div>
-                                </div>
-                            </template>
-                        </DataTable>
-
-
-                    </div>
-                </section>
-            </div>
-            <div class="stats-content">
-                <div>
-                    <span class="stats-title">
-                        <font-awesome-icon icon="chart-pie" />
-                        <h2 style="border-bottom: none; padding: 0">Statistika</h2>
-                    </span>
-                </div>
-                <hr>
-                <div class="stats-table">
-                    <div class="chart-container">
-                        <span>
-                            <p>Ukupne emisije CO<sub>2</sub>/kg</p>
-                        </span>
-                        <Chart type="pie" :data="combinedChartData" :options="chartOptions"
-                            class="w-full md:w-[30rem]" />
-                    </div>
-                </div>
-            </div>
-        </main>
-        <footer />
-    </div>
-</template> -->
-
 <template>
     <div class="body">
+        <Toast />
         <main>
             <h1>{{ 'GHG opseg 2' }}</h1>
             <div class="main-content">
@@ -191,7 +71,7 @@
                             <Column header="Neobnovljivo (kWh)" field="neobnovljivo">
                                 <template #editor="slotProps">
                                     <InputNumber v-model="slotProps.data.neobnovljivo" :show-buttons="true"
-                                        mode="decimal" @change="updateCalculations(slotProps.data)" />
+                                        mode="decimal" min="0" @change="updateCalculations(slotProps.data)" />
                                 </template>
                                 <template #body="slotProps">
                                     <span v-if="slotProps.data.neobnovljivo">
@@ -206,7 +86,7 @@
                             <Column header="Obnovljivo (kWh)" field="obnovljivo">
                                 <template #editor="slotProps">
                                     <InputNumber v-model="slotProps.data.obnovljivo" :show-buttons="true" mode="decimal"
-                                        @change="updateCalculations(slotProps.data)" />
+                                        min="0" @change="updateCalculations(slotProps.data)" />
                                 </template>
                                 <template #body="slotProps">
                                     <span v-if="slotProps.data.obnovljivo">
@@ -299,6 +179,8 @@ import { useOpseg2Store } from '~/stores/main-store';
 const opseg2Store = useOpseg2Store(); // Inicijaliziraj store
 const kespStore = useKespStore();
 
+const toast = useToast();
+
 const izracuni = computed(() => opseg2Store.izracuni);
 const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
 const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
@@ -311,6 +193,14 @@ onMounted(async () => {
     // opseg2Store.clearStore();
     // await opseg2Store.fetchEnergySources(kespId.value);
 })
+
+// const showSuccess = (skupina, vrsta) => {
+//     toast.add({ severity: 'success', summary: 'Uspješno dodano', detail: ``, life: 3000 });
+// };
+
+const showError = () => {
+    toast.add({ severity: 'error', summary: 'Došlo je do greške!', detail: `Vrijednost izvora neuspješno ažurirana.`, life: 3000 });
+};
 
 const fullscreenChart = ref(null);
 
@@ -332,8 +222,13 @@ onBeforeUnmount(() => {
 const totalEmissions = computed(() => opseg2Store.totalEmissions); // Preuzmi ukupne emisije iz getter-a
 
 // Funkcija za završetak uređivanja ćelije
-const onCellEditComplete = (event) => {
-    opseg2Store.onCellEditComplete(event); // Poziva akciju za uređivanje ćelija
+const onCellEditComplete = async (event) => {
+    const status = await opseg2Store.onCellEditComplete(event); // Poziva akciju za uređivanje ćelija
+    console.log("Status: ", status);
+
+    if (status !== 200 && status !== undefined) {
+        showError();
+    }
 };
 
 // Kombinovani podaci za grafikon
