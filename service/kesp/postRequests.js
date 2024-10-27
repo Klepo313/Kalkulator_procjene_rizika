@@ -63,7 +63,7 @@ const updateEnergyItem = async (data) => {
         const response = await axios.post(`${base_url}/CO2/energy_item`, {
             p_use_id: data.p_use_id,
             p_uiz_id: data.p_uiz_id,
-            p_uvn_id: data.p_uvv_id,
+            p_uvn_id: data.p_uvn_id,
             p_neobnovljivo: data.p_neobnovljivo,
             p_obnovljivo: data.p_obnovljivo
         }, {
