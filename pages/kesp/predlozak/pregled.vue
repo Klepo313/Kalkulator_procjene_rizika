@@ -176,7 +176,7 @@
                 </div> -->
                 <!-- <hr> -->
                 <div class="stats-table">
-                    <div class="chart-container">
+                    <div v-if="vozila.length" class="chart-container">
                         <span>
                             <p>Emisije CO<sub>2</sub> t/god - Opseg 1</p>
                         </span>
@@ -273,6 +273,7 @@ const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
 const opis = computed(() => kespStore.naziv);
 const napomena = computed(() => kespStore.napomena);
 
+const vozila = computed(() => vehicleStore.vozila);
 const izracuni = computed(() => opseg2Store.izracuni);
 
 // const combinedChartData = computed(() => opseg2Store.combinedChartData); // Preuzmi podatke za grafikon iz getter-a
