@@ -233,15 +233,17 @@ const addIzracun = async () => {
 
     try {
         const res = await kespStore.addPredlozak(header);
-        if (res) showSuccess(datumOd.value, datumDo.value);
+        if (res) {
+            showSuccess(datumOd.value, datumDo.value);
+            navigateTo('/kesp/predlozak');
+        }
         else showError();
+
     } catch (error) {
         console.log("Greska pri dodavanju izračuna.", error);
         showError();
     }
 
-
-    // navigateTo('/kesp/predlozak');
 }
 
 </script>
