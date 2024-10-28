@@ -3,7 +3,7 @@
         <Toast />
         <header>
             <img src="../../public/static/images/KESP_logo_sidebar.svg" style="height: 100%; cursor: pointer;"
-                alt="logo" @click="navigateTo('/kpkr')">
+                alt="logo" @click="navigateTo('/')">
             <div class="header-buttons">
                 <button class="novi-predlozak" @click="noviDialogVisible = true">
                     <font-awesome-icon icon="plus" class="plus-icon" />

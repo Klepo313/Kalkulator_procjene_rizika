@@ -75,7 +75,7 @@
                                 </template>
                                 <template #body="slotProps">
                                     <span v-if="slotProps.data.neobnovljivo">
-                                        {{ slotProps.data.neobnovljivo }}
+                                        {{ formatNumber(slotProps.data.neobnovljivo) }}
                                     </span>
                                     <span v-else style="'font-style: italic; opacity: 0.6;">
                                         {{ 'Ispunite polje' }}
@@ -90,7 +90,7 @@
                                 </template>
                                 <template #body="slotProps">
                                     <span v-if="slotProps.data.obnovljivo">
-                                        {{ slotProps.data.obnovljivo }}
+                                        {{ formatNumber(slotProps.data.obnovljivo) }}
                                     </span>
                                     <span v-else style="'font-style: italic; opacity: 0.6;">
                                         {{ 'Ispunite polje' }}
@@ -100,13 +100,13 @@
 
                             <Column header="Ukupna potrošnja (kWh)" field="ukupno">
                                 <template #body="slotProps">
-                                    {{ slotProps.data.ukupno }}
+                                    {{ formatNumber(slotProps.data.ukupno) }}
                                 </template>
                             </Column>
 
                             <Column header="Emisije CO2/kg" field="emisije">
                                 <template #body="slotProps">
-                                    {{ slotProps.data.emisije.toFixed(2) }}
+                                    {{ formatNumber(slotProps.data.emisije.toFixed(2)) }}
                                 </template>
                             </Column>
 
@@ -114,7 +114,7 @@
                                 <div class="total-emissions">
                                     <div>
                                         <span>Ukupno emisija CO<sub>2</sub>: </span>
-                                        <strong>{{ totalEmissions }}</strong> kg
+                                        <strong>{{ formatNumber(totalEmissions) }}</strong> kg
                                     </div>
                                 </div>
                             </template>

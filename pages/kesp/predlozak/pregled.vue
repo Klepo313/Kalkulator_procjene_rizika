@@ -79,13 +79,13 @@
 
                             <Column field="totalEmissions" header="Ukupne emisije CO2 t/god">
                                 <template #body="slotProps">
-                                    <span>{{ slotProps.data.totalEmissions.toFixed(2) }}</span>
+                                    <span>{{ formatNumber(slotProps.data.totalEmissions.toFixed(2)) }}</span>
                                 </template>
                             </Column>
 
                             <template #footer>
                                 <div class="flex justify-end font-bold w-full mt-4">
-                                    Ukupno: <strong>{{ calculateTotalEmissions().toFixed(2) }}</strong>
+                                    Ukupno: <strong>{{ formatNumber(calculateTotalEmissions().toFixed(2)) }}</strong>
                                     CO<sub>2</sub> t/god
                                 </div>
                             </template>
@@ -120,25 +120,27 @@
 
                         <Column header="Neobnovljivo (kWh)" field="neobnovljivo">
                             <template #body="slotProps">
-                                {{ slotProps.data.neobnovljivo !== null ? slotProps.data.neobnovljivo : '0.00' }}
+                                {{ slotProps.data.neobnovljivo !== null ? formatNumber(slotProps.data.neobnovljivo) :
+                                    '0.00' }}
                             </template>
                         </Column>
 
                         <Column header="Obnovljivo (kWh)" field="obnovljivo">
                             <template #body="slotProps">
-                                {{ slotProps.data.obnovljivo !== null ? slotProps.data.obnovljivo : '0.00' }}
+                                {{ slotProps.data.obnovljivo !== null ? formatNumber(slotProps.data.obnovljivo) : '0.00'
+                                }}
                             </template>
                         </Column>
 
                         <Column header="Ukupna potrošnja (kWh)" field="ukupno">
                             <template #body="slotProps">
-                                {{ slotProps.data.ukupno }}
+                                {{ formatNumber(slotProps.data.ukupno) }}
                             </template>
                         </Column>
 
                         <Column header="Emisije CO2/kg" field="emisije">
                             <template #body="slotProps">
-                                {{ slotProps.data.emisije.toFixed(2) }}
+                                {{ formatNumber(slotProps.data.emisije.toFixed(2)) }}
                             </template>
                         </Column>
 
@@ -146,7 +148,7 @@
                             <div class="total-emissions">
 
                                 <span>Ukupno: </span>
-                                <strong>{{ totalEmissions }}</strong> CO<sub>2</sub> t/god
+                                <strong>{{ formatNumber(totalEmissions) }}</strong> CO<sub>2</sub> t/god
 
                             </div>
                         </template>
@@ -160,7 +162,7 @@
                     <div class="ukupni-utrosak-o1o2">
                         UKUPNO:
                         <span class="emissions">
-                            {{ combinedEmissions }}
+                            {{ formatNumber(combinedEmissions) }}
                         </span>
 
                         CO2 t/god
@@ -179,6 +181,7 @@
                     <div v-if="vozila.length" class="chart-container">
                         <span>
                             <p>Emisije CO<sub>2</sub> t/god - Opseg 1</p>
+                            <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('pie')" />
                         </span>
                         <Chart type="pie" :data="emissionsPieData" :options="chartOptions" />
                     </div>
@@ -186,9 +189,26 @@
                     <div class="chart-container" style="margin-top: 20px;">
                         <span>
                             <p>Emisije CO<sub>2</sub> t/god - Opseg 2</p>
+                            <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('polar')" />
                         </span>
                         <Chart type="polarArea" :data="combinedChartData" :options="chartOptions"
                             class="w-full md:w-[30rem]" />
+                    </div>
+                </div>
+                <!-- Fullscreen Chart Modal -->
+                <div v-if="fullscreenChart" class="fullscreen-overlay" @click="closeFullscreen">
+                    <div class="fullscreen-chart" @click.stop>
+                        <font-awesome-icon icon="times" class="close-icon" @click="closeFullscreen" />
+                        <span v-if="fullscreenChart === 'pie'">
+                            <h2>Emisije CO<sub>2</sub>/kg</h2>
+                        </span>
+                        <span v-if="fullscreenChart === 'polar'">
+                            <h2>Ukupna potrošnja energije (kWh)</h2>
+                        </span>
+                        <Chart v-if="fullscreenChart === 'pie'" type="pie" :data="emissionsPieData"
+                            :options="chartOptions" class="fullscreen-chart-content" />
+                        <Chart v-if="fullscreenChart === 'polar'" type="polarArea" :data="combinedChartData"
+                            :options="chartOptions" class="fullscreen-chart-content" />
                     </div>
                 </div>
             </div>
@@ -199,6 +219,7 @@
 
 <script setup>
 import { useKespStore, useVehicleStore, useIzvoriStore, useOpseg2Store } from '#imports';
+import { formatNumber } from '~/utils/dataFormatter';
 
 const opseg2Store = useOpseg2Store(); // Inicijaliziraj store
 const kespStore = useKespStore();
@@ -222,6 +243,21 @@ const groupedData = computed(() => {
     });
 });
 
+const fullscreenChart = ref(null);
+
+function openFullscreen(chartType) {
+    fullscreenChart.value = chartType;
+    document.body.style.overflow = 'hidden'; // Disable scrolling
+}
+
+function closeFullscreen() {
+    fullscreenChart.value = null;
+    document.body.style.overflow = ''; // Re-enable scrolling
+}
+
+onBeforeUnmount(() => {
+    document.body.style.overflow = ''; // Reset overflow on component unmount
+});
 
 // Funkcija za grupisanje podataka i izračun emisija
 // const groupedData = computed(() => {
@@ -491,10 +527,32 @@ strong,
     gap: 20px;
 }
 
+.expand-icon,
+.close-icon {
+    padding: 7px;
+    background-color: none;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.expand-icon:hover,
+.close-icon:hover {
+    background-color: var(--input-hover-color);
+}
+
+.expand-icon:active,
+.close-icon:active {
+    background-color: var(--input-focus-color);
+}
+
 .chart-container>span {
     text-align: center;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
     gap: 5px;
 }
 
@@ -510,5 +568,58 @@ hr {
 
 h3 {
     font-weight: 500;
+}
+
+
+.fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 26px;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.fullscreen-chart {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    padding: 26px;
+    border-radius: 5px;
+    animation: scaleUp 0.3s ease;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+}
+
+.fullscreen-chart-content {
+    margin: auto;
+    width: 100%;
+    height: 90%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fullscreen-chart-content>canvas {
+    margin: auto;
+}
+
+.close-icon {
+    position: absolute;
+    top: 16px;
+    right: 16px;
 }
 </style>

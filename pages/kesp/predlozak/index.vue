@@ -115,15 +115,15 @@
                                     <span v-html="slotProps.data.gorivo.metric" />
                                 </template>
                             </Column>
-                            <Column field="emisije" header="Emisije CO2/kg" sortable>
+                            <Column field="emisije" header="Emisije CO₂/kg" sortable>
                                 <template #body="slotProps">
-                                    <span>{{ parseFloat(slotProps.data.emisije).toFixed(2) }}</span>
+                                    <span>{{ formatNumber(parseFloat(slotProps.data.emisije).toFixed(2)) }}</span>
                                 </template>
                             </Column>
                             <template #footer>
                                 <div class="total-emissions">
                                     <div>
-                                        Ukupno: <strong>{{ total.toFixed(2) }}</strong> CO<sub>2</sub>/kg
+                                        Ukupno: <strong>{{ formatNumber(total.toFixed(2)) }}</strong> CO<sub>2</sub>/kg
                                     </div> <!--.toFixed(2)-->
                                 </div>
                             </template>
@@ -170,8 +170,8 @@
 
                                 <div class="field">
                                     <label for="emisije">Emisije CO2/kg</label>
-                                    <InputText id="emisije" v-model="tempVozilo.emisije" placeholder="Emisija CO2/kg"
-                                        readonly />
+                                    <InputText id="emisije" v-model="tempVozilo.emisije" :value="formattedEmisije"
+                                        placeholder="Emisija CO₂/kg" readonly />
                                 </div>
 
                                 <div class="dialog-footer">
@@ -465,6 +465,9 @@ const tempVozilo = ref({
     potrosnjaGoriva: 0.00,
     emisije: 0.00
 })
+
+const formattedEmisije = computed(() => formatNumber(tempVozilo.value.emisije))
+
 const kespId = ref(null);
 
 onMounted(async () => {
@@ -798,7 +801,7 @@ const saveVozilo = async () => {
 
             tempVozilo.value.id = usi_id;
             vehicleStore.vozila.push({ ...tempVozilo.value });
-            showSuccess(data.p_uvv_naziv, data.p_uvv_naziv);
+            showSuccess(tempVozilo.value.vozilo.skupina, tempVozilo.value.vozilo.vrsta);
         } else {
             console.log("Greska pri dodavanju izračuna.");
             showError();
@@ -812,7 +815,6 @@ const saveVozilo = async () => {
 
     voziloDialogVisible.value = false; // Zatvori dialog
     odabranaSkupina.value = null;
-    showSuccess(tempVozilo.value.vozilo.skupina, tempVozilo.value.vozilo.vrsta);
 };
 
 
