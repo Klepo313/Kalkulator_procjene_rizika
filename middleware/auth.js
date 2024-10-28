@@ -25,27 +25,35 @@ import { checkLogin } from '~/service/checkLogin';
 import { initializeCookie } from "~/utils/initializeCookie";
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
-    // Pristupi zaglavljima zahtjeva ako smo na serveru (SSR)
-    const headers = useRequestHeaders(['cookie']); // Dohvati kolačiće iz request headera
-    let csrfToken;
-    // Ako smo na serveru (SSR), dohvaćamo kolačiće iz zaglavlja
-    if (import.meta.server) {
-        console.log("server");
-        const cookies = headers.cookie || '';  // Zaglavlje koje sadrži kolačiće
-        const csrfMatch = cookies.match(/accessToken=([^;]+)/); // Regex za pronalazak vrijednosti kolačića
-        csrfToken = csrfMatch ? csrfMatch[1] : null; // Ako je pronađen kolačić
-    } else {
-        console.log("client");
-        // Ako smo na klijentu, koristimo Nuxtov `useCookie` hook za dohvaćanje kolačića
-        // csrfToken = await initializeCookie('accessToken');
-        csrfToken = await checkLogin();
-    }
-
-    // Ako nema tokena, preusmjeravamo na login
-    if (!csrfToken) {
+    const token = useCookie('userToken');
+    if (!token.value) {
         return navigateTo('/login');
     }
 
-    console.log("Authenticated, token found:", csrfToken);
+    console.log("User logged in");
 });
 
+// export default defineNuxtRouteMiddleware(async (to, from) => {
+//     // Pristupi zaglavljima zahtjeva ako smo na serveru (SSR)
+//     const headers = useRequestHeaders(['cookie']); // Dohvati kolačiće iz request headera
+//     let csrfToken;
+//     // Ako smo na serveru (SSR), dohvaćamo kolačiće iz zaglavlja
+//     if (import.meta.server) {
+//         console.log("server");
+//         const cookies = headers.cookie || '';  // Zaglavlje koje sadrži kolačiće
+//         const csrfMatch = cookies.match(/accessToken=([^;]+)/); // Regex za pronalazak vrijednosti kolačića
+//         csrfToken = csrfMatch ? csrfMatch[1] : null; // Ako je pronađen kolačić
+//     } else {
+//         console.log("client");
+//         // Ako smo na klijentu, koristimo Nuxtov `useCookie` hook za dohvaćanje kolačića
+//         // csrfToken = await initializeCookie('accessToken');
+//         csrfToken = await checkLogin();
+//     }
+
+//     // Ako nema tokena, preusmjeravamo na login
+//     if (!csrfToken) {
+//         return navigateTo('/login');
+//     }
+
+//     console.log("Authenticated, token found:", csrfToken);
+// });

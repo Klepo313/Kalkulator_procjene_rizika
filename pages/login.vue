@@ -50,6 +50,14 @@ definePageMeta({
 
 const userStore = useUserStore();
 
+const userToken = useCookie('userToken', {
+    maxAge: 24 * 60 * 60, // 1 dan
+    // httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    path: '/',
+});
+
 const statusCode = ref(0);
 const usernameInput = ref(null);
 const passwordInput = ref(null);
@@ -60,46 +68,7 @@ const loginBtnText = ref(null);
 // State for showing/hiding the alert
 const showAlert = ref(false);
 
-const seconds = 150;
-
-const cookiesToDelete = [
-    'accessToken',
-    'scenarij',
-    'username',
-    'name',
-    'surname',
-    'email',
-    'id-izracuna',
-    'vrsta-izracuna',
-];
-
 onMounted(async () => {
-
-    try {
-
-        // deleteCookie(cookiesToDelete);
-
-        // for (const cookie of cookies) {
-        //     console.log("cookie: ", cookie);
-        //     const value = await getCookie(cookie);
-        //     console.log("value: ", value);
-        //     if (value) {
-        //         await deleteCookie(cookie);
-        //     }
-        // }
-        // await deleteCookie('accessToken');
-        // await deleteCookie('scenarij');
-        // await deleteCookie('username');
-        // await deleteCookie('name');
-        // await deleteCookie('surname');
-        // await deleteCookie('email');
-
-        // await deleteCookie('id-izracuna');
-        // await deleteCookie('vrsta-izracuna');
-    } catch (error) {
-        console.error('Greška prilikom brisanja kolačića:', error);
-    }
-
     spinnerIcon.value.style.display = "none";
     loginBtnText.value.style.display = "inline";
 });
@@ -127,6 +96,7 @@ const checkLogin = async () => {
                 roles: response.roles
             })
 
+            userToken.value = newCsrfToken;
             setCookie({ name: 'accessToken', value: newCsrfToken })
 
             // await setCookie('accessToken', newCsrfToken);
@@ -137,8 +107,6 @@ const checkLogin = async () => {
 
             // const newCsrfToken = generateCsrfToken();
 
-            // Ažuriraj CSRF token u kolačiću
-            // csrfToken.value = newCsrfToken;
 
             // const expiryTime = new Date().getTime() + (seconds * 1000); // 150 sekundi (2.5 minute)
             // csrfTokenExpiry.value = expiryTime; // Spremi timestamp vremena isteka
