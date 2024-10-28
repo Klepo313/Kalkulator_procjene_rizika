@@ -4,9 +4,6 @@ import axios from 'axios';
 //import { formatDMYtoYMD, formatDateToISO } from '~/utils/dateFormatter';
 
 const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipalityId, cadastreParticleId, objectTypeId, activityId, description, remark) => {
-
-    console.log("calc save: ", calculationId)
-
     try {
         const response = await axios.post(`${base_url}/calculation`, {
             calculationId: calculationId,
@@ -14,8 +11,8 @@ const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipa
             calculationTypeId: parseInt(calculationTypeId),
             cadastreMunicipalityId: parseInt(cadastreMunicipalityId),
             cadastreParticleId: parseInt(cadastreParticleId),
-            objectTypeId: parseInt(objectTypeId),
-            activityId: parseInt(activityId),
+            objectTypeId: objectTypeId == null ? null : parseInt(objectTypeId),
+            activityId: activityId == null ? null : parseInt(activityId),
             description: description,
             remark: remark
         }, {
