@@ -93,7 +93,7 @@ const doLogout = async () => {
 onMounted(async () => {
     // const res = await initializeCookie(['username', 'surname']);
     // console.log("username: ", res['username'], "surname: ", res.surname);
-    izracunStore.clearStore();
+    // izracunStore.clearStore();
 })
 
 </script>
