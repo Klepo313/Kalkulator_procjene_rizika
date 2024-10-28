@@ -131,7 +131,7 @@
 
                         <!-- Dialog za Dodavanje/Uređivanje vozila -->
                         <Dialog v-model:visible="voziloDialogVisible" header="Dodaj emisiju" :modal="true"
-                            :style="{ width: '450px' }" @hide="vehicleStore.resetVoziloForm">
+                            :style="{ width: '450px' }" @hide="resetTempVozilo">
                             <form class="p-fluid" @submit.prevent="saveVozilo">
                                 <div class="field">
                                     <label for="skupinaVozila">Izvor emisija</label>
@@ -466,6 +466,28 @@ const tempVozilo = ref({
     emisije: 0.00
 })
 
+const resetTempVozilo = () => {
+    tempVozilo.value = {
+        id: null,
+        uiz_id: null,
+        uge_id: null,
+        vozilo: {
+            id: null,
+            skupina: '',
+            vrsta: ''
+        },
+        gorivo: {
+            id: null,
+            uvg_id: null,
+            label: '',
+            value: '',
+            metric: '',
+        },
+        potrosnjaGoriva: 0.00,
+        emisije: 0.00
+    }
+}
+
 const formattedEmisije = computed(() => formatNumber(tempVozilo.value.emisije))
 
 const kespId = ref(null);
@@ -733,7 +755,7 @@ const selectedVozilo = ref(null);
 const total = computed(() => emissionsByType.value.totalEmissions);
 
 const openNewVozilo = () => {
-    vehicleStore.resetVoziloForm();
+    resetTempVozilo();
     voziloDialogVisible.value = true;
 };
 // const openNewIzvor = () => {
@@ -931,7 +953,7 @@ watch(selectedVozilo, (newValue) => {
     if (newValue) {
         tempVozilo.value = { ...newValue }; // Učitati podatke u formu
     } else {
-        vehicleStore.resetVoziloForm(); // Resetirati formu ako nema odabranog vozila
+        resetTempVozilo() // Resetirati formu ako nema odabranog vozila
     }
 });
 
