@@ -918,8 +918,8 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                     datasets: [
                         {
                             data: [0, 0], // Prikazuje [0, 0] kada nema podataka
-                            backgroundColor: ['#241147', '#2f185c'], // Zeleno za električnu energiju, žuto za toplinsku
-                            hoverBackgroundColor: ['#241147', '#2f185c']
+                            backgroundColor: ['#241147', '#613fa7'], // Zeleno za električnu energiju, žuto za toplinsku
+                            hoverBackgroundColor: ['#241147', '#613fa7']
                         }
                     ]
                 };
@@ -930,8 +930,8 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                 datasets: [
                     {
                         data,
-                        backgroundColor: ['#241147', '#2f185c'], // Zeleno za električnu energiju, žuto za toplinsku
-                        hoverBackgroundColor: ['#241147', '#2f185c']
+                        backgroundColor: ['#241147', '#613fa7'], // Zeleno za električnu energiju, žuto za toplinsku
+                        hoverBackgroundColor: ['#241147', '#613fa7']
                     }
                 ]
             };
