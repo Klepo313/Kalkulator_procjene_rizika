@@ -2,6 +2,7 @@
 <!-- eslint-disable no-constant-binary-expression -->
 <template>
     <div class="body">
+        <Toast />
         <div v-if="showPopup" :class="['success-popup', { error: !isSuccess }]">
             <font-awesome-icon :icon="isSuccess ? 'circle-check' : 'circle-exclamation'" />
             <span>
@@ -160,11 +161,11 @@
                 <div class="grid-item header">Klimatski scenarij</div>
                 <div class="grid-item radio-button-container">
                     <div class="radio-button">
-                        <RadioButton v-model="scenarij" inputId="rcp" name="scenarij" value="RCP" />
+                        <RadioButton v-model="scenarij" input-id="rcp" name="scenarij" value="RCP" />
                         <label for="rcp" class="ml-2">RCP</label>
                     </div>
                     <div class="radio-button">
-                        <RadioButton v-model="scenarij" inputId="ssp" name="scenarij" value="SSP" />
+                        <RadioButton v-model="scenarij" input-id="ssp" name="scenarij" value="SSP" />
                         <label for="ssp" class="ml-2">SSP</label>
                     </div>
                 </div>
@@ -222,10 +223,17 @@
             <div v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" id="map" class="map">
                 <Map />
             </div>
-            <span v-else style="font-style: italic;">
+            <span v-else style="font-style: italic; display: flex; flex-direction: column; gap: 5px; max-width: 600px;">
+                <span v-for="n in 11" :key="n" style="display: flex; gap: 5px;">
+                    <Skeleton width="7rem" height="2rem" />
+                    <Skeleton width="100%" height="2rem" />
+                </span>
+                <Skeleton width="100%" height="6rem" />
+            </span>
+            <!-- <span v-else style="font-style: italic;">
                 Učitavanje podataka
                 <font-awesome-icon icon="spinner" spin />
-            </span>
+            </span> -->
         </main>
         <footer>
             <button class="footer-button" :disabled="idIzracuna == '/' || idIzracuna == 0"
@@ -236,6 +244,7 @@
         </footer>
         <NespremljenePromjenePopup class="alert-popup" :visible="isNespremljenePromjenePopupVisible"
             @confirm="confirmLeave" @cancel="cancelLeave" />
+        <LoadingSpremanje v-if="isLoadingPopupVisible" class="loading-popup"/>
     </div>
 </template>
 
@@ -261,16 +270,14 @@ const vrstaIzracuna = ref('');
 
 const isScenarijLoaded = ref(false);
 
-const initializeScenarij = async () => {
-    const cookieValue = await initializeCookie('scenarij'); // Dohvati vrijednost iz kolačića
-    console.log("scenarij: ", cookieValue)
-    if (cookieValue) {  // Ako kolačić postoji
-        scenarij.value = cookieValue ? cookieValue : 'RCP'; // Postavi scenarij
-    } else {
-        scenarij.value = 'RCP'; // Ako kolačić ne postoji, postavi na 'RCP'
-    }
-    izracunStore.updateScenarij(scenarij.value);
-    isScenarijLoaded.value = true; // Oznaka da je inicijalizacija završena
+const toast = useToast();
+
+const showSuccess = () => {
+    toast.add({ severity: 'success', summary: 'Uspješno spremljeno', detail: 'Promjene na formi su spremljene', life: 5000 });
+};
+
+const showError = () => {
+    toast.add({ severity: 'error', summary: 'Došlo je do greške', detail: 'Nije uspješno spremljeno', life: 5000 });
 };
 
 // const cookie = useCookie('id_izracuna');
@@ -311,6 +318,7 @@ const status = ref(0);
 const isSuccess = ref(true);
 const showPopup = ref(false);
 const isNespremljenePromjenePopupVisible = ref(false);
+const isLoadingPopupVisible = ref(false);
 let resolveNavigation = null;
 
 // Varijabla koja označava da su podaci fetchani i postavljeni
@@ -357,6 +365,15 @@ watch(
 );
 
 watch(isNespremljenePromjenePopupVisible, (newValue) => {
+    if (newValue) {
+        // Onemogući scrollanje
+        document.body.style.overflow = 'hidden';
+    } else {
+        // Omogući scrollanje
+        document.body.style.overflow = '';
+    }
+});
+watch(isLoadingPopupVisible, (newValue) => {
     if (newValue) {
         // Onemogući scrollanje
         document.body.style.overflow = 'hidden';
@@ -819,22 +836,25 @@ const updateNapomena = (value) => {
     opciStore.opci_podaci.aiz_napomena = value;
 };
 
-
 const saveFormData = async () => {
     if (isFormValid.value) {
         console.log("Forma je validna i podaci su spremljeni.")
+        isLoadingPopupVisible.value = true;
         try {
             const response = await opciStore.saveData();
             const responseId = response.resId;
             const responseStatus = response.status;
 
             isSuccess.value = responseStatus == 200;
-            showPopup.value = true;
+            isLoadingPopupVisible.value = false;
+            // showPopup.value = true;
+
+            showSuccess();
 
             // Uklanjanje popup-a nakon 3 sekunde
-            setTimeout(() => {
-                showPopup.value = false;
-            }, 3000);
+            // setTimeout(() => {
+            //     showPopup.value = false;
+            // }, 3000);
 
             if (idIzracuna.value == '/') {
                 idIzracuna.value = parseInt(responseId)
@@ -851,11 +871,13 @@ const saveFormData = async () => {
 
         } catch (error) {
             isSuccess.value = false;
-            showPopup.value = true;
+            isLoadingPopupVisible.value = false;
+            showError();
+            // showPopup.value = true;
 
-            setTimeout(() => {
-                showPopup.value = false;
-            }, 3000);
+            // setTimeout(() => {
+            //     showPopup.value = false;
+            // }, 3000);
             console.error('Došlo je do pogreške prilikom spremanja podataka:', error);
         }
     } else {
@@ -1226,7 +1248,8 @@ textarea {
     resize: none;
 }
 
-.alert-popup {
+.alert-popup,
+.loading-popup {
     position: absolute;
     width: 100%;
     height: 100dvh;
