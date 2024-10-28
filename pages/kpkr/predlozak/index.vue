@@ -244,7 +244,7 @@
         </footer>
         <NespremljenePromjenePopup class="alert-popup" :visible="isNespremljenePromjenePopupVisible"
             @confirm="confirmLeave" @cancel="cancelLeave" />
-        <LoadingSpremanje v-if="isLoadingPopupVisible" class="loading-popup"/>
+        <LoadingSpremanje v-if="isLoadingPopupVisible" class="loading-popup" />
     </div>
 </template>
 
@@ -1250,7 +1250,8 @@ textarea {
 
 .alert-popup,
 .loading-popup {
-    position: absolute;
+    z-index: 99;
+    position: fixed;
     width: 100%;
     height: 100dvh;
     top: 0;
