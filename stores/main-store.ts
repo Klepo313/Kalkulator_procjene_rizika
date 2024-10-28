@@ -358,7 +358,7 @@ export const useOpciStore = defineStore('opci-podaci', {
 
             console.log("Prije savea: ",
                 this.opci_podaci.aiz_id === 0 ? null : this.opci_podaci.aiz_id,
-                this.opci_podaci.aiz_datum,
+                formatDateToDMY(this.opci_podaci.aiz_datum, '-'),
                 this.opci_podaci.aiz_tvz_id,
                 this.opci_podaci.aiz_kop_id,
                 this.opci_podaci.aiz_kcs_id === 0 || this.opci_podaci.aiz_kcs_id == undefined ? null : this.opci_podaci.aiz_kcs_id,
@@ -370,7 +370,7 @@ export const useOpciStore = defineStore('opci-podaci', {
 
             const response = await saveForm(
                 this.opci_podaci.aiz_id === 0 ? null : this.opci_podaci.aiz_id,
-                this.opci_podaci.aiz_datum,
+                formatDateToDMY(this.opci_podaci.aiz_datum, '-'),
                 this.opci_podaci.aiz_tvz_id,
                 this.opci_podaci.aiz_kop_id,
                 this.opci_podaci.aiz_kcs_id === 0 || this.opci_podaci.aiz_kcs_id == undefined ? null : this.opci_podaci.aiz_kcs_id,
