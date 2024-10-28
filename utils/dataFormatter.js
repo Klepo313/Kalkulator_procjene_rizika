@@ -22,8 +22,14 @@ const restructureData = (data) => {
     return groupedData;
 }
 
+const formatNumber = (value) => {
+    // return new Intl.NumberFormat('en-US').format(value);
+    return new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+}
+
 export {
     restructureData,
+    formatNumber
 }
 
 // const restructureData = (data) => {
