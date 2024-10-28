@@ -66,8 +66,8 @@ const thirdRow = ref([
 ])
 
 const fourthRow = ref([
-    { class: 'grid-item nb', label: '', colSpan: 1, rowSpan: 1 },
-    { class: 'grid-item tablegreen nb pad-lr-5 sb-t sb-l', label: 'Postojeći', colSpan: 2, rowSpan: 1 },
+    { class: 'grid-item nb', label: '', colSpan: 2, rowSpan: 1 },
+    { class: 'grid-item tablegreen nb pad-lr-5 sb-t sb-l f12', label: 'Postojeći', colSpan: 1, rowSpan: 1 },
     { class: 'grid-item darkgreen nb-r nb-t nb-b sb-w-t', label: 'Rizik od promjene', colSpan: 6, rowSpan: 1 },
 ])
 
