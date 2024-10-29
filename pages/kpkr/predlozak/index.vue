@@ -3,6 +3,7 @@
 <template>
     <div class="body">
         <Toast />
+        <Toast position="top-center" group="tc" />
         <div v-if="showPopup" :class="['success-popup', { error: !isSuccess }]">
             <font-awesome-icon :icon="isSuccess ? 'circle-check' : 'circle-exclamation'" />
             <span>
@@ -273,14 +274,14 @@ const isScenarijLoaded = ref(false);
 const toast = useToast();
 
 const showSuccess = () => {
-    toast.add({ severity: 'success', summary: 'Uspješno spremljeno', detail: 'Promjene na formi su spremljene', life: 5000 });
+    toast.add({ severity: 'success', summary: 'Uspješno spremljeno', detail: 'Promjene na formi su spremljene', group: 'tc', life: 5000 });
 };
 
 const showError = () => {
     toast.add({ severity: 'error', summary: 'Došlo je do greške', detail: 'Nije uspješno spremljeno', life: 5000 });
 };
 const showErrorSave = (message) => {
-    toast.add({ severity: 'error', summary: 'Došlo je do greške', detail: `${message}`, life: 8000 });
+    toast.add({ severity: 'error', summary: 'Došlo je do greške', detail: `${message}`, group: 'tc', life: 8000 });
 };
 
 // const cookie = useCookie('id_izracuna');
