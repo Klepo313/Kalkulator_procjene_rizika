@@ -121,6 +121,7 @@ const deleteCookie = async (names) => {
         params: {
             name: cookieNames.join(','), // Join the array into a comma-separated string
         },
+        withCredentials: true,
     });
 
     console.log(response.data);
