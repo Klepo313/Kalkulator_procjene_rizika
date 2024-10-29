@@ -25,6 +25,7 @@ const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipa
         console.log(response.status)
 
         return {
+            data: response.data,
             resId: response.data.aiz_id,
             status: response.status
         };

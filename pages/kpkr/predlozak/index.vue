@@ -244,7 +244,7 @@
         </footer>
         <NespremljenePromjenePopup class="alert-popup" :visible="isNespremljenePromjenePopupVisible"
             @confirm="confirmLeave" @cancel="cancelLeave" />
-        <LoadingSpremanje v-if="isLoadingPopupVisible" class="loading-popup"/>
+        <LoadingSpremanje v-if="isLoadingPopupVisible" class="loading-popup" />
     </div>
 </template>
 
@@ -279,10 +279,14 @@ const showSuccess = () => {
 const showError = () => {
     toast.add({ severity: 'error', summary: 'Došlo je do greške', detail: 'Nije uspješno spremljeno', life: 5000 });
 };
+const showErrorSave = (message) => {
+    toast.add({ severity: 'error', summary: 'Došlo je do greške', detail: `${message}`, life: 8000 });
+};
 
 // const cookie = useCookie('id_izracuna');
 
 const messageCestica = ref(null);
+const mainMessage = ref(null);
 // const messageDjeltanost = ref(null);
 
 // vrsta izracuna kolačić
@@ -844,12 +848,18 @@ const saveFormData = async () => {
             const response = await opciStore.saveData();
             const responseId = response.resId;
             const responseStatus = response.status;
+            const data = response.data;
 
             isSuccess.value = responseStatus == 200;
             isLoadingPopupVisible.value = false;
             // showPopup.value = true;
 
-            showSuccess();
+            if (responseStatus == 200) {
+                showSuccess();
+            } else {
+                mainMessage.value = data.message;
+                showErrorSave(mainMessage.value);
+            }
 
             // Uklanjanje popup-a nakon 3 sekunde
             // setTimeout(() => {
@@ -872,7 +882,7 @@ const saveFormData = async () => {
         } catch (error) {
             isSuccess.value = false;
             isLoadingPopupVisible.value = false;
-            showError();
+            showErrorSave('Odabrana katastarska čestica nema definiranu izloženost riziku.')
             // showPopup.value = true;
 
             // setTimeout(() => {
