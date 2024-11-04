@@ -73,8 +73,6 @@ import { getColorClass } from '#imports';
 
 <style scoped>
 .risk-matrix {
-    width: 700px;
-
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -82,7 +80,6 @@ import { getColorClass } from '#imports';
 }
 
 .matrix {
-    width: 100%;
 
     display: flex;
     flex-direction: column;
@@ -196,7 +193,6 @@ td {
 .legend-item {
     display: flex;
     align-items: center;
-    margin-bottom: 4px;
 }
 
 .legend-item span {
@@ -207,7 +203,7 @@ td {
 }
 
 .gray {
-    background-color: #bfbfbf;
+    background-color: #f2f2f2;
 }
 
 .green {
