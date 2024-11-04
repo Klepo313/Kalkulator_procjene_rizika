@@ -53,6 +53,9 @@
                                 </button>
                             </template>
                             <template #end>
+                                <!-- <button class="edit-btn" :disabled="!selectedVozilo" @click="enableEdit">
+                                    <font-awesome-icon icon="pen-to-square" /> Uredi vozilo
+                                </button> -->
                                 <button class="ukloni-btn" :disabled="!selectedVozilo" @click="openVoziloDeleteDialog">
                                     <font-awesome-icon icon="minus" /> Ukloni emisiju
                                 </button>
@@ -61,7 +64,8 @@
 
                         <!-- DataTable za prikaz vozila -->
                         <DataTable v-model:selection="selectedVozilo" :value="vozila" removable-sort show-gridlines
-                            selection-mode="single" :rows="5" data-key="id" striped-rows @row-edit-save="onRowEditSave">
+                            selection-mode="single" :rows="5" data-key="id" striped-rows
+                            @cell-edit-complete="onCellEditComplete">
                             <template #empty> Nema odabranih vozila </template>
 
                             <Column header="No.">
@@ -109,7 +113,15 @@
                                     ]" />
                                 </template>
                             </Column>
-                            <Column field="potrosnjaGoriva" header="Potrošnja goriva" sortable />
+                            <Column field="potrosnjaGoriva" header="Potrošnja goriva" sortable :editable="isEditing">
+                                <template #editor="slotProps">
+                                    <InputNumber v-model="slotProps.data.potrosnjaGoriva" mode="decimal"
+                                        :show-buttons="true" min="0" @change="updateCell(slotProps.data)" />
+                                </template>
+                                <template #body="slotProps">
+                                    <span>{{ slotProps.data.potrosnjaGoriva }}</span>
+                                </template>
+                            </Column>
                             <Column field="gorivo" header="Mjerna jedinica" sortable>
                                 <template #body="slotProps">
                                     <span v-html="slotProps.data.gorivo.metric" />
@@ -750,6 +762,23 @@ const deleteVoziloDialog = ref(false);
 const selectedVozilo = ref(null);
 // const selectedIzvor = ref(null);
 
+const isEditing = ref(false);
+
+const enableEdit = () => {
+    isEditing.value = true;
+};
+
+const onCellEditComplete = (event) => {
+    // Kada je uređivanje ćelije završeno, onemogući uređivanje
+    isEditing.value = false;
+};
+
+const updateCell = (updatedData) => {
+    // Logika za ažuriranje podataka nakon uređivanja ćelije
+    console.log("Ažurirani podaci:", updatedData);
+    // Dodaj potrebnu logiku za spremanje ili ažuriranje vrijednosti na serveru ili stanju
+};
+
 // Izvadi emisije po vrstama i ukupne emisije
 // const emissions = computed(() => totalEmissionsFromSources.value);
 const total = computed(() => emissionsByType.value.totalEmissions);
@@ -1228,7 +1257,8 @@ strong {
 
 .dodaj-btn,
 .ukloni-btn,
-.submitBtn {
+.submitBtn,
+.edit-btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1270,14 +1300,34 @@ strong {
     background-color: var(--red-focus);
 }
 
-.ukloni-btn:disabled {
+.ukloni-btn:disabled,
+.edit-btn:disabled {
     color: black;
     background-color: #b0b0b0;
     cursor: not-allowed;
 }
 
-.ukloni-btn:disabled * {
+.ukloni-btn:disabled *,
+.edit-btn:disabled * {
     color: black;
+}
+
+.edit-btn {
+    margin-right: 10px;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: var(--primary-color-hover);
+}
+
+.edit-btn:active {
+    background-color: var(--primary-color-focus);
+}
+
+.edit-btn>* {
+    color: white;
 }
 
 .dizel-tag {

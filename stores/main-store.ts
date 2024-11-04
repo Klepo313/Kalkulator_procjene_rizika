@@ -16,6 +16,7 @@ import { getEmmisionGroups, getFuelTypes, getVehicles, getVehiclesForEmmisionGro
 import { getEnergySources } from '~/service/kesp/fetchOpseg2';
 import { postHeader, updateEnergyItem } from '~/service/kesp/postRequests';
 import { getKespCalculations } from '~/service/kesp/fetchKespCalculations';
+import { getScenarios } from '~/service/fetchScenarios';
 
 //import { formatDateToISO } from '~/utils/dateFormatter';
 
@@ -211,6 +212,8 @@ export const useOpciStore = defineStore('opci-podaci', {
             tvo_naziv: "",
 
             tvz_naziv: "",
+
+            tvs_id: 0
         },
 
         vrste_izracuna: [],
@@ -223,7 +226,9 @@ export const useOpciStore = defineStore('opci-podaci', {
 
         djelatnosti: [],
 
-        skupina_djelatnosti: []
+        skupina_djelatnosti: [],
+
+        scenariji: [],
 
     }),
     actions: {
@@ -249,6 +254,7 @@ export const useOpciStore = defineStore('opci-podaci', {
             this.opci_podaci.puk_naziv = '';
             this.opci_podaci.tvo_naziv = '';
             this.opci_podaci.tvz_naziv = '';
+            this.opci_podaci.tvs_id = 0;
         },
 
         async fetchCalculationTypes() {
@@ -285,6 +291,7 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.puk_naziv = data.puk_naziv || this.opci_podaci.puk_naziv;
                 this.opci_podaci.tvo_naziv = data.tvo_naziv || this.opci_podaci.tvo_naziv;
                 this.opci_podaci.tvz_naziv = data.tvz_naziv || this.opci_podaci.tvz_naziv;
+                this.opci_podaci.tvs_id = data.tvs_id || this.opci_podaci.tvs_id;
             } else {
                 console.error('Error fetching calculation types:', items?.status);
             }
@@ -316,19 +323,15 @@ export const useOpciStore = defineStore('opci-podaci', {
                 console.error('Error fetching calculation types:', items?.status);
             }
         },
-        // async fetchParticlesForMunicipalities(id: number) {
-        //     const items = await getParticlesForMunicipalities(id);
+        async fetchScenarios() {
+            const items = await getScenarios();
 
-        //     if (items?.status == 200) {
-        //         if (items?.data.message) {
-        //             return items.data.message;
-        //         } else {
-        //             this.katastarske_cestice = items.data;
-        //         }
-        //     } else {
-        //         console.error('Error fetching calculation types:', items?.status);
-        //     }
-        // },
+            if (items?.status == 200) {
+                this.scenariji = items.data;
+            } else {
+                console.error('Error fetching scenarios: ', items?.status);
+            }
+        },
         async fetchParticlesForMunicipalities(id: number) {
             try {
                 const items = await getParticlesForMunicipalities(id);
@@ -365,7 +368,8 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.aiz_tvo_id === 0 ? null : this.opci_podaci.aiz_tvo_id,
                 this.opci_podaci.aiz_djl_id === 0 ? null : this.opci_podaci.aiz_djl_id,
                 this.opci_podaci.aiz_opis === '' || this.opci_podaci.aiz_opis === undefined ? null : this.opci_podaci.aiz_opis,
-                this.opci_podaci.aiz_napomena === '' ? null : this.opci_podaci.aiz_napomena
+                this.opci_podaci.aiz_napomena === '' ? null : this.opci_podaci.aiz_napomena,
+                this.opci_podaci.tvs_id === 0 ? null : this.opci_podaci.tvs_id
             )
 
             const response = await saveForm(
@@ -377,7 +381,8 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.aiz_tvo_id === 0 ? null : this.opci_podaci.aiz_tvo_id,
                 this.opci_podaci.aiz_djl_id === 0 ? null : this.opci_podaci.aiz_djl_id,
                 this.opci_podaci.aiz_opis === '' || this.opci_podaci.aiz_opis === undefined ? null : this.opci_podaci.aiz_opis,
-                this.opci_podaci.aiz_napomena === '' ? null : this.opci_podaci.aiz_napomena
+                this.opci_podaci.aiz_napomena === '' ? null : this.opci_podaci.aiz_napomena,
+                this.opci_podaci.tvs_id === 0 ? null : this.opci_podaci.tvs_id
             )
 
             console.log("Response savea: ", response)

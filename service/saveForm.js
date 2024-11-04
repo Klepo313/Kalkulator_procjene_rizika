@@ -3,7 +3,7 @@ import { base_url } from '../composables/variables'
 import axios from 'axios';
 //import { formatDMYtoYMD, formatDateToISO } from '~/utils/dateFormatter';
 
-const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipalityId, cadastreParticleId, objectTypeId, activityId, description, remark) => {
+const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipalityId, cadastreParticleId, objectTypeId, activityId, description, remark, scenarij) => {
     try {
         const response = await axios.post(`${base_url}/calculation`, {
             calculationId: calculationId,
@@ -13,8 +13,9 @@ const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipa
             cadastreParticleId: parseInt(cadastreParticleId),
             objectTypeId: objectTypeId == null ? null : parseInt(objectTypeId),
             activityId: activityId == null ? null : parseInt(activityId),
+            scenarioTypeId: scenarij,
             description: description,
-            remark: remark
+            remark: remark,
         }, {
             withCredentials: true, // Ensure cookies are included in requests
             headers: {
