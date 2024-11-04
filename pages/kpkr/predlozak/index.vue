@@ -588,7 +588,7 @@ onMounted(async () => {
             odabranaIspostava: '',
             odabraniPodrucniUred: '',
             napomena: '',
-            scenarij: '',
+            scenarij: null,
         }));
 
         // Označi da su podaci postavljeni
@@ -603,6 +603,7 @@ onMounted(async () => {
     await opciStore.fetchScenarios();
 
     isScenarijLoaded.value = true;
+    isFormDirty.value = false;
     console.log("Opci podaci: ", opciStore.opci_podaci);
 });
 
