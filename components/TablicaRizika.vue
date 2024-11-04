@@ -114,7 +114,7 @@
                 <div class="grid-item table-header"></div>
                 <div class="grid-item table-header nb-t"></div>
                 <div class="grid-item table-header">Lavina</div>
-                <div class="grid-item table-header">Klizišta</div>
+                <div class="grid-item table-header">Odron tla</div>
                 <div class="grid-item table-header">Slijeganje tla</div>
                 <div class="grid-item table-header sb-b"></div>
 
