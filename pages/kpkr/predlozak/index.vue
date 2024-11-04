@@ -15,7 +15,8 @@
         <main>
             <h1>Opći podaci</h1>
             <!-- <div v-if="opciStore.opci_podaci && odabraniDatum" class="main-grid"> -->
-            <form v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" class="main-grid">
+            <form v-if="(isNumber(idIzracuna) && hasSelectedValues() && isScenarijLoaded) || idIzracuna === '/'"
+                class="main-grid">
                 <label for="nazivIzracuna" class="header">Naziv predloška </label>
                 <InputText id="nazivIzracuna" placeholder="Unesi naziv" :value="nazivIzracuna" :disabled="status"
                     @change="updateNazivIzracuna($event.target.value)" />
@@ -159,7 +160,10 @@
                     <!-- <span class="info-text">{{ messageCestica }}</span> -->
                 </div>
 
-                <div class="grid-item header">Klimatski scenarij</div>
+                <div class="grid-item header">
+                    Klimatski scenarij
+                    <span class="required">*</span>
+                </div>
                 <div class="grid-item radio-button-container">
                     <div class="radio-button">
                         <RadioButton v-model="scenarij" input-id="rcp" name="scenarij" value="RCP" />
@@ -209,7 +213,8 @@
 
 
             </form>
-            <div v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" class="spremiBtn-container">
+            <div v-if="(isNumber(idIzracuna) && hasSelectedValues() && isScenarijLoaded) || idIzracuna === '/'"
+                class="spremiBtn-container">
                 <button id="saveBtn" type="button" :disabled="!isFormValid" @click="saveFormData">
                     <font-awesome-icon icon="save" class="save-icon" />
                     Spremi
@@ -221,7 +226,8 @@
                     nastaviti u sljedeći korak.
                 </span>
             </div>
-            <div v-if="(isNumber(idIzracuna) && hasSelectedValues()) || idIzracuna === '/'" id="map" class="map">
+            <div v-if="(isNumber(idIzracuna) && hasSelectedValues() && isScenarijLoaded) || idIzracuna === '/'" id="map"
+                class="map">
                 <Map />
             </div>
             <span v-else style="font-style: italic; display: flex; flex-direction: column; gap: 5px; max-width: 600px;">
@@ -335,6 +341,11 @@ const initialFormData = ref({});
 // Inicijalizacija podataka
 const isFormDirty = ref(false);
 
+const scenariji = computed(() => {
+    const niz = opciStore.scenariji;
+    return niz;
+})
+
 watch(
     [
         nazivIzracuna,
@@ -348,6 +359,7 @@ watch(
         odabranaIspostava,
         odabraniPodrucniUred,
         napomena,
+        scenarij
     ],
     () => {
         if (initialDataSet.value) {
@@ -363,6 +375,7 @@ watch(
                 odabranaIspostava: odabranaIspostava.value,
                 odabraniPodrucniUred: odabraniPodrucniUred.value,
                 napomena: napomena.value,
+                scenarij: scenarij.value
             }) !== JSON.stringify(initialFormData.value);
         }
     },
@@ -394,9 +407,38 @@ watch(scenarij, async (newValue) => {
         // const encryptedValue = await encryptCookie(newValue); // Enkriptiraj vrijednost
         await setCookie({ name: 'scenarij', value: newValue }); // Spremi enkriptiranu vrijednost u kolačić
         izracunStore.updateScenarij(newValue);
-        console.log("scenarij: ", izracunStore.scenarij)
+
+        // Pronađi odgovarajući tvs_id iz scenariji niza
+        const matchingScenarij = scenariji.value.find(item => item.tvs_sif === newValue);
+        if (matchingScenarij) {
+            opciStore.opci_podaci.tvs_id = matchingScenarij.tvs_id;
+        }
+
+        console.log("scenarij: ", izracunStore.scenarij);
+        console.log("tvs_id: ", opciStore.opci_podaci.tvs_id);
     }
 });
+
+// Prati promene u opciStore.scenariji i izvrši logiku kada su podaci dostupni
+watch(
+    () => scenariji.value,
+    (newScenariji) => {
+        if (newScenariji && newScenariji.length > 0) {
+            // Kada su scenariji dohvaćeni, pronađi podudaranje
+            const matchingScenarij = newScenariji.find(item => item.tvs_id === opciStore.opci_podaci.tvs_id);
+            console.log("Matching scenarij: ", matchingScenarij);
+
+            if (matchingScenarij) {
+                scenarij.value = matchingScenarij.tvs_sif;
+                console.log("Scenarij u fillu: ", scenarij.value);
+            }
+        }
+    },
+    { immediate: true } // Ova opcija omogućava da se watcher pokrene odmah, ako su podaci već dostupni
+);
+
+
+
 const router = useRouter();
 
 // Funkcija koja se poziva kad korisnik potvrdi napuštanje
@@ -456,7 +498,8 @@ onBeforeUnmount(() => {
 const obaveznaPolja = ref([
     'odabraniDatum',
     'odabranaVrstaIzracuna',
-    'odabranaKatastarskaOpcina'
+    'odabranaKatastarskaOpcina',
+    'scenarij'
 ])
 
 watch(() => odabranaVrstaIzracuna.value.tvz_naziv, (newVal) => {
@@ -467,6 +510,7 @@ watch(() => odabranaVrstaIzracuna.value.tvz_naziv, (newVal) => {
             'odabranaVrstaIzracuna',
             'odabranaKatastarskaOpcina',
             'odabranaDjelatnost',
+            'scenarij'
         ]
     } else {
 
@@ -475,6 +519,7 @@ watch(() => odabranaVrstaIzracuna.value.tvz_naziv, (newVal) => {
             'odabranaVrstaIzracuna',
             'odabranaKatastarskaOpcina',
             'odabranaVrstaObjekta',
+            'scenarij'
         ]
     }
 });
@@ -491,7 +536,7 @@ watch(idIzracuna, async (newValue, oldValue) => {
     }
 });
 
-const cookiesToGet = ['id-izracuna', 'vrsta-izracuna', 'scenarij'];
+const cookiesToGet = ['id-izracuna', 'vrsta-izracuna'];
 
 onMounted(async () => {
 
@@ -500,16 +545,6 @@ onMounted(async () => {
 
         idIzracuna.value = cookieData['id-izracuna'] || '';
         vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
-
-        // Handle the scenarij case
-        if (cookieData['scenarij'] === null) {
-            scenarij.value = 'RCP';
-            await setCookie({ name: 'scenarij', value: 'RCP' });
-        } else {
-            scenarij.value = cookieData['scenarij'];
-        }
-
-        isScenarijLoaded.value = true;
 
     } catch (error) {
         console.error("Error loading cookies: ", error);
@@ -553,6 +588,7 @@ onMounted(async () => {
             odabranaIspostava: '',
             odabraniPodrucniUred: '',
             napomena: '',
+            scenarij: '',
         }));
 
         // Označi da su podaci postavljeni
@@ -564,7 +600,9 @@ onMounted(async () => {
     await opciStore.fetchObjectTypes();
     await opciStore.fetchActivities();
     await opciStore.fetchMunicipalities();
+    await opciStore.fetchScenarios();
 
+    isScenarijLoaded.value = true;
     console.log("Opci podaci: ", opciStore.opci_podaci);
 });
 
@@ -581,6 +619,7 @@ const resetForm = () => {
     odabraniPodrucniUred.value = '';
     nazivIzracuna.value = '';
     napomena.value = '';
+    scenarij.value = null;
 };
 
 const cleanOpciStore = () => {
@@ -605,6 +644,7 @@ const cleanOpciStore = () => {
     opciStore.opci_podaci.puk_naziv = '';
     opciStore.opci_podaci.tvo_naziv = '';
     opciStore.opci_podaci.tvz_naziv = '';
+    opciStore.opci_podaci.tvs_id = 0;
 
     opciStore.katastarske_cestice = [];
     opciStore.katastarske_opcine = [];
@@ -612,6 +652,7 @@ const cleanOpciStore = () => {
     opciStore.vrste_objekta = [];
     opciStore.djelatnosti = [];
     opciStore.skupina_djelatnosti = [];
+    opciStore.scenariji = [];
 };
 
 const fillFormData = () => {
@@ -698,6 +739,7 @@ const fillFormData = () => {
             odabranaIspostava: odabranaIspostava.value,
             odabraniPodrucniUred: odabraniPodrucniUred.value,
             napomena: napomena.value,
+            scenarij: scenarij.value
         }));
 
         // Označi da su podaci postavljeni
@@ -920,19 +962,6 @@ const djelatnosti = computed(() => {
     const niz = opciStore.djelatnosti;
     return niz;
 })
-
-// const fetchParticles = (id) => {
-//     if (!id) return; // Ensure ID is valid
-//     console.log('odabranaKatastarskaOpcina:', odabranaKatastarskaOpcina.value);
-//     console.log('Id:', id);
-
-//     // Assuming fetchParticlesForMunicipalities returns a promise or updated value
-//     opciStore.fetchParticlesForMunicipalities(id).then(response => {
-//         katastarskeCestice.value = response; // Update computed value
-//     }).catch(error => {
-//         console.error('Error fetching particles:', error);
-//     });
-// };
 
 const fetchParticles = (id) => {
     if (!id) return; // Provjeravamo je li ID validan
