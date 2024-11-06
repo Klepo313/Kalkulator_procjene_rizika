@@ -68,11 +68,11 @@
 
                     </DataTable>
                 </div>
-                <div class="grapf">
+                <!-- <div class="grapf">
                     <div class="graph-content">
                         <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
                     </div>
-                </div>
+                </div> -->
             </div>
             <footer>
                 <nuxt-link to="/" class="footer-link">
