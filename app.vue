@@ -1,6 +1,9 @@
 <template>
   <div>
+    <!-- <LoadingLayout v-if="loading" /> -->
+    <NuxtLoadingIndicator />
     <NuxtPage />
+
     <!-- <div v-if="showExtendSession" class="extendSession">
       <div class="expand-content">
         <h2>Sesija ističe za {{ formattedTime }} minuta </h2>
@@ -18,21 +21,22 @@
 
 <script setup>
 
-import { useUserStore, useIzracunStore } from '~/stores/main-store';
-const userStore = useUserStore();
-const izracunStore = useIzracunStore();
 
-onMounted(async () => {
+// import { useUserStore, useIzracunStore } from '~/stores/main-store';
+// const userStore = useUserStore();
+// const izracunStore = useIzracunStore();
 
-  await userStore.initializeUser()
-  console.log("Inicijalizacija storea: ", {
-    name: userStore.name,
-    surname: userStore.surname,
-    username: userStore.username,
-    email: userStore.email
-  });
+// onMounted(async () => {
 
-})
+//   await userStore.initializeUser()
+//   console.log("Inicijalizacija storea: ", {
+//     name: userStore.name,
+//     surname: userStore.surname,
+//     username: userStore.username,
+//     email: userStore.email
+//   });
+
+// })
 
 
 const title = ref('Kalkulator procjene rizika')

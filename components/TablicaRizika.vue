@@ -252,7 +252,7 @@
 <script setup>
 
 import { ref, onMounted } from 'vue';
-import { getPropertyGridData } from '~/service/fetchGridData';
+import { getPropertyGridData } from '~/service/kpkr/grid_data';
 import { restructureData } from '~/utils/dataFormatter';
 import { useStructuredGridDataStore } from '~/stores/main-store';
 

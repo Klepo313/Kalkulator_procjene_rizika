@@ -48,7 +48,7 @@
 
 
 <script setup>
-import { logout } from '~/service/logout';
+import { logout } from '~/service/user/user';
 import { useIzracunStore } from '#imports';
 
 const izracunStore = useIzracunStore();

@@ -888,10 +888,11 @@ main {
 }
 
 /* .legenda {
-    padding: 0px 15px;
+    max-width: 500px;
+    max-height: 200px;
 } */
 
-.popup-expand {
+.le .popup-expand {
     z-index: 99;
     position: fixed;
     overflow: hidden;

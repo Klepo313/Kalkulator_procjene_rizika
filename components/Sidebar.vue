@@ -106,7 +106,7 @@
 import { computed, defineEmits, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { navigateTo } from '#app';
-import { logout } from '@/service/logout';
+import { logout } from '~/temp/logout';
 import { useIzracunStore } from '~/stores/main-store';
 
 const izracunStore = useIzracunStore();

@@ -73,14 +73,16 @@
                 </nuxt-link>
             </footer>
         </main>
+        <LoadingSpremanje v-if="loadingDalje" :message="'Učitavanje izračuna...'" :loader="'UI'"
+            class="loading-popup" />
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { navigateTo } from '#app';
-import { logout } from '@/service/logout';
-import { getCalculations } from '@/service/fetchCalculations';
+import { logout } from '~/service/user/user';
+import { getCalculations } from '~/service/kpkr/calculations';
 import { formatDateToDMY } from '@/utils/dateFormatter';
 import { setCookie, deleteCookie } from '~/utils/cookieUtils';
 
@@ -94,6 +96,7 @@ const filters = ref({
 
 const izracuni = ref([]);
 const loading = ref(true);
+const loadingDalje = ref(false);
 
 const odabraniIzracun = ref();
 
@@ -104,6 +107,7 @@ const cookiesToDelete = [
 ];
 
 const onRowSelect = async () => {
+    loadingDalje.value = true;
     console.log("Uspješno dohvaćen izračun.", odabraniIzracun.value);
     await setCookie({ name: 'id-izracuna', value: odabraniIzracun.value.aiz_id });
     navigateTo('/kpkr/predlozak');
@@ -114,11 +118,11 @@ onMounted(async () => {
     deleteCookie(cookiesToDelete);
 
     const data = await getCalculations();
-    if (data) {
-        if (data.message) {
+    if (data.data) {
+        if (data.data.message) {
             izracuni.value = [];
         } else {
-            izracuni.value = data;
+            izracuni.value = data.data;
         }
     }
     console.log(izracuni.value)
@@ -292,5 +296,15 @@ main {
 
 .footer-link:hover {
     transform: translateX(-3px);
+}
+
+.loading-popup {
+    z-index: 99;
+    position: fixed;
+    width: 100%;
+    height: 100dvh;
+    top: 0;
+    left: 0;
+    overflow: hidden;
 }
 </style>

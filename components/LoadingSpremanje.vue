@@ -3,10 +3,11 @@
         <div class="popup">
             <main>
                 <div class="popup-header">
-                    <h2>Spremanje promjena</h2>
+                    <h2>{{ message }}</h2>
                 </div>
                 <div class="popup-content">
-                    <div class="loader" />
+                    <div v-if="loader == 'SI'" class="loader" />
+                    <div v-if="loader == 'UI'" class="UI-loader" />
                 </div>
             </main>
         </div>
@@ -14,7 +15,15 @@
 </template>
 
 <script setup>
+const props = defineProps({
+    message: String,
+    loader: String
+})
 
+const message = computed(() => props.message);
+const loader = computed(() => props.loader);
+
+console.log("loader: ", loader.value, "message: ", message.value);
 </script>
 
 <style scoped>
@@ -112,6 +121,38 @@ h2 {
     50% {
         background: var(--primary-color);
         border-radius: 100px 0 0 100px
+    }
+}
+
+/* HTML: <div class="loader"></div> */
+.UI-loader {
+    width: 50px;
+    aspect-ratio: 1;
+    display: grid;
+    border: 4px solid #0000;
+    border-radius: 50%;
+    border-right-color: #25b09b;
+    animation: l15 1s infinite linear;
+}
+
+.UI-loader::before,
+.UI-loader::after {
+    content: "";
+    grid-area: 1/1;
+    margin: 2px;
+    border: inherit;
+    border-radius: 50%;
+    animation: l15 2s infinite;
+}
+
+.UI-loader::after {
+    margin: 8px;
+    animation-duration: 3s;
+}
+
+@keyframes l15 {
+    100% {
+        transform: rotate(1turn)
     }
 }
 </style>

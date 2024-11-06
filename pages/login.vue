@@ -39,7 +39,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { navigateTo } from '#app';
-import { login } from '@/service/login'
+import { login } from '~/service/user/user';
 import { generateCsrfToken } from '~/utils/generateCSRFtoken';
 import { useUserStore } from '~/stores/main-store';
 // import { encryptCookie, decryptCookie } from '~/utils/cookieUtils';

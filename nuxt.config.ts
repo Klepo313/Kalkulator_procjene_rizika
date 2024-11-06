@@ -27,6 +27,9 @@ export default defineNuxtConfig({
       }
     }
   },
+  router: {
+    middleware: ['loading'],
+  },
   runtimeConfig: {
     secretKey: process.env.SECRET_KEY, // Ovdje dodaješ ključ iz .env datoteke
     public: {

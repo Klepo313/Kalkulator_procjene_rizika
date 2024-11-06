@@ -52,7 +52,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { logout } from '~/service/logout';
+import { logout } from '~/service/user/user';
 import { useUserStore } from '~/stores/main-store';
 
 definePageMeta({

@@ -21,7 +21,7 @@
 
 // middleware/auth.js
 import { defineNuxtRouteMiddleware, navigateTo, useCookie, useRequestHeaders } from '#app';
-import { checkLogin } from '~/service/checkLogin';
+import { checkLogin } from '~/temp/checkLogin';
 import { initializeCookie } from "~/utils/initializeCookie";
 
 export default defineNuxtRouteMiddleware(async (to, from) => {

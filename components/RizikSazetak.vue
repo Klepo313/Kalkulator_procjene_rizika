@@ -408,7 +408,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getProcessGridData } from '~/service/fetchGridData';
+import { getProcessGridData } from '~/temp/fetchGridData';
 import { restructureData } from '~/utils/dataFormatter';
 import { useStructuredGridDataStore } from '~/stores/main-store';
 

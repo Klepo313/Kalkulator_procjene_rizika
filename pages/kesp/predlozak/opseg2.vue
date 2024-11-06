@@ -47,7 +47,7 @@
                     </div>
                     <div class="data-item">
                         <DataTable :value="izracuni" show-gridlines edit-mode="cell" :rows="5" data-key="id"
-                            @cell-edit-complete="onCellEditComplete">
+                            :rowClass="getRowClass" @cell-edit-complete="onCellEditComplete">
                             <template #empty> Nema energija </template>
                             <Column header="No.">
                                 <template #body="slotProps">
@@ -89,12 +89,14 @@
                                         min="0" @change="updateCalculations(slotProps.data)" />
                                 </template>
                                 <template #body="slotProps">
-                                    <span v-if="slotProps.data.obnovljivo">
-                                        {{ formatNumber(slotProps.data.obnovljivo) }}
-                                    </span>
-                                    <span v-else style="'font-style: italic; opacity: 0.6;">
-                                        {{ 'Ispunite polje' }}
-                                    </span>
+                                    <div>
+                                        <span v-if="slotProps.data.obnovljivo">
+                                            {{ formatNumber(slotProps.data.obnovljivo) }}
+                                        </span>
+                                        <span v-else style="'font-style: italic; opacity: 0.6;">
+                                            {{ 'Ispunite polje' }}
+                                        </span>
+                                    </div>
                                 </template>
                             </Column>
 
@@ -184,6 +186,10 @@ const toast = useToast();
 const izracuni = computed(() => opseg2Store.izracuni);
 const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
 const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
+
+function getRowClass(rowData) {
+    return rowData.neobnovljivo > 100 ? 'high-energy-row' : '';
+}
 
 const kespId = ref(null);
 
@@ -499,6 +505,10 @@ section>div {
     /* text-transform: uppercase; */
 }
 
+.unos-polje {
+    background-color: #be8282;
+}
+
 strong {
     /* color: green; */
     text-decoration: underline;
@@ -679,6 +689,14 @@ h3 {
     color: var(--red-soft);
 }
 
+.p-row-even {
+    background-color: #b0b0b0;
+}
+
+.high-energy-row {
+    background-color: #ffcccc;
+    /* Blago crvena pozadina */
+}
 
 .fullscreen-overlay {
     position: fixed;

@@ -46,10 +46,10 @@
         </div>
         <div class="legend">
             <div>
-                <div class="legend-item"><span class="green" /> BEZNAČAJAN</div>
-                <div class="legend-item"><span class="yellow" /> NISKI</div>
-                <div class="legend-item"><span class="orange" /> SREDNJI</div>
-                <div class="legend-item"><span class="red" /> VISOKI</div>
+                <div class="legend-item"><span class="nullgray" /> BEZNAČAJAN</div>
+                <div class="legend-item"><span class="green" /> NISKI</div>
+                <div class="legend-item"><span class="yellow" /> SREDNJI</div>
+                <div class="legend-item"><span class="orange" /> VISOKI</div>
                 <div class="legend-item"><span class="red" /> VRLO VISOKI</div>
             </div>
             <div>

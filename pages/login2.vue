@@ -39,7 +39,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { navigateTo } from '#app';
-import { login } from '@/service/login'
+import { login } from '~/temp/login'
 import { generateCsrfToken } from '~/utils/generateCSRFtoken';
 
 const statusCode = ref(0);

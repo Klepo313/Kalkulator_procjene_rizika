@@ -68,6 +68,11 @@
 
                     </DataTable>
                 </div>
+                <div class="grapf">
+                    <div class="graph-content">
+                        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
+                    </div>
+                </div>
             </div>
             <footer>
                 <nuxt-link to="/" class="footer-link">
@@ -111,8 +116,8 @@
                         Odustani
                     </span>
                     <button type="submit" class="submitBtn">
-                        <font-awesome-icon icon="plus" class="dialog-plus-icom" />
-                        Novi predložak
+                        <font-awesome-icon icon="save" class="dialog-plus-icom" />
+                        Spremi predložak
                     </button>
                 </div>
             </form>
@@ -132,7 +137,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { navigateTo } from '#app';
-import { logout } from '@/service/logout';
+import { logout } from '~/temp/logout';
 import { getKespCalculations } from '~/service/kesp/fetchKespCalculations';
 import { formatDateToDMY, getYearsRange } from '@/utils/dateFormatter';
 import { setCookie, deleteCookie } from '~/utils/cookieUtils';
@@ -190,7 +195,80 @@ const resetForm = () => {
     noviDialogVisible.value = false;
 };
 
+const chartData = ref();
+const chartOptions = ref();
+
+const setChartData = () => {
+    const documentStyle = getComputedStyle(document.documentElement);
+
+    return {
+        labels: ['2020', '2021', '2022', '2024', '2025'],
+        datasets: [
+            // {
+            //     type: 'line',
+            //     label: 'Dataset 1',
+            //     borderColor: documentStyle.getPropertyValue('--p-orange-500'),
+            //     borderWidth: 2,
+            //     fill: false,
+            //     tension: 0.4,
+            //     data: [50, 25, 12, 48, 56]
+            // },
+            {
+                type: 'bar',
+                label: 'Opseg 1',
+                backgroundColor: documentStyle.getPropertyValue('--p-gray-500'),
+                data: [21, 84, 24, 175, 37],
+            },
+            {
+                type: 'bar',
+                label: 'Opseg 2',
+                backgroundColor: documentStyle.getPropertyValue('--p-cyan-500'),
+                data: [41, 52, 24, 74, 23]
+            }
+        ]
+    };
+};
+const setChartOptions = () => {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--p-text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+    const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
+
+    return {
+        maintainAspectRatio: false,
+        aspectRatio: 0.6,
+        plugins: {
+            legend: {
+                labels: {
+                    color: textColor
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                }
+            },
+            y: {
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                }
+            }
+        }
+    };
+}
+
 onMounted(async () => {
+
+    chartData.value = setChartData();
+    chartOptions.value = setChartOptions();
 
     deleteCookie(cookiesToDelete);
 
@@ -325,7 +403,7 @@ const addIzracun = async () => {
     flex-direction: column;
     gap: 26px;
     width: 100%;
-    min-height: 100vh;
+    min-height: 100dvh;
     padding: 26px;
 }
 
@@ -357,6 +435,7 @@ h1 {
     font-size: 20px;
     padding-bottom: 7px;
     border-bottom: 2px solid var(--text-color);
+    width: 100%;
 }
 
 .header-buttons {
@@ -482,10 +561,32 @@ main {
 .main-content {
     width: 100%;
     height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
 .table {
     padding-top: 20px;
+    width: 100%;
+}
+
+.grapf {
+    width: 100%;
+    max-width: 70rem;
+    height: 400px;
+    background-color: white;
+    border: var(--border);
+    border-radius: 5px;
+    padding: 26px;
+}
+
+.graph-content,
+.graph-content>div {
+    width: 100%;
+    height: 100%;
 }
 
 .footer-link:hover {

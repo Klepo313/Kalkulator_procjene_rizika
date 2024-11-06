@@ -1,24 +1,48 @@
 // stores/main-store.ts
 import { defineStore } from 'pinia';
-import { getCalculationTypes } from '@/service/fetchCalculationTypes'
-import { getObjectTypes } from '~/service/fetchObjectTypes';
-import { getActivities } from '~/service/fetchActivities';
-import { getMunicipalities } from '~/service/fetchMunicipalities';
-import { getParticlesForMunicipalities } from '~/service/fetchParticlesForMunicipalities';
-import { getCalculation } from '~/service/fetchCalculation';
-import { getMetricTypes } from '~/service/fetchMetrictypes';
-import { saveForm } from '~/service/saveForm';
-import { addMetricType, removeMetricType } from '~/service/alterMetrictypes';
-import { getHeader } from '~/service/kesp/fetchHeader';
-
 import { getCookie, setCookie, deleteCookie } from '#imports';
-import { getEmmisionGroups, getFuelTypes, getVehicles, getVehiclesForEmmisionGroups } from '~/service/kesp/fetchVoziloData';
-import { getEnergySources } from '~/service/kesp/fetchOpseg2';
-import { postHeader, updateEnergyItem } from '~/service/kesp/postRequests';
-import { getKespCalculations } from '~/service/kesp/fetchKespCalculations';
-import { getScenarios } from '~/service/fetchScenarios';
 
-//import { formatDateToISO } from '~/utils/dateFormatter';
+// KPKR
+import {
+    getCalculationTypes,
+    getObjectTypes,
+    getActivities,
+    getParticlesForMunicipalities,
+    getMunicipalities,
+    getScenarios,
+    saveForm
+} from '~/service/kpkr/form';
+import {
+    getCalculations
+} from '~/service/kpkr/calculations';
+import {
+    addMetricType,
+    removeMetricType,
+    getMetricTypes
+} from '~/service/kpkr/metric_types';
+
+// KESP
+import {
+    getHeader
+} from '~/service/kesp/fetchHeader';
+import {
+    getEmmisionGroups,
+    getFuelTypes,
+    getVehicles,
+    getVehiclesForEmmisionGroups
+} from '~/service/kesp/fetchVoziloData';
+import {
+    getEnergySources
+} from '~/service/kesp/fetchOpseg2';
+import {
+    postHeader,
+    updateEnergyItem
+} from '~/service/kesp/postRequests';
+import {
+    getKespCalculations
+} from '~/service/kesp/fetchKespCalculations';
+
+
 
 export const useIzracunStore = defineStore('izracun-store', {
     state: () => ({
@@ -267,7 +291,7 @@ export const useOpciStore = defineStore('opci-podaci', {
             }
         },
         async fetchCalculation(id: number) {
-            const items = await getCalculation(id);
+            const items = await getCalculations(id);
             if (items?.status == 200 && items.data) {
                 const data = items.data[0];
                 this.opci_podaci.aiz_datum = data.aiz_datum || this.opci_podaci.aiz_datum;
@@ -295,6 +319,7 @@ export const useOpciStore = defineStore('opci-podaci', {
             } else {
                 console.error('Error fetching calculation types:', items?.status);
             }
+            console.log("EKV: ", this.opci_podaci)
         },
         async fetchObjectTypes() {
             const items = await getObjectTypes();

@@ -251,7 +251,8 @@
         </footer>
         <NespremljenePromjenePopup class="alert-popup" :visible="isNespremljenePromjenePopupVisible"
             @confirm="confirmLeave" @cancel="cancelLeave" />
-        <LoadingSpremanje v-if="isLoadingPopupVisible" class="loading-popup" />
+        <LoadingSpremanje v-if="isLoadingPopupVisible" :message="'Spremanje promjena'" :loader="'SI'"
+            class="loading-popup" />
     </div>
 </template>
 

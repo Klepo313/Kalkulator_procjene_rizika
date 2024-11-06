@@ -48,3 +48,37 @@ export default defineNuxtRouteMiddleware(async () => {
 
     console.log('Valid id_izracuna found, continuing:', idIzracuna);
 });
+
+
+// // middleware/izracun.js
+// import { defineNuxtRouteMiddleware, navigateTo } from '#app';
+// import { base_url } from '#imports';
+// import axios from 'axios';
+
+// export default defineNuxtRouteMiddleware(async () => {
+//     try {
+//         // Poziv prema udaljenom serveru na '/get-cookie' za provjeru postojanja kolačića
+//         const response = await axios.get(`${base_url}/user/get-cookie`, {
+//             params: {
+//                 names: 'id-izracuna' // Send as a comma-separated string
+//             },
+//             withCredentials: true, // Omogućuje slanje kolačića s zahtjevom
+//         });
+
+//         console.log("response data:", response.data);
+//         const idIzracuna = response.data['id-izracuna'];
+//         console.log('id_izracuna:', idIzracuna);
+
+//         // Ako je `idIzracuna` undefined ili null, preusmjeri na /kpkr/predlosci
+//         if (!idIzracuna) {
+//             console.log('No id_izracuna found, redirecting...');
+//             return navigateTo('/kpkr/predlosci');
+//         }
+
+//         console.log('Valid id_izracuna found, continuing:', idIzracuna);
+//         return;
+//     } catch (error) {
+//         console.error('Error fetching cookie from remote server:', error);
+//         return navigateTo('/kpkr/predlosci');
+//     }
+// });
