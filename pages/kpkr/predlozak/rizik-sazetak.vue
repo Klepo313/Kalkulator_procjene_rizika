@@ -681,6 +681,7 @@ const downloadRizikSazetak = async () => {
 
 <style scoped>
 .body {
+    position: relative;
     width: 100%;
     height: 100%;
 
@@ -892,7 +893,7 @@ main {
     max-height: 200px;
 } */
 
-.le .popup-expand {
+.popup-expand {
     z-index: 99;
     position: fixed;
     overflow: hidden;
