@@ -15,8 +15,7 @@
         <main>
             <h1>Opći podaci</h1>
             <!-- <div v-if="opciStore.opci_podaci && odabraniDatum" class="main-grid"> -->
-            <form v-if="(isNumber(idIzracuna) && hasSelectedValues() && isScenarijLoaded) || idIzracuna === '/'"
-                class="main-grid">
+            <form v-if="(idIzracuna && hasSelectedValues() && isScenarijLoaded) || idIzracuna == ''" class="main-grid">
                 <label for="nazivIzracuna" class="header">Naziv predloška </label>
                 <InputText id="nazivIzracuna" placeholder="Unesi naziv" :value="nazivIzracuna" :disabled="status"
                     @change="updateNazivIzracuna($event.target.value)" />
@@ -213,7 +212,7 @@
 
 
             </form>
-            <div v-if="(isNumber(idIzracuna) && hasSelectedValues() && isScenarijLoaded) || idIzracuna === '/'"
+            <div v-if="(idIzracuna && hasSelectedValues() && isScenarijLoaded) || idIzracuna == ''"
                 class="spremiBtn-container">
                 <button id="saveBtn" type="button" :disabled="!isFormValid" @click="saveFormData">
                     <font-awesome-icon icon="save" class="save-icon" />
@@ -226,7 +225,7 @@
                     nastaviti u sljedeći korak.
                 </span>
             </div>
-            <div v-if="(isNumber(idIzracuna) && hasSelectedValues() && isScenarijLoaded) || idIzracuna === '/'" id="map"
+            <div v-if="(idIzracuna && hasSelectedValues() && isScenarijLoaded) || idIzracuna == ''" id="map"
                 class="map">
                 <Map />
             </div>
@@ -243,8 +242,8 @@
             </span> -->
         </main>
         <footer>
-            <button class="footer-button" :disabled="idIzracuna == '/' || idIzracuna == 0"
-                @click="navigateTo('/kpkr/predlozak/mjere-prilagodbe')">
+            <button class="footer-button" :disabled="!idIzracuna || idIzracuna == 0"
+                @click="navigateWithParameter('/kpkr/predlozak/mjere-prilagodbe', 'id', cardStore.cardId)">
                 <span>Mjere prilagodbe</span>
                 <font-awesome-icon icon="arrow-right-long" />
             </button>
@@ -262,6 +261,7 @@ import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import { ref, onMounted, onBeforeUnmount } from "vue" //onBeforeMount
 import { useOpciStore, useIzracunStore } from '~/stores/main-store';
+import { useCardStore } from '~/stores/index';
 import { formatDateToDMY } from '~/utils/dateFormatter'
 import { setCookie } from '~/utils/cookieUtils';
 import { initializeCookie } from "~/utils/initializeCookie";
@@ -273,7 +273,11 @@ definePageMeta({
     ],
 });
 
-const idIzracuna = ref('');
+const props = defineProps({
+    aiz_id: String
+})
+
+const idIzracuna = computed(() => props.aiz_id)
 const vrstaIzracuna = ref('');
 
 const isScenarijLoaded = ref(false);
@@ -291,8 +295,6 @@ const showErrorSave = (message) => {
     toast.add({ severity: 'error', summary: 'Došlo je do greške', detail: `${message}`, group: 'tc', life: 8000 });
 };
 
-// const cookie = useCookie('id_izracuna');
-
 const messageCestica = ref(null);
 const mainMessage = ref(null);
 // const messageDjeltanost = ref(null);
@@ -302,6 +304,7 @@ const mainMessage = ref(null);
 // Kreiramo instancu storea
 const opciStore = useOpciStore();
 const izracunStore = useIzracunStore();
+const cardStore = useCardStore();
 
 // Kreiramo ref za `Date` objekt datuma
 const nazivIzracuna = ref(null);
@@ -525,26 +528,25 @@ watch(() => odabranaVrstaIzracuna.value.tvz_naziv, (newVal) => {
     }
 });
 
-watch(idIzracuna, async (newValue, oldValue) => {
-    if (newValue !== oldValue) {
-        console.log("Nova vrijednost ID izrakcije: ", newValue, "Stara vrijednost: ", oldValue);
-        if (newValue !== '/') {
-            await opciStore.fetchCalculation(newValue);
-            fillFormData();
-        } else {
-            console.log("Podaci u storeu: ", opciStore.opci_podaci);
-        }
-    }
-});
+// watch(idIzracuna, async (newValue, oldValue) => {
+//     if (newValue !== oldValue) {
+//         console.log("Nova vrijednost ID izrakcije: ", newValue, "Stara vrijednost: ", oldValue);
+//         if (newValue !== '/') {
+//             await opciStore.fetchCalculation(newValue);
+//             fillFormData();
+//         } else {
+//             console.log("Podaci u storeu: ", opciStore.opci_podaci);
+//         }
+//     }
+// });
 
-const cookiesToGet = ['id-izracuna', 'vrsta-izracuna'];
+const cookiesToGet = ['vrsta-izracuna'];
 
 onMounted(async () => {
 
     try {
         const cookieData = await initializeCookie(cookiesToGet);
-
-        idIzracuna.value = cookieData['id-izracuna'] || '';
+        // idIzracuna.value = cookieData['id-izracuna'] || '';
         vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
 
     } catch (error) {
@@ -565,14 +567,12 @@ onMounted(async () => {
     // Resetiramo formu i store
     resetForm();
     cleanOpciStore();
-    izracunStore.idIzracuna = idIzracuna.value == '/' ? 0 : idIzracuna.value;
 
-    console.log("ID izračuna u storeu: ", izracunStore.idIzracuna);
     console.log("ID izračuna u indexu: ", idIzracuna.value);
 
     // Provjeri da li je ID izračuna prazan
-    if (idIzracuna.value !== '/') {
-        console.log("Je, evo uđe, ", idIzracuna.value);
+    if (idIzracuna.value) { // !== '/'
+        console.log("Je, evo uđe: ", idIzracuna.value);
         await opciStore.fetchCalculation(idIzracuna.value);
         fillFormData();
     } else {
@@ -625,29 +625,7 @@ const resetForm = () => {
 };
 
 const cleanOpciStore = () => {
-    opciStore.opci_podaci.aiz_datum = '';
-    opciStore.opci_podaci.aiz_djl_id = 0;
-    opciStore.opci_podaci.aiz_djl_id_sk = 0;
-    opciStore.opci_podaci.aiz_id = 0;
-    opciStore.opci_podaci.aiz_kcs_id = 0;
-    opciStore.opci_podaci.aiz_kop_id = 0;
-    opciStore.opci_podaci.aiz_status = 0;
-    opciStore.opci_podaci.aiz_tvo_id = 0;
-    opciStore.opci_podaci.aiz_tvz_id = 0;
-    opciStore.opci_podaci.aiz_opis = '';
-    opciStore.opci_podaci.aiz_napomena = '';
-    opciStore.opci_podaci.djl_naziv = '';
-    opciStore.opci_podaci.djl_naziv_sk = '';
-    opciStore.opci_podaci.djl_sif = '';
-    opciStore.opci_podaci.isp_naziv = '';
-    opciStore.opci_podaci.kcs_sif = '';
-    opciStore.opci_podaci.kop_naziv = '';
-    opciStore.opci_podaci.kop_sif = '';
-    opciStore.opci_podaci.puk_naziv = '';
-    opciStore.opci_podaci.tvo_naziv = '';
-    opciStore.opci_podaci.tvz_naziv = '';
-    opciStore.opci_podaci.tvs_id = 0;
-
+    opciStore.clearOpciPodaci();
     opciStore.katastarske_cestice = [];
     opciStore.katastarske_opcine = [];
     opciStore.vrste_izracuna = [];
@@ -896,8 +874,6 @@ const saveFormData = async () => {
             const data = response.data;
 
             isSuccess.value = responseStatus == 200;
-            isLoadingPopupVisible.value = false;
-            // showPopup.value = true;
 
             if (responseStatus == 200) {
                 showSuccess();
@@ -906,34 +882,27 @@ const saveFormData = async () => {
                 showErrorSave(mainMessage.value);
             }
 
-            // Uklanjanje popup-a nakon 3 sekunde
-            // setTimeout(() => {
-            //     showPopup.value = false;
-            // }, 3000);
+            if (!idIzracuna.value) { // == '/'
+                idIzracuna.value = responseId
+                opciStore.opci_podaci.aiz_id = idIzracuna.value;
+                console.log('res-id: ', idIzracuna.value);
 
-            if (idIzracuna.value == '/') {
-                idIzracuna.value = parseInt(responseId)
+                opciStore.fetchCalculation(idIzracuna.value)
+                fillFormData();
 
-                await setCookie({ name: 'id-izracuna', value: idIzracuna.value });
-
-                izracunStore.idIzracuna = '/';
-                izracunStore.updateIdIzracuna(responseId);
-
-                console.log('res-id: ', parseInt(idIzracuna.value));
+                //await setCookie({ name: 'id-izracuna', value: idIzracuna.value });
+                //izracunStore.idIzracuna = '/';
+                //izracunStore.updateIdIzracuna(responseId);
             }
 
             isFormDirty.value = false;
 
         } catch (error) {
             isSuccess.value = false;
-            isLoadingPopupVisible.value = false;
             showErrorSave('Odabrana katastarska čestica nema definiranu izloženost riziku.')
-            // showPopup.value = true;
-
-            // setTimeout(() => {
-            //     showPopup.value = false;
-            // }, 3000);
             console.error('Došlo je do pogreške prilikom spremanja podataka:', error);
+        } finally {
+            isLoadingPopupVisible.value = false;
         }
     } else {
         console.log("Forma nije validna.");

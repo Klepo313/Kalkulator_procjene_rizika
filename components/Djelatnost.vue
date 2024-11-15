@@ -120,18 +120,15 @@ const message = ref('');
 const showPopup = ref(false);
 
 const props = defineProps({
+    aiz_id: String,
     tip: String,
 })
+
+const idIzracuna = computed(() => props.aiz_id)
 const tip = props.tip; // 'RZ' ili 'KR'
 
-const idIzracuna = ref('');
 const vrstaIzracuna = ref(null); // Inicijalno je null
 const scenarij = ref('');
-
-const initializeScenarij = async () => {
-    const cookieValue = await initializeCookie('scenarij');
-    scenarij.value = cookieValue ? cookieValue : 'RCP'; // Postavi scenarij na temelju kolačića ili default
-};
 
 const thirdRow = computed(() => [
     { class: 'grid-item nb', label: '', colSpan: 1, rowSpan: 1 },
@@ -168,12 +165,11 @@ const processGridData = async () => {
     //console.log(structuredData.value["11"])
 }
 
-const cookiesToGet = ['id-izracuna', 'vrsta-izracuna', 'scenarij'];
+const cookiesToGet = ['vrsta-izracuna', 'scenarij'];
 
 onMounted(async () => {
     const cookieData = await initializeCookie(cookiesToGet);
 
-    idIzracuna.value = cookieData['id-izracuna'] || '';
     vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
     scenarij.value = cookieData['scenarij'] || 'RCP';
 

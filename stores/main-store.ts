@@ -192,6 +192,25 @@ export const useUserStore = defineStore('user-store', {
     }
 });
 
+export const useToastErrorStore = defineStore('toast-error-store', {
+    state: () => ({
+        toastMessage: {
+            title: '',
+            description: '',
+        }, // Stanje za čuvanje poruke greške
+    }),
+    actions: {
+        setToastMessage(message: object) {
+            this.toastMessage.title = message.title;
+            this.toastMessage.description = message.description;
+        },
+        clearToastMessage() {
+            this.toastMessage.title = '';
+            this.toastMessage.description = '';
+        },
+    }
+})
+
 export const useOpciStore = defineStore('opci-podaci', {
     state: () => ({
         opci_podaci: {
@@ -201,7 +220,7 @@ export const useOpciStore = defineStore('opci-podaci', {
 
             aiz_djl_id_sk: 0,
 
-            aiz_id: 0,
+            aiz_id: '',
 
             aiz_kcs_id: 0,
 
@@ -216,6 +235,8 @@ export const useOpciStore = defineStore('opci-podaci', {
             aiz_opis: '',
 
             aiz_napomena: '',
+
+            aiz_broj: '',
 
             djl_naziv: "",
 
@@ -260,13 +281,14 @@ export const useOpciStore = defineStore('opci-podaci', {
             this.opci_podaci.aiz_datum = '';
             this.opci_podaci.aiz_djl_id = 0;
             this.opci_podaci.aiz_djl_id_sk = 0;
-            this.opci_podaci.aiz_id = 0;
+            this.opci_podaci.aiz_id = '';
             this.opci_podaci.aiz_kcs_id = 0;
             this.opci_podaci.aiz_kop_id = 0;
             this.opci_podaci.aiz_status = 0;
             this.opci_podaci.aiz_tvo_id = 0;
             this.opci_podaci.aiz_tvz_id = 0;
             this.opci_podaci.aiz_opis = '';
+            this.opci_podaci.aiz_broj = '';
             this.opci_podaci.aiz_napomena = '';
             this.opci_podaci.djl_naziv = '';
             this.opci_podaci.djl_naziv_sk = '';
@@ -290,7 +312,7 @@ export const useOpciStore = defineStore('opci-podaci', {
                 console.error('Error fetching calculation types:', items?.status);
             }
         },
-        async fetchCalculation(id: number) {
+        async fetchCalculation(id: string) {
             const items = await getCalculations(id);
             if (items?.status == 200 && items.data) {
                 const data = items.data[0];
@@ -304,6 +326,7 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.aiz_tvo_id = data.aiz_tvo_id || this.opci_podaci.aiz_tvo_id;
                 this.opci_podaci.aiz_tvz_id = data.aiz_tvz_id || this.opci_podaci.aiz_tvz_id;
                 this.opci_podaci.aiz_opis = data.aiz_opis || this.opci_podaci.aiz_opis;
+                this.opci_podaci.aiz_broj = data.aiz_broj || this.opci_podaci.aiz_broj;
                 this.opci_podaci.aiz_napomena = data.aiz_napomena || this.opci_podaci.aiz_napomena;
                 this.opci_podaci.djl_naziv = data.djl_naziv || this.opci_podaci.djl_naziv;
                 this.opci_podaci.djl_naziv_sk = data.djl_naziv_sk || this.opci_podaci.djl_naziv_sk;
@@ -385,7 +408,7 @@ export const useOpciStore = defineStore('opci-podaci', {
         async saveData() {
 
             console.log("Prije savea: ",
-                this.opci_podaci.aiz_id === 0 ? null : this.opci_podaci.aiz_id,
+                this.opci_podaci.aiz_id === '' ? null : this.opci_podaci.aiz_id,
                 formatDateToDMY(this.opci_podaci.aiz_datum, '-'),
                 this.opci_podaci.aiz_tvz_id,
                 this.opci_podaci.aiz_kop_id,
@@ -398,7 +421,7 @@ export const useOpciStore = defineStore('opci-podaci', {
             )
 
             const response = await saveForm(
-                this.opci_podaci.aiz_id === 0 ? null : this.opci_podaci.aiz_id,
+                this.opci_podaci.aiz_id === '' ? null : this.opci_podaci.aiz_id,
                 formatDateToDMY(this.opci_podaci.aiz_datum, '-'),
                 this.opci_podaci.aiz_tvz_id,
                 this.opci_podaci.aiz_kop_id,
@@ -423,7 +446,7 @@ export const useAdaptStore = defineStore('adaptacijske-mjere', {
         adaptacijske_mjere: []
     }),
     actions: {
-        async fetchMetrictypes(id: number) {
+        async fetchMetrictypes(id: string) {
             const items = await getMetricTypes(id);
 
             if (items?.status == 200) {
@@ -440,11 +463,11 @@ export const useAdaptStore = defineStore('adaptacijske-mjere', {
                 console.error('Error fetching calculation types:', items?.status);
             }
         },
-        async addMetrictype(calculationId: number, metricTypeId: number) {
+        async addMetrictype(calculationId: string, metricTypeId: number) {
             const status = await addMetricType(calculationId, metricTypeId);
             return status;
         },
-        async deleteMetrictype(calculationId: number, metricTypeId: number) {
+        async deleteMetrictype(calculationId: string, metricTypeId: number) {
             const status = await removeMetricType(calculationId, metricTypeId);
             return status;
         }

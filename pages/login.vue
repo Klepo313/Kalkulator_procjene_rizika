@@ -58,6 +58,11 @@ const userToken = useCookie('userToken', {
     path: '/',
 });
 
+const expiryTime = useCookie('expiryTime', {
+    maxAge: 24 * 60 * 60, // 1 dan
+    path: '/',
+})
+
 const statusCode = ref(0);
 const usernameInput = ref(null);
 const passwordInput = ref(null);
@@ -69,6 +74,7 @@ const loginBtnText = ref(null);
 const showAlert = ref(false);
 
 onMounted(async () => {
+    userToken.value = null;
     spinnerIcon.value.style.display = "none";
     loginBtnText.value.style.display = "inline";
 });
@@ -97,7 +103,8 @@ const checkLogin = async () => {
             })
 
             userToken.value = newCsrfToken;
-            setCookie({ name: 'accessToken', value: newCsrfToken })
+            expiryTime.value = new Date().getTime() + (24 * 60 * 60 * 1000); // 1 dan
+            // setCookie({ name: 'accessToken', value: newCsrfToken })
 
             // await setCookie('accessToken', newCsrfToken);
             // await setCookie('username', response.username);

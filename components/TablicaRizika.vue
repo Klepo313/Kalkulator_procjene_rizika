@@ -265,26 +265,15 @@ const message = ref('');
 const showPopup = ref(false);
 
 const props = defineProps({
+    aiz_id: String,
     tip: String,
 })
 const tip = props.tip;
 
-const idIzracuna = ref('');
+const idIzracuna = computed(() => props.aiz_id)
 const vrstaIzracuna = ref(null); // Inicijalno je null
 const scenarij = ref('');
 const isScenarijLoaded = ref(false);
-
-
-const initializeScenarij = async () => {
-    const cookieValue = await initializeCookie('scenarij'); // Dohvati vrijednost iz kolačića
-    if (cookieValue) {  // Ako kolačić postoji
-        scenarij.value = cookieValue ? cookieValue : 'RCP'; // Postavi scenarij
-    } else {
-        scenarij.value = 'RCP'; // Ako kolačić ne postoji, postavi na 'RCP'
-    }
-    isScenarijLoaded.value = true; // Oznaka da je inicijalizacija završena
-};
-
 
 const propertyGridData = async () => {
     const data = await getPropertyGridData(idIzracuna.value, tip);
@@ -310,13 +299,11 @@ const propertyGridData = async () => {
     }
 }
 
-const cookiesToGet = ['id-izracuna', 'vrsta-izracuna', 'scenarij'];
+const cookiesToGet = ['vrsta-izracuna', 'scenarij'];
 
 onMounted(async () => {
     try {
         const cookieData = await initializeCookie(cookiesToGet);
-
-        idIzracuna.value = cookieData['id-izracuna'] || '';
         vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
         scenarij.value = cookieData['scenarij'] || 'RCP';
         isScenarijLoaded.value = true;

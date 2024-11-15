@@ -1,5 +1,6 @@
 <template>
     <div class="body">
+        <Toast />
         <header>
             <img src="../../public/static/images/KPKR_logo_sidebar.svg" style="height: 100%; cursor: pointer;"
                 alt="logo" @click="navigateTo('/kpkr')">
@@ -21,7 +22,7 @@
                     <DataTable v-model:filters="filters" v-model:selection="odabraniIzracun" :value="izracuni"
                         selection-mode="single" :meta-key-selection="false" paginator :rows="10" stripedRows
                         data-key="aiz_id" filter-display="row" :loading="loading"
-                        :global-filter-fields="['aiz_id', 'aiz_opis', 'aiz_datum', 'tvz_naziv', 'kcs_sif', 'kop_sif', 'kop_naziv', 'puk_naziv', 'objekt_djel']"
+                        :global-filter-fields="['aiz_broj', 'aiz_opis', 'aiz_datum', 'tvz_naziv', 'kcs_sif', 'kop_sif', 'kop_naziv', 'puk_naziv', 'objekt_djel']"
                         @row-select="onRowSelect">
                         <template #header>
                             <div class="flex justify-end">
@@ -37,9 +38,9 @@
                         <template #empty> Nisu pronađeni izračuni </template>
                         <template #loading> Učitavanje prethodnih izračuna. Molimo pričekajte. </template>
 
-                        <Column field="aiz_id" header="Broj" sortable style="width: 5%">
+                        <Column field="aiz_broj" header="Broj" sortable style="width: 5%">
                             <template #body="slotProps">
-                                {{ slotProps.data.aiz_id || '--' }}
+                                {{ slotProps.data.aiz_broj || '--' }}
                             </template>
                         </Column>
                         <Column field="aiz_opis" header="Naziv" sortable style="width: 10%">
@@ -90,6 +91,11 @@ definePageMeta({
     middleware: 'auth',
 });
 
+const toast = useToast();
+
+const cardStore = useCardStore();
+const toastErrorStore = useToastErrorStore();
+
 const filters = ref({
     global: { value: '', matchMode: 'contains' }
 });
@@ -106,16 +112,51 @@ const cookiesToDelete = [
     'vrsta-izracuna',
 ];
 
+const showError = () => {
+    toast.add({ severity: 'error', summary: 'Došlo je do greške', detail: `Greška prilikom odabira izračuna`, life: 3000 });
+};
+
 const onRowSelect = async () => {
     loadingDalje.value = true;
-    console.log("Uspješno dohvaćen izračun.", odabraniIzracun.value);
-    await setCookie({ name: 'id-izracuna', value: odabraniIzracun.value.aiz_id });
-    navigateTo('/kpkr/predlozak');
+
+    try {
+
+        // Dodavanje šifrovane vrednosti u URL
+        const url = `/kpkr/predlozak?id=${odabraniIzracun.value.aiz_id.toString()}`;
+        console.log("url: " + url);
+        console.log('id: ', odabraniIzracun.value.aiz_id.toString()); // Spremanje ID-a u cookie
+
+        // Navigacija sa 'replace' kako bi se izbeglo dupliranje rute u istoriji
+        await navigateTo(url, { replace: true });
+
+        // Spremanje šifrovanog ID-a u store
+        cardStore.setCardId(odabraniIzracun.value.aiz_id.toString());
+
+    } catch (error) {
+        console.error("Greška prilikom postavljanja kolačića:", error);
+        showError();
+    }
+    // finally {
+    //     loadingDalje.value = false;
+    // }
 };
+
+
 
 onMounted(async () => {
 
     deleteCookie(cookiesToDelete);
+
+    if (toastErrorStore.toastMessage) {
+        toast.add({
+            severity: 'error',
+            summary: toastErrorStore.toastMessage.title,
+            detail: toastErrorStore.toastMessage.description,
+            life: 3000,
+            position: 'top-right'
+        });
+        toastErrorStore.clearToastMessage() // Očistite poruku nakon prikazivanja
+    }
 
     const data = await getCalculations();
     if (data.data) {

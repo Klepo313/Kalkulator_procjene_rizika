@@ -90,11 +90,12 @@
             </div>
         </main>
         <footer>
-            <button class="footer-btn" @click="navigateTo('/kpkr/predlozak')">
+            <button class="footer-btn" @click="navigateWithParameter('/kpkr/predlozak', 'id', idIzracuna)">
                 <font-awesome-icon icon="arrow-left-long" style="margin-right: 10px;" />
                 Opći podaci
             </button>
-            <button class="footer-btn" @click="toRizikSazetak">
+            <button class="footer-btn"
+                @click="navigateWithParameter('/kpkr/predlozak/rizik-sazetak', 'id', idIzracuna)">
                 Izračunaj rizik
                 <font-awesome-icon icon="arrow-right-long" style="margin-left: 10px;" />
             </button>
@@ -112,15 +113,17 @@ import Checkbox from 'primevue/checkbox';
 definePageMeta({
     middleware: [
         'auth',
-        'izracun',
-        // 'id-izracun'
+        'izracun'
     ],
 });
 
 const adaptStore = useAdaptStore();
 
-const idIzracuna = ref('');
+const props = defineProps({
+    aiz_id: String
+})
 
+const idIzracuna = computed(() => props.aiz_id)
 
 onBeforeUnmount(() => {
     window.removeEventListener('resize', updateScrollHeight); // Ukloni listener prilikom unmounta
@@ -128,9 +131,9 @@ onBeforeUnmount(() => {
 
 onMounted(async () => {
     // Pozovi funkciju kada se komponenta inicijalizuje
-    const cookieData = await initializeCookie('id-izracuna');
-    idIzracuna.value = cookieData['id-izracuna'] || '';
-    console.log('ID izračuna je: ', idIzracuna.value);
+    // const cookieData = await initializeCookie('id-izracuna');
+    // idIzracuna.value = cookieData['id-izracuna'] || '';
+    // console.log('ID izračuna je: ', idIzracuna.value);
 
     updateScrollHeight(); // Postavi scrollHeight prilikom montiranja
     window.addEventListener('resize', updateScrollHeight); // Dodaj listener za promjenu veličine
@@ -149,10 +152,6 @@ onMounted(async () => {
 });
 
 const isLoading = ref(true);
-
-const toRizikSazetak = () => {
-    navigateTo('/kpkr/predlozak/rizik-sazetak');
-};
 
 const filters = ref({
     global: { value: '' }

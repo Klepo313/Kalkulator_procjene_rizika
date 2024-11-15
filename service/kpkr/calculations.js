@@ -9,6 +9,8 @@ const getCalculations = async (id) => {
             ? `${base_url}/calculation/${id}`
             : `${base_url}/calculation/user`;
 
+        console.log("URL: ", url);
+
         // Pošaljite GET zahtjev sa withCredentials opcijom
         const response = await axios.get(url, {
             withCredentials: true, // Ovo omogućava slanje kolačića

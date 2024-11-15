@@ -14,7 +14,7 @@
                         style="font-size: 14px; font-weight: 400; color: var(--text-color);">
                         Broj izračuna:
                     </h2>
-                    <span class="broj-izracuna">{{ idIzracuna }}</span>
+                    <span class="broj-izracuna">{{ brojIzracuna }}</span>
                 </div>
             </div>
             <div :class="['sidebar-content', isCollapsed ? 'collapsed' : '']">
@@ -25,7 +25,7 @@
                 <div :class="['navigation', isCollapsed ? 'collapsed' : '']">
                     <nuxt-link
                         :class="['nuxtlink-form', 'opci', isActiveRoute('/kpkr/predlozak') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
-                        to="/kpkr/predlozak">
+                        :to="{ path: '/kpkr/predlozak', query: { id: cardStore.cardId } }">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="map" />
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Opći podaci</h3>
                     </nuxt-link>
@@ -34,8 +34,10 @@
                         'mjere',
                         isActiveRoute('/kpkr/predlozak/mjere-prilagodbe') ? 'active' : 'inactive',
                         isCollapsed ? 'collapsed' : '',
-                        isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je idIzracuna '/'
-                    ]" :to="isDisabled ? '#' : '/kpkr/predlozak/mjere-prilagodbe'" :tabindex="isDisabled ? -1 : 0"
+                        isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je brojIzracuna '/'
+                    ]" :to="isDisabled
+                        ? '#'
+                        : { path: '/kpkr/predlozak/mjere-prilagodbe', query: { id: cardStore.cardId } }" :tabindex="isDisabled ? -1 : 0"
                         :aria-disabled="isDisabled">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="ruler-horizontal" />
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Mjere prilagodbe</h3>
@@ -48,8 +50,10 @@
                     'opci',
                     isActiveRoute('/kpkr/predlozak/rizik-sazetak') ? 'active' : 'inactive',
                     isCollapsed ? 'collapsed' : '',
-                    isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je idIzracuna '/'
-                ]" :to="isDisabled ? '#' : '/kpkr/predlozak/rizik-sazetak'" :tabindex="isDisabled ? -1 : 0"
+                    isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je brojIzracuna '/'
+                ]" :to="isDisabled
+                    ? '#'
+                    : { path: '/kpkr/predlozak/rizik-sazetak', query: { id: cardStore.cardId } }" :tabindex="isDisabled ? -1 : 0"
                     :aria-disabled="isDisabled">
                     <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-cells" />
                     <h3 :class="isCollapsed ? 'collapsed' : ''">Rezultat izračuna</h3>
@@ -64,7 +68,7 @@
                         'opci',
                         isActiveRoute('/rizik-sazetak') ? 'active' : 'inactive',
                         isCollapsed ? 'collapsed' : '',
-                        isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je idIzracuna '/'
+                        isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je brojIzracuna '/'
                     ]" :to="isDisabled ? '#' : '/rizik-sazetak'" :tabindex="isDisabled ? -1 : 0"
                         :aria-disabled="isDisabled">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-cells" />
@@ -107,13 +111,12 @@ import { computed, defineEmits, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { navigateTo } from '#app';
 import { logout } from '~/temp/logout';
-import { useIzracunStore } from '~/stores/main-store';
 
-const izracunStore = useIzracunStore();
-
+const opciStore = useOpciStore();
+const cardStore = useCardStore();
 const route = useRoute();
 
-const idIzracuna = ref('');
+const brojIzracuna = computed(() => opciStore.opci_podaci.aiz_broj);
 const username = ref('');
 const name = ref('');
 const surname = ref('');
@@ -127,19 +130,28 @@ function capitalizeName(fullName) {
         .join(' ');
 }
 
-const isDisabled = computed(() => idIzracuna.value === '/' || idIzracuna.value == 0);
+const isDisabled = computed(
+    () =>
+        brojIzracuna.value === '/' ||
+        brojIzracuna.value == 0 ||
+        brojIzracuna.value == undefined ||
+        brojIzracuna.value == null
+);
 
-watch(() => izracunStore.idIzracuna, (newValue) => {
-    console.log('idIzracuna updated:', newValue);
-    idIzracuna.value = parseInt(newValue);
+watch(() => opciStore.opci_podaci.aiz_broj, (newValue) => {
+    console.log('Broj izračuna updated: ', newValue);
+    brojIzracuna.value = parseInt(newValue);
 });
+// watch(() => izracunStore.idIzracuna, (newValue) => {
+//     console.log('idIzracuna updated:', newValue);
+//     idIzracuna.value = parseInt(newValue);
+// });
 
-const cookiesToGet = ['id-izracuna', 'username', 'name', 'surname', 'email'];
+const cookiesToGet = ['username', 'name', 'surname', 'email'];
 
 onMounted(async () => {
     try {
         const cookieData = await initializeCookie(cookiesToGet);
-        idIzracuna.value = cookieData['id-izracuna'] || '';
         username.value = cookieData['username'] || '';
         name.value = cookieData['name'] || '';
         surname.value = cookieData['surname'] || '';
@@ -148,12 +160,6 @@ onMounted(async () => {
     } catch (error) {
         console.error("Error loading cookies: ", error);
     }
-
-    // idIzracuna.value = await initializeCookie('id-izracuna');
-    // username.value = await initializeCookie('username');
-    // name.value = await initializeCookie('name');
-    // surname.value = await initializeCookie('surname');
-    // email.value = await initializeCookie('email');
 })
 
 // Prima prop za stanje bočne trake

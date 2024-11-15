@@ -1,11 +1,11 @@
 <template>
     <div class="body">
-        <div :class="['sidebar', { 'collapsed': isCollapsed }]" ref="sidebar">
+        <div ref="sidebar" :class="['sidebar', { 'collapsed': isCollapsed }]">
             <Sidebar :is-collapsed="isCollapsed" @toggle-sidebar="toggleSidebar" />
         </div>
         <main :style="mainStyles">
             <div class="main-content">
-                <NuxtPage />
+                <NuxtPage :aiz_id="idIzracuna" />
             </div>
         </main>
     </div>
@@ -16,11 +16,18 @@
 import { ref, computed, watch } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
 
+
 definePageMeta({
     middleware: [
         'auth',
+        'izracun'
     ],
 });
+
+const opciStore = useOpciStore();
+const toastErrorStore = useToastErrorStore();
+
+const idIzracuna = computed(() => getIdFromUrl());
 
 // Reaktivna varijabla za praćenje stanja bočne trake
 const isCollapsed = ref(false)
@@ -43,6 +50,21 @@ const mainStyles = computed(() => ({
     marginLeft: sidebarWidth.value,
     width: `calc(100% - ${sidebarWidth.value})`,
 }))
+
+onMounted(async () => {
+    if (idIzracuna.value) {
+        try {
+            await opciStore.fetchCalculation(idIzracuna.value);
+        } catch (error) {
+            console.log(error);
+            // toastErrorStore.setToastMessage({
+            //     title: 'Greška prilikom dohvaćanja izračuna',
+            //     description: 'Izračun nije pronađen.',
+            // });
+            navigateTo('/kpkr/predlosci');
+        }
+    }
+});
 
 </script>
 

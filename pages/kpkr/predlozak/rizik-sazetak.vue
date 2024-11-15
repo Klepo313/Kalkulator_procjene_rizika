@@ -26,8 +26,9 @@
                 <TabPanels class="tab-panel">
                     <TabPanel value="0" class="tab-panel" ref="tabPanelRef">
                         <div ref="rizikSazetakRef" class="sazetak-container">
-                            <Djelatnost v-if="vrstaIzracuna == 'Djelatnost'" :tip="'RZ'" class="rizik-sazetak" />
-                            <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'RZ'" />
+                            <Djelatnost v-if="vrstaIzracuna == 'Djelatnost'" :aiz_id="idIzracuna" :tip="'RZ'"
+                                class="rizik-sazetak" />
+                            <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :aiz_id="idIzracuna" :tip="'RZ'" />
                             <LegendaBoja v-if="vrstaIzracuna" class="legenda" />
                             <span v-else style="font-style: italic;">
                                 Učitavanje podataka
@@ -37,8 +38,9 @@
                     </TabPanel>
                     <TabPanel value="1" class="tab-panel">
                         <div ref="rizikSazetakMjereRef">
-                            <Djelatnost v-if="vrstaIzracuna == 'Djelatnost'" :tip="'KR'" class="rizik-sazetak" />
-                            <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :tip="'KR'" />
+                            <Djelatnost v-if="vrstaIzracuna == 'Djelatnost'" :aiz_id="idIzracuna" :tip="'KR'"
+                                class="rizik-sazetak" />
+                            <TablicaRizika v-else-if="vrstaIzracuna == 'Imovina'" :aiz_id="idIzracuna" :tip="'KR'" />
                             <LegendaBoja v-if="vrstaIzracuna" class="legenda" />
                             <span v-else style="font-style: italic;">
                                 Učitavanje podataka
@@ -103,12 +105,14 @@
                 <transition :name="slideDirection">
                     <div v-show="tabs.length > 0" class="content-tabs"> <!-- Dodano v-show ovdje -->
                         <div v-for="(tab, index) in tabs" v-show="index === currentTab" :key="index" class="tab">
-                            <Djelatnost v-show="vrstaIzracuna == 'Djelatnost' && tab.tip === 'RZ'" :tip="tab.tip"
-                                class="rizik-sazetak" />
-                            <TablicaRizika v-show="vrstaIzracuna == 'Imovina' && tab.tip === 'RZ'" :tip="tab.tip" />
-                            <Djelatnost v-show="vrstaIzracuna == 'Djelatnost' && tab.tip === 'KR'" :tip="tab.tip"
-                                class="rizik-sazetak" />
-                            <TablicaRizika v-show="vrstaIzracuna == 'Imovina' && tab.tip === 'KR'" :tip="tab.tip" />
+                            <Djelatnost v-show="vrstaIzracuna == 'Djelatnost' && tab.tip === 'RZ'" :aiz_id="idIzracuna"
+                                :tip="tab.tip" class="rizik-sazetak" />
+                            <TablicaRizika v-show="vrstaIzracuna == 'Imovina' && tab.tip === 'RZ'" :aiz_id="idIzracuna"
+                                :tip="tab.tip" />
+                            <Djelatnost v-show="vrstaIzracuna == 'Djelatnost' && tab.tip === 'KR'" :aiz_id="idIzracuna"
+                                :tip="tab.tip" class="rizik-sazetak" />
+                            <TablicaRizika v-show="vrstaIzracuna == 'Imovina' && tab.tip === 'KR'" :aiz_id="idIzracuna"
+                                :tip="tab.tip" />
                             <!-- <Djelatnost v-if="isScenarijLoaded && vrstaIzracuna == 'Djelatnost' && tab.tip === 'RZ'"
                                 :tip="tab.tip" :scenarij="scenarij" class="rizik-sazetak" />
                             <TablicaRizika v-if="isScenarijLoaded && vrstaIzracuna == 'Imovina' && tab.tip === 'RZ'"
@@ -144,15 +148,22 @@ definePageMeta({
     ],
 });
 
+const props = defineProps({
+    aiz_id: String
+})
+
+const opciStore = useOpciStore();
+const adaptStore = useAdaptStore();
+const structuredDataStore = useStructuredGridDataStore();
+
+const idIzracuna = computed(() => props.aiz_id)
+const brojIzracuna = computed(() => opciStore.opci_podaci.aiz_broj);
+
 const tabPanelRef = ref(null);
 const maxSazetakWidth = ref('100%'); // Inicijalna vrijednost
 
 const rizikSazetakRef = ref(null);
 const rizikSazetakMjereRef = ref(null);
-
-const opciStore = useOpciStore();
-const adaptStore = useAdaptStore();
-const structuredDataStore = useStructuredGridDataStore();
 
 const djelatnostCellRanges = {
     '11': { range: 'F19:L22' },
@@ -234,19 +245,8 @@ const imovinaCellRanges = {
     '103': { range: 'U28:AA28' },
 }
 
-const idIzracuna = ref('');
 const scenarij = ref('');
 const isScenarijLoaded = ref(false); // Praćenje statusa inicijalizacije
-
-const initializeScenarij = async () => {
-    const cookieValue = await initializeCookie('scenarij'); // Dohvati vrijednost iz kolačića
-    if (cookieValue) {  // Ako kolačić postoji
-        scenarij.value = cookieValue ? cookieValue : 'RCP'; // Postavi scenarij
-    } else {
-        scenarij.value = 'RCP'; // Ako kolačić ne postoji, postavi na 'RCP'
-    }
-    isScenarijLoaded.value = true; // Oznaka da je inicijalizacija završena
-};
 
 const structuredDataBezMjera = ref(computed(() => structuredDataStore.structuredDataBezMjera))
 const structuredDataSaMjerama = ref(computed(() => structuredDataStore.structuredDataSaMjerama))
@@ -289,18 +289,17 @@ function closePopup() {
     document.body.style.overflow = 'auto'; // Vrati scrollanje body-ja
 }
 
-const cookiesToGet = ['id-izracuna', 'vrsta-izracuna', 'scenarij'];
+const cookiesToGet = ['vrsta-izracuna', 'scenarij'];
 
 onMounted(async () => {
     try {
         const cookieData = await initializeCookie(cookiesToGet);
 
-        idIzracuna.value = cookieData['id-izracuna'] || '';
         vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
         scenarij.value = cookieData['scenarij'] || 'RCP';
         isScenarijLoaded.value = true;
 
-        console.log("cookieData: ", vrstaIzracuna.value, idIzracuna.value, scenarij.value);
+        console.log("cookieData: ", vrstaIzracuna.value, scenarij.value);
 
     } catch (error) {
         console.error("Error loading cookies: ", error);
@@ -454,8 +453,8 @@ const downloadRizikSazetak = async () => {
         // console.log("rezultat mapiranja (bez mjera): ", bezMjeraPopis);
         // console.log("rezultat mapiranja (sa mjerama): ", saMjeramaPopis);
 
-        opciWorksheet.getCell('T11').value = idIzracuna.value;
-        console.log("id funkcija: ", idIzracuna.value)
+        opciWorksheet.getCell('T11').value = brojIzracuna.value;
+        console.log("id funkcija: ", brojIzracuna.value)
 
         const logoBuffer = await axios.get('/static/images/KPKR_logo.svg', {
             responseType: 'arraybuffer'
