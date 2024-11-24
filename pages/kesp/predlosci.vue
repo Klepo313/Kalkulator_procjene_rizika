@@ -88,28 +88,28 @@
                     <label for="opis">
                         Naziv
                     </label>
-                    <InputText v-model="opis" type="text" id="opis" placeholder="Unesi naziv" />
+                    <InputText id="opis" v-model="opis" type="text" placeholder="Unesi naziv" />
                 </div>
                 <div>
                     <label for="startDate">
                         Početak razdoblja<span class="required">*</span>
                     </label>
                     <DatePicker id="startDate" v-model="datumOd" date-format="dd.mm.yy" show-icon fluid
-                        icon-display="input" placeholder="Unesi datum" required :invalid="datOdError"
-                        @blur="setEndDate" />
+                        icon-display="input" placeholder="Unesi datum" required show-button-bar />
+                    <!--@blur="setEndDate"-->
                 </div>
                 <div>
                     <label for="endDate">
                         Kraj razdoblja<span class="required">*</span>
                     </label>
-                    <DatePicker id="endDate" v-model="datumDo" date-format="dd.mm.yy" show-icon fluid
-                        icon-display="input" placeholder="Unesi datum" required :invalid="datDoError" />
+                    <DatePicker id="endDate" v-model="datumDo" :min-date="datumOd" date-format="dd.mm.yy" show-icon
+                        fluid icon-display="input" placeholder="Unesi datum" required />
                 </div>
                 <div class="opisnap">
                     <label for="napomena">
                         Napomena
                     </label>
-                    <Textarea v-model="napomena" id="napomena" placeholder="Unesi napomenu" />
+                    <Textarea id="napomena" v-model="napomena" placeholder="Unesi napomenu" />
                 </div>
                 <div class="dialog-footer">
                     <span class="p-button p-component p-button-secondary" @click="noviDialogVisible = false">
@@ -138,10 +138,8 @@
 import { ref, onMounted } from 'vue';
 import { navigateTo } from '#app';
 import { logout } from '~/temp/logout';
-import { getKespCalculations } from '~/service/kesp/fetchKespCalculations';
 import { formatDateToDMY, getYearsRange } from '@/utils/dateFormatter';
 import { setCookie, deleteCookie } from '~/utils/cookieUtils';
-import { postHeader } from '~/service/kesp/postRequests';
 
 definePageMeta({
     middleware: 'auth',
@@ -159,8 +157,8 @@ const izracuni = computed(() => kespStore.predlosci);
 const loading = ref(true);
 
 const opis = ref(null);
-const datumOd = ref(null);
-const datumDo = ref(null);
+const datumOd = ref();
+const datumDo = ref();
 const napomena = ref(null);
 
 const datOdError = computed(() => !datumOd.value);
@@ -174,8 +172,9 @@ const cookiesToDelete = [
 
 function setEndDate() {
     if (datumOd.value) {
-        const endYear = datumOd.value.getFullYear();
-        datumDo.value = new Date(endYear, 11, 31); // 31.12.endYear
+        const startDate = new Date(datumOd.value); // Ensure valid Date object
+        const endYear = startDate.getFullYear();
+        datumDo.value = new Date(endYear, 11, 31); // Set to 31.12.endYear
     }
 }
 
@@ -278,12 +277,13 @@ onMounted(async () => {
 
     const today = new Date();
     const year = today.getFullYear();
-    const month = today.getMonth(); // Mjeseci u JavaScriptu su od 0 (siječanj) do 11 (prosinac)
+    const month = today.getMonth(); // JS months: 0 (Jan) to 11 (Dec)
 
-    // Postavi datum na 01.01. prošle godine ili iste godine ako je prosinac
+    // Set start date to 01.01. of the previous year or the same year if Dec
     const startYear = month === 11 ? year : year - 1;
     datumOd.value = new Date(startYear, 0, 1); // 01.01.startYear
     setEndDate();
+    console.log("Datum od: ", datumOd.value, "Datum do: ", datumDo.value)
 });
 
 const doLogout = async () => {

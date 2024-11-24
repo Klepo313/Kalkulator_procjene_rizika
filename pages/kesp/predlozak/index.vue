@@ -97,9 +97,9 @@
 
 
 
-                            <Column field="gorivo" header="Gorivo" sortable>
+                            <Column field="gorivo" header="Energent" sortable>
                                 <template #body="slotProps">
-                                    <Tag :value="slotProps.data.gorivo.value" :class="[
+                                    <Tag :value="slotProps.data.gorivo.label" :class="[
                                         {
                                             'dizel-tag': slotProps.data.gorivo.label === (
                                                 'Dizel' || 'Biodizel' || 'B20 biodizel' || 'Biodizel'
@@ -113,7 +113,8 @@
                                     ]" />
                                 </template>
                             </Column>
-                            <Column field="potrosnjaGoriva" header="Potrošnja goriva" sortable :editable="isEditing">
+                            <Column field="potrosnjaGoriva" header="Potrošnja energenata" sortable
+                                :editable="isEditing">
                                 <template #editor="slotProps">
                                     <InputNumber v-model="slotProps.data.potrosnjaGoriva" mode="decimal"
                                         :show-buttons="true" min="0" @change="updateCell(slotProps.data)" />
@@ -153,7 +154,7 @@
                                 </div>
 
                                 <div v-if="odabranaSkupina?.children?.length > 0" class="field">
-                                    <label for="vrstaVozila">Emisija</label>
+                                    <label for="vrstaVozila">Vozilo</label>
                                     <Select id="vrstaVozila" v-model="selectedVrsta" :options="odabranaSkupina.children"
                                         option-label="value" placeholder="Odaberi vrstu vozila" required
                                         @change="onVrstaChange" />
@@ -161,29 +162,42 @@
                                 </div>
 
                                 <div v-else-if="odabranaSkupina" class="field">
-                                    <label for="vrstaVozila">Emisija</label>
+                                    <label for="vrstaVozila">
+                                        {{ odabranaSkupina && odabranaSkupina.label != 'STACI' ?
+                                            'Vozilo' : 'Emisija' }}
+                                    </label>
                                     <InputText id="vrstaVozila" v-model="tempVozilo.vozilo.vrsta"
-                                        placeholder="Unesi vrstu vozila" required />
+                                        :placeholder="odabranaSkupina && odabranaSkupina.label != 'STACI' ? 'Odaberi vrstu vozila' : 'Odaberi vrstu emisije'"
+                                        required />
                                 </div>
 
                                 <div class="field">
-                                    <label for="gorivo">Gorivo</label>
+                                    <label for="gorivo">
+                                        {{ (odabranaSkupina?.children?.length > 0 && odabranaSkupina.label != 'STACI')
+                                            || odabranaSkupina &&
+                                            odabranaSkupina.label == 'STROJ' ?
+                                            'Gorivo' : 'Energent' }}
+                                    </label>
                                     <Select id="gorivo" v-model="tempVozilo.gorivo.label" :options="selectedFuelOptions"
-                                        option-label="value" option-value="label" placeholder="Odaberi vrstu goriva"
-                                        required @change="onGorivoChange" :disabled="!tempVozilo.vozilo.skupina" />
+                                        option-label="label" option-value="label"
+                                        :placeholder="(odabranaSkupina?.children?.length > 0 && odabranaSkupina.label != 'STACI')
+                                            || odabranaSkupina &&
+                                            odabranaSkupina.label == 'STROJ' ? 'Odaberi vrstu goriva' : 'Odaberi vrstu energenta'" required
+                                        @change="onGorivoChange" :disabled="!tempVozilo.vozilo.skupina" />
                                 </div>
 
                                 <div class="field">
                                     <label for="potrosnjaGoriva">Potrošnja energenata</label>
                                     <InputText id="potrosnjaGoriva" v-model="tempVozilo.potrosnjaGoriva"
                                         placeholder="Unesi ukupan broj potrošenih litara" type="number" step="any"
-                                        min="0" required :disabled="!tempVozilo.gorivo || !tempVozilo.gorivo.value" />
+                                        min="1" required :disabled="!tempVozilo.gorivo || !tempVozilo.gorivo.value"
+                                        onfocus="this.select()" />
                                 </div>
 
                                 <div class="field">
                                     <label for="emisije">Emisije CO2/kg</label>
                                     <InputText id="emisije" v-model="tempVozilo.emisije" :value="formattedEmisije"
-                                        placeholder="Emisija CO₂/kg" readonly />
+                                        placeholder="Emisija CO₂/kg" required readonly />
                                 </div>
 
                                 <div class="dialog-footer">
@@ -204,7 +218,7 @@
                                 <template v-if="selectedVozilo">
                                     Izvor emisija: <b>{{ selectedVozilo.vozilo.skupina }}</b> <br>
                                     Emisija: <b>{{ selectedVozilo.vozilo.vrsta || '/' }}</b> <br>
-                                    Gorivo: <b>{{ selectedVozilo.gorivo.value }}</b> <br>
+                                    Gorivo: <b>{{ selectedVozilo.gorivo.label }}</b> <br>
                                     Potrošnja energenata: <b>{{ selectedVozilo.potrosnjaGoriva + ' ' +
                                         selectedVozilo.gorivo.metric }}</b> <br>
                                     Emisije CO<sub>2</sub>/kg: <b>{{ selectedVozilo.emisije }}</b>
@@ -430,7 +444,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { addEmission } from '~/service/kesp/postRequests';
+import { addEmission, deleteEmission } from '~/service/kesp/postRequests';
 import { useVehicleStore, useIzvoriStore, useOpseg2Store, useKespStore } from '~/stores/main-store';
 import { shadeColor } from '~/utils/getColorClass';
 
@@ -474,7 +488,7 @@ const tempVozilo = ref({
         value: '',
         metric: '',
     },
-    potrosnjaGoriva: 0.00,
+    potrosnjaGoriva: 0,
     emisije: 0.00
 })
 
@@ -495,9 +509,27 @@ const resetTempVozilo = () => {
             value: '',
             metric: '',
         },
-        potrosnjaGoriva: 0.00,
+        potrosnjaGoriva: 0,
         emisije: 0.00
     }
+    odabranaSkupina.value = null;
+}
+
+// Computed property for handling placeholder vs value
+const displayPotrosnjaGoriva = computed({
+    get() {
+        // Return empty string to show placeholder if value is 0
+        return tempVozilo.value.potrosnjaGoriva === 0 ? '' : tempVozilo.value.potrosnjaGoriva;
+    },
+    set(value) {
+        // Update the real value, parsing as a number
+        tempVozilo.value.potrosnjaGoriva = value === '' ? 0 : parseFloat(value);
+    },
+});
+
+// Method to select text on focus
+function selectText(event) {
+    event.target.select();
 }
 
 const formattedEmisije = computed(() => formatNumber(tempVozilo.value.emisije))
@@ -796,8 +828,12 @@ const showSuccess = (skupina, vrsta) => {
     toast.add({ severity: 'success', summary: 'Uspješno dodano', detail: `Izvor: ${skupina}\nVrsta: ${vrsta}`, life: 3000 });
 };
 
+const showDeleteVozilo = () => {
+    toast.add({ severity: 'success', summary: 'Uspješno obrisano', detail: `Obrisano vozilo`, life: 3000 });
+}
+
 const showError = () => {
-    toast.add({ severity: 'error', summary: 'Došlo je do greške', detail: `Nije uspješno dodano`, life: 3000 });
+    toast.add({ severity: 'error', summary: 'Došlo je do greške', detail: `Nije uspješno izvršena radnja`, life: 3000 });
 };
 
 
@@ -911,10 +947,24 @@ const openVoziloDeleteDialog = () => {
 //     deleteIzvorDialog.value = true;
 // };
 
-const deleteVozilo = () => {
+const deleteVozilo = async () => {
     const index = vehicleStore.vozila.findIndex(v => v.id === selectedVozilo.value.id);
     if (index !== -1) {
         vehicleStore.vozila.splice(index, 1);
+    }
+    try {
+        const response = await deleteEmission(selectedVozilo.value.id);
+        const { status } = response;
+
+        if (status === 200) {
+            showDeleteVozilo();
+        } else {
+            console.log("Greska pri brisanju stavke.");
+            showError();
+        }
+    } catch (error) {
+        console.log("Greska pri brisanju stavke.", error);
+        showError();
     }
     deleteVoziloDialog.value = false;
     selectedVozilo.value = null; // Reset selected vozilo

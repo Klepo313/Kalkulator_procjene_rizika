@@ -6,12 +6,12 @@ const postHeader = async (header) => {
 
     try {
         const response = await axios.post(`${base_url}/CO2/header`, {
-            l_uiz_id: null,
-            l_datum: header.l_datum,
-            l_datod: header.l_datod,
-            l_datdo: header.l_datdo,
-            l_opis: header.l_opis,
-            l_napomena: header.l_napomena
+            calculationId: null,
+            date: header.l_datum,
+            dateFrom: header.l_datod,
+            dateTo: header.l_datdo,
+            description: header.l_opis,
+            remark: header.l_napomena
         }, {
             withCredentials: true, // Ensure cookies are included in requests
         });
@@ -33,13 +33,13 @@ const addEmission = async (data) => {
 
     try {
         const response = await axios.post(`${base_url}/CO2/item`, {
-            p_usi_id: null,
-            p_uiz_id: data.p_uiz_id,
-            p_uge_id: data.p_uge_id,
-            p_uvv_id: data.p_uvv_id,
-            p_uvv_naziv: data.p_uvv_naziv,
-            p_uvg_id: data.p_uvg_id,
-            p_kolicina: data.p_kolicina
+            itemId: null,
+            calculationId: data.p_uiz_id,
+            emissionGroupId: data.p_uge_id,
+            veichleTypeId: data.p_uvv_id,
+            veichleTypeName: data.p_uvv_naziv,
+            fuelTypeId: data.p_uvg_id,
+            quantity: data.p_kolicina
         }, {
             withCredentials: true, // Ensure cookies are included in requests
         });
@@ -57,18 +57,55 @@ const addEmission = async (data) => {
 
 }
 
+const deleteEmission = async (id) => {
+    try {
+        const response = await axios.delete(`${base_url}/CO2/item/${id}`, {
+            withCredentials: true, // Ensure cookies are included in requests
+        });
+
+        console.log(response)
+
+        return response;
+    } catch (error) {
+        console.error('Saving error: ' + error)
+        return 0;
+    }
+}
+
 const updateEnergyItem = async (data) => {
-    console.log("data: ", data)
+    console.log("data: ",
+        {
+            energyItemId: data.p_use_id,
+            calculationId: data.p_uiz_id,
+            energyTypeId: data.p_uvn_id,
+            nonrenewable: data.p_neobnovljivo,
+            renewable: data.p_obnovljivo
+        }
+    )
     try {
         const response = await axios.post(`${base_url}/CO2/energy_item`, {
-            p_use_id: data.p_use_id,
-            p_uiz_id: data.p_uiz_id,
-            p_uvn_id: data.p_uvn_id,
-            p_neobnovljivo: data.p_neobnovljivo,
-            p_obnovljivo: data.p_obnovljivo
+            energyItemId: data.p_use_id,
+            calculationId: data.p_uiz_id,
+            energyTypeId: data.p_uvn_id,
+            nonrenewable: data.p_neobnovljivo,
+            renewable: data.p_obnovljivo,
         }, {
             withCredentials: true, // Ensure cookies are included in requests
         });
+
+        // {   
+        //     "p_use_id": 214,
+        //     "p_uiz_id": 212,
+        //     "p_uvn_id": 76,
+        //     "p_neobnovljivo": 5000,
+        //     "p_obnovljivo": 999
+        // }
+
+        // p_use_id: data.p_use_id,
+        // p_uiz_id: data.p_uiz_id,
+        // p_uvn_id: data.p_uvn_id,
+        // p_neobnovljivo: data.p_neobnovljivo,
+        // p_obnovljivo: data.p_obnovljivo
 
         console.log(response.data)
 
@@ -85,5 +122,6 @@ const updateEnergyItem = async (data) => {
 export {
     postHeader,
     addEmission,
+    deleteEmission,
     updateEnergyItem
 }

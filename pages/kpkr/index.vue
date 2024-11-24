@@ -49,9 +49,9 @@
 
 <script setup>
 import { logout } from '~/service/user/user';
-import { useIzracunStore } from '#imports';
 
-const izracunStore = useIzracunStore();
+const opciStore = useOpciStore();
+const cardStore = useCardStore();
 
 definePageMeta({
     middleware: [
@@ -81,8 +81,9 @@ function downloadPDF() {
 
 
 const noviIzracun = () => {
-    izracunStore.updateIdIzracuna('/');
-    navigateTo('/kpkr/predlozak');
+    cardStore.cardId = null;
+    opciStore.clearOpciPodaci();
+    navigateWithParameter('/kpkr/predlozak', 'id', 'null')
 };
 
 const doLogout = async () => {

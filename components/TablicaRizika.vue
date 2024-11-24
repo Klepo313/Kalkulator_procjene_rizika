@@ -270,7 +270,7 @@ const props = defineProps({
 })
 const tip = props.tip;
 
-const idIzracuna = computed(() => props.aiz_id)
+const idIzracuna = computed(() => props.aiz_id == 'null' ? getIdFromUrl() : props.aiz_id)
 const vrstaIzracuna = ref(null); // Inicijalno je null
 const scenarij = ref('');
 const isScenarijLoaded = ref(false);

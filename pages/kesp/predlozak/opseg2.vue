@@ -2,9 +2,9 @@
     <div class="body">
         <Toast />
         <main>
-            <h1>{{ 'GHG opseg 2' }}</h1>
+            <h1>{{ 'Opseg 2' }}</h1>
             <div class="main-content">
-                <section class="main-heading">
+                <!-- <section class="main-heading">
                     <div>
                         <h2>Metoda izračuna:</h2>
                         <p>
@@ -14,7 +14,7 @@
                             Podaci o količini mogu se očitati sa mjerila (ukoliko postoji) ili sa računa dobavljača.
                         </p>
                     </div>
-                </section>
+                </section> -->
                 <section>
                     <div>
                         <h2>Vremensko razdoblje izračuna</h2>
@@ -42,13 +42,14 @@
                 </section>
                 <section class="main-data">
                     <div class="data-heading">
-                        <h2>Izračun GHG opseg 2</h2>
+                        <h2>Izračun Opseg 2</h2>
                         <p>Unesi podatke neobnovljivih i obnovljivih izvora energije</p>
                     </div>
                     <div class="data-item">
-                        <DataTable :value="izracuni" show-gridlines edit-mode="cell" :rows="5" data-key="id"
+                        <DataTable :value="sortedIzracuni" show-gridlines edit-mode="cell" :rows="5" data-key="id"
                             :rowClass="getRowClass" @cell-edit-complete="onCellEditComplete">
                             <template #empty> Nema energija </template>
+
                             <Column header="No.">
                                 <template #body="slotProps">
                                     {{ slotProps.index + 1 }}
@@ -71,14 +72,16 @@
                             <Column header="Neobnovljivo (kWh)" field="neobnovljivo">
                                 <template #editor="slotProps">
                                     <InputNumber v-model="slotProps.data.neobnovljivo" :show-buttons="true"
-                                        mode="decimal" min="0" @change="updateCalculations(slotProps.data)" />
+                                        mode="decimal" min="0" />
                                 </template>
                                 <template #body="slotProps">
-                                    <span v-if="slotProps.data.neobnovljivo">
-                                        {{ formatNumber(slotProps.data.neobnovljivo) }}
+                                    <span
+                                        v-if="slotProps.data.neobnovljivo !== null && slotProps.data.neobnovljivo !== undefined">
+                                        {{ slotProps.data.neobnovljivo == 0 ? '0' :
+                                            formatNumber(slotProps.data.neobnovljivo) }}
                                     </span>
-                                    <span v-else style="'font-style: italic; opacity: 0.6;">
-                                        {{ 'Ispunite polje' }}
+                                    <span v-else style="font-style: italic; opacity: 0.6;">
+                                        {{ '0' }}
                                     </span>
                                 </template>
                             </Column>
@@ -86,19 +89,21 @@
                             <Column header="Obnovljivo (kWh)" field="obnovljivo">
                                 <template #editor="slotProps">
                                     <InputNumber v-model="slotProps.data.obnovljivo" :show-buttons="true" mode="decimal"
-                                        min="0" @change="updateCalculations(slotProps.data)" />
+                                        min="0" />
                                 </template>
                                 <template #body="slotProps">
-                                    <div>
-                                        <span v-if="slotProps.data.obnovljivo">
-                                            {{ formatNumber(slotProps.data.obnovljivo) }}
-                                        </span>
-                                        <span v-else style="'font-style: italic; opacity: 0.6;">
-                                            {{ 'Ispunite polje' }}
-                                        </span>
-                                    </div>
+                                    <span
+                                        v-if="slotProps.data.obnovljivo !== null && slotProps.data.obnovljivo !== undefined">
+                                        {{ slotProps.data.obnovljivo == 0 ? '0' :
+                                            formatNumber(slotProps.data.obnovljivo) }}
+                                    </span>
+                                    <span v-else style="font-style: italic; opacity: 0.6;">
+                                        {{ '0' }}
+                                    </span>
                                 </template>
                             </Column>
+
+
 
                             <Column header="Ukupna potrošnja (kWh)" field="ukupno">
                                 <template #body="slotProps">
@@ -121,6 +126,7 @@
                                 </div>
                             </template>
                         </DataTable>
+
 
                     </div>
                 </section>
@@ -186,6 +192,18 @@ const toast = useToast();
 const izracuni = computed(() => opseg2Store.izracuni);
 const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
 const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
+
+const sortedIzracuni = computed(() => {
+    return izracuni.value.sort((a, b) => {
+        if (a.energija === 'Električna energija' && b.energija !== 'Električna energija') {
+            return -1; // A dolazi prije B
+        }
+        if (a.energija !== 'Električna energija' && b.energija === 'Električna energija') {
+            return 1; // B dolazi prije A
+        }
+        return 0; // Ako su obje iste energije, ostavi redoslijed kakav je
+    });
+});
 
 function getRowClass(rowData) {
     return rowData.neobnovljivo > 100 ? 'high-energy-row' : '';
@@ -285,159 +303,6 @@ const setChartOptions = () => {
 const chartOptions = setChartOptions(); // Postavi opcije za grafikon
 </script>
 
-<!-- <script setup>
-import { ref, computed } from 'vue';
-import { useOpseg2Store } from '~/stores/main-store';
-
-const opseg2Store = useOpseg2Store();
-
-// Opcije godina od 2015. do 2022.
-const yearOptions = computed(() => {
-    const years = [];
-    for (let year = 2015; year < new Date().getFullYear(); year++) {
-        years.push({ year });
-    }
-    return years;
-});
-
-const selectedYear = ref(null); // Trenutno odabrana godina
-
-// Funkcija za ažuriranje 'izracuni' na osnovu odabrane godine
-const updateIzracuni = () => {
-    if (selectedYear.value) {
-        // Ovdje možeš dodati logiku za ažuriranje podataka
-        console.log(`Odabrana godina: ${selectedYear.value.year}`);
-        // Na primer, možeš resetovati podatke ili učitati specifične podatke za odabranu godinu
-    }
-};
-
-// Početni podaci za izračune
-const izracuni = ref([
-    {
-        id: 1,
-        energija: 'Električna energija',
-        neobnovljivo: null,
-        obnovljivo: null,
-        ukupno: 0,
-        emisije: 0,
-        koeficijent: 0.12 // Koeficijent za emisije CO2
-    },
-    {
-        id: 2,
-        energija: 'Toplinska energija',
-        neobnovljivo: null,
-        obnovljivo: null,
-        ukupno: 0,
-        emisije: 0,
-        koeficijent: 0.4 // Koeficijent za emisije CO2
-    }
-]);
-
-// Funkcija za izračunavanje ukupne potrošnje i emisija
-const updateCalculations = (rowData) => {
-    const neobnovljivo = rowData.neobnovljivo || 0;
-    const obnovljivo = rowData.obnovljivo || 0;
-    rowData.ukupno = neobnovljivo + obnovljivo;
-    rowData.emisije = rowData.ukupno * rowData.koeficijent;
-};
-
-// Ukupne emisije
-const totalEmissions = computed(() => {
-    return izracuni.value.reduce((total, row) => total + row.emisije, 0).toFixed(2);
-});
-
-// Ažurirana funkcija za završetak uređivanja ćelije
-const onCellEditComplete = (event) => {
-    const { data, newValue, field } = event;
-
-    switch (field) {
-        case 'neobnovljivo':
-        case 'obnovljivo':
-            if (isPositiveInteger(newValue)) {
-                data[field] = newValue;
-                updateCalculations(data); // Ažuriraj izračune nakon unosa
-            } else {
-                event.preventDefault(); // Spriječi unos ako nije pozitivan cijeli broj
-            }
-            break;
-
-        default:
-            if (newValue.trim().length > 0) {
-                data[field] = newValue;
-                updateCalculations(data); // Ažuriraj izračune nakon unosa
-            } else {
-                event.preventDefault(); // Spriječi unos ako je prazan
-            }
-            break;
-    }
-};
-
-// Funkcija za provjeru pozitivnih cijelih brojeva
-const isPositiveInteger = (val) => {
-    let str = String(val);
-    str = str.trim();
-
-    if (!str) {
-        return false;
-    }
-
-    str = str.replace(/^0+/, '') || '0';
-    const n = Math.floor(Number(str));
-
-    return n !== Infinity && String(n) === str && n >= 0;
-};
-
-const combinedChartData = computed(() => {
-    // Proveri da li postoji barem jedan obnovljivi ili neobnovljivi izvor
-    const hasData = izracuni.value.some(row => row.neobnovljivo !== null || row.obnovljivo !== null);
-
-    const labels = izracuni.value.map(row => row.energija);
-    const data = izracuni.value.map(row => row.emisije);
-
-    if (!hasData) {
-        return {
-            labels,
-            datasets: [
-                {
-                    data: [0, 0], // Prikazuje [0, 0] kada nema podataka
-                    backgroundColor: ['#2cc23f', '#1e822a'], // Zeleno za električnu energiju, Žute za toplinsku
-                    hoverBackgroundColor: ['#2cc23a', '#1e8211']
-                }
-            ]
-        };
-    }
-
-
-    return {
-        labels,
-        datasets: [
-            {
-                data,
-                backgroundColor: ['#2cc23f', '#1e822a'], // Zeleno za električnu energiju, Žute za toplinsku
-                hoverBackgroundColor: ['#2cc23a', '#1e8211']
-            }
-        ]
-    };
-});
-
-
-
-const setChartOptions = () => {
-    return {
-        plugins: {
-            legend: {
-                labels: {
-                    usePointStyle: true,
-                    color: '#000' // Default color
-                }
-            }
-        }
-    };
-};
-
-const chartOptions = setChartOptions();
-
-</script> -->
 
 <style scoped>
 .body {

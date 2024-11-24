@@ -15,7 +15,9 @@
         <main>
             <h1>Opći podaci</h1>
             <!-- <div v-if="opciStore.opci_podaci && odabraniDatum" class="main-grid"> -->
-            <form v-if="(idIzracuna && hasSelectedValues() && isScenarijLoaded) || idIzracuna == ''" class="main-grid">
+            <form
+                v-if="(idIzracuna && hasSelectedValues() && isScenarijLoaded) || idIzracuna == '' || idIzracuna == 'null'"
+                class="main-grid">
                 <label for="nazivIzracuna" class="header">Naziv predloška </label>
                 <InputText id="nazivIzracuna" placeholder="Unesi naziv" :value="nazivIzracuna" :disabled="status"
                     @change="updateNazivIzracuna($event.target.value)" />
@@ -212,7 +214,7 @@
 
 
             </form>
-            <div v-if="(idIzracuna && hasSelectedValues() && isScenarijLoaded) || idIzracuna == ''"
+            <div v-if="(idIzracuna && hasSelectedValues() && isScenarijLoaded) || idIzracuna == '' || idIzracuna == 'null'"
                 class="spremiBtn-container">
                 <button id="saveBtn" type="button" :disabled="!isFormValid" @click="saveFormData">
                     <font-awesome-icon icon="save" class="save-icon" />
@@ -225,8 +227,8 @@
                     nastaviti u sljedeći korak.
                 </span>
             </div>
-            <div v-if="(idIzracuna && hasSelectedValues() && isScenarijLoaded) || idIzracuna == ''" id="map"
-                class="map">
+            <div v-if="(idIzracuna && hasSelectedValues() && isScenarijLoaded) || idIzracuna == '' || idIzracuna == 'null'"
+                id="map" class="map">
                 <Map />
             </div>
             <span v-else style="font-style: italic; display: flex; flex-direction: column; gap: 5px; max-width: 600px;">
@@ -242,7 +244,7 @@
             </span> -->
         </main>
         <footer>
-            <button class="footer-button" :disabled="!idIzracuna || idIzracuna == 0"
+            <button class="footer-button" :disabled="!idIzracuna || idIzracuna == 0 || idIzracuna == 'null'"
                 @click="navigateWithParameter('/kpkr/predlozak/mjere-prilagodbe', 'id', cardStore.cardId)">
                 <span>Mjere prilagodbe</span>
                 <font-awesome-icon icon="arrow-right-long" />
@@ -268,8 +270,7 @@ import { initializeCookie } from "~/utils/initializeCookie";
 
 definePageMeta({
     middleware: [
-        'auth',
-        'izracun'
+        'auth'
     ],
 });
 
@@ -277,7 +278,7 @@ const props = defineProps({
     aiz_id: String
 })
 
-const idIzracuna = computed(() => props.aiz_id)
+const idIzracuna = ref(props.aiz_id == 'null' ? getIdFromUrl() : props.aiz_id);
 const vrstaIzracuna = ref('');
 
 const isScenarijLoaded = ref(false);
@@ -347,6 +348,27 @@ const isFormDirty = ref(false);
 
 const scenariji = computed(() => {
     const niz = opciStore.scenariji;
+    return niz;
+})
+
+const vrsteIzracuna = computed(() => {
+    const niz = opciStore.vrste_izracuna;
+    return niz;
+})
+const katastarskeOpcine = computed(() => {
+    const niz = opciStore.katastarske_opcine;
+    return niz;
+})
+const katastarskeCestice = computed(() => {
+    const niz = opciStore.katastarske_cestice;
+    return niz;
+})
+const vrsteObjekta = computed(() => {
+    const niz = opciStore.vrste_objekta;
+    return niz;
+})
+const djelatnosti = computed(() => {
+    const niz = opciStore.djelatnosti;
     return niz;
 })
 
@@ -571,7 +593,7 @@ onMounted(async () => {
     console.log("ID izračuna u indexu: ", idIzracuna.value);
 
     // Provjeri da li je ID izračuna prazan
-    if (idIzracuna.value) { // !== '/'
+    if (idIzracuna.value != 'null') { // !== '/'
         console.log("Je, evo uđe: ", idIzracuna.value);
         await opciStore.fetchCalculation(idIzracuna.value);
         fillFormData();
@@ -692,7 +714,7 @@ const fillFormData = () => {
 
         const setVrstaIzracuna = async () => {
             // Čekamo rezultat encryptCookie funkcije
-            await setCookie({ name: 'vrsta-izracuna', value: odabranaVrstaIzracuna.value.tvz_naziv });
+            if (odabranaVrstaIzracuna.value.tvz_naziv) await setCookie({ name: 'vrsta-izracuna', value: odabranaVrstaIzracuna.value.tvz_naziv });
             // vrstaIzracuna.value = await encryptCookie(odabranaVrstaIzracuna.value.tvz_naziv);
         }
         setVrstaIzracuna();
@@ -765,6 +787,7 @@ const updateVrstaIzracuna = (event) => {
     //console.log("ovi: ", event.value.tvz_id, '-', event.value.tvz_naziv);
     opciStore.opci_podaci.aiz_tvz_id = event.value.tvz_id;
     opciStore.opci_podaci.tvz_naziv = event.value.tvz_naziv;
+    setCookie({ name: 'vrsta-izracuna', value: event.value.tvz_naziv })
 
     if (event.value.tvz_naziv == 'Imovina') {
         odabranaDjelatnost.value = null;
@@ -865,11 +888,12 @@ const updateNapomena = (value) => {
 
 const saveFormData = async () => {
     if (isFormValid.value) {
-        console.log("Forma je validna i podaci su spremljeni.")
+        console.log("Forma je validna i podaci su spremljeni.");
         isLoadingPopupVisible.value = true;
         try {
             const response = await opciStore.saveData();
             const responseId = response.resId;
+            console.log("RESPONSE ID: ", responseId);
             const responseStatus = response.status;
             const data = response.data;
 
@@ -882,26 +906,67 @@ const saveFormData = async () => {
                 showErrorSave(mainMessage.value);
             }
 
-            if (!idIzracuna.value) { // == '/'
-                idIzracuna.value = responseId
-                opciStore.opci_podaci.aiz_id = idIzracuna.value;
-                console.log('res-id: ', idIzracuna.value);
+            if (idIzracuna.value === 'null') { // == '/'
+                idIzracuna.value = responseId; // Sada će raditi
+                // opciStore.opci_podaci.aiz_id = idIzracuna.value;
+                console.log('res-id (idIzracuna): ', idIzracuna.value);
 
-                opciStore.fetchCalculation(idIzracuna.value)
-                fillFormData();
+                // const queryParams = { ...router.currentRoute.value.query };
 
-                //await setCookie({ name: 'id-izracuna', value: idIzracuna.value });
-                //izracunStore.idIzracuna = '/';
-                //izracunStore.updateIdIzracuna(responseId);
+                // // Zamijeni `id` samo ako postoji i nije ispravan, ili dodaj novi
+                // queryParams.id = idIzracuna.value !== 'null' ? idIzracuna.value : undefined;
+
+                // console.log("path: ", router.currentRoute.value.path, "queryParams: ", queryParams.id);
+                // // Ažuriraj URL
+                // router.replace({
+                //     path: router.currentRoute.value.path,
+                //     query: queryParams,
+                // });
+
+                // Dodavanje šifrovane vrednosti u URL
+                const url = `/kpkr/predlozak?id=${idIzracuna.value.toString()}`;
+                console.log("url: " + url);
+                console.log('id: ', idIzracuna.value.toString()); // Spremanje ID-a u cookie
+
+                // Spremanje šifrovanog ID-a u store
+                cardStore.setCardId(idIzracuna.value.toString());
+
+                const queryParams = { ...router.currentRoute.value.query };
+
+                // Zamijeni `id` samo ako postoji i nije ispravan, ili dodaj novi
+                queryParams.id = idIzracuna.value !== 'null' ? idIzracuna.value : undefined;
+
+                console.log("path: ", router.currentRoute.value.path, "queryParams: ", queryParams.id);
+                // Ažuriraj URL
+                router.replace({
+                    path: router.currentRoute.value.path,
+                    query: queryParams,
+                });
+
+                // resetForm();
+                // opciStore.clearOpciPodaci();
+                opciStore.fetchCalculation(idIzracuna.value);
+                console.log(
+                    nazivIzracuna.value, "\n",
+                    odabraniDatum.value, "\n",
+                    odabranaVrstaIzracuna.value, "\n",
+                    odabranaKatastarskaOpcina.value, "\n",
+                    odabranaKatastarskaCestica.value, "\n",
+                    odabranaVrstaObjekta.value, "\n",
+                    odabranaDjelatnost.value, "\n",
+                    odabranaSkupinaDjelatnosti.value, "\n",
+                    scenarij.value, "\n",
+                    odabranaIspostava.value, "\n",
+                    odabraniPodrucniUred.value, "\n",
+                    napomena.value, "\n",)
+                // fillFormData();
             }
-
-            isFormDirty.value = false;
-
         } catch (error) {
             isSuccess.value = false;
-            showErrorSave('Odabrana katastarska čestica nema definiranu izloženost riziku.')
+            showErrorSave('Odabrana katastarska čestica nema definiranu izloženost riziku.');
             console.error('Došlo je do pogreške prilikom spremanja podataka:', error);
         } finally {
+            isFormDirty.value = false;
             isLoadingPopupVisible.value = false;
         }
     } else {
@@ -912,27 +977,6 @@ const saveFormData = async () => {
 const filtriraneKatastarskeOpcine = ref();
 const filtriraneKatastarskeCestice = ref();
 const filtriraneDjelatnosti = ref();
-
-const vrsteIzracuna = computed(() => {
-    const niz = opciStore.vrste_izracuna;
-    return niz;
-})
-const katastarskeOpcine = computed(() => {
-    const niz = opciStore.katastarske_opcine;
-    return niz;
-})
-const katastarskeCestice = computed(() => {
-    const niz = opciStore.katastarske_cestice;
-    return niz;
-})
-const vrsteObjekta = computed(() => {
-    const niz = opciStore.vrste_objekta;
-    return niz;
-})
-const djelatnosti = computed(() => {
-    const niz = opciStore.djelatnosti;
-    return niz;
-})
 
 const fetchParticles = (id) => {
     if (!id) return; // Provjeravamo je li ID validan

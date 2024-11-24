@@ -52,15 +52,16 @@ const mainStyles = computed(() => ({
 }))
 
 onMounted(async () => {
-    if (idIzracuna.value) {
+    opciStore.clearOpciPodaci();
+    if (idIzracuna.value != 'null') {
         try {
             await opciStore.fetchCalculation(idIzracuna.value);
         } catch (error) {
             console.log(error);
-            // toastErrorStore.setToastMessage({
-            //     title: 'Greška prilikom dohvaćanja izračuna',
-            //     description: 'Izračun nije pronađen.',
-            // });
+            toastErrorStore.setToastMessage({
+                title: 'Greška prilikom dohvaćanja izračuna',
+                description: 'Izračun nije pronađen.',
+            });
             navigateTo('/kpkr/predlosci');
         }
     }

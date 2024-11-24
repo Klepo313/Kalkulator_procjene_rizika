@@ -123,7 +123,7 @@ const props = defineProps({
     aiz_id: String
 })
 
-const idIzracuna = computed(() => props.aiz_id)
+const idIzracuna = computed(() => props.aiz_id == 'null' ? getIdFromUrl() : props.aiz_id)
 
 onBeforeUnmount(() => {
     window.removeEventListener('resize', updateScrollHeight); // Ukloni listener prilikom unmounta

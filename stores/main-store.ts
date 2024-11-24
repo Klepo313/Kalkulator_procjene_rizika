@@ -434,6 +434,7 @@ export const useOpciStore = defineStore('opci-podaci', {
             )
 
             console.log("Response savea: ", response)
+            console.log("Res-id-response: ", response.resId)
             return response;
         }
 
@@ -832,6 +833,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
         async fetchEnergySources(id: number) {
             try {
                 const energySources = await getEnergySources(id);
+                if (energySources) this.clearStore();
                 for (const source of energySources) {
                     this.izracuni.push({
                         id: parseInt(source.use_id) || null,
@@ -845,6 +847,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                         koeficijent: source.use_uvn_id == 76 ? 0.288 : 0.133
                     });
                 }
+                console.log("IZRACUNI NAKON FETCHA: ", this.izracuni)
             } catch (error) {
                 console.error('Error fetching energy sources:', error);
             }
@@ -853,32 +856,37 @@ export const useOpseg2Store = defineStore('opseg2-store', {
             this.izracuni = [];
         },
         updateCalculations(rowData) {
+            console.log(" rowData: ", rowData)
             const neobnovljivo = Number(rowData.neobnovljivo) || 0;
             const obnovljivo = Number(rowData.obnovljivo) || 0;
             rowData.ukupno = neobnovljivo + obnovljivo;
             rowData.emisije = rowData.ukupno * rowData.koeficijent;
-
-            console.log(" rowData: ", rowData)
         },
         async onCellEditComplete(event) {
             const { data, newValue, field } = event;
-            const parsedValue = Number(newValue);
+            let parsedValue = Number(newValue);
 
             console.log("data: ", data, "newValue: ", newValue, "field: ", field, "parsedValue: ", parsedValue);
 
+            // Ako je unos prazan, postavljamo vrednost na 0
+            if (!newValue || String(newValue).trim() === '') {
+                parsedValue = 0;
+            }
+
+            // Ažuriramo vrednost u data objektu
             data[field] = parsedValue;
 
             if (field === 'neobnovljivo' || field === 'obnovljivo') {
-                if (this.isPositiveInteger(parsedValue)) {
+                if (this.isPositiveInteger(parsedValue) || parsedValue === 0) {
                     const energyItem = {
                         p_use_id: data.id,
                         p_uiz_id: data.uiz_id,
                         p_uvn_id: data.uvn_id,
                         p_neobnovljivo: data.neobnovljivo || 0,
                         p_obnovljivo: data.obnovljivo || 0
-                    }
+                    };
 
-                    console.log("energyItem: ", energyItem)
+                    console.log("energyItem: ", energyItem);
 
                     try {
                         const response = await updateEnergyItem(energyItem);
@@ -889,7 +897,8 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                             const use_id = parseInt(id);
                             console.log(`Energy item updated with ID: ${use_id}`);
 
-                            this.updateCalculations(data);
+                            if (use_id) await this.fetchEnergySources(energyItem.p_uiz_id);
+
                             return status;
                         } else {
                             console.error(`Failed to update energy item with ID: ${id}`);
@@ -900,48 +909,21 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                         return;
                     }
                 } else {
+                    // Ako vrednost nije validna, vraćamo editor na prethodnu vrednost
                     event.preventDefault();
                 }
             } else {
+                // Za druga polja dozvoljavamo unos teksta
                 if (String(newValue).trim().length > 0) {
                     data[field] = newValue;
                     this.updateCalculations(data);
                 } else {
-                    event.preventDefault();
+                    // Ako je unos prazan, postavljamo vrednost na 0
+                    data[field] = 0;
                 }
             }
-
-            /*
-            const energyItem = {
-                p_use_id: rowData.id,
-                p_uiz_id: rowData.uiz_id,
-                p_uvn_id: rowData.uvn_id,
-                p_neobnovljivo: neobnovljivo,
-                p_obnovljivo: obnovljivo
-            }
-
-            try {
-                const response = await updateEnergyItem(energyItem);
-
-                const { id, status } = response;
-
-                if (status === 200) {
-                    const use_id = parseInt(id);
-                    console.log(`Energy item updated with ID: ${use_id}`);
-
-                   
-                } else {
-                    console.error(`Failed to update energy item with ID: ${id}`);
-                    return;
-                }
-
-            } catch (error) {
-                console.error('Error updating energy item:', error);
-                return;
-            }
-            
-            */
         },
+
         isPositiveInteger(val) {
             return Number.isInteger(val) && val > 0;
         }

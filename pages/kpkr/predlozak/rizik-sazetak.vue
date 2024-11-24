@@ -53,7 +53,8 @@
 
         </main>
         <footer>
-            <button @click="navigateTo('/kpkr/predlozak/mjere-prilagodbe')" class="footer-button">
+            <button @click="navigateWithParameter('/kpkr/predlozak/mjere-prilagodbe', 'id', idIzracuna)"
+                class="footer-button">
                 <font-awesome-icon icon="arrow-left-long" style="margin-right: 5px;" />
                 <span>Mjere prilagodbe</span>
             </button>
@@ -156,7 +157,7 @@ const opciStore = useOpciStore();
 const adaptStore = useAdaptStore();
 const structuredDataStore = useStructuredGridDataStore();
 
-const idIzracuna = computed(() => props.aiz_id)
+const idIzracuna = computed(() => props.aiz_id == 'null' ? getIdFromUrl() : props.aiz_id)
 const brojIzracuna = computed(() => opciStore.opci_podaci.aiz_broj);
 
 const tabPanelRef = ref(null);
@@ -343,10 +344,9 @@ const displayItems = computed(() => [
 const filteredItems = computed(() => displayItems.value.filter(item => item.value));
 
 const noviIzracun = () => {
+    cardStore.cardId = null;
     opciStore.clearOpciPodaci();
-    useCookie('id_izracuna').value = '/';
-    useCookie('vrsta_izracuna').value = null;
-    navigateTo('/kpkr/predlozak');
+    navigateWithParameter('/kpkr/predlozak', 'id', 'null')
 }
 
 const columns = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -454,7 +454,7 @@ const downloadRizikSazetak = async () => {
         // console.log("rezultat mapiranja (sa mjerama): ", saMjeramaPopis);
 
         opciWorksheet.getCell('T11').value = brojIzracuna.value;
-        console.log("id funkcija: ", brojIzracuna.value)
+        console.log("broj izracuna funkcija: ", brojIzracuna.value)
 
         const logoBuffer = await axios.get('/static/images/KPKR_logo.svg', {
             responseType: 'arraybuffer'

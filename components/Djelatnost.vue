@@ -124,7 +124,8 @@ const props = defineProps({
     tip: String,
 })
 
-const idIzracuna = computed(() => props.aiz_id)
+const idIzracuna = computed(() => props.aiz_id == 'null' ? getIdFromUrl() : props.aiz_id)
+console.log("Id izracuna: ", idIzracuna.value)
 const tip = props.tip; // 'RZ' ili 'KR'
 
 const vrstaIzracuna = ref(null); // Inicijalno je null
@@ -173,7 +174,7 @@ onMounted(async () => {
     vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
     scenarij.value = cookieData['scenarij'] || 'RCP';
 
-    await processGridData();
+    processGridData();
 })
 
 const getParametriClasses = (parameter, position) => {

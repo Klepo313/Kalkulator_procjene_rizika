@@ -14,7 +14,7 @@
                         style="font-size: 14px; font-weight: 400; color: var(--text-color);">
                         Broj izračuna:
                     </h2>
-                    <span class="broj-izracuna">{{ brojIzracuna }}</span>
+                    <span class="broj-izracuna">{{ brojIzracuna || '/' }}</span>
                 </div>
             </div>
             <div :class="['sidebar-content', isCollapsed ? 'collapsed' : '']">
@@ -37,8 +37,8 @@
                         isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je brojIzracuna '/'
                     ]" :to="isDisabled
                         ? '#'
-                        : { path: '/kpkr/predlozak/mjere-prilagodbe', query: { id: cardStore.cardId } }" :tabindex="isDisabled ? -1 : 0"
-                        :aria-disabled="isDisabled">
+                        : { path: '/kpkr/predlozak/mjere-prilagodbe', query: { id: cardStore.cardId } }"
+                        :tabindex="isDisabled ? -1 : 0" :aria-disabled="isDisabled">
                         <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="ruler-horizontal" />
                         <h3 :class="isCollapsed ? 'collapsed' : ''">Mjere prilagodbe</h3>
                     </nuxt-link>
@@ -53,8 +53,8 @@
                     isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je brojIzracuna '/'
                 ]" :to="isDisabled
                     ? '#'
-                    : { path: '/kpkr/predlozak/rizik-sazetak', query: { id: cardStore.cardId } }" :tabindex="isDisabled ? -1 : 0"
-                    :aria-disabled="isDisabled">
+                    : { path: '/kpkr/predlozak/rizik-sazetak', query: { id: cardStore.cardId } }"
+                    :tabindex="isDisabled ? -1 : 0" :aria-disabled="isDisabled">
                     <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-cells" />
                     <h3 :class="isCollapsed ? 'collapsed' : ''">Rezultat izračuna</h3>
                 </nuxt-link>

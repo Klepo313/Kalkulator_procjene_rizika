@@ -95,6 +95,7 @@ const toast = useToast();
 
 const cardStore = useCardStore();
 const toastErrorStore = useToastErrorStore();
+const opciStore = useOpciStore();
 
 const filters = ref({
     global: { value: '', matchMode: 'contains' }
@@ -146,8 +147,8 @@ const onRowSelect = async () => {
 onMounted(async () => {
 
     deleteCookie(cookiesToDelete);
-
-    if (toastErrorStore.toastMessage) {
+    console.log(toastErrorStore.toastMessage)
+    if (toastErrorStore.toastMessage.title && toastErrorStore.toastMessage.description) {
         toast.add({
             severity: 'error',
             summary: toastErrorStore.toastMessage.title,
@@ -158,6 +159,7 @@ onMounted(async () => {
         toastErrorStore.clearToastMessage() // Očistite poruku nakon prikazivanja
     }
 
+    cardStore.cardId = null;
     const data = await getCalculations();
     if (data.data) {
         if (data.data.message) {
@@ -176,8 +178,9 @@ const doLogout = async () => {
 };
 
 const noviIzracun = async () => {
-    await setCookie({ name: 'id-izracuna', value: '/' });
-    navigateTo('/kpkr/predlozak');
+    cardStore.cardId = null;
+    opciStore.clearOpciPodaci();
+    navigateWithParameter('/kpkr/predlozak', 'id', 'null')
 };
 </script>
 
