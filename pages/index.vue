@@ -16,14 +16,18 @@
             <main>
                 <div class="main-container">
                     <div class="card-container">
-                        <div v-for="(card, index) in filteredCards" :key="index" class="card">
+                        <div v-if="roles?.message">
+                            <h3 class="no-results">Nema prava na aplikacije</h3>
+                            <p class="no-results">Nemate pravo pristupa nekoj od aplikacija</p>
+                        </div>
+                        <div v-for="(card, index) in filteredCards" v-else :key="index" class="card">
                             <div class="image-container">
                                 <font-awesome-icon v-if="!card.isLoaded" icon="spinner" spin />
-                                <img v-else :src="card.miniLogo" alt="logo" />
+                                <img v-else :src="card.miniLogo" alt="logo">
                             </div>
                             <div class="card-content">
                                 <font-awesome-icon v-if="!card.isLoaded" icon="spinner" spin />
-                                <img v-else :src="card.textLogo" alt="logo" />
+                                <img v-else :src="card.textLogo" alt="logo">
                                 <div class="btn">
                                     <button :class="card.buttonClass" @mouseover="card.showTooltip = true"
                                         @mouseleave="card.showTooltip = false" @click="navigateTo(card.navigation);">
@@ -36,9 +40,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div v-if="filteredCards.length === 0">
-                            <h3 class="no-results">Nema prava na aplikacije</h3>
-                            <p class="no-results">Nemate pravo pristupa nekoj od aplikacija</p>
+                        <div v-if="!res">
+                            <font-awesome-icon icon="spinner" spin />
+                            <span>
+                                Učitavanje podataka
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -100,7 +106,7 @@ const cards = ref([
         miniLogo: '',
         textLogo: '',
         buttonClass: 'kespBtn',
-        navigation: '/kesp/predlosci',
+        navigation: '/kesp',
         isLoaded: false,
         showTooltip: false,
         tooltip: {
@@ -116,18 +122,23 @@ const cards = ref([
 ])
 
 const filteredCards = computed(() => {
+    if (roles.value.message) {
+        return [];
+    }
     return cards.value.filter(card => roles.value.includes(card.role));
 });
 
+const res = ref(null)
+
 onMounted(async () => {
-    const res = await userStore.getAll;
-    roles.value = res.roles;
+    res.value = await userStore.getAll;
+    roles.value = res.value.roles || { message: 'Nemate dopuštenih prava.' };
     console.log({
-        username: res.username,
-        name: res.name,
-        surname: res.surname,
-        email: res.email,
-        roles: res.roles
+        username: res.value.username,
+        name: res.value.name,
+        surname: res.value.surname,
+        email: res.value.email,
+        roles: res.value.roles
     })
     for (const card of cards.value) {
         card.miniLogo = await fetchImageAsBlob(card.miniLogoId);

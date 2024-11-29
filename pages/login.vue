@@ -48,6 +48,8 @@ definePageMeta({
     pageTransition: { name: 'slide', mode: 'out-in' }
 });
 
+const route = useRoute();
+
 const userStore = useUserStore();
 
 const userToken = useCookie('userToken', {
@@ -91,7 +93,7 @@ const checkLogin = async () => {
         statusCode.value = response.status;
 
         if (statusCode.value == 200) {
-            console.log("response login: ", response)
+            console.log("response login: ", response);
 
             const newCsrfToken = generateCsrfToken();
 
@@ -100,29 +102,20 @@ const checkLogin = async () => {
                 surname: response.surname,
                 username: response.username,
                 roles: response.roles
-            })
+            });
 
             userToken.value = newCsrfToken;
             expiryTime.value = new Date().getTime() + (24 * 60 * 60 * 1000); // 1 dan
-            // setCookie({ name: 'accessToken', value: newCsrfToken })
 
-            // await setCookie('accessToken', newCsrfToken);
-            // await setCookie('username', response.username);
-            // await setCookie('name', response.name);
-            // await setCookie('surname', response.surname);
-            // await setCookie('email', response.email);
+            // Preuzmi `redirectTo` iz query parametara, ako postoji
+            const redirectTo = route.query.redirectTo || '/';
 
-            // const newCsrfToken = generateCsrfToken();
-
-
-            // const expiryTime = new Date().getTime() + (seconds * 1000); // 150 sekundi (2.5 minute)
-            // csrfTokenExpiry.value = expiryTime; // Spremi timestamp vremena isteka
-            // console.log("csrf token expiry: ", new Date(expiryTime).toLocaleString());
-
-            navigateTo('/');
+            // Preusmjeri korisnika na `redirectTo` ili na početnu ako nije postavljen
+            navigateTo(redirectTo);
         } else {
             highlightBorders();
         }
+
     }
 
 }

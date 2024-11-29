@@ -5,7 +5,7 @@
             <div :class="['sidebar-header', isCollapsed ? 'collapsed' : '']">
                 <img :class="['logo-image', isCollapsed ? 'collapsed' : '']"
                     src="../public/static/images/KESP_logo_sidebar.svg" alt="logo" style="cursor: pointer;"
-                    @click="navigateTo('/kesp/predlosci')">
+                    @click="navigateTo('/kesp')">
                 <font-awesome-icon :class="['narrow-icon', isCollapsed ? 'collapsed' : '']" icon="angles-left"
                     @click="toggleSidebar" />
             </div>

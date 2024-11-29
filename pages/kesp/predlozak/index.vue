@@ -167,7 +167,7 @@
                                             'Vozilo' : 'Emisija' }}
                                     </label>
                                     <InputText id="vrstaVozila" v-model="tempVozilo.vozilo.vrsta"
-                                        :placeholder="odabranaSkupina && odabranaSkupina.label != 'STACI' ? 'Odaberi vrstu vozila' : 'Odaberi vrstu emisije'"
+                                        :placeholder="odabranaSkupina && odabranaSkupina.label != 'STACI' ? 'Unesi vrstu vozila' : 'Unesi vrstu emisije'"
                                         required />
                                 </div>
 
@@ -218,7 +218,7 @@
                                 <template v-if="selectedVozilo">
                                     Izvor emisija: <b>{{ selectedVozilo.vozilo.skupina }}</b> <br>
                                     Emisija: <b>{{ selectedVozilo.vozilo.vrsta || '/' }}</b> <br>
-                                    Gorivo: <b>{{ selectedVozilo.gorivo.label }}</b> <br>
+                                    Energent: <b>{{ selectedVozilo.gorivo.label }}</b> <br>
                                     Potrošnja energenata: <b>{{ selectedVozilo.potrosnjaGoriva + ' ' +
                                         selectedVozilo.gorivo.metric }}</b> <br>
                                     Emisije CO<sub>2</sub>/kg: <b>{{ selectedVozilo.emisije }}</b>
