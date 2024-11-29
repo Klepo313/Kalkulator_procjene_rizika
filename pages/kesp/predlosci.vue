@@ -312,7 +312,7 @@ const addIzracun = async () => {
     try {
         const res = await kespStore.addPredlozak(header);
         if (res) {
-            showSuccess(datumOd.value, datumDo.value);
+            showSuccess(formatDMYtoYMD(datumOd.value), formatDMYtoYMD(datumDo.value));
             navigateTo('/kesp/predlozak');
         }
         else showError();

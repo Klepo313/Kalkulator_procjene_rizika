@@ -1,5 +1,6 @@
 <template>
     <div>
+        <Toast />
         <div class="body">
             <header>
                 <div class="image-container">
@@ -160,7 +161,7 @@ const addIzracun = async () => {
     try {
         const res = await kespStore.addPredlozak(header);
         if (res) {
-            showSuccess(datumOd.value, datumDo.value);
+            showSuccess(formatDMYtoYMD(datumOd.value), formatDMYtoYMD(datumDo.value));
             navigateTo('/kesp/predlozak');
         }
         else showError();
