@@ -99,11 +99,46 @@ function transformAndFormatCategories(categories) {
     return transformed;
 }
 
+const ukloniKvacicu = (str) => {
+    return str
+        .replace(/[š]/g, 's')
+        .replace(/[č]/g, 'c')
+        .replace(/[ć]/g, 'c')
+        .replace(/[đ]/g, 'd')
+        .replace(/[ž]/g, 'z')
+        .replace(/[Š]/g, 'S')
+        .replace(/[Č]/g, 'C')
+        .replace(/[Ć]/g, 'C')
+        .replace(/[Đ]/g, 'D')
+        .replace(/[Ž]/g, 'Z');
+}
+
+const generirajLozinku = () => {
+    const malaSlova = 'abcdefghijklmnopqrstuvwxyz';
+    const velikaSlova = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const brojevi = '0123456789';
+    const sveZnakovi = malaSlova + velikaSlova + brojevi;
+
+    const duljina = Math.floor(Math.random() * 3) + 6; // 6 do 8 znakova
+    let lozinka = '';
+    lozinka += malaSlova[Math.floor(Math.random() * malaSlova.length)];
+    lozinka += velikaSlova[Math.floor(Math.random() * velikaSlova.length)];
+    lozinka += brojevi[Math.floor(Math.random() * brojevi.length)];
+
+    while (lozinka.length < duljina) {
+        lozinka += sveZnakovi[Math.floor(Math.random() * sveZnakovi.length)];
+    }
+
+    return ukloniKvacicu(lozinka.split('').sort(() => 0.5 - Math.random()).join('')); // Promiješaj znakove i ukloni kvačicu
+}
+
 export {
     restructureData,
     formatNumber,
     truncateText,
     splitOpis,
     transformCategories,
-    transformAndFormatCategories
+    transformAndFormatCategories,
+    ukloniKvacicu,
+    generirajLozinku,
 }

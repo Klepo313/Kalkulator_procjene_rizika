@@ -498,6 +498,8 @@ export const useStructuredGridDataStore = defineStore('structured-grid-data', {
 
 export const useKespStore = defineStore('kespStore', {
     state: () => ({
+        kespId: null,
+        kespBrojIzracuna: null,
         predlosci: [],
         naziv: '',
         napomena: '',
@@ -530,8 +532,9 @@ export const useKespStore = defineStore('kespStore', {
                 const { id, status } = response;
 
                 if (status === 200) {
-                    const kespId = parseInt(id);
-                    if (kespId && !isNaN(kespId)) {
+                    const kespId = id;
+                    console.log("Kesp ID u store: ", kespId);
+                    if (kespId) {
                         // Kreiraj novi objekt u traženoj strukturi
                         const newPredlozak = {
                             uiz_id: kespId,
@@ -541,9 +544,7 @@ export const useKespStore = defineStore('kespStore', {
                             uiz_opis: header.l_opis,
                             uiz_napomena: header.l_napomena
                         };
-
-                        // Dodaj u predloške
-                        await setCookie({ name: 'kesp-id', value: kespId });
+                        this.setKespId(kespId)
                         this.predlosci.push(newPredlozak);
                     } else {
                         console.log("Kesp ID nije validan.");
@@ -560,7 +561,12 @@ export const useKespStore = defineStore('kespStore', {
                 return 0;
             }
         },
-
+        setKespId(id: any) {
+            this.kespId = id;
+        },
+        setKespBrojIzracuna(brojIzracuna: any) {
+            this.kespBrojIzracuna = brojIzracuna;
+        },
         setGodina(godina: number) {
             this.godina = new Date(godina, 0, 1);
             this.setDatumOd(godina);
@@ -572,11 +578,12 @@ export const useKespStore = defineStore('kespStore', {
         setDatumDo(godina: number) {
             this.datumDo = new Date(godina, 11, 31); // December 31st
         },
-        async fetchHeader(id: number) {
+        async fetchHeader(id) {
             console.log("id: ", id)
             try {
                 const response = await getHeader(id);
                 if (response) {
+                    this.kespBrojIzracuna = response.uiz_broj;
                     this.naziv = response.uiz_opis;
                     this.napomena = response.uiz_napomena || '';
                     this.datumOd = response.uiz_datod;
@@ -593,9 +600,19 @@ export const useKespStore = defineStore('kespStore', {
             this.godina = new Date(2022, 0, 1);
             this.datumOd = new Date(2022, 0, 1);
             this.datumDo = new Date(2022, 11, 31);
+        },
+        clearData() {
+            this.kespId = null;
+            this.kespBrojIzracuna = null;
+            this.predlosci = [];
         }
     },
     getters: {
+        getKespId: (state) => state.kespId,
+        getKespBrojIzracuna: (state) => state.kespBrojIzracuna,
+        getPredlosci: (state) => state.predlosci,
+        getNaziv: (state) => state.naziv,
+        getNapomena: (state) => state.napomena,
         getGodina: (state) => state.godina,
         getDatumOd: (state) => state.datumOd,
         getDatumDo: (state) => state.datumDo,
@@ -641,15 +658,15 @@ export const useVehicleStore = defineStore('vehicleStore', {
 
     // Actions: za funkcije koje manipulišu stanjem
     actions: {
-        async fetchVehicles(id: number) {
+        async fetchVehicles(id) {
             const vozila = await getVehicles(id);
 
             if (!vozila.message) {
                 for (const vozilo of vozila) {
                     this.vozila.push({
-                        id: parseInt(vozilo.usi_id),
-                        uiz_id: parseInt(vozilo.usi_uiz_id),
-                        uge_id: parseInt(vozilo.usi_uge_id),
+                        id: vozilo.usi_id,
+                        uiz_id: vozilo.usi_uiz_id,
+                        uge_id: vozilo.usi_uge_id,
                         vozilo: {
                             id: vozilo.usi_uvv_id,
                             skupina: vozilo.uge_naziv,
@@ -694,13 +711,13 @@ export const useVehicleStore = defineStore('vehicleStore', {
 
             // Iteriramo kroz vrste vozila i dohvacamo kategorije
             for (const vrsta of vrste_vozila) {
-                const cats = await getVehiclesForEmmisionGroups(parseInt(vrsta.uge_id));
+                const cats = await getVehiclesForEmmisionGroups(vrsta.uge_id);
 
                 // Provjera da li je cats niz ili objekt sa porukom
                 if (Array.isArray(cats)) {
                     // Ako je cats niz, mapiramo children
                     this.vrsteVozila.push({
-                        id: parseInt(vrsta.uge_id),
+                        id: vrsta.uge_id,
                         label: vrsta.uge_sif,
                         value: vrsta.uge_naziv,
                         children: cats.map(cat => {
@@ -708,7 +725,7 @@ export const useVehicleStore = defineStore('vehicleStore', {
                             const kratica = cat.uvv_naziv.split(' ').slice(0, 2).map(word => word[0]).join('');
 
                             return {
-                                id: parseInt(cat.uvv_id),
+                                id: cat.uvv_id,
                                 label: kratica.toUpperCase(), // Kratica dvoslovna u velikim slovima
                                 value: cat.uvv_naziv
                             };
@@ -717,7 +734,7 @@ export const useVehicleStore = defineStore('vehicleStore', {
                 } else {
                     // Ako nije niz, postavljamo prazan children niz
                     this.vrsteVozila.push({
-                        id: parseInt(vrsta.uge_id),
+                        id: vrsta.uge_id,
                         label: vrsta.uge_sif,
                         value: vrsta.uge_naziv,
                         children: [] // Prazan niz kada nema children
@@ -730,9 +747,9 @@ export const useVehicleStore = defineStore('vehicleStore', {
 
             for (const gorivo of goriva) {
                 this.vrsteGoriva.push({
-                    id: parseInt(gorivo.ufe_id),
-                    uvg_id: parseInt(gorivo.uvg_id),
-                    uge_id: parseInt(gorivo.ufe_uge_id),
+                    id: gorivo.ufe_id,
+                    uvg_id: gorivo.uvg_id,
+                    uge_id: gorivo.ufe_uge_id,
                     label: gorivo.uvg_knaziv,
                     value: gorivo.uvg_naziv,
                     metric: gorivo.uvg_jedmj,
@@ -830,15 +847,15 @@ export const useOpseg2Store = defineStore('opseg2-store', {
         izracuni: []
     }),
     actions: {
-        async fetchEnergySources(id: number) {
+        async fetchEnergySources(id) {
             try {
                 const energySources = await getEnergySources(id);
                 if (energySources) this.clearStore();
                 for (const source of energySources) {
                     this.izracuni.push({
-                        id: parseInt(source.use_id) || null,
-                        uiz_id: parseInt(source.use_uiz_id) || null,
-                        uvn_id: parseInt(source.use_uvn_id) || null,
+                        id: source.use_id || null,
+                        uiz_id: source.use_uiz_id || null,
+                        uvn_id: source.use_uvn_id || null,
                         energija: source.uvn_naziv || '',
                         neobnovljivo: Number(source.use_neobnovljivo) || null,
                         obnovljivo: Number(source.use_obnovljivo) || null,
@@ -894,7 +911,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                         const { id, status } = response;
 
                         if (status === 200) {
-                            const use_id = parseInt(id);
+                            const use_id = id;
                             console.log(`Energy item updated with ID: ${use_id}`);
 
                             if (use_id) await this.fetchEnergySources(energyItem.p_uiz_id);

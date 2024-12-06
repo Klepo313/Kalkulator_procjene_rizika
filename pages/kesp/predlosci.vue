@@ -22,7 +22,7 @@
                     <DataTable v-model:filters="filters" v-model:selection="odabraniIzracun" :value="izracuni"
                         selection-mode="single" :meta-key-selection="false" paginator :rows="10" striped-rows
                         data-key="uiz_id" filter-display="row" :loading="loading" removable-sort
-                        :global-filter-fields="['uiz_id', 'uiz_opis', 'uiz_datum', 'uiz_datod', 'uiz_datdo', 'uiz_godina', 'uiz_razdoblje']"
+                        :global-filter-fields="['uiz_broj', 'uiz_opis', 'uiz_datum', 'uiz_datod', 'uiz_datdo', 'uiz_godina', 'uiz_razdoblje']"
                         @row-select="onRowSelect">
                         <template #header>
                             <div class="flex justify-end">
@@ -38,9 +38,9 @@
                         <template #empty> Nisu pronađeni izračuni </template>
                         <template #loading> Učitavanje prethodnih izračuna. Molimo pričekajte. </template>
 
-                        <Column field="uiz_id" header="Broj" sortable style="width: 100px;">
+                        <Column field="uiz_broj" header="Broj" sortable style="width: 100px;">
                             <template #body="slotProps">
-                                {{ slotProps.data.uiz_id || '--' }}
+                                {{ slotProps.data.uiz_broj || '--' }}
                             </template>
                         </Column>
                         <Column field="uiz_opis" header="Naziv" sortable style="width: auto;">
@@ -53,11 +53,11 @@
                                 {{ formatDateToDMY(slotProps.data.uiz_datum, '.') }}
                             </template>
                         </Column>
-                        <Column field="uiz_godina" header="Godina" sortable>
+                        <!-- <Column field="uiz_godina" header="Godina" sortable>
                             <template #body="slotProps">
                                 {{ getYearsRange(slotProps.data.uiz_datod, slotProps.data.uiz_datdo) }}
                             </template>
-                        </Column>
+                        </Column> -->
 
                         <Column field="uiz_razdoblje" header="Vremensko razdoblje" sortable>
                             <template #body="slotProps">
@@ -86,9 +86,9 @@
             <form class="pop-up-novo" @submit.prevent="addIzracun">
                 <div class="opisnap">
                     <label for="opis">
-                        Naziv
+                        Naziv<span class="required">*</span>
                     </label>
-                    <InputText id="opis" v-model="opis" type="text" placeholder="Unesi naziv" />
+                    <InputText id="opis" v-model="opis" type="text" placeholder="Unesi naziv" required />
                 </div>
                 <div>
                     <label for="startDate">
@@ -115,7 +115,8 @@
                     <span class="p-button p-component p-button-secondary" @click="noviDialogVisible = false">
                         Odustani
                     </span>
-                    <button type="submit" class="submitBtn">
+                    <button type="submit" :disabled="(!opis || !datumOd || !datumDo) && isLocked" class="submitBtn"
+                        :click="isLocked == true">
                         <font-awesome-icon icon="save" class="dialog-plus-icom" />
                         Spremi predložak
                     </button>
@@ -131,6 +132,8 @@
                     <button class="submitBtn" type="submit">Spremi</button>
                 </div> -->
         </Dialog>
+        <LoadingSpremanje v-if="loadingDalje" :message="'Učitavanje izračuna...'" :loader="'UI'"
+            class="loading-popup" />
     </div>
 </template>
 
@@ -153,8 +156,9 @@ const filters = ref({
     global: { value: '', matchMode: 'contains' }
 });
 
-const izracuni = computed(() => kespStore.predlosci);
+const izracuni = computed(() => kespStore.predlosci || []);
 const loading = ref(true);
+const isLocked = ref(false);
 
 const opis = ref(null);
 const datumOd = ref();
@@ -165,10 +169,7 @@ const datOdError = computed(() => !datumOd.value);
 const datDoError = computed(() => !datumDo.value);
 
 const odabraniIzracun = ref();
-
-const cookiesToDelete = [
-    'kesp-id',
-];
+const loadingDalje = ref(false);
 
 function setEndDate() {
     if (datumOd.value) {
@@ -178,10 +179,27 @@ function setEndDate() {
     }
 }
 
+watch(datumOd, () => {
+    setEndDate();
+})
+
 const onRowSelect = async () => {
     console.log("Uspješno dohvaćen izračun.", odabraniIzracun.value);
-    await setCookie({ name: 'kesp-id', value: odabraniIzracun.value.uiz_id });
-    navigateTo('/kesp/predlozak');
+    loadingDalje.value = true;
+    try {
+
+        // Dodavanje šifrovane vrednosti u URL
+        const url = `/kesp/predlozak?id=${odabraniIzracun.value.uiz_id.toString()}`;
+        console.log("url: " + url);
+        console.log('id: ', odabraniIzracun.value.uiz_id.toString()); // Spremanje ID-a u cookie
+
+        // Navigacija sa 'replace' kako bi se izbeglo dupliranje rute u istoriji
+        await navigateTo(url, { replace: true });
+        kespStore.setKespId(odabraniIzracun.value.uiz_id);
+
+    } catch (error) {
+        showError();
+    }
 };
 
 const noviDialogVisible = ref(false);
@@ -194,83 +212,11 @@ const resetForm = () => {
     noviDialogVisible.value = false;
 };
 
-const chartData = ref();
-const chartOptions = ref();
-
-const setChartData = () => {
-    const documentStyle = getComputedStyle(document.documentElement);
-
-    return {
-        labels: ['2020', '2021', '2022', '2024', '2025'],
-        datasets: [
-            // {
-            //     type: 'line',
-            //     label: 'Dataset 1',
-            //     borderColor: documentStyle.getPropertyValue('--p-orange-500'),
-            //     borderWidth: 2,
-            //     fill: false,
-            //     tension: 0.4,
-            //     data: [50, 25, 12, 48, 56]
-            // },
-            {
-                type: 'bar',
-                label: 'Opseg 1',
-                backgroundColor: documentStyle.getPropertyValue('--p-gray-500'),
-                data: [21, 84, 24, 175, 37],
-            },
-            {
-                type: 'bar',
-                label: 'Opseg 2',
-                backgroundColor: documentStyle.getPropertyValue('--p-cyan-500'),
-                data: [41, 52, 24, 74, 23]
-            }
-        ]
-    };
-};
-const setChartOptions = () => {
-    const documentStyle = getComputedStyle(document.documentElement);
-    const textColor = documentStyle.getPropertyValue('--p-text-color');
-    const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
-    const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
-
-    return {
-        maintainAspectRatio: false,
-        aspectRatio: 0.6,
-        plugins: {
-            legend: {
-                labels: {
-                    color: textColor
-                }
-            }
-        },
-        scales: {
-            x: {
-                ticks: {
-                    color: textColorSecondary
-                },
-                grid: {
-                    color: surfaceBorder
-                }
-            },
-            y: {
-                ticks: {
-                    color: textColorSecondary
-                },
-                grid: {
-                    color: surfaceBorder
-                }
-            }
-        }
-    };
-}
+// const chartData = ref();
+// const chartOptions = ref();
 
 onMounted(async () => {
-
-    chartData.value = setChartData();
-    chartOptions.value = setChartOptions();
-
-    deleteCookie(cookiesToDelete);
-
+    kespStore.clearData();
     await kespStore.fetchPredlosci();
     console.log(izracuni.value)
     loading.value = false;
@@ -312,13 +258,26 @@ const addIzracun = async () => {
     try {
         const res = await kespStore.addPredlozak(header);
         if (res) {
-            showSuccess(formatDMYtoYMD(datumOd.value), formatDMYtoYMD(datumDo.value));
-            navigateTo('/kesp/predlozak');
+            showSuccess(header.l_datod, header.l_datdo);
+            try {
+
+                // Dodavanje šifrovane vrednosti u URL
+                const url = `/kesp/predlozak?id=${kespStore.kespId}`;
+                console.log("url: " + url);
+                console.log('id: ', kespStore.kespId.toString()); // Spremanje ID-a u cookie
+
+                // Navigacija sa 'replace' kako bi se izbeglo dupliranje rute u istoriji
+                await navigateTo(url, { replace: true });
+
+            } catch (error) {
+                console.log("Greska pri dodavanju izračuna. 1111", error);
+                showError();
+            }
         }
         else showError();
 
     } catch (error) {
-        console.log("Greska pri dodavanju izračuna.", error);
+        console.log("Greska pri dodavanju izračuna. 2222", error);
         showError();
     }
 
@@ -591,5 +550,15 @@ main {
 
 .footer-link:hover {
     transform: translateX(-3px);
+}
+
+.loading-popup {
+    z-index: 99;
+    position: fixed;
+    width: 100%;
+    height: 100dvh;
+    top: 0;
+    left: 0;
+    overflow: hidden;
 }
 </style>

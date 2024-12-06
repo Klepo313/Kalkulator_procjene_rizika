@@ -1,17 +1,4 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
-
-// import { definePreset } from '@primevue/themes';
 import Aura from '@primevue/themes/aura';
-
-// const MyPreset = definePreset(Aura, {
-//   '--primary-color': '#13501b',
-//   '--primary-color-hover': '#176221',
-//   '--primary-color-focus': '#1a7225',
-//   '--text-color': '#1e1e1e',
-//   '--bg-color': 'white',
-//   '--bg-layout-color': '#f0faec',
-// });
-
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   app: {

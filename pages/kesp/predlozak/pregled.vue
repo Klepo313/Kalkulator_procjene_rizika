@@ -46,15 +46,15 @@
                 </section>
                 <section>
                     <div>
-                        <h2>Ukupni utrošak - Opseg 1</h2>
-                        <p>Ukupan prikaz stakleničkih plinova - opseg 1</p>
+                        <h2>Ukupna emisija - Opseg 1</h2>
+                        <p>Ukupni prikaz emisije stakleničkih plinova iz Opsega 1</p>
                     </div>
                     <div class="datatable">
                         <DataTable :value="groupedData" scrollable scroll-height="400px" table-style="min-width: 50rem"
                             show-gridlines>
                             <template #empty> Nema podataka za prikaz </template>
 
-                            <Column header="No." header-style="width:3rem">
+                            <Column header="Broj" header-style="width:3rem">
                                 <template #body="slotProps">
                                     {{ slotProps.index + 1 }}
                                 </template>
@@ -79,13 +79,14 @@
 
                             <Column field="totalEmissions" header="Ukupne emisije CO2 t/god">
                                 <template #body="slotProps">
-                                    <span>{{ formatNumber(slotProps.data.totalEmissions.toFixed(2)) }}</span>
+                                    <span>{{ formatNumber(slotProps.data.totalEmissions.toFixed(2) / 1000) }}</span>
                                 </template>
                             </Column>
 
                             <template #footer>
                                 <div class="flex justify-end font-bold w-full mt-4">
-                                    Ukupno: <strong>{{ formatNumber(calculateTotalEmissions().toFixed(2)) }}</strong>
+                                    Ukupno: <strong>{{ formatNumber(calculateTotalEmissions().toFixed(2) / 1000)
+                                        }}</strong>
                                     CO<sub>2</sub> t/god
                                 </div>
                             </template>
@@ -94,18 +95,18 @@
                 </section>
                 <section>
                     <div class="data-heading">
-                        <h2>Ukupni utrošak - Opseg 2</h2>
-                        <p>Ukupan prikaz stakleničkih plinova - opseg 2</p>
+                        <h2>Ukupna emisija - Opseg 2</h2>
+                        <p>UUkupni prikaz emisije stakleničkih plinova iz Opsega 2</p>
                     </div>
                     <DataTable :value="opseg2Store.izracuni" show-gridlines :rows="5" data-key="id">
 
-                        <Column header="No.">
+                        <Column header="Broj">
                             <template #body="slotProps">
                                 {{ slotProps.index + 1 }}
                             </template>
                         </Column>
 
-                        <Column header="Energija" field="energija">
+                        <Column header="Vrsta energije" field="energija">
                             <template #body="slotProps">
                                 <template v-if="slotProps.data.energija === 'Električna energija'">
                                     <font-awesome-icon icon="bolt-lightning" style="margin-right: 5px;" />
@@ -118,14 +119,14 @@
                             </template>
                         </Column>
 
-                        <Column header="Neobnovljivo (kWh)" field="neobnovljivo">
+                        <Column header="Neobnovljiva energija (kWh)" field="neobnovljivo">
                             <template #body="slotProps">
                                 {{ slotProps.data.neobnovljivo !== null ? formatNumber(slotProps.data.neobnovljivo) :
                                     '0.00' }}
                             </template>
                         </Column>
 
-                        <Column header="Obnovljivo (kWh)" field="obnovljivo">
+                        <Column header="Obnovljiva energija (kWh)" field="obnovljivo">
                             <template #body="slotProps">
                                 {{ slotProps.data.obnovljivo !== null ? formatNumber(slotProps.data.obnovljivo) : '0.00'
                                 }}
@@ -138,9 +139,9 @@
                             </template>
                         </Column>
 
-                        <Column header="Emisije CO2/kg" field="emisije">
+                        <Column header="Emisije CO2 t/god" field="emisije">
                             <template #body="slotProps">
-                                {{ formatNumber(slotProps.data.emisije.toFixed(2)) }}
+                                {{ formatNumber(slotProps.data.emisije.toFixed(2) / 1000) }}
                             </template>
                         </Column>
 
@@ -156,8 +157,8 @@
                 </section>
                 <section>
                     <div class="data-heading">
-                        <h2>Ukupni utrošak - Opseg 1 + Opseg 2</h2>
-                        <p>Ukupan prikaz stakleničkih plinova - opseg 1 + opseg 2 </p>
+                        <h2>Ukupna emisija</h2>
+                        <p>Ukupan prikaz stakleničkih plinova - Opseg 1 + Opseg 2 </p>
                     </div>
                     <div class="ukupni-utrosak-o1o2">
                         UKUPNO:
@@ -288,12 +289,13 @@ const calculateTotalEmissions = () => {
 };
 
 // Ukupne emisije
-const totalEmissions = computed(() => opseg2Store.totalEmissions);
+const totalEmissions = computed(() => opseg2Store.totalEmissions / 1000);
 
 const combinedEmissions = computed(() => {
-    const opseg1 = parseFloat(calculateTotalEmissions().toFixed(2));
-    const opseg2 = parseFloat(totalEmissions.value);
-    const ukupno = parseFloat((opseg1 + opseg2)).toFixed(2)
+    const opseg1 = parseFloat(calculateTotalEmissions().toFixed(2)) / 1000;
+    const opseg2 = parseFloat(totalEmissions.value.toFixed(2));
+    const ukupno = opseg1 + opseg2;
+    console.log("opseg1: ", opseg1, "opseg2: ", opseg2, "ukupno: ", ukupno);
     return ukupno;
 });
 

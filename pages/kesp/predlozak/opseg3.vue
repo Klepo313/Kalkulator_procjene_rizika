@@ -3,7 +3,7 @@
         <Toast />
         <main>
             <h1>{{ 'Opseg 3' }}</h1>
-            <div class="main-content">
+            <div class="main-contentt">
                 <section class="title">
                     <div>
                         <h2>Vremensko razdoblje izračuna</h2>
@@ -27,27 +27,92 @@
                             </div>
                         </div>
                     </div>
+                    <div class="data-heading" style="margin-top: 23px;">
+                        <h2>Neizravne emisije stakleničkih plinova</h2>
+                        <p>Ostale emisije koje nastaju u vrijednosnom lancu organizacije te
+                            su posljedica poslovne aktivnosti organizacije
+                            ali proizlaze iz izvora koje organizacije ne posjeduje ili ne kontrolira.
+                        </p>
+                    </div>
                 </section>
+                <section class="accordion">
+                    <Accordion id="accordion">
+                        <AccordionPanel>
+                            <AccordionHeader>
+                                <div class="header-data-accordion">
+                                    <font-awesome-icon icon="list-ul" />
+                                    <span>Popis kategorija emisija</span>
+                                </div>
+                            </AccordionHeader>
+                            <AccordionContent>
+                                <Accordion multiple class="categories-accordion" :value="[]">
+                                    <AccordionPanel v-for="category in nodes" :key="category.key" :value="category.key"
+                                        class="acc-tab">
+                                        <template #header>
+                                            <span style="font-size: 16px;">{{ category.ukt_naziv }}</span>
+                                        </template>
+                                        <AccordionHeader
+                                            :class="{ 'selected-category': selectedCategoryKeys.includes(category.key) }">
+                                            {{ category.ukt_naziv }}
+                                        </AccordionHeader>
+                                        <AccordionContent
+                                            :class="{ 'selected-category': selectedCategoryKeys.includes(category.key) }">
+                                            <div class="category-header">
+                                                <Checkbox v-model="selectedCategoryKeys"
+                                                    :input-id="'checkbox-' + category.key" :value="category.key"
+                                                    name="categories"
+                                                    @update:model-value="toggleChildCategories(category, $event)" />
+                                                <label :for="'checkbox-' + category.key">Relevantno</label>
+                                            </div>
+                                            <p class="category-description">{{ category.ukt_opis }}</p>
+                                            <!-- Child kategorije -->
+                                            <Accordion v-if="category.children && category.children.length > 0" multiple
+                                                :value="[]" class="categories-accordion">
+                                                <AccordionPanel v-for="child in category.children" :key="child.key"
+                                                    :value="child.key"
+                                                    :class="{ 'selected-category': selectedCategoryKeys.includes(child.key) }">
+                                                    <template #header>
+                                                        <span style="font-size: 16px;">{{ child.ukt_naziv }}</span>
+                                                    </template>
+                                                    <AccordionHeader>{{ child.ukt_naziv }}</AccordionHeader>
+                                                    <AccordionContent :class="$style.acc_content">
+                                                        <div class="category-header">
+                                                            <Checkbox v-model="selectedCategoryKeys"
+                                                                :input-id="'checkbox-' + child.key" :value="child.key"
+                                                                name="categories" />
+                                                            <label :for="'checkbox-' + child.key">Relevantno</label>
+                                                        </div>
+                                                        <p class="category-description">{{ child.ukt_opis }}</p>
+                                                    </AccordionContent>
+                                                </AccordionPanel>
+                                            </Accordion>
+                                        </AccordionContent>
+                                    </AccordionPanel>
+                                </Accordion>
+                            </AccordionContent>
+                        </AccordionPanel>
+                    </Accordion>
+                </section>
+
                 <section class="content-section">
                     <section class="sidebar">
                         <div class="sidebar-header">
                             <font-awesome-icon icon="list-ul" />
-                            <span>Popis</span>
+                            <span>Odabrane kategorije emisija</span>
                         </div>
                         <hr>
                         <div class="sidebar-content">
-                            <div v-if="!nodes">
-                                <font-awesome-icon icon="spinner" spin />
-                                Učitavanje podataka
+                            <div v-if="!filteredNodes.length">
+                                <p>Nema odabranih kategorija.</p>
                             </div>
-                            <Tree v-else v-model:selectionKeys="selectedKey" :value="nodes" selectionMode="single"
-                                :metaKeySelection="checked" class="tree">
+                            <Tree v-if="filteredNodes.length" v-model:selectionKeys="selectedKey" :value="filteredNodes"
+                                selectionMode="single" class="tree">
                                 <template #default="slotProps">
-                                    <div style="display: flex; align-items: center; gap: 10px;"
-                                        v-tooltip.top="slotProps.node.ukt_naziv.length > 40 ? slotProps.node.ukt_naziv : ''">
+                                    <div v-tooltip.top="slotProps.node.ukt_naziv.length > 40 ? slotProps.node.ukt_naziv : ''"
+                                        style="display: flex; align-items: center; gap: 10px;">
                                         <font-awesome-icon icon="bars-staggered" class="mr-2" />
-                                        <span>
-                                            {{ truncateText(slotProps.node.ukt_naziv, 40) }}
+                                        <span class="truncate-text">
+                                            {{ slotProps.node.ukt_naziv }}
                                         </span>
                                     </div>
                                 </template>
@@ -55,8 +120,9 @@
 
                         </div>
                     </section>
+
                     <section class="view">
-                        <Tabs v-if="selectedNode" v-model:value="activeTab" class="tab-view">
+                        <Tabs v-if="filteredNodes.length" v-model:value="activeTab" class="tab-view">
                             <TabList>
                                 <Tab v-for="(tab, index) in tabs" :key="index" :value="index">
                                     {{ tab.title }}
@@ -64,15 +130,10 @@
                             </TabList>
                             <TabPanels>
                                 <TabPanel v-for="(tab, index) in tabs" :key="index" :value="index">
-                                    <!-- <p class="tab-opis">{{ tab.content }}</p> -->
-                                    <li class="tab-opis" v-for="(item, indexs) in splitOpis(tab.content)" :key="indexs">
+                                    <li v-for="(item, indexs) in splitOpis(tab.content)" :key="indexs" class="tab-opis">
                                         {{ item }}
                                     </li>
                                 </TabPanel>
-                                <ul>
-                                    <!-- Razdvoji string na list iteme i prikazi ih -->
-
-                                </ul>
                             </TabPanels>
                         </Tabs>
                         <Tabs v-else class="tab-view">
@@ -97,22 +158,109 @@
 
 <script setup>
 import { getO3categories } from '~/service/kesp/fetchOpseg3';
-import data from '../../../public/blobs/dummy_kategorije.json'
+import data from '../../../public/blobs/dummy_kategorije.json';
 
 const kespStore = useKespStore();
 
 const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
 const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
 
+// Podaci za kategorije
 const nodes = ref(null);
+const selectedCategoryKeys = ref([]); // Odabrani ključevi
 
-onMounted(async () => {
-    const response = await getO3categories();
-    nodes.value = transformCategories(response);
-})
-
+// Aktivni čvor (odabrana kategorija ili podkategorija)
 const selectedKey = ref(null);
 const checked = ref(false);
+
+// Transformacija za prikaz stabla
+const transformTree = (nodes, selectedKeys) => {
+    const result = [];
+    for (const node of nodes) {
+        if (selectedKeys.includes(node.key)) {
+            const transformedNode = { ...node };
+            if (node.children) {
+                transformedNode.children = transformTree(node.children, selectedKeys);
+            }
+            result.push(transformedNode);
+        } else if (node.children) {
+            const childNodes = transformTree(node.children, selectedKeys);
+            if (childNodes.length) {
+                result.push({ ...node, children: childNodes });
+            }
+        }
+    }
+    return result;
+};
+
+function toggleChildCategories(category, isChecked) {
+    if (category.children && category.children.length > 0) {
+        category.children.forEach(child => {
+            if (isChecked) {
+                if (!selectedCategoryKeys.value.includes(child.key)) {
+                    selectedCategoryKeys.value.push(child.key);
+                }
+            } else {
+                const index = selectedCategoryKeys.value.indexOf(child.key);
+                if (index > -1) {
+                    selectedCategoryKeys.value.splice(index, 1);
+                }
+            }
+            toggleChildCategories(child, isChecked); // Rekurzivno ažuriraj child elemente
+        });
+    }
+}
+
+// Filtrirane kategorije za prikaz u stablu
+const filteredNodes = computed(() =>
+    nodes.value ? transformTree(nodes.value, selectedCategoryKeys.value) : []
+);
+
+watch(filteredNodes, () => {
+    console.log('Filtered Nodes Updated:', filteredNodes.value);
+});
+
+
+// Pratite promjene u selectedCategoryKeys i ispisujte filteredNodes
+watch(selectedCategoryKeys, () => {
+    console.log("Filtered Nodes:", filteredNodes.value, "length:", filteredNodes.value.length);
+    console.log("Selected category Keys:", selectedCategoryKeys.value, "length:", selectedCategoryKeys.value.length);
+});
+
+watch(selectedKey, (newKey) => {
+    console.log("Selected Key: ", newKey);
+    if (newKey) {
+        // Pronalaženje odabranog čvora na osnovu ključa
+        const findNode = (nodes, key) => {
+            for (const node of nodes) {
+                if (node.key === key) return node;
+                if (node.children) {
+                    const found = findNode(node.children, key);
+                    if (found) return found;
+                }
+            }
+            return null;
+        };
+
+        const selectedNode = findNode(nodes.value, newKey);
+
+        if (selectedNode) {
+            tabs.value = [
+                { title: 'Opis kategorije', content: selectedNode.ukt_opis || 'Nema opisa kategorije' },
+                { title: 'Podaci koji se prikupljaju', content: selectedNode.ukt_podaci || 'Nema podataka koji se prikupljaju' },
+                { title: 'Način prikupljanja podataka', content: selectedNode.ukt_nacin || 'Nema načina prikupljanja podataka' },
+                { title: 'Dinamika', content: selectedNode.ukt_dinamika || 'Nema dinamike' },
+                { title: 'Minimalna granica', content: selectedNode.ukt_mingran || 'Nema minimalne granice' }
+            ];
+        } else {
+            tabs.value = [];
+        }
+    } else {
+        tabs.value = [];
+    }
+}, { deep: true });
+
+
 
 const tabs = ref([]); // Dinamički podaci za tabove
 const activeTab = ref(0); // Praćenje aktivnog taba
@@ -143,9 +291,10 @@ const selectedNode = computed(() => {
 
 // Ažuriranje tabova kada se promijeni odabrana stavka
 watch(selectedNode, (newNode) => {
+    console.log("Selected Node: ", newNode)
     if (newNode) {
         tabs.value = [
-            { title: 'Opis kategorije', content: newNode.ukt_opis || 'Nema opisa kategorije' },
+            // { title: 'Opis kategorije', content: newNode.ukt_opis || 'Nema opisa kategorije' },
             { title: 'Podaci koji se prikupljaju', content: newNode.ukt_podaci || 'Nema podataka koji se prikupljaju' },
             { title: 'Način prikupljanja podataka', content: newNode.ukt_nacin || 'Nema načina prikupljanja podataka' },
             { title: 'Dinamika', content: newNode.ukt_dinamika || 'Nema dinamike' },
@@ -157,9 +306,28 @@ watch(selectedNode, (newNode) => {
     }
 });
 
+
+// Dohvaćanje podataka
+onMounted(async () => {
+    const response = await getO3categories();
+    nodes.value = transformCategories(response);
+    console.log("nodes: ", nodes.value);
+});
 </script>
 
+<style module>
+.acc_content {
+    background: none !important;
+}
+</style>
+
 <style scoped>
+@layer reset {
+    .p-accordioncontent-content {
+        background: none !important;
+    }
+}
+
 .body {
     position: relative;
     height: 100%;
@@ -195,24 +363,99 @@ main>div {
     height: 100%;
 }
 
-.main-content,
-section.content-section {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: min-content 1fr;
+.main-contentt {
+    display: flex;
+    flex-direction: column;
     gap: 26px;
 }
 
 section.content-section {
+    display: grid;
     grid-template-columns: 0.3fr 1fr;
     grid-template-rows: 1fr;
     border-radius: 8px;
+    gap: 26px;
     /* padding: 26px; */
 }
 
 section {
     /* outline: auto; */
     height: 100%;
+    max-width: 1100px;
+}
+
+section.accordion {
+    height: auto;
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+
+.header-data-accordion {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-data-accordion * {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--kesp-primary);
+}
+
+.acc-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.p-accordionheader {
+    background: none !important;
+    border-radius: 5px !important;
+}
+
+.p-accordioncontent-content * {
+    background: none !important;
+    background-color: none !important;
+}
+
+.p-accordioncontent {
+    background: none !important;
+}
+
+.selected-category {
+    background-color: #e6f9e6 !important;
+    /* Lagana zelena boja */
+}
+
+
+.category-description {
+    margin-top: 10px;
+    font-size: 16px;
+    max-width: 80%;
+    text-align: justify;
+}
+
+.categories-accordion {
+    padding: 13px;
+}
+
+.myacc {
+    background-color: red;
+}
+
+.category-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.category-header label {
+    font-size: 16px;
+    /* font-weight: 500; */
 }
 
 section.title {
@@ -288,8 +531,23 @@ hr {
 }
 
 p,
-.tab-opis {
+.tab-opis,
+ul {
     opacity: 0.8;
+}
+
+ul {
+    list-style-position: inside;
+    list-style-type: disc;
+    margin: 0;
+    padding: 0 0 0 20px;
+}
+
+ul ul {
+    list-style-type: circle;
+    margin: 0;
+    padding: 0 0 0 30px;
+    opacity: 1;
 }
 
 sub,
@@ -323,6 +581,22 @@ sup {
     background-color: transparent;
     border-radius: 5px;
     padding: 0px;
+}
+
+.truncate-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    /* Maksimalno 2 linije */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Dodaje tri točkice kada pređe ograničenje */
+    white-space: normal;
+    /* Omogućava prelazak u više linija */
+    max-height: 3em;
+    /* Osigurava da se ograniči na dve linije */
+    line-height: 1.5em;
+    /* Visina linije za bolju čitljivost */
 }
 
 .tab-opis {

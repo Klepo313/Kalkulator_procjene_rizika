@@ -19,7 +19,7 @@ const postHeader = async (header) => {
         console.log(response.data)
 
         return {
-            id: response.data.fn_spremi_ugo_izracun,
+            id: response.data.calculationId,
             status: response.status
         };
     } catch (error) {
@@ -58,6 +58,7 @@ const addEmission = async (data) => {
 }
 
 const deleteEmission = async (id) => {
+    console.log("id brisajući: ", id)
     try {
         const response = await axios.delete(`${base_url}/CO2/item/${id}`, {
             withCredentials: true, // Ensure cookies are included in requests
