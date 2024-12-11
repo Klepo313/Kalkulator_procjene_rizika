@@ -549,7 +549,7 @@ export const useKespStore = defineStore('kespStore', {
                         console.log("Kesp ID nije validan.");
                     }
 
-                    return 1;
+                    return kespId;
                 } else {
                     console.log("Greška pri dodavanju izračuna.");
                     return 0;

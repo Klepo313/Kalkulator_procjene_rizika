@@ -205,7 +205,7 @@
                                         @click="voziloDialogVisible = false">
                                         Odustani
                                     </button>
-                                    <button class="submitBtn" type="submit">Spremi</button>
+                                    <button class="submitBtn" type="submit" :disabled="isButtonDisabled">Spremi</button>
                                 </div>
                             </form>
                         </Dialog>
@@ -225,7 +225,8 @@
                                 </template>
                             </div>
                             <template #footer>
-                                <button class="p-button p-component p-button-secondary" @click="deleteVozilo">
+                                <button class="ukloniBtn p-button p-component p-button-secondary"
+                                    :disabled="isButtonDisabled" @click="deleteVozilo">
                                     Ukloni
                                 </button>
                                 <button class="submitBtn" @click="deleteVoziloDialog = false">
@@ -492,6 +493,9 @@ const tempVozilo = ref({
     emisije: 0.00
 })
 
+
+const isButtonDisabled = ref(false);
+
 const resetTempVozilo = () => {
     tempVozilo.value = {
         id: null,
@@ -513,6 +517,7 @@ const resetTempVozilo = () => {
         emisije: 0.00
     }
     odabranaSkupina.value = null;
+    isButtonDisabled.value = false;
 }
 
 // Computed property for handling placeholder vs value
@@ -540,6 +545,7 @@ onMounted(async () => {
     // vehicleStore.resetData();
     const res = await initializeCookie('kesp-id');
     kespId.value = parseInt(res['kesp-id']);
+    console.log(kespId.value);
 })
 
 // Prvo dodajemo watch funkciju koja će pratiti promenu `gorivo.value` u storeu
@@ -838,6 +844,8 @@ const showError = () => {
 
 
 const saveVozilo = async () => {
+    isButtonDisabled.value = true;
+
     // Pronađi koeficijent goriva na osnovu odabranog tipa goriva
     const odabranoGorivo = vehicleStore.vrsteGoriva.find(g => g.label === tempVozilo.value.gorivo.label);
 
@@ -948,6 +956,7 @@ const openVoziloDeleteDialog = () => {
 // };
 
 const deleteVozilo = async () => {
+    isButtonDisabled.value = true;
     const index = vehicleStore.vozila.findIndex(v => v.id === selectedVozilo.value.id);
     if (index !== -1) {
         vehicleStore.vozila.splice(index, 1);
@@ -968,6 +977,7 @@ const deleteVozilo = async () => {
     }
     deleteVoziloDialog.value = false;
     selectedVozilo.value = null; // Reset selected vozilo
+    isButtonDisabled.value = false;
 };
 
 // const deleteIzvor = () => {
@@ -1331,6 +1341,12 @@ strong {
 .dodaj-btn:active,
 .submitBtn:active {
     background-color: var(--kesp-primary-focus);
+}
+
+.ukloniBtn:disabled,
+.submitBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .ukloni-btn {

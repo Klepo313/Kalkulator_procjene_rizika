@@ -311,8 +311,10 @@ const addIzracun = async () => {
 
     try {
         const res = await kespStore.addPredlozak(header);
+        console.log("Dodani izračun: ", res);
         if (res) {
-            showSuccess(formatDMYtoYMD(datumOd.value), formatDMYtoYMD(datumDo.value));
+            await setCookie({ name: 'kesp-id', value: res });
+            showSuccess(formatDateToDMY(datumOd.value), formatDateToDMY(datumDo.value));
             navigateTo('/kesp/predlozak');
         }
         else showError();
