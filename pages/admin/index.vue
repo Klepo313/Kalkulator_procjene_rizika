@@ -3,7 +3,7 @@
         <div :class="['sidebar', { 'collapsed': isCollapsed }]" ref="sidebar">
             <AdminSidebar :is-collapsed="isCollapsed" @toggle-sidebar="toggleSidebar" />
         </div>
-        <main :style="mainStyles">
+        <main :style="mainStyles" style="background-color: white;">
             <div class="main-content">
                 <NuxtPage />
                 <!-- <p>Prikaz stranice</p> -->
@@ -54,7 +54,7 @@ const mainStyles = computed(() => ({
     gap: 25px;
     overflow: visible;
 
-    /* background-color: var(--admin-bg-color); */
+    background-color: var(--admin-bg-color);
 }
 
 .sidebar {

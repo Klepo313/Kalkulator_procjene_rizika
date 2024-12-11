@@ -35,65 +35,6 @@
                         </p>
                     </div>
                 </section>
-                <section class="accordion">
-                    <Accordion id="accordion">
-                        <AccordionPanel>
-                            <AccordionHeader>
-                                <div class="header-data-accordion">
-                                    <font-awesome-icon icon="list-ul" />
-                                    <span>Popis kategorija emisija</span>
-                                </div>
-                            </AccordionHeader>
-                            <AccordionContent>
-                                <Accordion multiple class="categories-accordion" :value="[]">
-                                    <AccordionPanel v-for="category in nodes" :key="category.key" :value="category.key"
-                                        class="acc-tab">
-                                        <template #header>
-                                            <span style="font-size: 16px;">{{ category.ukt_naziv }}</span>
-                                        </template>
-                                        <AccordionHeader
-                                            :class="{ 'selected-category': selectedCategoryKeys.includes(category.key) }">
-                                            {{ category.ukt_naziv }}
-                                        </AccordionHeader>
-                                        <AccordionContent
-                                            :class="{ 'selected-category': selectedCategoryKeys.includes(category.key) }">
-                                            <div class="category-header">
-                                                <Checkbox v-model="selectedCategoryKeys"
-                                                    :input-id="'checkbox-' + category.key" :value="category.key"
-                                                    name="categories"
-                                                    @update:model-value="toggleChildCategories(category, $event)" />
-                                                <label :for="'checkbox-' + category.key">Relevantno</label>
-                                            </div>
-                                            <p class="category-description">{{ category.ukt_opis }}</p>
-                                            <!-- Child kategorije -->
-                                            <Accordion v-if="category.children && category.children.length > 0" multiple
-                                                :value="[]" class="categories-accordion">
-                                                <AccordionPanel v-for="child in category.children" :key="child.key"
-                                                    :value="child.key"
-                                                    :class="{ 'selected-category': selectedCategoryKeys.includes(child.key) }">
-                                                    <template #header>
-                                                        <span style="font-size: 16px;">{{ child.ukt_naziv }}</span>
-                                                    </template>
-                                                    <AccordionHeader>{{ child.ukt_naziv }}</AccordionHeader>
-                                                    <AccordionContent :class="$style.acc_content">
-                                                        <div class="category-header">
-                                                            <Checkbox v-model="selectedCategoryKeys"
-                                                                :input-id="'checkbox-' + child.key" :value="child.key"
-                                                                name="categories" />
-                                                            <label :for="'checkbox-' + child.key">Relevantno</label>
-                                                        </div>
-                                                        <p class="category-description">{{ child.ukt_opis }}</p>
-                                                    </AccordionContent>
-                                                </AccordionPanel>
-                                            </Accordion>
-                                        </AccordionContent>
-                                    </AccordionPanel>
-                                </Accordion>
-                            </AccordionContent>
-                        </AccordionPanel>
-                    </Accordion>
-                </section>
-
                 <section class="content-section">
                     <section class="sidebar">
                         <div class="sidebar-header">
@@ -151,6 +92,66 @@
 
                     </section>
                 </section>
+                <section class="accordion">
+                    <Accordion id="accordion">
+                        <AccordionPanel>
+                            <AccordionHeader>
+                                <div class="header-data-accordion">
+                                    <font-awesome-icon icon="list-ul" />
+                                    <span>Popis kategorija emisija</span>
+                                </div>
+                            </AccordionHeader>
+                            <AccordionContent>
+                                <Accordion multiple class="categories-accordion" :value="[]">
+                                    <AccordionPanel v-for="category in nodes" :key="category.key" :value="category.key"
+                                        class="acc-tab"
+                                        :class="{ 'selected-category': selectedCategoryKeys.includes(category.key) }">
+                                        <template #header>
+                                            <span style="font-size: 16px;">{{ category.ukt_naziv }}</span>
+                                        </template>
+                                        <AccordionHeader
+                                            :class="{ 'selected-category': selectedCategoryKeys.includes(category.key) }">
+                                            {{ category.ukt_naziv }}
+                                        </AccordionHeader>
+                                        <AccordionContent
+                                            :class="{ 'selected-category': selectedCategoryKeys.includes(category.key) }">
+                                            <div class="category-header">
+                                                <Checkbox v-model="selectedCategoryKeys"
+                                                    :input-id="'checkbox-' + category.key" :value="category.key"
+                                                    name="categories"
+                                                    @update:model-value="toggleChildCategories(category, $event)" />
+                                                <label :for="'checkbox-' + category.key">Relevantno</label>
+                                            </div>
+                                            <p class="category-description">{{ category.ukt_opis }}</p>
+                                            <!-- Child kategorije -->
+                                            <Accordion v-if="category.children && category.children.length > 0" multiple
+                                                :value="[]" class="categories-accordion">
+                                                <AccordionPanel v-for="child in category.children" :key="child.key"
+                                                    :value="child.key"
+                                                    :class="{ 'selected-category': selectedCategoryKeys.includes(child.key) }">
+                                                    <template #header>
+                                                        <span style="font-size: 16px;">{{ child.ukt_naziv }}</span>
+                                                    </template>
+                                                    <AccordionHeader>{{ child.ukt_naziv }}</AccordionHeader>
+                                                    <AccordionContent :class="$style.acc_content">
+                                                        <div class="category-header">
+                                                            <Checkbox v-model="selectedCategoryKeys"
+                                                                :input-id="'checkbox-' + child.key" :value="child.key"
+                                                                name="categories" />
+                                                            <label :for="'checkbox-' + child.key">Relevantno</label>
+                                                        </div>
+                                                        <p class="category-description">{{ child.ukt_opis }}</p>
+                                                    </AccordionContent>
+                                                </AccordionPanel>
+                                            </Accordion>
+                                        </AccordionContent>
+                                    </AccordionPanel>
+                                </Accordion>
+                            </AccordionContent>
+                        </AccordionPanel>
+                    </Accordion>
+                </section>
+
             </div>
         </main>
     </div>
@@ -409,6 +410,7 @@ section.accordion {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    border-radius: 5px;
 }
 
 .p-accordionheader {
@@ -459,11 +461,13 @@ section.accordion {
 }
 
 section.title {
-    grid-column: 1/3;
-
     display: flex;
     flex-direction: column;
     gap: 10px;
+
+    padding: 0px;
+    margin: 0px;
+    height: auto;
 }
 
 section.title>div {
@@ -501,6 +505,10 @@ section.sidebar>.sidebar-content {
 section.view {
     /* outline: auto; */
     border-radius: 5px;
+}
+
+:deep(.p-accordioncontent-content) {
+    background: none !important;
 }
 
 .p-tabs.p-component.tab-view {

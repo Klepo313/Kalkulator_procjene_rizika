@@ -8,14 +8,13 @@
                     <div>
                         <h2>Popis korisnika</h2>
                         <p>
-                            Odaberi partnera kojemu želiš izmjeniti podatke ili ga ukloniti iz sustava
-                            aplikacije. <br>
+                            Popis korisnika koji su zabilježeni u sustavu. <br>
                             Tko je partner, a tko korisnik? <u style="font-style: italic; cursor: pointer;">Pročitaj
                                 ovdje</u>.
                         </p>
                     </div>
                     <div class="datatable">
-                        <DataTable v-model:filters="filters" v-model:expandedRowGroups="expandedGroups"
+                        <DataTable v-model:filters="filters" v-model:expanded-row-groups="expandedGroups"
                             :value="korisnici" row-group-mode="subheader" expandable-row-groups group-rows-by="tvrtka"
                             scrollable scroll-height="800px" :rows="10" :sort-order="1" filter-display="row"
                             :loading="loading" removable-sort table-style="min-width: 50rem"
@@ -68,16 +67,28 @@
                                         @input="filterCallback()" />
                                 </template>
                             </Column> -->
-                            <Column header="Ime i prezime" filter-field="ime" style="min-width: 12rem">
+                            <Column header="Ime" filter-field="ime" style="min-width: 14rem">
                                 <template #body="{ data }">
                                     <div style="display: flex; gap: 8px; align-items: center;">
                                         <font-awesome-icon icon="user-circle" size="lg" />
-                                        <span>{{ data.ime + " " + data.prezime }}</span>
+                                        <span>{{ data.ime }}</span>
                                     </div>
                                 </template>
                                 <template #filter="{ filterModel, filterCallback }">
                                     <InputText v-model="filterModel.value" type="text" placeholder="Pretraži po imenu"
                                         @input="filterCallback()" />
+                                </template>
+                            </Column>
+                            <Column header="Prezime" filter-field="prezime" style="min-width: 14rem">
+                                <template #body="{ data }">
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <font-awesome-icon icon="user-circle" size="lg" />
+                                        <span>{{ data.prezime }}</span>
+                                    </div>
+                                </template>
+                                <template #filter="{ filterModel, filterCallback }">
+                                    <InputText v-model="filterModel.value" type="text"
+                                        placeholder="Pretraži po prezimenu" @input="filterCallback()" />
                                 </template>
                             </Column>
 
@@ -122,194 +133,340 @@
                         </DataTable>
 
                         <Dialog v-model:visible="editKorisnikDialog" header="Uredi korisnika" :modal="true"
-                            :style="{ width: '450px' }" @hide="resetOdabraniKorisnik">
+                            :style="{ width: '1000px' }" @hide="resetOdabraniKorisnik">
                             <template #header>
                                 <div class="dialog-header">
-                                    <font-awesome-icon icon="user-pen" />
+                                    <!-- <font-awesome-icon icon="user-pen" /> -->
                                     <span>Uredi korisnika</span>
                                 </div>
                             </template>
                             <Form v-slot="$form" :resolver="resolver" :initial-values="initialValues" class="p-fluid"
                                 @submit.prevent="saveKorisnik">
-                                <div class="section">
-                                    <div class="field-heading">
-                                        <h2 class="p-text-bold">Podaci o korisniku</h2>
-                                        <p>Izmjeni podatake o korisniku</p>
-                                    </div>
-                                    <div class="field field-split">
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="user" />
-                                                <label for="ime">Ime</label>
+                                <div class="left-form">
+                                    <div class="section">
+                                        <div class="field-heading">
+                                            <h2 class="p-text-bold">Podaci o korisniku</h2>
+                                            <p>Izmjeni podatake o korisniku</p>
+                                        </div>
+                                        <div class="field field-split">
+                                            <div>
+                                                <div class="label-container">
+                                                    <font-awesome-icon icon="user" />
+                                                    <label for="ime">Ime</label>
+                                                </div>
+                                                <InputText id="ime" v-model="odabraniKorisnik.ime"
+                                                    placeholder="Ime korisnika" readonly required />
                                             </div>
-                                            <InputText id="ime" v-model="odabraniKorisnik.ime"
-                                                placeholder="Ime korisnika" readonly required />
-                                        </div>
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="user" />
-                                                <label for="prezime">Prezime</label>
+                                            <div>
+                                                <div class="label-container">
+                                                    <font-awesome-icon icon="user" />
+                                                    <label for="prezime">Prezime</label>
+                                                </div>
+                                                <InputText id="prezime" v-model="odabraniKorisnik.prezime"
+                                                    placeholder="Prezime korisnika" readonly required />
                                             </div>
-                                            <InputText id="prezime" v-model="odabraniKorisnik.prezime"
-                                                placeholder="Prezime korisnika" readonly required />
+                                        </div>
+                                        <div class="field">
+                                            <div class="label-container">
+                                                <font-awesome-icon icon="building" />
+                                                <label for="tvrtka">Tvrtka</label>
+                                            </div>
+                                            <InputText id="tvrtka" v-model="odabraniKorisnik.tvrtka"
+                                                placeholder="Tvrtka korisnika" readonly required />
+                                        </div>
+                                        <div class="field">
+                                            <div class="label-container">
+                                                <font-awesome-icon icon="building-circle-arrow-right" />
+                                                <label for="tvrtka_usluge">Tvrtka usluge</label>
+                                            </div>
+                                            <InputText id="tvrtka_usluge" v-model="odabraniKorisnik.tvrtka_usluge"
+                                                placeholder="Tvrtka usluge korisnika" readonly required />
                                         </div>
                                     </div>
-                                    <div class="field">
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="building" />
-                                            <label for="tvrtka">Tvrtka</label>
+                                    <hr>
+                                    <div class="section">
+                                        <div class="field-heading">
+                                            <h2 class="p-text-bold">Pristupni podaci korisnika</h2>
+                                            <p>Izmjeni pristupne podatke korisnika za prijavu u aplikaciju</p>
                                         </div>
-                                        <InputText id="tvrtka" v-model="odabraniKorisnik.tvrtka"
-                                            placeholder="Tvrtka korisnika" readonly required />
-                                    </div>
-                                    <div class="field">
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="building-circle-arrow-right" />
-                                            <label for="tvrtka_usluge">Tvrtka usluge</label>
+                                        <div class="field-split">
+                                            <div>
+                                                <div class="label-container">
+                                                    <font-awesome-icon icon="clipboard-user" />
+                                                    <label for="korime">Korisničko ime</label>
+                                                    <button id="reset" class="resetBtn" type="reset"
+                                                        @click="updateKorime">
+                                                        <font-awesome-icon icon="rotate-right" class="button-icon" />
+                                                    </button>
+                                                </div>
+                                                <InputText id="korime" v-model="odabraniKorisnik.korime" name="username"
+                                                    placeholder="Korisničko ime korisnika" required />
+                                            </div>
+                                            <div>
+                                                <div class="label-container">
+                                                    <font-awesome-icon icon="lock" />
+                                                    <label for="lozinka">Lozinka</label>
+                                                    <button id="reset" class="resetBtn" type="reset"
+                                                        @click="updateLozinka">
+                                                        <font-awesome-icon icon="rotate-right" class="button-icon" />
+                                                    </button>
+                                                </div>
+                                                <Password id="lozinka" v-model="odabraniKorisnik.lozinka"
+                                                    name="password" :feedback="false" toggle-mask fluid
+                                                    placeholder="Lozinka korisnika" type="password" required />
+                                                <template v-if="$form.password?.invalid">
+                                                    <Message v-for="(error, index) of $form.password.errors"
+                                                        :key="index" severity="error" size="small" variant="simple">{{
+                                                            error.message }}
+                                                    </Message>
+                                                </template>
+                                            </div>
                                         </div>
-                                        <InputText id="tvrtka_usluge" v-model="odabraniKorisnik.tvrtka_usluge"
-                                            placeholder="Tvrtka usluge korisnika" readonly required />
+                                        <!-- <div class="field-buttons">
+                                            <button id="reset" class="resetBtn fieldSaveBtn" type="reset"
+                                                @click="resetodabraniKorisnik">
+                                                <font-awesome-icon icon="save" />
+                                                Spremi
+                                            </button>
+                                        </div> -->
                                     </div>
+                                    <hr>
+                                    <div class="section">
+                                        <div class="field-heading">
+                                            <h2 class="p-text-bold">Postavke korisničkog računa</h2>
+                                            <p>Izmijeni raspon trajanja korisničkog računa</p>
+                                        </div>
+                                        <div class="field-split">
+                                            <div>
+                                                <div class="label-container">
+                                                    <font-awesome-icon icon="calendar-plus" />
+                                                    <label for="datod">Vrijedi od</label>
+                                                </div>
+                                                <DatePicker id="datod" v-model="odabraniKorisnik.vrijeme_od" show-icon
+                                                    fluid icon-display="input" input-id="odabraniKorisnik.vrijeme_od"
+                                                    date-format="dd.mm.yy" placeholder="Vrijedi od" required />
+                                            </div>
+                                            <div>
+                                                <div class="label-container">
+                                                    <font-awesome-icon icon="calendar-plus" />
+                                                    <label for="datdo">Vrijedi do</label>
+                                                </div>
+                                                <DatePicker id="datdo" v-model="odabraniKorisnik.vrijeme_do" show-icon
+                                                    fluid icon-display="input" input-id="odabraniKorisnik.vrijeme_do"
+                                                    date-format="dd.mm.yy" placeholder="Vrijedi do" />
+                                            </div>
+                                        </div>
+                                        <div class="field status-field">
+                                            <span>Status: </span>
+                                            <span>
+                                                <Tag :value="odabraniKorisnik.status"
+                                                    :severity="getSeverity(odabraniKorisnik.status)" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <hr>
                                 </div>
-                                <hr>
-                                <div class="section">
-                                    <div class="field-heading">
-                                        <h2 class="p-text-bold">Pristupni podaci korisnika</h2>
-                                        <p>Izmjeni pristupne podatke korisnika za prijavu u aplikaciju</p>
-                                    </div>
-                                    <div class="field-split">
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="clipboard-user" />
-                                                <label for="korime">Korisničko ime</label>
-                                                <button id="reset" class="resetBtn" type="reset" @click="updateKorime">
-                                                    <font-awesome-icon icon="rotate-right" class="button-icon" />
-                                                </button>
-                                            </div>
-                                            <InputText id="korime" name="username" v-model="odabraniKorisnik.korime"
-                                                placeholder="Korisničko ime korisnika" readonly required />
+                                <!-- <hr> -->
+                                <div class="right-form">
+                                    <div class="section">
+                                        <div class="field-heading">
+                                            <h2 class="p-text-bold">Prava korisnika</h2>
+                                            <p>Izmjeni prava korisnika na korištenje aplikacija te prava unutar
+                                                aplikacija
+                                            </p>
                                         </div>
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="lock" />
-                                                <label for="lozinka">Lozinka</label>
-                                                <button id="reset" class="resetBtn" type="reset" @click="updateLozinka">
-                                                    <font-awesome-icon icon="rotate-right" class="button-icon" />
-                                                </button>
-                                            </div>
-                                            <Password id="lozinka" v-model="odabraniKorisnik.lozinka" name="password"
-                                                :feedback="false" toggleMask fluid placeholder="Lozinka korisnika"
-                                                type="password" readonly required />
-                                            <template v-if="$form.password?.invalid">
-                                                <Message v-for="(error, index) of $form.password.errors" :key="index"
-                                                    severity="error" size="small" variant="simple">{{ error.message }}
-                                                </Message>
-                                            </template>
-                                        </div>
-                                    </div>
-                                    <!-- <div class="field-buttons">
-                                        <button id="reset" class="resetBtn fieldSaveBtn" type="reset"
-                                            @click="resetodabraniKorisnik">
-                                            <font-awesome-icon icon="save" />
-                                            Spremi
-                                        </button>
-                                    </div> -->
-                                </div>
-                                <hr>
-                                <div class="section">
-                                    <div class="field-heading">
-                                        <h2 class="p-text-bold">Postavke korisničkog računa</h2>
-                                        <p>Izmijeni raspon trajanja korisničkog računa</p>
-                                    </div>
-                                    <div class="field-split">
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="calendar-plus" />
-                                                <label for="datod">Vrijedi od</label>
-                                            </div>
-                                            <DatePicker id="datod" v-model="odabraniKorisnik.vrijeme_od" show-icon fluid
-                                                icon-display="input" input-id="odabraniKorisnik.vrijeme_od"
-                                                date-format="dd.mm.yy" placeholder="Vrijedi od" required />
-                                        </div>
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="calendar-plus" />
-                                                <label for="datdo">Vrijedi do</label>
-                                            </div>
-                                            <DatePicker id="datdo" v-model="odabraniKorisnik.vrijeme_do" show-icon fluid
-                                                icon-display="input" input-id="odabraniKorisnik.vrijeme_do"
-                                                date-format="dd.mm.yy" placeholder="Vrijedi do" />
-                                        </div>
-                                    </div>
-                                    <div class="field status-field">
-                                        <span>Status: </span>
-                                        <span>
-                                            <Tag :value="odabraniKorisnik.status"
-                                                :severity="getSeverity(odabraniKorisnik.status)" />
-                                        </span>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="section">
-                                    <div class="field-heading">
-                                        <h2 class="p-text-bold">Prava korisnika</h2>
-                                        <p>Izmjeni prava korisnika na korištenje aplikacija te prava unutar aplikacija
-                                        </p>
-                                    </div>
-                                    <Accordion value="0">
-                                        <AccordionPanel value="0">
-                                            <AccordionHeader class="acc-header">
-                                                <Checkbox value="1" />
-                                                <span class="acc-header-title">
-                                                    <img src="../../../public/static/images/kpkr_logo_slim.svg"
-                                                        alt="kpkr_logo">
-                                                    <span class="acc-header-title-text">Kalkulator procjene klimatskih
-                                                        rizika</span>
-                                                </span>
-                                            </AccordionHeader>
-                                            <AccordionContent>
-                                                <p class="m-0">
-                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                                                    eiusmod tempor incididunt ut
-                                                    labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                                    exercitation ullamco
-                                                    laboris nisi ut aliquip ex ea commodo
-                                                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit
-                                                    esse cillum dolore eu
-                                                    fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-                                                    proident, sunt in culpa qui
-                                                    officia deserunt mollit anim id est laborum.
-                                                </p>
-                                            </AccordionContent>
-                                        </AccordionPanel>
 
-                                        <AccordionPanel value="1">
-                                            <AccordionHeader class="acc-header">
-                                                <Checkbox value="2" />
-                                                <span class="acc-header-title">
+                                        <div class="section prava">
+                                            <div class="prava-field">
+                                                <Checkbox v-model="prava" input-id="kpkr" value="kpkr" />
+                                                <label for="kpkr" class="prava-field-label">
+                                                    <img src="/static/images/kpkr_logo_slim.svg" alt="kpkr_logo">
+                                                    Kalkulator procjene klimatskih rizika
+                                                </label>
+                                            </div>
+
+                                            <div class="prava-field">
+                                                <Checkbox v-model="prava" input-id="kesp" value="kesp" />
+                                                <label for="kesp" class="prava-field-label">
                                                     <img src="../../../public/static/images/kesp_logo_slim.svg"
-                                                        alt="kesp">
-                                                    <span class="acc-header-title-text">Kalkulator emisija stakleničkih
-                                                        plinova</span>
-                                                </span>
+                                                        alt="kesp_logo">
+                                                    Kalkulator emisija stakleničkih plinova
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <Accordion :value="openedAccordionPanels" multiple>
+                                            <AccordionPanel v-if="prava.includes('kpkr')" value="kpkr" class="acc-kpkr">
+                                                <AccordionHeader class="acc-header">
+                                                    <!-- <Checkbox value="1" /> -->
+                                                    <span class="acc-header-title">
+                                                        <img src="../../../public/static/images/kpkr_logo_slim.svg"
+                                                            alt="kpkr_logo">
+                                                        <span class="acc-header-title-text">Kalkulator procjene
+                                                            klimatskih
+                                                            rizika</span>
+                                                    </span>
+                                                </AccordionHeader>
+                                                <AccordionContent :class="$style.acc_content" class="acc-content">
+                                                    <div class="content-field">
+                                                        <div class="field-head">
+                                                            <h2>Prava na vrstu izračuna</h2>
+                                                            <font-awesome-icon icon="info-circle"
+                                                                class="field-head-icon" />
+                                                        </div>
+                                                        <div class="field-content">
+                                                            <div class="hr-column">
+                                                                <hr>
+                                                            </div>
+                                                            <div class="data-column">
+                                                                <div class="checkbox-field">
+                                                                    <Checkbox v-model="vrsteIzracuna" input-id="IM"
+                                                                        value="IM" />
+                                                                    <label for="IM">
+                                                                        Imovina
+                                                                    </label>
+                                                                </div>
+                                                                <div class="checkbox-field">
+                                                                    <Checkbox v-model="vrsteIzracuna" input-id="DJ"
+                                                                        value="DJ" />
+                                                                    <label for="DJ">
+                                                                        Djelatnost
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="content-field">
+                                                        <div class="field-head">
+                                                            <h2>Prava na mogućnosti izračuna rizika</h2>
+                                                            <font-awesome-icon icon="info-circle"
+                                                                class="field-head-icon" />
+                                                        </div>
+                                                        <div class="field-content">
+                                                            <div class="hr-column">
+                                                                <hr>
+                                                            </div>
+                                                            <div class="data-column">
+                                                                <div class="checkbox-field">
+                                                                    <RadioButton v-model="vrsteRizika" input-id="KO"
+                                                                        value="KO"
+                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.vrstaRizika === 'KO'" />
+                                                                    <label for="KO">
+                                                                        Samo po katastarskim općinama
+                                                                    </label>
+                                                                </div>
+                                                                <div class="checkbox-field">
+                                                                    <RadioButton v-model="vrsteRizika" input-id="KOC"
+                                                                        value="KOC"
+                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.vrstaRizika === 'KOC'" />
+                                                                    <label for="KOC">
+                                                                        Po katastarskim općinama i česticama
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="content-field">
+                                                        <div class="field-head">
+                                                            <h2>Prava na vrstu imovine</h2>
+                                                            <font-awesome-icon icon="info-circle"
+                                                                class="field-head-icon" />
+                                                        </div>
+                                                        <div class="field-content">
+                                                            <div class="hr-column">
+                                                                <hr>
+                                                            </div>
+                                                            <div class="data-column">
+                                                                <div class="checkbox-field">
+                                                                    <Checkbox v-model="vrsteImovine" input-id="PO"
+                                                                        value="PO"
+                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.vrstaImovine.includes('PO')" />
+                                                                    <label for="PO">
+                                                                        Prostor ili objekt
+                                                                    </label>
+                                                                </div>
+                                                                <div class="checkbox-field">
+                                                                    <Checkbox v-model="vrsteImovine" input-id="GZ"
+                                                                        value="GZ"
+                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.vrstaImovine.includes('GZ')" />
+                                                                    <label for="GZ">
+                                                                        Građevinsko zemljište
+                                                                    </label>
+                                                                </div>
+                                                                <div class="checkbox-field">
+                                                                    <Checkbox v-model="vrsteImovine" input-id="PZ"
+                                                                        value="PZ"
+                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.vrstaImovine.includes('PZ')" />
+                                                                    <label for="PZ">
+                                                                        Poljoprivredno zemljište
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="content-field">
+                                                        <div class="field-head">
+                                                            <h2>Prava na odabir klimatskog scenarija</h2>
+                                                            <font-awesome-icon icon="info-circle"
+                                                                class="field-head-icon" />
+                                                        </div>
+                                                        <div class="field-content">
+                                                            <div class="hr-column">
+                                                                <hr>
+                                                            </div>
+                                                            <div class="data-column">
+                                                                <div class="checkbox-field">
+                                                                    <Checkbox v-model="scenariji" input-id="RCP"
+                                                                        value="RCP" name="scenariji"
+                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.scenariji.includes('RCP')" />
+                                                                    <label for="RCP">
+                                                                        RCP
+                                                                    </label>
+                                                                </div>
+                                                                <div class="checkbox-field">
+                                                                    <Checkbox v-model="scenariji" input-id="SSP"
+                                                                        value="SSP" name="scenariji"
+                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.scenariji.includes('SSP')" />
+                                                                    <label for="SSP">
+                                                                        SSP
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </AccordionContent>
+                                            </AccordionPanel>
 
-                                            </AccordionHeader>
-                                            <AccordionContent>
-                                                <p class="m-0">
-                                                    Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-                                                    accusantium doloremque
-                                                    laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore
-                                                    veritatis et quasi
-                                                    architecto beatae vitae dicta sunt explicabo. Nemo enim
-                                                    ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit,
-                                                    sed quia consequuntur
-                                                    magni dolores eos qui ratione voluptatem sequi nesciunt.
-                                                    Consectetur, adipisci velit, sed
-                                                    quia non numquam eius modi.
-                                                </p>
-                                            </AccordionContent>
-                                        </AccordionPanel>
-                                    </Accordion>
+                                            <AccordionPanel v-if="prava.includes('kesp')" value="kesp">
+                                                <AccordionHeader class="acc-header">
+                                                    <!-- <Checkbox value="2" /> -->
+                                                    <span class="acc-header-title">
+                                                        <img src="../../../public/static/images/kesp_logo_slim.svg"
+                                                            alt="kesp">
+                                                        <span class="acc-header-title-text">Kalkulator emisija
+                                                            stakleničkih
+                                                            plinova</span>
+                                                    </span>
+
+                                                </AccordionHeader>
+                                                <AccordionContent>
+                                                    <p class="m-0">
+                                                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem
+                                                        accusantium doloremque
+                                                        laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore
+                                                        veritatis et quasi
+                                                        architecto beatae vitae dicta sunt explicabo. Nemo enim
+                                                        ipsam voluptatem quia voluptas sit aspernatur aut odit aut
+                                                        fugit,
+                                                        sed quia consequuntur
+                                                        magni dolores eos qui ratione voluptatem sequi nesciunt.
+                                                        Consectetur, adipisci velit, sed
+                                                        quia non numquam eius modi.
+                                                    </p>
+                                                </AccordionContent>
+                                            </AccordionPanel>
+                                        </Accordion>
+                                    </div>
                                 </div>
                                 <div class="section footer">
                                     <button class="p-button p-component p-button-secondary"
@@ -321,7 +478,7 @@
                             </Form>
                         </Dialog>
 
-                        <Dialog v-model:visible="deleteKorisnikaDialog" :style="{ width: '450px' }"
+                        <Dialog v-model:visible="deleteKorisnikaDialog" :style="{ width: '450px', padding: '26px' }"
                             header="Ukloni korisnika" :modal="true">
                             <div class="flex items-center gap-4">
                                 <i class="pi pi-exclamation-triangle !text-3xl" />
@@ -341,6 +498,197 @@
 
                     </div>
                 </section>
+                <section>
+                    <div>
+                        <h2>Popis partnera</h2>
+                        <p>
+                            Popis partnera koji se mogu dodati kao korisnici sustava. <br>
+                            Parner može biti ili fizička ili pravna osoba.
+                        </p>
+                    </div>
+                    <div class="select-container">
+                        <SelectButton v-model="selectPartneriValue" :options="partneriOptions" option-label="naziv" />
+                    </div>
+                    <div class="datatable">
+                        <Toolbar class="mb-6" style="display: flex; gap: 5px;">
+                            <template #start>
+                                <button class="dodaj-btn" :disabled="!odabraniPartner" @click="addKorisnik">
+                                    <font-awesome-icon icon="plus" />
+                                    Dodaj korisnika
+                                </button>
+                            </template>
+                            <template #end>
+                                <!-- <button class="edit-btn" :disabled="!selectedVozilo" @click="enableEdit">
+                                    <font-awesome-icon icon="pen-to-square" /> Uredi vozilo
+                                </button> -->
+                                <button class="dodaj-partnera-btn" @click="addPartner">
+                                    <font-awesome-icon icon="user-plus" /> Dodaj partnera
+                                </button>
+                            </template>
+                        </Toolbar>
+                        <DataTable v-if="selectPartneriValue.label == 'FIZ'" v-model:filters="filterFizicke"
+                            v-model:selection="odabraniPartner" :value="partneri.fizickeOsobe" :rows="10" data-key="id"
+                            selection-mode="single" scrollable scroll-height="400px"
+                            :global-filter-fields="['ime', 'prezime', 'oib', 'email', 'telefon']" :loading="loading"
+                            removable-sort table-style="min-width: 50rem">
+
+                            <template #header>
+                                <div class="flex justify-end">
+                                    <IconField>
+                                        <InputIcon>
+                                            <font-awesome-icon icon="search" />
+                                        </InputIcon>
+                                        <InputText v-model="filterFizicke['global'].value"
+                                            placeholder="Pretraži fizičke partnere" />
+                                    </IconField>
+                                </div>
+                            </template>
+                            <template #empty> Nema korisnika. </template>
+                            <template #loading> Učitavanje fizičkih osoba. Molimo pričekajte. </template>
+                            <template #footer>
+                                <div class="total-emissions">
+                                    Ukupno korisnika: <strong>{{ partneri.fizickeOsobe.length }}</strong>
+                                </div>
+                            </template>
+                            <Column header="#" header-style="width:3rem">
+                                <template #body="slotProps">
+                                    {{ slotProps.index + 1 }}
+                                </template>
+                            </Column>
+                            <Column field="ime" header="Ime" />
+                            <Column field="prezime" header="Prezime" />
+                            <Column field="oib" header="OIB" />
+                            <Column field="email" header="Email">
+                                <template #body="slotProps">
+                                    {{ slotProps.data.email || '--' }}
+                                </template>
+                            </Column>
+                            <Column field="telefon" header="Telefon" />
+
+                        </DataTable>
+
+                        <DataTable v-if="selectPartneriValue.label == 'PRV'" v-model:filters="filterPravne"
+                            :value="partneri.pravneOsobe" :rows="10" data-key="id" selection-mode="single" scrollable
+                            scroll-height="400px"
+                            :global-filter-fields="['naziv_tvrtke', 'oib_tvrtke', 'adresa', 'mjesto', 'vlasnik']"
+                            :loading="loading" removable-sort table-style="min-width: 50rem">
+                            <template #header>
+                                <div class="flex justify-end">
+                                    <IconField>
+                                        <InputIcon>
+                                            <font-awesome-icon icon="search" />
+                                        </InputIcon>
+                                        <InputText v-model="filterPravne['global'].value"
+                                            placeholder="Pretraži pravne partnere" />
+                                    </IconField>
+                                </div>
+                            </template>
+                            <template #empty> Nema korisnika. </template>
+                            <template #loading> Učitavanje pravnih osoba. Molimo pričekajte. </template>
+                            <template #footer>
+                                <div class="total-emissions">
+                                    Ukupno korisnika: <strong>{{ partneri.pravneOsobe.length }}</strong>
+                                </div>
+                            </template>
+                            <Column header="#" header-style="width:3rem">
+                                <template #body="slotProps">
+                                    {{ slotProps.index + 1 }}
+                                </template>
+                            </Column>
+                            <Column field="naziv_tvrtke" header="Naziv tvrtke" />
+                            <Column field="oib_tvrtke" header="OIB tvrtke" />
+                            <Column field="vlasnik" header="Vlasnik tvrtke" />
+                            <Column field="adresa" header="Adresa" />
+                            <Column field="mjesto" header="Mjesto" />
+                        </DataTable>
+
+                    </div>
+
+                    <Dialog v-model:visible="openPartnerDialog" header="Uredi korisnika" :modal="true"
+                        :style="{ width: '500px' }" @hide="resetPartnerDialog">
+                        <template #header>
+                            <div class="dialog-header">
+                                <!-- <font-awesome-icon icon="user-pen" /> -->
+                                <span>Dodaj partnera</span>
+                            </div>
+                        </template>
+                        <Form v-slot="$form_partner" :resolver="resolver" :initial-values="initialValues"
+                            class="p-fluid-partner" @submit.prevent="savePartner">
+                            <div class="fiz-form"> <!--v-if="selectPartneriValue.label == 'FIZ'"-->
+                                <div class="section">
+                                    <div class="field-heading">
+                                        <h2 class="p-text-bold">Podaci o korisniku</h2>
+                                        <p>Izmjeni podatake o korisniku</p>
+                                    </div>
+                                    <div class="field field-split">
+                                        <div>
+                                            <div class="label-container">
+                                                <font-awesome-icon icon="user" />
+                                                <label for="ime">Ime</label>
+                                            </div>
+                                            <InputText id="ime" v-model="tempFizPartner.ime" placeholder="Ime korisnika"
+                                                readonly required />
+                                        </div>
+                                        <div>
+                                            <div class="label-container">
+                                                <font-awesome-icon icon="user" />
+                                                <label for="prezime">Prezime</label>
+                                            </div>
+                                            <InputText id="prezime" v-model="tempFizPartner.prezime"
+                                                placeholder="Prezime korisnika" readonly required />
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <div class="label-container">
+                                            <font-awesome-icon icon="address-card" />
+                                            <label for="oib">OIB</label>
+                                        </div>
+                                        <InputOtp id="oib" v-model="tempFizPartner.oib" integer-only readonly
+                                            required />
+                                    </div>
+                                    <div class="field">
+                                        <div class="label-container">
+                                            <font-awesome-icon icon="building" />
+                                            <label for="tvrtka">Tvrtka</label>
+                                        </div>
+                                        <InputText id="tvrtka" v-model="tempFizPartner.tvrtka"
+                                            placeholder="Tvrtka korisnika" readonly required />
+                                    </div>
+                                    <div class="field field-split">
+                                        <div>
+                                            <div class="label-container">
+                                                <font-awesome-icon icon="email" />
+                                                <label for="email">Email</label>
+                                            </div>
+                                            <InputText id="email" v-model="tempFizPartner.email"
+                                                placeholder="Ime korisnika" readonly required />
+                                            <Message v-if="$form_partner.email?.invalid" severity="error" size="small"
+                                                variant="simple">
+                                                {{ $form_partner.email.error?.message }}</Message>
+                                        </div>
+                                        <div>
+                                            <div class="label-container">
+                                                <font-awesome-icon icon="phone" />
+                                                <label for="telefon">Kontakt telefon</label>
+                                            </div>
+                                            <InputOtp v-model="tempFizPartner.telefon" :length="10" style="gap: 0">
+                                                <template #default="{ attrs, events, index }">
+                                                    <input type="text" v-bind="attrs" v-on="events"
+                                                        class="custom-otp-input" />
+                                                    <div v-if="index === 3" class="px-4">
+                                                        /
+                                                    </div>
+                                                </template>
+                                            </InputOtp>
+                                            <!-- <InputText id="telefon" v-model="tempFizPartner.telefon"
+                                                placeholder="Kontakt telefon" readonly required /> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Form>
+                    </Dialog>
+                </section>
             </div>
         </main>
         <footer />
@@ -359,7 +707,9 @@ definePageMeta({
 });
 
 const odabraniKorisnik = ref(null);
+const odabraniPartner = ref();
 const editKorisnikDialog = ref(false);
+const openPartnerDialog = ref(false);
 const deleteKorisnikaDialog = ref(false);
 const loading = ref();
 const expandedGroups = ref([]);
@@ -390,21 +740,90 @@ const resolver = ref();
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     ime: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    prezime: { value: null, matchMode: FilterMatchMode.CONTAINS },
     tvrtka: { value: null, matchMode: FilterMatchMode.CONTAINS },
     tvrtka_usluge: { value: null, matchMode: FilterMatchMode.CONTAINS },
     status: { value: null, matchMode: 'equals' },
 });
+const filterFizicke = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    ime: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    prezime: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    oib: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    email: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    telefon: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    status: { value: null, matchMode: 'equals' },
+});
+const filterPravne = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    naziv_tvrtke: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    oib_tvrtke: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    adresa: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    mjesto: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    zupanija: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
 
+const selectPartneriValue = ref({
+    label: 'FIZ',
+    naziv: 'Fizički partneri'
+});
+const partneriOptions = ref([
+    {
+        label: 'FIZ',
+        naziv: 'Fizički partneri'
+    },
+    {
+        label: 'PRV',
+        naziv: 'Pravni partneri',
+    }
+]);
+
+// const imena = ['Ivan', 'Marko', 'Antonio', 'Tin', 'Ivan', 'Juraj', 'Šime', 'Pero', 'Ante', 'Stjepan', 'Zeko peder'];
+// const prezimena = ['Klepo', 'Melvan', 'Božić', 'Zec', 'Sanader', 'Vrdoljak', 'Delić', 'Omašić', 'Ćurković'];
 const imena = ['Ivan', 'Marko', 'Josip', 'Petar', 'Slavko', 'Antonio', 'Mehmedaga', 'Jusuf', 'Izet', 'Stjepan'];
 const prezimena = ['Jonjić', 'Slavuj', 'Bigec', 'Krstić', 'Mujkić', 'Hađičumbrović', 'Koliker'];
 const tvrtke = ['Digitalna Inovacija', 'Kreativna Rješenja', 'Globalna Tehnologija', 'Inovativni Servisi', 'Tehno Eksperti', 'Digitalni Horizonti'];
 const tvrtke_usluge = ['Pametne Solucije', 'Inovativna Tehnologija', 'Tehno Partneri', 'Digitalni Lideri', 'Tehno Rješenja', 'Pametni Sistemi', 'Inovativni Projekti', 'Tehno Uspon', 'Digitalni Servisi', 'Tehno Inovacije', 'Pametni Projekti'];
 const statuses = ref(['Aktivan', 'Neaktivan', 'Na čekanju', 'Odbijen']);
+const adrese = ['Ulica 1', 'Ulica 2', 'Ulica 3'];
+const mjesta = ['Zagreb', 'Split', 'Rijeka', 'Osijek'];
+const zupanije = ['Grad Zagreb', 'Splitsko-dalmatinska', 'Primorsko-goranska', 'Osječko-baranjska'];
+const postanskiBrojevi = ['10000', '21000', '51000', '31000'];
+
+const generirajOIB = () => String(Math.floor(10000000000 + Math.random() * 90000000000));
+const generirajLozinku = () => Math.random().toString(36).slice(-8);
+const generirajTelefon = () => `09${Math.floor(10000000 + Math.random() * 90000000)}`;
 
 const korisnici = ref([]);
+const brojKorisnika = 50; // Broj korisnika za generiranje
+const partneri = ref(populatePartneri());
+const brojPartnera = 50;
 
-const brojKorisnika = 100; // Broj korisnika za generiranje
+const tempFizPartner = ref({
+    // id: partneri.value?.length > 0 
+    //     ? partneri.value[partneri.value.length - 1].id + 1 
+    //     : null,
+    id: null,
+    ime: '',
+    prezime: '',
+    oib: null,
+    tvrtka: '',
+    telefon: null,
+    email: '',
+})
+
+// 'ime', 'prezime', 'oib', 'email' , 'telefon'
+// 'naziv_tvrtke', 'oib_tvrtke', 'adresa', 'mjesto'
+
 const sada = new Date();
+
+const prava = ref([]);
+const vrsteIzracuna = ref([]);
+const vrsteRizika = ref(null);
+const vrsteImovine = ref([]);
+const scenariji = ref([]);
+
+const openedAccordionPanels = ref(['0']); // Početno otvoren prvi panel
 
 onMounted(() => {
     populateUsers();
@@ -419,11 +838,11 @@ const populateUsers = () => {
 
         // Generiraj random datume za vrijeme_od i vrijeme_do
         const vrijemeOdDate = new Date(sada.getTime() - Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 365)); // unatrag godinu dana
-        vrijemeOdDate.setHours(0, 0, 0, 0); // Postavi vrijeme na 00:00:00
+        vrijemeOdDate.setHours(0, 0, 0, 0);
         const vrijemeOdFormatted = formatDateToDMY(vrijemeOdDate, '.');
 
         const vrijemeDoDate = new Date(vrijemeOdDate.getTime() + Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 365)); // do godinu dana od vrijeme_od
-        vrijemeDoDate.setHours(0, 0, 0, 0); // Postavi vrijeme na 00:00:00
+        vrijemeDoDate.setHours(0, 0, 0, 0);
         const vrijemeDoFormatted = formatDateToDMY(vrijemeDoDate, '.');
 
         // Odredi status na temelju vremena
@@ -458,12 +877,103 @@ const populateUsers = () => {
             vrijeme_do: vrijemeDoFormatted,
             korime,
             lozinka,
+            prava: [
+                {
+                    naziv: 'kpkr',
+                    status: true,
+                    vrstaIzracuna: (() => {
+                        const opcije = ['IM', 'DJ'].filter(() => Math.random() > 0.5);
+                        return opcije.length > 0 ? opcije : ['IM']; // Dodaj jednu podrazumevanu opciju ako je niz prazan
+                    })(),
+                    vrstaRizika: Math.random() > 0.5 ? 'KO' : 'KOC',
+                    vrstaImovine: (() => {
+                        const opcije = ['PO', 'PZ', 'GZ'].filter(() => Math.random() > 0.5);
+                        return opcije.length > 0 ? opcije : ['PO']; // Dodaj jednu podrazumevanu opciju ako je niz prazan
+                    })(),
+                    scenariji: (() => {
+                        const opcije = ['RCP', 'SSP'].filter(() => Math.random() > 0.5);
+                        return opcije.length > 0 ? opcije : ['RCP']; // Dodaj jednu podrazumevanu opciju ako je niz prazan
+                    })()
+                }
+            ]
+
+
         });
     }
 
     korisnici.value.sort((a, b) => a.tvrtka.localeCompare(b.tvrtka));
     console.log(korisnici.value);
-}
+};
+
+function populatePartneri() {
+    const fizickeOsobe = [];
+    const pravneOsobe = [];
+    const sada = new Date();
+
+    for (let i = 0; i < brojPartnera; i++) {
+        const jePravnaOsoba = Math.random() > 0.4; // 60% šanse za fizičku, 40% za pravnu
+
+        const oib = generirajOIB();
+
+        if (jePravnaOsoba) {
+            const nazivTvrtke = tvrtke[Math.floor(Math.random() * tvrtke.length)];
+            const adresa = adrese[Math.floor(Math.random() * adrese.length)];
+            const postanskiBroj = postanskiBrojevi[Math.floor(Math.random() * postanskiBrojevi.length)];
+            const mjesto = mjesta[Math.floor(Math.random() * mjesta.length)];
+            const zupanija = zupanije[Math.floor(Math.random() * zupanije.length)];
+
+            const ime = imena[Math.floor(Math.random() * imena.length)];
+            const prezime = prezimena[Math.floor(Math.random() * prezimena.length)];
+
+            const korimeBase = ukloniKvacicu(nazivTvrtke.toLowerCase().replace(/\s+/g, ''));
+            let korime = korimeBase;
+            let counter = 0;
+
+            while (pravneOsobe.some(p => p.korime === korime)) {
+                counter++;
+                korime = `${korimeBase}${counter.toString().padStart(2, '0')}`;
+            }
+
+            pravneOsobe.push({
+                id: i + 1,
+                naziv_tvrtke: nazivTvrtke,
+                oib_tvrtke: oib,
+                vlasnik: ime + ' ' + prezime,
+                adresa,
+                postanski_broj: postanskiBroj,
+                mjesto,
+                zupanija,
+            });
+        } else {
+            const ime = imena[Math.floor(Math.random() * imena.length)];
+            const prezime = prezimena[Math.floor(Math.random() * prezimena.length)];
+            const telefon = generirajTelefon();
+
+            const korimeBase = ukloniKvacicu(ime[0].toLowerCase() + prezime.toLowerCase());
+            let korime = korimeBase;
+            let counter = 0;
+
+            while (fizickeOsobe.some(p => p.korime === korime)) {
+                counter++;
+                korime = `${korimeBase}${counter.toString().padStart(2, '0')}`;
+            }
+
+            fizickeOsobe.push({
+                id: i + 1,
+                ime,
+                prezime,
+                oib,
+                tvrtka: tvrtke[Math.floor(Math.random() * tvrtke.length)],
+                telefon,
+                email: ime.slice(0, 1).toLowerCase() + prezime.toLowerCase() + '@gmail.com',
+            });
+        }
+    }
+
+    console.log({ fizickeOsobe, pravneOsobe });
+    return { fizickeOsobe, pravneOsobe };
+};
+
 
 const updateKorime = () => {
     // Generiraj korisničko ime
@@ -521,6 +1031,10 @@ const resetOdabraniKorisnik = () => {
     odabraniKorisnik.value = null; // Ako imate originalne podatke ili postavite prazne vrijednosti
 };
 
+const resetPartnerDialog = () => {
+    odabraniPartner.value = null;
+}
+
 const saveKorisnik = () => {
     // Spremite promjene u bazu podataka ili napravite potrebnu akciju
     // Npr. apiCallToUpdateKorisnik(odabraniKorisnik.value);
@@ -531,12 +1045,38 @@ const editKorisnik = (korisnik) => {
     if (korisnik) {
         console.log("Odabrani korisnik: ", korisnik);
         odabraniKorisnik.value = korisnik;
+
+        // Pristup pravima iz korisnika
+        const pravaData = odabraniKorisnik.value.prava || [];
+
+        // Ekstrakcija podataka
+        prava.value = pravaData.map(kor => kor.naziv); // Lista naziva prava
+        console.log("prava: ", prava.value.includes('kpkr'))
+        vrsteIzracuna.value = pravaData.find(kor => kor.naziv === 'kpkr')?.vrstaIzracuna || [];
+        vrsteRizika.value = pravaData.find(kor => kor.naziv === 'kpkr')?.vrstaRizika || null;
+        vrsteImovine.value = pravaData.find(kor => kor.naziv === 'kpkr')?.vrstaImovine || [];
+        scenariji.value = pravaData.find(kor => kor.naziv === 'kpkr')?.scenariji || [];
+
+        // Otvori dijalog za uređivanje korisnika
         editKorisnikDialog.value = true;
     }
 };
 
+const addPartner = () => {
+    openPartnerDialog.value = true;
+}
+
+watch(odabraniPartner, () => {
+
+})
+
 </script>
 
+<style module>
+/* .acc_content {
+    background-color: var(--bg-color) !important;
+} */
+</style>
 
 <style scoped>
 * {
@@ -550,6 +1090,7 @@ const editKorisnik = (korisnik) => {
     flex-direction: column;
     justify-content: space-between;
     gap: 26px;
+    background-color: white !important;
 }
 
 h1 {
@@ -590,6 +1131,71 @@ main>div {
 .datatable {
     max-width: 1100px;
 }
+
+.dodaj-btn,
+.dodaj-partnera-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.dodaj-btn {
+    background-color: var(--text-color);
+    color: white;
+}
+
+.dodaj-btn * {
+    color: white;
+}
+
+.dodaj-btn:hover {
+    background-color: var(--text-color-hover);
+}
+
+.dodaj-btn:active {
+    background-color: var(--text-color-focus);
+}
+
+.dodaj-btn:disabled {
+    color: black;
+    background-color: #b0b0b0;
+    cursor: not-allowed;
+}
+
+.dodaj-btn:disabled * {
+    color: black;
+}
+
+.dodaj-partnera-btn {
+    background-color: white;
+    border: var(--border);
+    color: black;
+}
+
+.dodaj-partnera-btn * {
+    color: black;
+}
+
+.dodaj-partnera-btn:hover {
+    background-color: var(--text-color);
+    color: white;
+}
+
+
+.dodaj-partnera-btn:hover * {
+    color: white;
+}
+
+.dodaj-partnera-btn:active {
+    background-color: var(--text-color-focus);
+}
+
+
+.dodaj-partnera-btn:active * {
+    color: white;
+}
+
 
 .razdoblje {
     max-width: 500px;
@@ -669,15 +1275,63 @@ sup {
 }
 
 .p-fluid {
+    display: grid;
+    grid-template-columns: 0.8fr 1fr;
+    grid-template-rows: repeat(2, auto);
+    gap: 26px;
+}
+
+.p-fluid-partner {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 26px;
 }
 
 .section {
     display: flex;
     flex-direction: column;
     gap: 13px;
+}
+
+.section.prava {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.prava-field,
+.prava-field-label {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+
+.section.footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    grid-column: 1 / 3;
+}
+
+.acc-kpkr {
+    background-color: var(--bg-color);
+}
+
+.p-accordionpanel {
+    border-radius: 5px;
+}
+
+:deep(.p-accordioncontent-content) {
+    background: none !important;
+}
+
+.p-accordionheader,
+.p-accordionheader.acc-header,
+.p-accordioncontent-content {
+    background: none !important;
 }
 
 .acc-header,
@@ -688,11 +1342,113 @@ sup {
     gap: 8px;
 }
 
+.acc-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, auto);
+    gap: 13px;
+}
+
+.field-head {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.content-field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.content-field+.content-field {
+    margin-top: 18px;
+}
+
+.field-head-icon {
+    opacity: 0.3;
+    cursor: pointer;
+}
+
+.field-head-icon:hover {
+    opacity: 0.8;
+}
+
+.field-head-icon:active {
+    opacity: 1;
+}
+
+.field-content {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.hr-column {
+    height: 100%;
+    border: 0.5px solid var(--text-color);
+    opacity: 0.1;
+}
+
+.checkbox-field {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: auto;
+}
+
+.data-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
 .label-container {
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 8px;
+}
+
+.custom-otp-input {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    appearance: none;
+    text-align: center;
+    transition: all 0.2s;
+    border-radius: 0;
+    border: 1px solid var(--p-inputtext-border-color);
+    background: transparent;
+    outline-offset: -2px;
+    outline-color: transparent;
+    border-right: 0 none;
+    transition: outline-color 0.3s;
+    color: var(--p-inputtext-color);
+}
+
+.custom-otp-input:focus {
+    outline: 2px solid var(--p-focus-ring-color);
+}
+
+.custom-otp-input:first-child,
+.custom-otp-input:nth-child(5) {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.custom-otp-input:nth-child(3),
+.custom-otp-input:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-color: var(--p-inputtext-border-color);
 }
 
 .dialog-header {
