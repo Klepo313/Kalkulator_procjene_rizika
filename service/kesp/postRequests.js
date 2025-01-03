@@ -33,13 +33,13 @@ const addEmission = async (data) => {
 
     try {
         const response = await axios.post(`${base_url}/CO2/item`, {
-            itemId: null,
-            calculationId: data.p_uiz_id,
-            emissionGroupId: data.p_uge_id,
-            veichleTypeId: data.p_uvv_id,
-            veichleTypeName: data.p_uvv_naziv,
-            fuelTypeId: data.p_uvg_id,
-            quantity: data.p_kolicina
+            itemId: data.itemId,
+            calculationId: data.calculationId,
+            emissionGroupId: data.emissionGroupId,
+            veichleTypeId: data.veichleTypeId,
+            veichleTypeName: data.veichleTypeName,
+            fuelTypeId: data.fuelTypeId,
+            quantity: data.quantity
         }, {
             withCredentials: true, // Ensure cookies are included in requests
         });
@@ -48,7 +48,8 @@ const addEmission = async (data) => {
 
         return {
             id: response.data.fn_spremi_ugo_stavku_o1,
-            status: response.status
+            status: response.status,
+            message: response.data.message
         };
     } catch (error) {
         console.error('Saving error: ' + error)

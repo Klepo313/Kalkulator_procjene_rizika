@@ -41,8 +41,8 @@ onMounted(async () => {
             await kespStore.fetchHeader(kespId.value);
             await opseg2Store.fetchEnergySources(kespId.value);
             await vehicleStore.fetchVehicles(kespId.value);
-            await vehicleStore.fetchEmissions();
-            await vehicleStore.fetchFuels();
+            // await vehicleStore.fetchEmissions();
+            // await vehicleStore.fetchFuels();
         } catch (error) {
             console.error('Error fetching data:', error);
             navigateTo('/kesp/predlosci')
