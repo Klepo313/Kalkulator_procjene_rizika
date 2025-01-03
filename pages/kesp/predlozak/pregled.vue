@@ -16,7 +16,7 @@
                                 <label for="opis">
                                     Naziv
                                 </label>
-                                <InputText v-model="opis" type="text" id="opis" placeholder="Naziv nije unešen"
+                                <InputText id="opis" v-model="opis" type="text" placeholder="Naziv nije unešen"
                                     readonly />
                             </div>
                             <div>
@@ -37,7 +37,7 @@
                                 <label for="napomena">
                                     Napomena
                                 </label>
-                                <Textarea v-model="napomena" id="napomena" placeholder="Napomena nije unešena"
+                                <Textarea id="napomena" v-model="napomena" placeholder="Napomena nije unešena"
                                     readonly />
                             </div>
 
@@ -46,66 +46,60 @@
                 </section>
                 <section>
                     <div>
-                        <h2>Ukupni utrošak - Opseg 1</h2>
-                        <p>Ukupan prikaz stakleničkih plinova - opseg 1</p>
+                        <h2>Ukupna emisija - Opseg 1</h2>
+                        <p>Ukupni prikaz emisije stakleničkih plinova iz Opsega 1</p>
                     </div>
                     <div class="datatable">
                         <DataTable :value="groupedData" scrollable scroll-height="400px" table-style="min-width: 50rem"
                             show-gridlines>
                             <template #empty> Nema podataka za prikaz </template>
 
-                            <Column header="No." header-style="width:3rem">
+                            <Column header="Broj" header-style="width:3rem">
                                 <template #body="slotProps">
                                     {{ slotProps.index + 1 }}
                                 </template>
                             </Column>
 
-                            <Column field="category" header="Izvor emisija">
+                            <Column field="uge_naziv" header="Izvor emisija">
                                 <template #body="slotProps">
-                                    <span v-if="slotProps.data.category === 'Osobna vozila'">
-                                        <font-awesome-icon icon="car-side" /> {{ slotProps.data.category }}
-                                    </span>
-                                    <span v-else-if="slotProps.data.category === 'Teretna vozila'">
-                                        <font-awesome-icon icon="truck" /> {{ slotProps.data.category }}
-                                    </span>
-                                    <span v-else-if="slotProps.data.category === 'Strojevi'">
-                                        <font-awesome-icon icon="tractor" /> {{ slotProps.data.category }}
-                                    </span>
-                                    <span v-else-if="slotProps.data.category === 'Stacionarni izvori'">
-                                        <font-awesome-icon icon="charging-station" /> {{ slotProps.data.category }}
+                                    <span>
+                                        <font-awesome-icon :icon="getVehicleIcon(slotProps.data.uge_naziv)" />
+                                        {{ slotProps.data.uge_naziv }}
                                     </span>
                                 </template>
                             </Column>
 
                             <Column field="totalEmissions" header="Ukupne emisije CO2 t/god">
                                 <template #body="slotProps">
-                                    <span>{{ formatNumber(slotProps.data.totalEmissions.toFixed(2)) }}</span>
+                                    <span>{{ formatNumber(vehicleStore.emisijaZaKategoriju(slotProps.data.uge_naziv) /
+                                        1000) }}</span>
                                 </template>
                             </Column>
 
                             <template #footer>
                                 <div class="flex justify-end font-bold w-full mt-4">
-                                    Ukupno: <strong>{{ formatNumber(calculateTotalEmissions().toFixed(2)) }}</strong>
+                                    Ukupno: <strong>{{ formatNumber(vehicleStore.ukupnaEmisija / 1000) }}</strong>
                                     CO<sub>2</sub> t/god
                                 </div>
                             </template>
                         </DataTable>
+
                     </div>
                 </section>
                 <section>
                     <div class="data-heading">
-                        <h2>Ukupni utrošak - Opseg 2</h2>
-                        <p>Ukupan prikaz stakleničkih plinova - opseg 2</p>
+                        <h2>Ukupna emisija - Opseg 2</h2>
+                        <p>UUkupni prikaz emisije stakleničkih plinova iz Opsega 2</p>
                     </div>
                     <DataTable :value="opseg2Store.izracuni" show-gridlines :rows="5" data-key="id">
 
-                        <Column header="No.">
+                        <Column header="Broj">
                             <template #body="slotProps">
                                 {{ slotProps.index + 1 }}
                             </template>
                         </Column>
 
-                        <Column header="Energija" field="energija">
+                        <Column header="Vrsta energije" field="energija">
                             <template #body="slotProps">
                                 <template v-if="slotProps.data.energija === 'Električna energija'">
                                     <font-awesome-icon icon="bolt-lightning" style="margin-right: 5px;" />
@@ -118,14 +112,14 @@
                             </template>
                         </Column>
 
-                        <Column header="Neobnovljivo (kWh)" field="neobnovljivo">
+                        <Column header="Neobnovljiva energija (kWh)" field="neobnovljivo">
                             <template #body="slotProps">
                                 {{ slotProps.data.neobnovljivo !== null ? formatNumber(slotProps.data.neobnovljivo) :
                                     '0.00' }}
                             </template>
                         </Column>
 
-                        <Column header="Obnovljivo (kWh)" field="obnovljivo">
+                        <Column header="Obnovljiva energija (kWh)" field="obnovljivo">
                             <template #body="slotProps">
                                 {{ slotProps.data.obnovljivo !== null ? formatNumber(slotProps.data.obnovljivo) : '0.00'
                                 }}
@@ -138,9 +132,9 @@
                             </template>
                         </Column>
 
-                        <Column header="Emisije CO2/kg" field="emisije">
+                        <Column header="Emisije CO2 t/god" field="emisije">
                             <template #body="slotProps">
-                                {{ formatNumber(slotProps.data.emisije.toFixed(2)) }}
+                                {{ formatNumber(slotProps.data.emisije.toFixed(2) / 1000) }}
                             </template>
                         </Column>
 
@@ -156,8 +150,8 @@
                 </section>
                 <section>
                     <div class="data-heading">
-                        <h2>Ukupni utrošak - Opseg 1 + Opseg 2</h2>
-                        <p>Ukupan prikaz stakleničkih plinova - opseg 1 + opseg 2 </p>
+                        <h2>Ukupna emisija</h2>
+                        <p>Ukupan prikaz stakleničkih plinova - Opseg 1 + Opseg 2 </p>
                     </div>
                     <div class="ukupni-utrosak-o1o2">
                         UKUPNO:
@@ -168,6 +162,12 @@
                         CO2 t/god
                     </div>
                 </section>
+                <div style="width: min-content;">
+                    <span v-tooltip.top="'Još nije u funkciji.'" class="download-btn">
+                        <font-awesome-icon icon="download" />
+                        <span>Preuzmi izvještaj</span>
+                    </span>
+                </div>
             </div>
             <div class="stats-content">
                 <!-- <div>
@@ -186,12 +186,13 @@
                         <Chart type="pie" :data="emissionsPieData" :options="chartOptions" />
                     </div>
 
-                    <div class="chart-container" style="margin-top: 20px;">
+                    <div v-if="izracuni.some(item => item.neobnovljivo !== null || item.obnovljivo !== null)"
+                        class="chart-container" style="margin-top: 20px;">
                         <span>
                             <p>Emisije CO<sub>2</sub> t/god - Opseg 2</p>
                             <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('polar')" />
                         </span>
-                        <Chart type="polarArea" :data="combinedChartData" :options="chartOptions"
+                        <Chart type="pie" :data="combinedChartData" :options="chartOptions"
                             class="w-full md:w-[30rem]" />
                     </div>
                 </div>
@@ -207,7 +208,7 @@
                         </span>
                         <Chart v-if="fullscreenChart === 'pie'" type="pie" :data="emissionsPieData"
                             :options="chartOptions" class="fullscreen-chart-content" />
-                        <Chart v-if="fullscreenChart === 'polar'" type="polarArea" :data="combinedChartData"
+                        <Chart v-if="fullscreenChart === 'polar'" type="pie" :data="combinedChartData"
                             :options="chartOptions" class="fullscreen-chart-content" />
                     </div>
                 </div>
@@ -218,7 +219,8 @@
 </template>
 
 <script setup>
-import { useKespStore, useVehicleStore, useIzvoriStore, useOpseg2Store } from '#imports';
+import { useKespStore, useVehicleStore, useOpseg2Store } from '#imports';
+import { getEmmisionGroups } from '~/service/kesp/fetchVoziloData';
 import { formatNumber } from '~/utils/dataFormatter';
 
 const opseg2Store = useOpseg2Store(); // Inicijaliziraj store
@@ -226,21 +228,17 @@ const kespStore = useKespStore();
 // Dohvati podatke iz storeova
 const vehicleStore = useVehicleStore();
 
+const vozila = computed(() => vehicleStore.vozila);
+const skupine = ref([null])
+
+// const groupedData = computed(() => {
+//     return skupine.value
+//         .filter(s => s !== null) // Filtriraj null vrednosti
+//         .map(s => s.uge_naziv);
+// });
+
 const groupedData = computed(() => {
-    // Kreiramo grupirane podatke na osnovu strukture vrsteVozila
-    return vehicleStore.vrsteVozila.map(vrsta => {
-        // Filtriramo vozila koja pripadaju trenutnoj vrsti vozila
-        const vozilaForVrsta = vehicleStore.vozila.filter(vozilo => vozilo.vozilo.skupina === vrsta.value);
-
-        // Izračunavamo ukupne emisije za trenutnu vrstu vozila
-        const totalEmissions = vozilaForVrsta.reduce((sum, vozilo) => sum + vozilo.emisije, 0);
-
-        // Vraćamo objekt s podacima za trenutnu vrstu vozila
-        return {
-            category: vrsta.value,
-            totalEmissions
-        };
-    });
+    return skupine.value.filter(s => s !== null); // Vraćamo originalne objekte, isključujući null vrednosti
 });
 
 const fullscreenChart = ref(null);
@@ -259,42 +257,16 @@ onBeforeUnmount(() => {
     document.body.style.overflow = ''; // Reset overflow on component unmount
 });
 
-// Funkcija za grupisanje podataka i izračun emisija
-// const groupedData = computed(() => {
-//     const grouped = JSON.parse(JSON.stringify(categories)); // Duboko kloniranje kategorija
-
-//     // Grupisanje podataka iz vozila
-//     vehicleStore.vozila.forEach(vozilo => {
-//         if (vozilo.vozilo.skupina === 'Osobno vozilo') {
-//             grouped[0].totalEmissions += vozilo.emisije; // Osobna vozila
-//         } else if (vozilo.vozilo.skupina === 'Teretno vozilo') {
-//             grouped[1].totalEmissions += vozilo.emisije; // Teretna vozila
-//         } else if (vozilo.vozilo.skupina === 'Stroj') {
-//             grouped[2].totalEmissions += vozilo.emisije; // Strojevi
-//         }
-//     });
-
-//     // Grupisanje podataka iz izvora
-//     izvoriStore.izvori.forEach(izvor => {
-//         grouped[3].totalEmissions += izvor.emisije; // Stacionarni izvori
-//     });
-
-//     return grouped;
-// });
-
-// Funkcija za izračun ukupnih emisija
-const calculateTotalEmissions = () => {
-    return groupedData.value.reduce((total, item) => total + item.totalEmissions, 0);
-};
-
 // Ukupne emisije
-const totalEmissions = computed(() => opseg2Store.totalEmissions);
+const totalEmissions = computed(() => opseg2Store.totalEmissions / 1000);
 
 const combinedEmissions = computed(() => {
-    const opseg1 = parseFloat(calculateTotalEmissions().toFixed(2));
+    // const opseg1 = parseFloat(calculateTotalEmissions().toFixed(2)) / 1000;
+    const opseg1 = parseFloat(vehicleStore.ukupnaEmisija / 1000);
     const opseg2 = parseFloat(totalEmissions.value);
-    const ukupno = parseFloat((opseg1 + opseg2)).toFixed(2)
-    return ukupno;
+    const ukupno = opseg1 + opseg2;
+    console.log("opseg1: ", opseg1, "opseg2: ", opseg2, "ukupno: ", ukupno);
+    return ukupno.toFixed(2);
 });
 
 const kespId = ref(null);
@@ -302,6 +274,14 @@ const kespId = ref(null);
 onMounted(async () => {
     const res = await initializeCookie('kesp-id');
     kespId.value = parseInt(res['kesp-id']);
+    try {
+        skupine.value = await getEmmisionGroups();
+        // const sks = await getEmmisionGroups();
+        // skupine.value = sks.map(s => s)
+    } catch (error) {
+        console.error("Greška prilikom dohvaćanja emisijskih grupa:", error);
+    }
+    console.log("IZIIZ: ", izracuni.value)
 })
 
 const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
@@ -309,7 +289,6 @@ const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
 const opis = computed(() => kespStore.naziv);
 const napomena = computed(() => kespStore.napomena);
 
-const vozila = computed(() => vehicleStore.vozila);
 const izracuni = computed(() => opseg2Store.izracuni);
 
 // const combinedChartData = computed(() => opseg2Store.combinedChartData); // Preuzmi podatke za grafikon iz getter-a
@@ -330,17 +309,27 @@ const combinedChartData = computed(() => {
 }); // Preuzmi podatke za grafikon iz getter-a
 
 const emissionsPieData = computed(() => {
-    const labels = groupedData.value.map(item => item.category);
-    const data = groupedData.value.map(item => item.totalEmissions);
-    const backgroundColors = ['#3e2b61', '#57447a', '#715e94', '#241147']; // Color for each category
+    const baseColor = '#241147';
+    const emisijePoSkupini = {};
+
+    vozila.value.forEach((vozilo) => {
+        const kategorija = vozilo.uge_naziv;
+        if (!emisijePoSkupini[kategorija]) {
+            emisijePoSkupini[kategorija] = Number(vehicleStore.emisijaZaKategoriju(kategorija)).toFixed(2) / 1000;
+        }
+    });
+
+    const labels = Object.keys(emisijePoSkupini); // Nazivi kategorija
+    const data = Object.values(emisijePoSkupini); // Ukupne emisije za svaku kategoriju
+    const colors = labels.map((_, index) => shadeColor(baseColor, index * 10)); // Generisanje boja
 
     return {
         labels,
         datasets: [
             {
                 data,
-                backgroundColor: backgroundColors,
-                hoverBackgroundColor: backgroundColors, // Optional: same color on hover
+                backgroundColor: colors,
+                hoverBackgroundColor: colors,
             },
         ],
     };
@@ -487,6 +476,31 @@ strong,
     gap: 10px;
 }
 
+.download-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+
+    border: 1px solid transparent;
+    background: none !important;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.download-btn span {
+    width: 100%;
+    text-wrap: nowrap;
+}
+
+.download-btn:hover {
+    text-decoration: underline;
+}
+
+.download-btn:active {
+    transform: scale(0.98);
+}
 
 .stats-content {
     /* background-color: var(--bg-color); */

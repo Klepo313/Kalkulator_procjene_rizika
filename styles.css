@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('primeicons/primeicons.css');
 
 * {
     font-family: "DM Sans", sans-serif;
@@ -8,7 +9,7 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-    font-size: 14px;
+    font-size: 1rem;
 
     transition: all 100ms ease-in-out;
     scroll-behavior: smooth;
@@ -20,8 +21,11 @@
     --primary-color-hover: #176221;
     --primary-color-focus: #1a7225;
     --text-color: #1e1e1e;
+    --text-color-hover: #2a2a2a;
+    --text-color-focus: #3a3a3a;
     --white-color: #ffffff;
     --bg-color: #F1F5F1;
+    --admin-bg-color: #F6F6F6;
     --input-color: rgba(20, 82, 28, 0.05);
     --input-hover-color: rgba(20, 82, 28, 0.1);
     --input-focus-color: rgba(20, 82, 28, 0.2);
@@ -43,6 +47,10 @@
     --nuxtlink-hover: #f3ecff;
     --nuxtlink-focus: #f9f6ff;
     --nuxtlink-active: #f9f6ff;
+
+    --admin-nuxtlink-hover: #e2e2e2;
+    --admin-nuxtlink-focus: #dadada;
+    --admin-nuxtlink-active: #e6e6e6;
 }
 
 ::selection {

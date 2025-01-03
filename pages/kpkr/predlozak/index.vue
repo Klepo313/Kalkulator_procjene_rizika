@@ -4,14 +4,6 @@
     <div class="body">
         <Toast />
         <Toast position="top-center" group="tc" />
-        <div v-if="showPopup" :class="['success-popup', { error: !isSuccess }]">
-            <font-awesome-icon :icon="isSuccess ? 'circle-check' : 'circle-exclamation'" />
-            <span>
-                {{ isSuccess ? 'Uspješno spremanje' : 'Spremanje nije uspjelo' }}
-            </span>
-            <div class="progress-bar" />
-        </div>
-
         <main>
             <h1>Opći podaci</h1>
             <!-- <div v-if="opciStore.opci_podaci && odabraniDatum" class="main-grid"> -->
@@ -19,9 +11,9 @@
                 v-if="(idIzracuna && hasSelectedValues() && isScenarijLoaded) || idIzracuna == '' || idIzracuna == 'null'"
                 class="main-grid">
                 <label for="nazivIzracuna" class="header">Naziv predloška </label>
-                <InputText id="nazivIzracuna" placeholder="Unesi naziv" :value="nazivIzracuna" :disabled="status"
+                <InputText id="nazivIzracuna" v-model="nazivIzracuna" placeholder="Unesi naziv"
                     @change="updateNazivIzracuna($event.target.value)" />
-                <!-- :invalid="nazivIzracuna === (null || '')"-->
+                <!-- :invalid="nazivIzracuna === (null || '')"  :disabled="status"-->
                 <div class="grid-item info-div">
                     <font-awesome-icon :icon="'info-circle'" style="display: none;" />
                     <!-- <span class="info-text">{{ messageCestica }}</span> -->
@@ -252,8 +244,8 @@
         </footer>
         <NespremljenePromjenePopup class="alert-popup" :visible="isNespremljenePromjenePopupVisible"
             @confirm="confirmLeave" @cancel="cancelLeave" />
-        <LoadingSpremanje v-if="isLoadingPopupVisible" :message="'Spremanje promjena'" :loader="'SI'"
-            class="loading-popup" />
+        <LoadingSpremanje v-if="isLoadingPopupVisible" :message="'Spremanje promjena...'"
+            :description="'Ovo može potrajati 10-ak sekundi.'" :loader="'SI'" class="loading-popup" />
     </div>
 </template>
 
@@ -892,7 +884,7 @@ const saveFormData = async () => {
         isLoadingPopupVisible.value = true;
         try {
             const response = await opciStore.saveData();
-            const responseId = response.resId;
+            const responseId = response.data.calculationId;
             console.log("RESPONSE ID: ", responseId);
             const responseStatus = response.status;
             const data = response.data;
@@ -907,21 +899,9 @@ const saveFormData = async () => {
             }
 
             if (idIzracuna.value === 'null') { // == '/'
-                idIzracuna.value = responseId; // Sada će raditi
-                // opciStore.opci_podaci.aiz_id = idIzracuna.value;
+                idIzracuna.value = responseId;
+
                 console.log('res-id (idIzracuna): ', idIzracuna.value);
-
-                // const queryParams = { ...router.currentRoute.value.query };
-
-                // // Zamijeni `id` samo ako postoji i nije ispravan, ili dodaj novi
-                // queryParams.id = idIzracuna.value !== 'null' ? idIzracuna.value : undefined;
-
-                // console.log("path: ", router.currentRoute.value.path, "queryParams: ", queryParams.id);
-                // // Ažuriraj URL
-                // router.replace({
-                //     path: router.currentRoute.value.path,
-                //     query: queryParams,
-                // });
 
                 // Dodavanje šifrovane vrednosti u URL
                 const url = `/kpkr/predlozak?id=${idIzracuna.value.toString()}`;
@@ -943,27 +923,12 @@ const saveFormData = async () => {
                     query: queryParams,
                 });
 
-                // resetForm();
-                // opciStore.clearOpciPodaci();
                 opciStore.fetchCalculation(idIzracuna.value);
-                console.log(
-                    nazivIzracuna.value, "\n",
-                    odabraniDatum.value, "\n",
-                    odabranaVrstaIzracuna.value, "\n",
-                    odabranaKatastarskaOpcina.value, "\n",
-                    odabranaKatastarskaCestica.value, "\n",
-                    odabranaVrstaObjekta.value, "\n",
-                    odabranaDjelatnost.value, "\n",
-                    odabranaSkupinaDjelatnosti.value, "\n",
-                    scenarij.value, "\n",
-                    odabranaIspostava.value, "\n",
-                    odabraniPodrucniUred.value, "\n",
-                    napomena.value, "\n",)
-                // fillFormData();
             }
         } catch (error) {
             isSuccess.value = false;
-            showErrorSave('Odabrana katastarska čestica nema definiranu izloženost riziku.');
+            // showErrorSave('Odabrana katastarska čestica nema definiranu izloženost riziku.');
+            showErrorSave('Problem sa serverom ili odabrana katastarska čestica nema definiranu izloženost riziku.')
             console.error('Došlo je do pogreške prilikom spremanja podataka:', error);
         } finally {
             isFormDirty.value = false;
@@ -1073,9 +1038,9 @@ h1 {
 }
 
 .main-grid {
-    max-width: 700px;
+    max-width: 800px;
     display: grid;
-    grid-template-columns: 150px 1fr auto;
+    grid-template-columns: 200px 1fr auto;
     /* grid-template-rows: 38px; */
     /* grid-template-rows: minmax(38px, 38px); */
     grid-template-rows: repeat(11, 38px) auto;

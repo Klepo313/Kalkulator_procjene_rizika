@@ -4,6 +4,7 @@
             <main>
                 <div class="popup-header">
                     <h2>{{ message }}</h2>
+                    <p v-if="description">{{ description }}</p>
                 </div>
                 <div class="popup-content">
                     <div v-if="loader == 'SI'" class="loader" />
@@ -17,17 +18,20 @@
 <script setup>
 const props = defineProps({
     message: String,
-    loader: String
+    loader: String,
+    description: String
 })
 
 const message = computed(() => props.message);
 const loader = computed(() => props.loader);
+const description = computed(() => props.description);
 
 console.log("loader: ", loader.value, "message: ", message.value);
 </script>
 
 <style scoped>
 .popup {
+    position: relative;
     width: 100%;
     height: 100%;
     overflow: hidden;
@@ -38,14 +42,26 @@ console.log("loader: ", loader.value, "message: ", message.value);
     align-items: center;
     justify-content: center;
     gap: 10px;
+    padding: 13px;
 }
 
-main {
+.popup-header {
+    /* position: absolute; 
+    top: 26px;*/
+    left: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+}
+
+main {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
 
     border-radius: 5px;
     background-color: white;
@@ -53,6 +69,7 @@ main {
 
     width: 300px;
     height: 300px;
+    padding: 13px;
 }
 
 h2 {

@@ -188,7 +188,6 @@ const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipa
 
         return {
             data: response.data,
-            resId: response.data.aiz_id,
             status: response.status
         };
     } catch (error) {

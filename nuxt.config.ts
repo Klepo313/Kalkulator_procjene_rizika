@@ -1,16 +1,4 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
-
-// import { definePreset } from '@primevue/themes';
 import Aura from '@primevue/themes/aura';
-
-// const MyPreset = definePreset(Aura, {
-//   '--primary-color': '#13501b',
-//   '--primary-color-hover': '#176221',
-//   '--primary-color-focus': '#1a7225',
-//   '--text-color': '#1e1e1e',
-//   '--bg-color': 'white',
-//   '--bg-layout-color': '#f0faec',
-// });
 
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
@@ -22,40 +10,41 @@ export default defineNuxtConfig({
     terser: {
       terserOptions: {
         compress: {
-          drop_console: true
-        }
-      }
-    }
+          drop_console: true,
+        },
+      },
+    },
+    transpile: ['@fortawesome/vue-fontawesome'],
   },
   router: {
     middleware: ['loading'],
   },
   runtimeConfig: {
-    secretKey: process.env.SECRET_KEY, // Ovdje dodaješ ključ iz .env datoteke
+    secretKey: process.env.SECRET_KEY,
     public: {
-      baseUrl: process.env.BASE_URL, // Primjer javno dostupne varijable
+      baseUrl: process.env.BASE_URL,
     },
   },
   modules: [
     '@primevue/nuxt-module',
     '@pinia/nuxt',
-    "@nuxt/eslint",
+    '@nuxt/eslint',
     '@sidebase/nuxt-pdf',
-    '@nuxtjs/leaflet'
+    '@nuxtjs/leaflet',
   ],
   primevue: {
     options: {
       components: {
-        include: '*'
+        include: '*',
       },
       theme: {
         preset: Aura,
         options: {
           darkModeSelector: 'app-light',
           prefix: 'p',
-        }
+        },
       },
-      ripple: true, // Ili druge opcije koje želite da koristite
+      ripple: true,
     },
   },
   css: [
@@ -65,10 +54,17 @@ export default defineNuxtConfig({
   plugins: [
     '@/plugins/fontawesome.js',
     // '@/plugins/primevue.js',
-    // '~/plugins/encryptCookies.js',
+    // '@/plugins/encryptCookies.js',
   ],
-  build: {
-    transpile: ['@fortawesome/vue-fontawesome'],
+  vite: {
+    build: {
+      rollupOptions: {
+        external: [], // Ako želite, ovde možete dodati dodatne eksterne module
+      },
+    },
+    optimizeDeps: {
+      include: ['xlsx'], // Uključivanje xlsx modula
+    },
   },
-  devtools: { enabled: true }
-})
+  devtools: { enabled: true },
+});

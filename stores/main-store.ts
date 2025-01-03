@@ -433,8 +433,8 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.tvs_id === 0 ? null : this.opci_podaci.tvs_id
             )
 
-            console.log("Response savea: ", response)
-            console.log("Res-id-response: ", response.resId)
+            console.log("Response savea: ", response.data)
+            console.log("Res-id-response: ", response.data.calculationId)
             return response;
         }
 
@@ -498,6 +498,8 @@ export const useStructuredGridDataStore = defineStore('structured-grid-data', {
 
 export const useKespStore = defineStore('kespStore', {
     state: () => ({
+        kespId: null,
+        kespBrojIzracuna: null,
         predlosci: [],
         naziv: '',
         napomena: '',
@@ -530,8 +532,9 @@ export const useKespStore = defineStore('kespStore', {
                 const { id, status } = response;
 
                 if (status === 200) {
-                    const kespId = parseInt(id);
-                    if (kespId && !isNaN(kespId)) {
+                    const kespId = id;
+                    console.log("Kesp ID u store: ", kespId);
+                    if (kespId) {
                         // Kreiraj novi objekt u traženoj strukturi
                         const newPredlozak = {
                             uiz_id: kespId,
@@ -541,9 +544,7 @@ export const useKespStore = defineStore('kespStore', {
                             uiz_opis: header.l_opis,
                             uiz_napomena: header.l_napomena
                         };
-
-                        // Dodaj u predloške
-                        await setCookie({ name: 'kesp-id', value: kespId });
+                        this.setKespId(kespId)
                         this.predlosci.push(newPredlozak);
                     } else {
                         console.log("Kesp ID nije validan.");
@@ -560,7 +561,12 @@ export const useKespStore = defineStore('kespStore', {
                 return 0;
             }
         },
-
+        setKespId(id: any) {
+            this.kespId = id;
+        },
+        setKespBrojIzracuna(brojIzracuna: any) {
+            this.kespBrojIzracuna = brojIzracuna;
+        },
         setGodina(godina: number) {
             this.godina = new Date(godina, 0, 1);
             this.setDatumOd(godina);
@@ -572,11 +578,12 @@ export const useKespStore = defineStore('kespStore', {
         setDatumDo(godina: number) {
             this.datumDo = new Date(godina, 11, 31); // December 31st
         },
-        async fetchHeader(id: number) {
+        async fetchHeader(id) {
             console.log("id: ", id)
             try {
                 const response = await getHeader(id);
                 if (response) {
+                    this.kespBrojIzracuna = response.uiz_broj;
                     this.naziv = response.uiz_opis;
                     this.napomena = response.uiz_napomena || '';
                     this.datumOd = response.uiz_datod;
@@ -593,9 +600,19 @@ export const useKespStore = defineStore('kespStore', {
             this.godina = new Date(2022, 0, 1);
             this.datumOd = new Date(2022, 0, 1);
             this.datumDo = new Date(2022, 11, 31);
+        },
+        clearData() {
+            this.kespId = null;
+            this.kespBrojIzracuna = null;
+            this.predlosci = [];
         }
     },
     getters: {
+        getKespId: (state) => state.kespId,
+        getKespBrojIzracuna: (state) => state.kespBrojIzracuna,
+        getPredlosci: (state) => state.predlosci,
+        getNaziv: (state) => state.naziv,
+        getNapomena: (state) => state.napomena,
         getGodina: (state) => state.godina,
         getDatumOd: (state) => state.datumOd,
         getDatumDo: (state) => state.datumDo,
@@ -608,99 +625,95 @@ export const useVehicleStore = defineStore('vehicleStore', {
         vozila: [],
         vrsteVozila: [],
         vrsteGoriva: [],
-        filteredVrsteGoriva: [],
-        vozilo: {
-            id: null,
-            uiz_id: null,
-            uge_id: null,
-            vozilo: {
-                id: null,
-                skupina: '',
-                vrsta: ''
-            },
-            gorivo: {
-                id: null,
-                uvg_id: null,
-                label: '',
-                value: '',
-                metric: '',
-            },
-            potrosnjaGoriva: 0.00,
-            emisije: 0.00
-        },
+        // filteredVrsteGoriva: [],
+        // vozilo: {
+        //     id: null,
+        //     uiz_id: null,
+        //     uge_id: null,
+        //     vozilo: {
+        //         id: null,
+        //         skupina: '',
+        //         vrsta: ''
+        //     },
+        //     gorivo: {
+        //         id: null,
+        //         uvg_id: null,
+        //         label: '',
+        //         value: '',
+        //         metric: '',
+        //     },
+        //     potrosnjaGoriva: 0.00,
+        //     emisije: 0.00
+        // },
         voziloDialogVisible: false,
         deleteVoziloDialog: false,
     }),
 
     // Getters: za obračunate vrednosti
     getters: {
-        totalEmissionsFromVehicles(state) {
-            return state.vozila.reduce((total, v) => total + v.emisije, 0);
+        ukupnaEmisija: (state) => {
+            return state.vozila
+                .reduce((sum, vozilo) => sum + parseFloat(vozilo.usi_emisija || 0), 0)
+                .toFixed(2);
+        },
+        // Ukupna emisija za zadatu kategoriju (uge_naziv)
+        emisijaZaKategoriju: (state) => (kategorija: string) => {
+            return state.vozila
+                .filter(vozilo => vozilo.uge_naziv === kategorija) // Filtriraj vozila prema kategoriji
+                .reduce((sum, vozilo) => sum + parseFloat(vozilo.usi_emisija || 0), 0) // Zbir emisija
+                .toFixed(2); // Zaokruži na dve decimale
         },
     },
 
     // Actions: za funkcije koje manipulišu stanjem
     actions: {
-        async fetchVehicles(id: number) {
-            const vozila = await getVehicles(id);
+        async fetchVehicles(id) {
+            try {
+                const vozila = await getVehicles(id);
 
-            if (!vozila.message) {
-                for (const vozilo of vozila) {
-                    this.vozila.push({
-                        id: parseInt(vozilo.usi_id),
-                        uiz_id: parseInt(vozilo.usi_uiz_id),
-                        uge_id: parseInt(vozilo.usi_uge_id),
-                        vozilo: {
-                            id: vozilo.usi_uvv_id,
-                            skupina: vozilo.uge_naziv,
-                            vrsta: vozilo.usi_uvv_naziv
-                        },
-                        gorivo: {
-                            id: vozilo.usi_uvg_id,
-                            label: vozilo.uvg_knaziv,
-                            value: vozilo.uvg_naziv,
-                            metric: vozilo.usi_jmj,
-                        },
-                        potrosnjaGoriva: parseFloat(vozilo.usi_kolicina),
-                        emisije: parseFloat(vozilo.usi_emisija)
-                    })
-                    // vozilo: {
-                    //     id: null,
-                    //     uiz_id: null,
-                    //     uge_id: null,
-                    //     vozilo: {
-                    //         uvv_id: null,
-                    //         skupina: '',
-                    //         vrsta: ''
-                    //     },
-                    //     gorivo: {
-                    //         id: null,
-                    //         uvg_id: null,
-                    //         label: '',
-                    //         value: '',
-                    //         metric: '',
-                    //     },
-                    //     potrosnjaGoriva: 0.00,
-                    //     emisije: 0.00
-                    // },
+                if (!vozila.message) {
+                    // Grupiranje vozila
+                    const grupiranaVozila = vozila.reduce((grupa, vozilo) => {
+                        const ugeKey = vozilo.uge_naziv || 'Ostalo'; // Grupiranje po 'uge_naziv'
+                        if (!grupa[ugeKey]) {
+                            grupa[ugeKey] = {};
+                        }
+
+                        const usiKey = vozilo.usi_uvv_id || vozilo.usi_uvv_naziv || 'Nepoznato'; // Grupiranje po 'usi_uvv_id' ili 'usi_uvv_naziv'
+                        if (!grupa[ugeKey][usiKey]) {
+                            grupa[ugeKey][usiKey] = [];
+                        }
+
+                        grupa[ugeKey][usiKey].push(vozilo);
+                        return grupa;
+                    }, {});
+
+                    // Pretvori objekt grupiranih vozila u niz
+                    this.vozila = Object.values(grupiranaVozila).flatMap(usiGroup =>
+                        Object.values(usiGroup).flat()
+                    );
+                } else {
+                    this.vozila = [];
+                    console.log("Nema vozila");
                 }
-            } else {
+            } catch (error) {
+                console.error("Greška prilikom dohvaćanja vozila:", error);
                 this.vozila = [];
-                console.log("Nema vozila");
             }
         },
+
         async fetchEmissions() {
             const vrste_vozila = await getEmmisionGroups();
 
             // Iteriramo kroz vrste vozila i dohvacamo kategorije
             for (const vrsta of vrste_vozila) {
-                const cats = await getVehiclesForEmmisionGroups(parseInt(vrsta.uge_id));
+                const cats = await getVehiclesForEmmisionGroups(vrsta.uge_id);
 
                 // Provjera da li je cats niz ili objekt sa porukom
                 if (Array.isArray(cats)) {
                     // Ako je cats niz, mapiramo children
                     this.vrsteVozila.push({
-                        id: parseInt(vrsta.uge_id),
+                        id: vrsta.uge_id,
                         label: vrsta.uge_sif,
                         value: vrsta.uge_naziv,
                         children: cats.map(cat => {
@@ -708,7 +721,7 @@ export const useVehicleStore = defineStore('vehicleStore', {
                             const kratica = cat.uvv_naziv.split(' ').slice(0, 2).map(word => word[0]).join('');
 
                             return {
-                                id: parseInt(cat.uvv_id),
+                                id: cat.uvv_id,
                                 label: kratica.toUpperCase(), // Kratica dvoslovna u velikim slovima
                                 value: cat.uvv_naziv
                             };
@@ -717,7 +730,7 @@ export const useVehicleStore = defineStore('vehicleStore', {
                 } else {
                     // Ako nije niz, postavljamo prazan children niz
                     this.vrsteVozila.push({
-                        id: parseInt(vrsta.uge_id),
+                        id: vrsta.uge_id,
                         label: vrsta.uge_sif,
                         value: vrsta.uge_naziv,
                         children: [] // Prazan niz kada nema children
@@ -725,20 +738,21 @@ export const useVehicleStore = defineStore('vehicleStore', {
                 }
             }
         },
-        async fetchFuels() {
-            const goriva = await getFuelTypes();
+        async fetchFuels(p_uge_id: number, p_uvv_id: number) {
+            const goriva = await getFuelTypes(p_uge_id, p_uvv_id);
+            this.vrsteGoriva = goriva;
 
-            for (const gorivo of goriva) {
-                this.vrsteGoriva.push({
-                    id: parseInt(gorivo.ufe_id),
-                    uvg_id: parseInt(gorivo.uvg_id),
-                    uge_id: parseInt(gorivo.ufe_uge_id),
-                    label: gorivo.uvg_knaziv,
-                    value: gorivo.uvg_naziv,
-                    metric: gorivo.uvg_jedmj,
-                    koeficijent: parseFloat(gorivo.uvg_koefco2)
-                })
-            }
+            // for (const gorivo of goriva) {
+            //     this.vrsteGoriva.push({
+            //         id: gorivo.uvg_id,
+            //         uvg_sif: gorivo.uvg_sif,
+            //         label: gorivo.uvg_knaziv,
+            //         value: gorivo.uvg_naziv,
+            //         value_eng: gorivo.uvg_naziv_en,
+            //         metric: gorivo.uvg_jedmj,
+            //         koeficijent: parseFloat(gorivo.uvg_koefco2)
+            //     })
+            // }
 
             console.log("goriva: ", this.vrsteGoriva)
         },
@@ -830,15 +844,15 @@ export const useOpseg2Store = defineStore('opseg2-store', {
         izracuni: []
     }),
     actions: {
-        async fetchEnergySources(id: number) {
+        async fetchEnergySources(id) {
             try {
                 const energySources = await getEnergySources(id);
                 if (energySources) this.clearStore();
                 for (const source of energySources) {
                     this.izracuni.push({
-                        id: parseInt(source.use_id) || null,
-                        uiz_id: parseInt(source.use_uiz_id) || null,
-                        uvn_id: parseInt(source.use_uvn_id) || null,
+                        id: source.use_id || null,
+                        uiz_id: source.use_uiz_id || null,
+                        uvn_id: source.use_uvn_id || null,
                         energija: source.uvn_naziv || '',
                         neobnovljivo: Number(source.use_neobnovljivo) || null,
                         obnovljivo: Number(source.use_obnovljivo) || null,
@@ -894,7 +908,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                         const { id, status } = response;
 
                         if (status === 200) {
-                            const use_id = parseInt(id);
+                            const use_id = id;
                             console.log(`Energy item updated with ID: ${use_id}`);
 
                             if (use_id) await this.fetchEnergySources(energyItem.p_uiz_id);

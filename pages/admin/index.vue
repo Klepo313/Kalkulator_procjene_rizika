@@ -1,63 +1,30 @@
 <template>
     <div class="body">
-        <div ref="sidebar" :class="['sidebar', { 'collapsed': isCollapsed }]">
-            <KespSidebar :isCollapsed="isCollapsed" :uiz_id="kespId" @toggle-sidebar="toggleSidebar"
-                @update-active-section="updateActiveSection" />
+        <div :class="['sidebar', { 'collapsed': isCollapsed }]" ref="sidebar">
+            <AdminSidebar :is-collapsed="isCollapsed" @toggle-sidebar="toggleSidebar" />
         </div>
-        <main :style="mainStyles" style="background-color: var(--kesp-bg);">
+        <main :style="mainStyles" style="background-color: white;">
             <div class="main-content">
-                <NuxtPage :section-title="activeSectionTitle" :uiz_id="kespId" />
+                <NuxtPage />
+                <!-- <p>Prikaz stranice</p> -->
             </div>
         </main>
     </div>
 </template>
 
 <script setup>
-
-import { ref, computed, watch } from 'vue'
-import KespSidebar from '~/components/KespSidebar.vue';
-import { useKespStore } from '#imports';
+import {
+    ref,
+    computed,
+    watch
+} from 'vue'
+import AdminSidebar from '~/components/AdminSidebar.vue';
 
 definePageMeta({
     middleware: [
-        'auth',
-        'kesp'
+        'auth'
     ],
 });
-
-const vehicleStore = useVehicleStore();
-const kespStore = useKespStore();
-const opseg2Store = useOpseg2Store();
-
-const kespId = computed(() => getIdFromUrl());
-
-onMounted(async () => {
-    kespStore.clearStore();
-    vehicleStore.resetData();
-    opseg2Store.clearStore();
-
-    if (kespId.value != 'null') {
-        try {
-            await kespStore.fetchHeader(kespId.value);
-            await opseg2Store.fetchEnergySources(kespId.value);
-            await vehicleStore.fetchVehicles(kespId.value);
-            // await vehicleStore.fetchEmissions();
-            // await vehicleStore.fetchFuels();
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            navigateTo('/kesp/predlosci')
-        }
-    } else {
-        navigateTo('/kesp/predlosci')
-    }
-})
-
-const activeSectionTitle = ref('');
-
-const updateActiveSection = (sectionTitle) => {
-    activeSectionTitle.value = sectionTitle; // Ažuriramo naslov iz događaja
-};
-
 // Reaktivna varijabla za praćenje stanja bočne trake
 const isCollapsed = ref(false)
 
@@ -79,7 +46,6 @@ const mainStyles = computed(() => ({
     marginLeft: sidebarWidth.value,
     width: `calc(100% - ${sidebarWidth.value})`,
 }))
-
 </script>
 
 <style scoped>
@@ -88,6 +54,7 @@ const mainStyles = computed(() => ({
     gap: 25px;
     overflow: visible;
 
+    background-color: var(--admin-bg-color);
 }
 
 .sidebar {
@@ -101,7 +68,6 @@ const mainStyles = computed(() => ({
     transition: width 0.3s ease;
     background: none;
     /* Glatka animacija promjene širine */
-    background-color: var(--kesp-bg);
 }
 
 .sidebar.collapsed {
@@ -116,7 +82,6 @@ main {
     overflow: visible;
     overflow-y: auto;
     transition: margin-left 0.3s ease, width 0.3s ease;
-    background-color: white;
 }
 
 .main-content {

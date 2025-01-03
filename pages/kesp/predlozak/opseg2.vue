@@ -42,21 +42,26 @@
                 </section>
                 <section class="main-data">
                     <div class="data-heading">
-                        <h2>Izračun Opseg 2</h2>
-                        <p>Unesi podatke neobnovljivih i obnovljivih izvora energije</p>
+                        <h2>Neizravne emisije stakleničkih plinova</h2>
+                        <p>Emisije iz kupljene energije koje nastaju izvan lokacije organizacije:</p>
+                        <ul>
+                            <li>Neizravne emisije zbog potrošnje električne energije</li>
+                            <li>Neizravne emisije zbog potrošnje toplinske energije</li>
+                            <li>Neizravne emisije zbog proizvodnje električne energije iz obnovljivih izvora</li>
+                        </ul>
                     </div>
                     <div class="data-item">
                         <DataTable :value="sortedIzracuni" show-gridlines edit-mode="cell" :rows="5" data-key="id"
                             :rowClass="getRowClass" @cell-edit-complete="onCellEditComplete">
                             <template #empty> Nema energija </template>
 
-                            <Column header="No.">
+                            <Column header="Broj">
                                 <template #body="slotProps">
                                     {{ slotProps.index + 1 }}
                                 </template>
                             </Column>
 
-                            <Column header="Energija" field="energija">
+                            <Column header="Vrsta energije" field="energija">
                                 <template #body="slotProps">
                                     <template v-if="slotProps.data.energija === 'Električna energija'">
                                         <font-awesome-icon icon="bolt-lightning" style="margin-right: 5px;" />
@@ -69,7 +74,7 @@
                                 </template>
                             </Column>
 
-                            <Column header="Neobnovljivo (kWh)" field="neobnovljivo">
+                            <Column header="Neobnovljiva energija (kWh)" field="neobnovljivo">
                                 <template #editor="slotProps">
                                     <InputNumber v-model="slotProps.data.neobnovljivo" :show-buttons="true"
                                         mode="decimal" min="0" />
@@ -86,7 +91,7 @@
                                 </template>
                             </Column>
 
-                            <Column header="Obnovljivo (kWh)" field="obnovljivo">
+                            <Column header="Obnovljiva energija (kWh)" field="obnovljivo">
                                 <template #editor="slotProps">
                                     <InputNumber v-model="slotProps.data.obnovljivo" :show-buttons="true" mode="decimal"
                                         min="0" />
@@ -131,7 +136,8 @@
                     </div>
                 </section>
             </div>
-            <div class="stats-content">
+            <div v-if="izracuni.some(item => item.neobnovljivo !== null || item.obnovljivo !== null)"
+                class="stats-content">
                 <!-- <div>
                     <span class="stats-title">
                         <font-awesome-icon icon="chart-pie" />
@@ -153,7 +159,7 @@
                             <p>Ukupna potrošnja energije (kWh)</p>
                             <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('polar')" />
                         </span>
-                        <Chart type="polarArea" :data="O2polarChartData" :options="chartOptions"
+                        <Chart type="pie" :data="O2polarChartData" :options="chartOptions"
                             class="w-full md:w-[30rem]" />
                     </div>
                 </div>
@@ -169,7 +175,7 @@
                         </span>
                         <Chart v-if="fullscreenChart === 'pie'" type="pie" :data="combinedChartData"
                             :options="chartOptions" class="fullscreen-chart-content" />
-                        <Chart v-if="fullscreenChart === 'polar'" type="polarArea" :data="O2polarChartData"
+                        <Chart v-if="fullscreenChart === 'polar'" type="pie" :data="O2polarChartData"
                             :options="chartOptions" class="fullscreen-chart-content" />
                     </div>
                 </div>
@@ -209,14 +215,14 @@ function getRowClass(rowData) {
     return rowData.neobnovljivo > 100 ? 'high-energy-row' : '';
 }
 
-const kespId = ref(null);
-
-onMounted(async () => {
-    const res = await initializeCookie('kesp-id');
-    kespId.value = parseInt(res['kesp-id']);
-    // opseg2Store.clearStore();
-    // await opseg2Store.fetchEnergySources(kespId.value);
+const props = defineProps({
+    uiz_id: {
+        type: String,
+        required: true
+    }
 })
+
+const kespId = ref(props.uiz_id);
 
 // const showSuccess = (skupina, vrsta) => {
 //     toast.add({ severity: 'success', summary: 'Uspješno dodano', detail: ``, life: 3000 });
@@ -249,6 +255,8 @@ const totalEmissions = computed(() => opseg2Store.totalEmissions); // Preuzmi uk
 const onCellEditComplete = async (event) => {
     const status = await opseg2Store.onCellEditComplete(event); // Poziva akciju za uređivanje ćelija
     console.log("Status: ", status);
+
+    await opseg2Store.fetchEnergySources(kespId.value);
 
     if (status !== 200 && status !== undefined) {
         showError();
@@ -336,6 +344,24 @@ main {
     height: 100%;
 }
 
+p,
+ul {
+    opacity: 0.8;
+}
+
+ul {
+    list-style-position: inside;
+    list-style-type: disc;
+    margin: 0;
+    padding: 0 0 0 20px;
+}
+
+ul ul {
+    list-style-type: circle;
+    margin: 0;
+    padding: 0 0 0 30px;
+    opacity: 1;
+}
 
 main>div {
     width: 100%;
