@@ -32,43 +32,94 @@ const truncateText = (text, length) => {
 };
 
 const transformCategories = (categories) => {
-    // Create a map to easily look up objects by their ukt_id (now "key")
+    // Step 1: Create a map to easily look up objects by their ukt_id (now "key")
     const map = new Map();
 
-    // Step 1: Transform ukt_id to key and initialize children array
+    // Step 2: Transform ukt_id to key and initialize children array
     categories.forEach(item => {
         map.set(item.ukt_id, {
             ...item,
-            // ukt_opis: splitOpis(item.ukt_opis),
-            // ukt_podaci: splitOpis(item.ukt_podaci),
-            // ukt_nacin: splitOpis(item.ukt_nacin),
-            // ukt_dinamika: splitOpis(item.ukt_dinamika),
-            // ukt_mingran: splitOpis(item.ukt_mingran),
+            relevant: item.usk_odabran === 'D' ? true : false, // Initialize as false, will set later
             key: item.ukt_id,
             children: []
         });
         delete map.get(item.ukt_id).ukt_id; // Remove old ukt_id property
     });
 
-    // Step 2: Build the hierarchy by assigning children
+    // Step 3: Populate children arrays for parent objects
     const result = [];
-    categories.forEach(item => {
-        const parent = map.get(item.ukt_ukt_id);
-        const current = map.get(item.ukt_id);
-        if (parent) {
-            parent.children.push(current);
+    map.forEach(item => {
+        if (item.ukt_ukt_id) {
+            const parent = map.get(item.ukt_ukt_id);
+            if (parent) {
+                parent.children.push(item);
+            }
         } else {
-            result.push(current); // Top-level nodes with no parent
+            result.push(item); // Top-level categories
         }
     });
 
     return result;
-}
+};
+
+// // Step 3: Build the hierarchy by assigning children
+// const result = [];
+// categories.forEach(item => {
+//     const parent = map.get(item.ukt_ukt_id);
+//     const current = map.get(item.ukt_id);
+//     if (parent) {
+//         parent.children.push(current);
+//     } else {
+//         result.push(current); // Top-level nodes with no parent
+//     }
+// });
+
+// // Step 4: Assign random relevant values to parent nodes
+// const assignRelevance = (nodes) => {
+//     nodes.forEach(node => {
+//         // Randomly assign relevance for parent nodes
+//         node.relevant = Math.random() < 0.8 ? false : true;
+
+//         // Propagate relevance to children
+//         if (node.children.length > 0) {
+//             if (!node.relevant) {
+//                 // If parent is not relevant, children cannot be relevant
+//                 node.children.forEach(child => child.relevant = false);
+//             } else {
+//                 // If parent is relevant, assign random relevance to children
+//                 assignRelevance(node.children);
+//             }
+//         }
+//     });
+// };
+
+// assignRelevance(result);
+
 
 function splitOpis(opis) {
     return opis.split('-').filter(item => item.trim() !== '').map(item => item.trim());
 }
 
+function formatOpis(opis) {
+    return opis.split('-').map(item => item.trim()).join('<br />');
+}
+
+function advancedFormatOpis(opis) {
+    const segments = opis.split(':'); // Dijelimo sadržaj prema dvotočki
+    let formatted = segments[0].trim(); // Prvi dio je uvodni tekst prije dvotočke
+    if (segments.length > 1) {
+        const natuknice = segments[1].split('-').filter(item => item.trim() !== ''); // Razdvajamo natuknice -
+        if (natuknice.length > 0) {
+            formatted += ':<ul class="intern">'; // Početak liste
+            natuknice.forEach(item => {
+                formatted += `<li class="tab-opis">${item.trim()}</li>`; // Dodavanje svakog elementa liste
+            });
+            formatted += '</ul>'; // Kraj liste
+        }
+    }
+    // Dodavanje preloma linija gdje nema dvotočke
+    return formatted //.replace(/- /g, '<br />'); // style="display:block; margin-bottom: 8px;" 
+}
 
 function formatDescription(item) {
     const fieldsToFormat = ["ukt_opis", "ukt_podaci", "ukt_nacin", "ukt_dinamika", "ukt_mingran"];
@@ -137,6 +188,8 @@ export {
     formatNumber,
     truncateText,
     splitOpis,
+    formatOpis,
+    advancedFormatOpis,
     transformCategories,
     transformAndFormatCategories,
     ukloniKvacicu,

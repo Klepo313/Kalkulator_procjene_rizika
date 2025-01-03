@@ -1,40 +1,3 @@
-// import { ref, computed } from 'vue';
-// import { useIzracunStore } from '#imports';
-// import { initializeCookie } from "~/utils/initializeCookie";
-
-// // const scenarij = ref('');
-
-// // const initializeScenarij = async () => {
-// //     const cookieValue = await initializeCookie('scenarij'); // Dohvati vrijednost iz kolačića
-// //     let scen;
-// //     if (cookieValue) {  // Ako kolačić postoji
-// //         scen = cookieValue ? cookieValue : 'RCP'; // Postavi scenarij
-// //     } else {
-// //         scen = 'RCP'; // Ako kolačić ne postoji, postavi na 'RCP'
-// //     }
-// //     return scen;
-// // };
-
-// // scenarij.value = await initializeScenarij();
-
-// const izracunStore = useIzracunStore();
-
-// // // Postavi scenarij na temelju kolačića
-// // const initializeScenarij = async () => {
-// //     console.log("Scenarij:", izracunStore.scenarij);
-// //     const cookieValue = await initializeCookie('scenarij');
-// //     if (cookieValue) {
-// //         izracunStore.updateScenarij(cookieValue); // Ažuriraj store s vrijednosti iz kolačića
-// //     } else {
-// //         izracunStore.updateScenarij('RCP'); // Postavi zadanu vrijednost ako kolačić ne postoji
-// //     }
-// // };
-
-// // // Inicijaliziraj scenarij iz kolačića
-// // initializeScenarij();
-
-// // Koristi `computed` da budeš uvijek usklađen s vrijednostima iz store-a
-// const scenarij = ref(izracunStore.scenarij)
 
 const firstRow = ref([
     { class: 'grid-item vertical tablegreen th nb-b', label: 'Kronični', rowStart: 1, rowSpan: 28, colSpan: 1 }, // Započinje u 1. redu i traje 26 redova
@@ -392,6 +355,86 @@ const pozicijaPostavke = {
     '104': { rowStart: 41, columnStart: 31 },
 };
 
+const djelatnostCellRanges = {
+    '11': { range: 'F19:L22' },
+    '12': { range: 'O19:U22' },
+    '13': { range: 'X19:AD22' },
+    '14': { range: 'AG19:AM22' },
+
+    '21': { range: 'F23:L26' },
+    '23': { range: 'X23:AD26' },
+    '24': { range: 'AG23:AM26' },
+
+    '31': { range: 'F27:L30' },
+    '33': { range: 'X27:AD30' },
+    '34': { range: 'AG27:AM30' },
+
+    '41': { range: 'F31:L34' },
+    '43': { range: 'X31:AD34' },
+    '44': { range: 'AG31:AM34' },
+
+    '53': { range: 'X35:AD38' },
+
+    '63': { range: 'X39:AD42' },
+
+    '71': { range: 'F43:L46' },
+    '72': { range: 'O43:U46' },
+    '73': { range: 'X43:AD46' },
+    '74': { range: 'AG43:AM46' },
+
+    '81': { range: 'F47:L50' },
+    '82': { range: 'O47:U50' },
+    '83': { range: 'X47:AD50' },
+    '84': { range: 'AG47:AM50' },
+
+    '91': { range: 'F51:L54' },
+    '92': { range: 'O51:U54' },
+    '93': { range: 'X51:AD54' },
+    '94': { range: 'AG51:AM54' },
+
+    '103': { range: 'X55:AD58' },
+};
+
+const imovinaCellRanges = {
+    '11': { range: 'E19:K19' },
+    '12': { range: 'M19:S19' },
+    '13': { range: 'U19:AA19' },
+    '14': { range: 'AC19:AI19' },
+
+    '21': { range: 'E20:K20' },
+    '23': { range: 'U20:AA20' },
+    '24': { range: 'AC20:AI20' },
+
+    '31': { range: 'E21:K21' },
+    '33': { range: 'U21:AA21' },
+    '34': { range: 'AC21:AI21' },
+
+    '41': { range: 'E22:K22' },
+    '43': { range: 'U22:AA22' },
+    '44': { range: 'AC22:AI22' },
+
+    '53': { range: 'U23:AA23' },
+
+    '63': { range: 'U24:AA24' },
+
+    '71': { range: 'E25:K25' },
+    '72': { range: 'M25:S25' },
+    '73': { range: 'U25:AA25' },
+    '74': { range: 'AC25:AI25' },
+
+    '81': { range: 'E26:K26' },
+    '82': { range: 'M26:S26' },
+    '83': { range: 'U26:AA26' },
+    '84': { range: 'AC26:AI26' },
+
+    '91': { range: 'E27:K27' },
+    '92': { range: 'M27:S27' },
+    '93': { range: 'U27:AA27' },
+    '94': { range: 'AC27:AI27' },
+
+    '103': { range: 'U28:AA28' },
+}
+
 export {
     firstRow,
     secondRow,
@@ -401,5 +444,7 @@ export {
     gridHeaderItemConfig,
     parametri,
     parametriPositions,
-    pozicijaPostavke
+    pozicijaPostavke,
+    djelatnostCellRanges,
+    imovinaCellRanges,
 }
