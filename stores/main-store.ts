@@ -433,8 +433,8 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.tvs_id === 0 ? null : this.opci_podaci.tvs_id
             )
 
-            console.log("Response savea: ", response)
-            console.log("Res-id-response: ", response.resId)
+            console.log("Response savea: ", response.data)
+            console.log("Res-id-response: ", response.data.calculationId)
             return response;
         }
 
@@ -625,87 +625,83 @@ export const useVehicleStore = defineStore('vehicleStore', {
         vozila: [],
         vrsteVozila: [],
         vrsteGoriva: [],
-        filteredVrsteGoriva: [],
-        vozilo: {
-            id: null,
-            uiz_id: null,
-            uge_id: null,
-            vozilo: {
-                id: null,
-                skupina: '',
-                vrsta: ''
-            },
-            gorivo: {
-                id: null,
-                uvg_id: null,
-                label: '',
-                value: '',
-                metric: '',
-            },
-            potrosnjaGoriva: 0.00,
-            emisije: 0.00
-        },
+        // filteredVrsteGoriva: [],
+        // vozilo: {
+        //     id: null,
+        //     uiz_id: null,
+        //     uge_id: null,
+        //     vozilo: {
+        //         id: null,
+        //         skupina: '',
+        //         vrsta: ''
+        //     },
+        //     gorivo: {
+        //         id: null,
+        //         uvg_id: null,
+        //         label: '',
+        //         value: '',
+        //         metric: '',
+        //     },
+        //     potrosnjaGoriva: 0.00,
+        //     emisije: 0.00
+        // },
         voziloDialogVisible: false,
         deleteVoziloDialog: false,
     }),
 
     // Getters: za obračunate vrednosti
     getters: {
-        totalEmissionsFromVehicles(state) {
-            return state.vozila.reduce((total, v) => total + v.emisije, 0);
+        ukupnaEmisija: (state) => {
+            return state.vozila
+                .reduce((sum, vozilo) => sum + parseFloat(vozilo.usi_emisija || 0), 0)
+                .toFixed(2);
+        },
+        // Ukupna emisija za zadatu kategoriju (uge_naziv)
+        emisijaZaKategoriju: (state) => (kategorija: string) => {
+            return state.vozila
+                .filter(vozilo => vozilo.uge_naziv === kategorija) // Filtriraj vozila prema kategoriji
+                .reduce((sum, vozilo) => sum + parseFloat(vozilo.usi_emisija || 0), 0) // Zbir emisija
+                .toFixed(2); // Zaokruži na dve decimale
         },
     },
 
     // Actions: za funkcije koje manipulišu stanjem
     actions: {
         async fetchVehicles(id) {
-            const vozila = await getVehicles(id);
+            try {
+                const vozila = await getVehicles(id);
 
-            if (!vozila.message) {
-                for (const vozilo of vozila) {
-                    this.vozila.push({
-                        id: vozilo.usi_id,
-                        uiz_id: vozilo.usi_uiz_id,
-                        uge_id: vozilo.usi_uge_id,
-                        vozilo: {
-                            id: vozilo.usi_uvv_id,
-                            skupina: vozilo.uge_naziv,
-                            vrsta: vozilo.usi_uvv_naziv
-                        },
-                        gorivo: {
-                            id: vozilo.usi_uvg_id,
-                            label: vozilo.uvg_knaziv,
-                            value: vozilo.uvg_naziv,
-                            metric: vozilo.usi_jmj,
-                        },
-                        potrosnjaGoriva: parseFloat(vozilo.usi_kolicina),
-                        emisije: parseFloat(vozilo.usi_emisija)
-                    })
-                    // vozilo: {
-                    //     id: null,
-                    //     uiz_id: null,
-                    //     uge_id: null,
-                    //     vozilo: {
-                    //         uvv_id: null,
-                    //         skupina: '',
-                    //         vrsta: ''
-                    //     },
-                    //     gorivo: {
-                    //         id: null,
-                    //         uvg_id: null,
-                    //         label: '',
-                    //         value: '',
-                    //         metric: '',
-                    //     },
-                    //     potrosnjaGoriva: 0.00,
-                    //     emisije: 0.00
-                    // },
+                if (!vozila.message) {
+                    // Grupiranje vozila
+                    const grupiranaVozila = vozila.reduce((grupa, vozilo) => {
+                        const ugeKey = vozilo.uge_naziv || 'Ostalo'; // Grupiranje po 'uge_naziv'
+                        if (!grupa[ugeKey]) {
+                            grupa[ugeKey] = {};
+                        }
+
+                        const usiKey = vozilo.usi_uvv_id || vozilo.usi_uvv_naziv || 'Nepoznato'; // Grupiranje po 'usi_uvv_id' ili 'usi_uvv_naziv'
+                        if (!grupa[ugeKey][usiKey]) {
+                            grupa[ugeKey][usiKey] = [];
+                        }
+
+                        grupa[ugeKey][usiKey].push(vozilo);
+                        return grupa;
+                    }, {});
+
+                    // Pretvori objekt grupiranih vozila u niz
+                    this.vozila = Object.values(grupiranaVozila).flatMap(usiGroup =>
+                        Object.values(usiGroup).flat()
+                    );
+                } else {
+                    this.vozila = [];
+                    console.log("Nema vozila");
                 }
-            } else {
+            } catch (error) {
+                console.error("Greška prilikom dohvaćanja vozila:", error);
                 this.vozila = [];
-                console.log("Nema vozila");
             }
         },
+
         async fetchEmissions() {
             const vrste_vozila = await getEmmisionGroups();
 
@@ -742,20 +738,21 @@ export const useVehicleStore = defineStore('vehicleStore', {
                 }
             }
         },
-        async fetchFuels() {
-            const goriva = await getFuelTypes();
+        async fetchFuels(p_uge_id: number, p_uvv_id: number) {
+            const goriva = await getFuelTypes(p_uge_id, p_uvv_id);
+            this.vrsteGoriva = goriva;
 
-            for (const gorivo of goriva) {
-                this.vrsteGoriva.push({
-                    id: gorivo.ufe_id,
-                    uvg_id: gorivo.uvg_id,
-                    uge_id: gorivo.ufe_uge_id,
-                    label: gorivo.uvg_knaziv,
-                    value: gorivo.uvg_naziv,
-                    metric: gorivo.uvg_jedmj,
-                    koeficijent: parseFloat(gorivo.uvg_koefco2)
-                })
-            }
+            // for (const gorivo of goriva) {
+            //     this.vrsteGoriva.push({
+            //         id: gorivo.uvg_id,
+            //         uvg_sif: gorivo.uvg_sif,
+            //         label: gorivo.uvg_knaziv,
+            //         value: gorivo.uvg_naziv,
+            //         value_eng: gorivo.uvg_naziv_en,
+            //         metric: gorivo.uvg_jedmj,
+            //         koeficijent: parseFloat(gorivo.uvg_koefco2)
+            //     })
+            // }
 
             console.log("goriva: ", this.vrsteGoriva)
         },
