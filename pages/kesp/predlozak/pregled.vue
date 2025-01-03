@@ -162,12 +162,12 @@
                         CO2 t/god
                     </div>
                 </section>
-                <section>
+                <div style="width: min-content;">
                     <span v-tooltip.top="'Još nije u funkciji.'" class="download-btn">
                         <font-awesome-icon icon="download" />
                         <span>Preuzmi izvještaj</span>
                     </span>
-                </section>
+                </div>
             </div>
             <div class="stats-content">
                 <!-- <div>
@@ -483,7 +483,6 @@ strong,
     flex-wrap: nowrap;
     gap: 10px;
 
-    width: auto;
     border: 1px solid transparent;
     background: none !important;
     color: var(--text-color);
@@ -492,6 +491,7 @@ strong,
 
 .download-btn span {
     width: 100%;
+    text-wrap: nowrap;
 }
 
 .download-btn:hover {
