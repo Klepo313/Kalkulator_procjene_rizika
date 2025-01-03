@@ -136,7 +136,8 @@
                     </div>
                 </section>
             </div>
-            <div class="stats-content">
+            <div v-if="izracuni.some(item => item.neobnovljivo !== null || item.obnovljivo !== null)"
+                class="stats-content">
                 <!-- <div>
                     <span class="stats-title">
                         <font-awesome-icon icon="chart-pie" />
@@ -158,7 +159,7 @@
                             <p>Ukupna potrošnja energije (kWh)</p>
                             <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('polar')" />
                         </span>
-                        <Chart type="polarArea" :data="O2polarChartData" :options="chartOptions"
+                        <Chart type="pie" :data="O2polarChartData" :options="chartOptions"
                             class="w-full md:w-[30rem]" />
                     </div>
                 </div>
@@ -174,7 +175,7 @@
                         </span>
                         <Chart v-if="fullscreenChart === 'pie'" type="pie" :data="combinedChartData"
                             :options="chartOptions" class="fullscreen-chart-content" />
-                        <Chart v-if="fullscreenChart === 'polar'" type="polarArea" :data="O2polarChartData"
+                        <Chart v-if="fullscreenChart === 'polar'" type="pie" :data="O2polarChartData"
                             :options="chartOptions" class="fullscreen-chart-content" />
                     </div>
                 </div>
