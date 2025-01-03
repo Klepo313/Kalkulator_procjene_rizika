@@ -570,7 +570,7 @@
                         <DataTable v-if="selectPartneriValue.label == 'PRV'" v-model:filters="filterPravne"
                             :value="partneri.pravneOsobe" :rows="10" data-key="id" selection-mode="single" scrollable
                             scroll-height="400px"
-                            :global-filter-fields="['naziv_tvrtke', 'oib_tvrtke', 'adresa', 'mjesto', 'vlasnik']"
+                            :global-filter-fields="['naziv_tvrtke', 'oib_tvrtke', 'adresa', 'mjesto', 'kontakt_osoba']"
                             :loading="loading" removable-sort table-style="min-width: 50rem">
                             <template #header>
                                 <div class="flex justify-end">
@@ -597,7 +597,7 @@
                             </Column>
                             <Column field="naziv_tvrtke" header="Naziv tvrtke" />
                             <Column field="oib_tvrtke" header="OIB tvrtke" />
-                            <Column field="vlasnik" header="Vlasnik tvrtke" />
+                            <Column field="kontakt_osoba" header="Kontakt osoba" />
                             <Column field="adresa" header="Adresa" />
                             <Column field="mjesto" header="Mjesto" />
                         </DataTable>
@@ -612,13 +612,13 @@
                                 <span>Dodaj partnera</span>
                             </div>
                         </template>
-                        <Form v-slot="$form_partner" :resolver="resolver" :initial-values="initialValues"
-                            class="p-fluid-partner" @submit.prevent="savePartner">
+                        <form v-if="selectPartneriValue.label == 'FIZ'" class="p-fluid-partner"
+                            @submit.prevent="savePartner">
                             <div class="fiz-form"> <!--v-if="selectPartneriValue.label == 'FIZ'"-->
                                 <div class="section">
                                     <div class="field-heading">
-                                        <h2 class="p-text-bold">Podaci o korisniku</h2>
-                                        <p>Izmjeni podatake o korisniku</p>
+                                        <h2 class="p-text-bold">Podaci o partneru</h2>
+                                        <p>Dodaj novog fizičkog partnera</p>
                                     </div>
                                     <div class="field field-split">
                                         <div>
@@ -627,7 +627,7 @@
                                                 <label for="ime">Ime</label>
                                             </div>
                                             <InputText id="ime" v-model="tempFizPartner.ime" placeholder="Ime korisnika"
-                                                readonly required />
+                                                required />
                                         </div>
                                         <div>
                                             <div class="label-container">
@@ -635,7 +635,7 @@
                                                 <label for="prezime">Prezime</label>
                                             </div>
                                             <InputText id="prezime" v-model="tempFizPartner.prezime"
-                                                placeholder="Prezime korisnika" readonly required />
+                                                placeholder="Prezime korisnika" required />
                                         </div>
                                     </div>
                                     <div class="field">
@@ -643,7 +643,7 @@
                                             <font-awesome-icon icon="address-card" />
                                             <label for="oib">OIB</label>
                                         </div>
-                                        <InputOtp id="oib" v-model="tempFizPartner.oib" integer-only readonly
+                                        <InputOtp id="oib" v-model="tempFizPartner.oib" :length="11" integer-only
                                             required />
                                     </div>
                                     <div class="field">
@@ -652,41 +652,107 @@
                                             <label for="tvrtka">Tvrtka</label>
                                         </div>
                                         <InputText id="tvrtka" v-model="tempFizPartner.tvrtka"
-                                            placeholder="Tvrtka korisnika" readonly required />
+                                            placeholder="Tvrtka partnera" required />
                                     </div>
                                     <div class="field field-split">
                                         <div>
                                             <div class="label-container">
-                                                <font-awesome-icon icon="email" />
+                                                <font-awesome-icon icon="envelope" />
                                                 <label for="email">Email</label>
                                             </div>
                                             <InputText id="email" v-model="tempFizPartner.email"
-                                                placeholder="Ime korisnika" readonly required />
-                                            <Message v-if="$form_partner.email?.invalid" severity="error" size="small"
+                                                placeholder="Email partnera" required />
+                                            <!-- <Message v-if="$form_partner.email?.invalid" severity="error" size="small"
                                                 variant="simple">
-                                                {{ $form_partner.email.error?.message }}</Message>
+                                                {{ $form_partner.email.error?.message }}</Message> -->
                                         </div>
                                         <div>
                                             <div class="label-container">
                                                 <font-awesome-icon icon="phone" />
                                                 <label for="telefon">Kontakt telefon</label>
                                             </div>
-                                            <InputOtp v-model="tempFizPartner.telefon" :length="10" style="gap: 0">
-                                                <template #default="{ attrs, events, index }">
-                                                    <input type="text" v-bind="attrs" v-on="events"
-                                                        class="custom-otp-input" />
-                                                    <div v-if="index === 3" class="px-4">
-                                                        /
-                                                    </div>
-                                                </template>
-                                            </InputOtp>
+                                            <InputText v-model="tempFizPartner.telefon" placeholder="Kontakt telefon"
+                                                integer-only />
                                             <!-- <InputText id="telefon" v-model="tempFizPartner.telefon"
                                                 placeholder="Kontakt telefon" readonly required /> -->
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </Form>
+                        </form>
+                        <form v-if="selectPartneriValue.label == 'PRV'" class="p-fluid-partner"
+                            @submit.prevent="savePartner">
+                            <div class="fiz-form"> <!--v-if="selectPartneriValue.label == 'FIZ'"-->
+                                <div class="section">
+                                    <div class="field-heading">
+                                        <h2 class="p-text-bold">Podaci o partneru</h2>
+                                        <p>Dodaj novog pravnog partnera</p>
+                                    </div>
+                                    <div class="field">
+                                        <div class="label-container">
+                                            <font-awesome-icon icon="building" />
+                                            <label for="tvrtka">Naziv tvrtke</label>
+                                        </div>
+                                        <InputText id="tvrtka" v-model="tempPrvPartner.tvrtka"
+                                            placeholder="Naziv tvrtke" required />
+                                    </div>
+                                    <div class="field field-split">
+                                        <div>
+                                            <div class="label-container">
+                                                <font-awesome-icon icon="user" />
+                                                <label for="vlasnik">Kontakt osoba</label>
+                                            </div>
+                                            <InputText id="vlasnik" placeholder="Kontakt osoba"
+                                                v-model="tempPrvPartner.kontakt_osoba" required />
+                                        </div>
+                                        <div>
+                                            <div class="label-container">
+                                                <font-awesome-icon icon="phone" />
+                                                <label for="telefon">Kontakt telefon</label>
+                                            </div>
+                                            <InputText v-model="tempPrvPartner.kontakt_telefon"
+                                                placeholder="Kontakt telefon" integer-only />
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <div class="label-container">
+                                            <font-awesome-icon icon="address-card" />
+                                            <label for="oib">OIB tvrtke</label>
+                                        </div>
+                                        <InputOtp id="oib" v-model="tempPrvPartner.oib_tvrtke" :length="11" integer-only
+                                            required />
+                                    </div>
+                                    <div class="field field-split">
+                                        <div>
+                                            <div class="label-container">
+                                                <font-awesome-icon icon="map-location" />
+                                                <label for="adresa">Adresa tvrtke</label>
+                                            </div>
+                                            <InputText id="adresa" v-model="tempPrvPartner.adresa"
+                                                placeholder="Adresa tvrtke" required />
+                                            <!-- <Message v-if="$form_partner.email?.invalid" severity="error" size="small"
+                                                variant="simple">
+                                                {{ $form_partner.email.error?.message }}</Message> -->
+                                        </div>
+                                        <div>
+                                            <div class="label-container">
+                                                <font-awesome-icon icon="city" />
+                                                <label for="telefon">Mjesto</label>
+                                            </div>
+                                            <InputText v-model="tempPrvPartner.mjesto" placeholder="Mjesto" />
+                                            <!-- <InputText id="telefon" v-model="tempFizPartner.telefon"
+                                                placeholder="Kontakt telefon" readonly required /> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <template #footer>
+                            <button class="p-button p-component p-button-secondary" @click="openPartnerDialog = false">
+                                Odustani
+                            </button>
+                            <button class="submitBtn" type="submit" @click="savePartner">Dodaj partnera</button>
+                        </template>
                     </Dialog>
                 </section>
             </div>
@@ -698,6 +764,7 @@
 <script setup>
 import { FilterMatchMode } from '@primevue/core/api';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
+import AutoComplete from 'primevue/autocomplete';
 import z from 'zod';
 
 definePageMeta({
@@ -705,6 +772,8 @@ definePageMeta({
         'auth'
     ],
 });
+
+const toast = useToast()
 
 const odabraniKorisnik = ref(null);
 const odabraniPartner = ref();
@@ -812,8 +881,42 @@ const tempFizPartner = ref({
     email: '',
 })
 
-// 'ime', 'prezime', 'oib', 'email' , 'telefon'
-// 'naziv_tvrtke', 'oib_tvrtke', 'adresa', 'mjesto'
+const resetFizPartner = () => {
+    tempFizPartner.value = {
+        id: null,
+        ime: '',
+        prezime: '',
+        oib: null,
+        tvrtka: '',
+        telefon: null,
+        email: '',
+    }
+}
+
+const tempPrvPartner = ref({
+    // id: partneri.value?.length > 0 
+    //     ? partneri.value[partneri.value.length - 1].id + 1 
+    //     : null,
+    id: null,
+    oib_tvrtke: null,
+    tvrtka: '',
+    kontakt_osoba: '',
+    kontakt_telefon: null,
+    adresa: '',
+    mjesto: ''
+});
+
+const resetPrvPartner = () => {
+    tempPrvPartner.value = {
+        id: null,
+        oib_tvrtke: null,
+        tvrtka: '',
+        kontakt_osoba: '',
+        kontakt_telefon: null,
+        adresa: '',
+        mjesto: ''
+    }
+}
 
 const sada = new Date();
 
@@ -868,6 +971,7 @@ const populateUsers = () => {
         // Dodaj korisnika u listu
         korisnici.value.push({
             id: i + 1,
+            tip: 'FIZ',
             ime,
             prezime,
             tvrtka,
@@ -924,6 +1028,7 @@ function populatePartneri() {
 
             const ime = imena[Math.floor(Math.random() * imena.length)];
             const prezime = prezimena[Math.floor(Math.random() * prezimena.length)];
+            const telefon = generirajTelefon();
 
             const korimeBase = ukloniKvacicu(nazivTvrtke.toLowerCase().replace(/\s+/g, ''));
             let korime = korimeBase;
@@ -938,9 +1043,9 @@ function populatePartneri() {
                 id: i + 1,
                 naziv_tvrtke: nazivTvrtke,
                 oib_tvrtke: oib,
-                vlasnik: ime + ' ' + prezime,
+                kontakt_osoba: ime + ' ' + prezime,
                 adresa,
-                postanski_broj: postanskiBroj,
+                telefon: telefon,
                 mjesto,
                 zupanija,
             });
@@ -970,10 +1075,9 @@ function populatePartneri() {
         }
     }
 
-    console.log({ fizickeOsobe, pravneOsobe });
+    console.log(fizickeOsobe, pravneOsobe);
     return { fizickeOsobe, pravneOsobe };
 };
-
 
 const updateKorime = () => {
     // Generiraj korisničko ime
@@ -1026,6 +1130,13 @@ const getSeverity = (status) => {
     }
 }
 
+const showSuccessPartner = (osoba) => {
+    toast.add({ severity: 'success', summary: 'Uspješno dodan partner', detail: `Partner: ${osoba.ime || osoba.naziv_tvrtke} ${osoba.prezime || ', ' + osoba.kontakt_osoba}`, life: 3000 });
+};
+
+const showErrorPartner = (osoba) => {
+    toast.add({ severity: 'error', summary: 'Greška dodavanja partnera', detail: `Partner: ${osoba.ime || osoba.naziv_tvrtke} ${osoba.prezime || ', ' + osoba.kontakt_osoba}`, life: 3000 });
+};
 
 const resetOdabraniKorisnik = () => {
     odabraniKorisnik.value = null; // Ako imate originalne podatke ili postavite prazne vrijednosti
@@ -1066,9 +1177,54 @@ const addPartner = () => {
     openPartnerDialog.value = true;
 }
 
-watch(odabraniPartner, () => {
-
-})
+const savePartner = () => {
+    console.log("Odabrani partner: ", selectPartneriValue.value)
+    if (selectPartneriValue.value.label === 'FIZ') {
+        const osoba = {
+            id: partneri.value.fizickeOsobe.length > 0
+                ? partneri.value.fizickeOsobe[partneri.value.fizickeOsobe.length - 1].id + 1
+                : 1, // Početni ID ako je niz prazan
+            ime: tempFizPartner.value.ime,
+            prezime: tempFizPartner.value.prezime,
+            oib: tempFizPartner.value.oib,
+            tvrtka: tempFizPartner.value.tvrtka,
+            telefon: tempFizPartner.value.telefon,
+            email: tempFizPartner.value.email,
+        };
+        try {
+            console.log("Osoba: ", osoba);
+            partneri.value.fizickeOsobe.push(osoba); // Push u `fizickeOsobe` niz
+            showSuccessPartner(osoba)
+        } catch (error) {
+            console.error(error)
+            showErrorPartner();
+        }
+    }
+    else if (selectPartneriValue.value.label === 'PRV') {
+        const osoba = {
+            id: partneri.value.pravneOsobe.length > 0
+                ? partneri.value.pravneOsobe[partneri.value.pravneOsobe.length - 1].id + 1
+                : 1, // Početni ID ako je niz prazan
+            oib_tvrtke: tempPrvPartner.value.oib_tvrtke,
+            naziv_tvrtke: tempPrvPartner.value.tvrtka,
+            kontakt_osoba: tempPrvPartner.value.kontakt_osoba,
+            telefon: tempPrvPartner.value.telefon,
+            adresa: tempPrvPartner.value.adresa,
+            mjesto: tempPrvPartner.value.mjesto
+        }
+        console.log("Osoba: ", osoba);
+        try {
+            showSuccessPartner(osoba)
+            partneri.value.pravneOsobe.push(osoba);
+        } catch (error) {
+            console.error(error)
+            showErrorPartner();
+        }
+    }
+    resetFizPartner();
+    resetPrvPartner();
+    openPartnerDialog.value = false;
+}
 
 </script>
 
