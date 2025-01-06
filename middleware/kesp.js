@@ -6,11 +6,11 @@ export default defineNuxtRouteMiddleware((to) => {
         console.log(to.query, id, !id, id !== 'null'); // Debug log za provjeru vrijednosti
 
         if (!id || (id.length < 60 && id !== 'null')) {
-            return navigateTo('/kpkr/predlosci');
+            return navigateTo('/kesp/predlosci');
         }
     } catch (error) {
         console.error('Middleware error:', error);
-        return navigateTo('/kpkr/predlosci');
+        return navigateTo('/kesp/predlosci');
     }
 });
 
