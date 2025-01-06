@@ -22,9 +22,9 @@ const restructureData = (data) => {
     return groupedData;
 }
 
-const formatNumber = (value) => {
+const formatNumber = (value, maxDigitNumber) => {
     // return new Intl.NumberFormat('en-US').format(value);
-    return new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+    return new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: maxDigitNumber || 2 }).format(value);
 }
 
 const truncateText = (text, length) => {
