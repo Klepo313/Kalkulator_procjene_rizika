@@ -783,6 +783,10 @@ const deleteKorisnikaDialog = ref(false);
 const loading = ref();
 const expandedGroups = ref([]);
 
+const addKorisnik = () => {
+    console.log("adding...")
+}
+
 const initialValues = ref({
     username: '',
     password: ''
