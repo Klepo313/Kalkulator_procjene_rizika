@@ -3,9 +3,10 @@ export const getIdFromUrl = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
         console.log("parametar predlozak: ", id);
-        if (id) {
+        if (typeof id === 'string' && id !== null && id !== 'null') {
             return id; // Vrati dešifrovanu vrednost
         }
+
     } else {
         console.warn("getIdFromUrl is called on the server side where window is not available.");
     }
