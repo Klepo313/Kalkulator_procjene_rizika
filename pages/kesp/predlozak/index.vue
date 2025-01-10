@@ -110,8 +110,8 @@
                                         style="margin-right: 5px;" /> -->
                                     Ukupno
                                     <strong style="margin-left: 5px;"> {{
-                                        formatNumber(vehicleStore.emisijaZaKategoriju(slotProps.data.uge_naziv))
-                                    }}</strong>
+                                        formatNumber(vehicleStore.emisijaZaKategoriju(slotProps.data.uge_naziv, 2))
+                                        }}</strong>
                                 </div>
                             </template>
                             <Column field="uge_naziv" header="Naziv" />
@@ -161,7 +161,7 @@
                                         {{ '/' }}
                                     </span>
                                     <span v-else>
-                                        {{ formatNumber(slotProps.data.usi_kolicina) }}
+                                        {{ formatNumber(slotProps.data.usi_kolicina, 2) }}
                                     </span>
                                 </template>
                             </Column>
@@ -172,13 +172,13 @@
                             </Column>
                             <Column field="emisije" header="Emisije CO₂/kg" sortable>
                                 <template #body="slotProps">
-                                    <span>{{ formatNumber(parseFloat(slotProps.data.usi_emisija).toFixed(2)) }}</span>
+                                    <span>{{ formatNumber(parseFloat(slotProps.data.usi_emisija, 2)) }}</span>
                                 </template>
                             </Column>
                             <template #footer>
                                 <div class="total-emissions">
                                     <div>
-                                        Ukupno: <strong>{{ formatNumber(ukupnaEmisija) }}</strong> CO<sub>2</sub>/kg
+                                        Ukupno: <strong>{{ formatNumber(ukupnaEmisija, 2) }}</strong> CO<sub>2</sub>/kg
                                     </div> <!--.toFixed(2)-->
                                 </div>
                             </template>
@@ -344,7 +344,7 @@
                                 <Column field="uir_emisija" header="Emisije CO2 /kg">
                                     <template #body="{ data, field }">
                                         <strong style="text-decoration: none; color: var(--kesp-primary);">{{
-                                            formatNumber(data[field]) }}</strong>
+                                            formatNumber(data[field], 3) }}</strong>
                                     </template>
                                 </Column>
                                 <Column :row-editor="true" style="width: min-content; min-width: 2rem;"
@@ -477,6 +477,7 @@ const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
 const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
 
 const kespId = ref(props.uiz_id);
+console.log("kespId u index: " + kespId.value);
 
 const vozila = computed(() => vehicleStore.vozila);
 const ukupnaEmisija = computed(() => vehicleStore.ukupnaEmisija)
@@ -561,7 +562,6 @@ const gwpDialogHide = async () => {
         await vehicleStore.fetchVehicles(kespId.value)
     }
     gwpDialogVisible.value = false;
-    voziloDialogVisible.value = false;
 }
 
 async function onGwpIzracunSave(event) {
@@ -593,7 +593,7 @@ async function onGwpIzracunSave(event) {
                 console.error("GWP izračun za ovaj red ne postoji");
                 return null;
             }
-            console.log("Emisija: ", Number(emisija).toFixed(2));
+            console.log("Emisija: ", Number(emisija).toFixed(4));
             return emisija;
         } catch (error) {
             console.error("Error fetching GWP for cooling losses:", error);

@@ -53,7 +53,8 @@
                     <font-awesome-icon icon="circle-user" size="xl" />
                     <div :class="['profile-details', isCollapsed ? 'collapsed' : '']">
                         <h4 :class="isCollapsed ? 'collapsed' : ''"
-                            :style="{ fontSize: nameLength > 20 ? '14px' : 'initial' }" class="responsive-text">
+                            :style="{ fontSize: (name + surname).length > 20 ? '14px' : 'initial' }"
+                            class="responsive-text">
                             {{ capitalizeName(name + ' ' + surname) }}
                         </h4>
                         <span :class="isCollapsed ? 'collapsed' : ''" class="responsive-text">
@@ -95,6 +96,7 @@ const router = useRouter();
 
 const brojIzracuna = computed(() => kespStore.getKespBrojIzracuna);
 const kespId = computed(() => props.uiz_id);
+console.log("U sidebaru: ", kespId.value)
 
 const username = ref('');
 const name = ref('');
