@@ -164,20 +164,10 @@ const getScenarios = async () => {
     }
 }
 
-const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipalityId, cadastreParticleId, objectTypeId, activityId, description, remark, scenarij) => {
+const saveForm = async (data) => {
+    console.log("Primljeni podaci: ", data)
     try {
-        const response = await axios.post(`${base_url}/calculation`, {
-            calculationId: calculationId,
-            date: date,
-            calculationTypeId: parseInt(calculationTypeId),
-            cadastreMunicipalityId: parseInt(cadastreMunicipalityId),
-            cadastreParticleId: parseInt(cadastreParticleId),
-            objectTypeId: objectTypeId == null ? null : parseInt(objectTypeId),
-            activityId: activityId == null ? null : parseInt(activityId),
-            scenarioTypeId: scenarij,
-            description: description,
-            remark: remark,
-        }, {
+        const response = await axios.post(`${base_url}/calculation`, data, {
             withCredentials: true, // Ensure cookies are included in requests
             headers: {
                 'Content-Type': 'application/json',
