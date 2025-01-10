@@ -11,10 +11,12 @@ const getO3categories = async (id) => {
             withCredentials: true, // Ovo omogućava slanje kolačića
         });
 
-        console.log("categories: ", response.data)
+        const data = await response.data
+
+        console.log("categories: ", data)
 
         if (response.status == 200) {
-            return response.data; // Vratite podatke ako je potrebno
+            return data; // Vratite podatke ako je potrebno
         } else {
             console.error('Došlo je do pogreške na serveru!');
             return null; // Vratite null ako je greška
