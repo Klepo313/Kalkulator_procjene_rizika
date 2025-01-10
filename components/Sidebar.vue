@@ -58,24 +58,6 @@
                     <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-cells" />
                     <h3 :class="isCollapsed ? 'collapsed' : ''">Rezultat izračuna</h3>
                 </nuxt-link>
-                <!-- <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']">
-                    <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="chart-bar" />
-                    <h2 :class="isCollapsed ? 'collapsed' : ''">Statistički podaci</h2>
-                </div> -->
-                <!-- <div :class="['navigation', isCollapsed ? 'collapsed' : '']">
-                    <nuxt-link :class="[
-                        'nuxtlink-form',
-                        'opci',
-                        isActiveRoute('/rizik-sazetak') ? 'active' : 'inactive',
-                        isCollapsed ? 'collapsed' : '',
-                        isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je brojIzracuna '/'
-                    ]" :to="isDisabled ? '#' : '/rizik-sazetak'" :tabindex="isDisabled ? -1 : 0"
-                        :aria-disabled="isDisabled">
-                        <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-cells" />
-                        <h3 :class="isCollapsed ? 'collapsed' : ''">Rezultat izračuna</h3>
-                    </nuxt-link>
-
-                </div> -->
             </div>
         </div>
         <div class="bottom-container">
@@ -88,7 +70,8 @@
                     <font-awesome-icon icon="circle-user" size="xl" />
                     <div :class="['profile-details', isCollapsed ? 'collapsed' : '']">
                         <h4 :class="isCollapsed ? 'collapsed' : ''"
-                            :style="{ fontSize: nameLength > 20 ? '14px' : 'initial' }" class="responsive-text">
+                            :style="{ fontSize: (name + surname).length > 20 ? '14px' : 'initial' }"
+                            class="responsive-text">
                             {{ capitalizeName(name + ' ' + surname) }}
                         </h4>
                         <span :class="isCollapsed ? 'collapsed' : ''" class="responsive-text">
@@ -116,7 +99,7 @@ const opciStore = useOpciStore();
 const cardStore = useCardStore();
 const route = useRoute();
 
-const brojIzracuna = computed(() => opciStore.opci_podaci.aiz_broj);
+const brojIzracuna = computed(() => cardStore.broj);
 const username = ref('');
 const name = ref('');
 const surname = ref('');
@@ -138,7 +121,7 @@ const isDisabled = computed(
         brojIzracuna.value == null
 );
 
-watch(() => opciStore.opci_podaci.aiz_broj, (newValue) => {
+watch(() => cardStore.broj, (newValue) => {
     console.log('Broj izračuna updated: ', newValue);
     brojIzracuna.value = parseInt(newValue);
 });

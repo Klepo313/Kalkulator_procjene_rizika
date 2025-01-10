@@ -151,8 +151,8 @@ const adaptStore = useAdaptStore();
 const cardStore = useCardStore();
 const structuredDataStore = useStructuredGridDataStore();
 
-const idIzracuna = computed(() => props.aiz_id == 'null' ? getIdFromUrl() : props.aiz_id)
-const brojIzracuna = computed(() => opciStore.opci_podaci.aiz_broj);
+const idIzracuna = computed(() => props.aiz_id || cardStore.cardId)
+const brojIzracuna = computed(() => cardStore.broj);
 
 const tabPanelRef = ref(null);
 const maxSazetakWidth = ref('100%'); // Inicijalna vrijednost
@@ -160,16 +160,14 @@ const maxSazetakWidth = ref('100%'); // Inicijalna vrijednost
 const rizikSazetakRef = ref(null);
 const rizikSazetakMjereRef = ref(null);
 
-
-
-const scenarij = ref('');
 const isScenarijLoaded = ref(false); // Praćenje statusa inicijalizacije
 
 const structuredDataBezMjera = ref(computed(() => structuredDataStore.structuredDataBezMjera))
 const structuredDataSaMjerama = ref(computed(() => structuredDataStore.structuredDataSaMjerama))
 
 // Kreiramo referencu za pristup komponenti
-const vrstaIzracuna = ref(null); // Inicijalno je null
+const vrstaIzracuna = computed(() => cardStore.vrstaIzracuna); // Inicijalno je null
+const scenarij = computed(() => cardStore.scenarij)
 
 const adaptMjere = computed(() => adaptStore.odabrane_mjere)
 
@@ -206,14 +204,20 @@ function closePopup() {
     document.body.style.overflow = 'auto'; // Vrati scrollanje body-ja
 }
 
-const cookiesToGet = ['vrsta-izracuna', 'scenarij'];
+// const cookiesToGet = ['vrsta-izracuna', 'scenarij'];
 
 onMounted(async () => {
+    if (!idIzracuna.value) {
+        idIzracuna.value = getIdFromUrl()
+    }
+    console.log("id rizik-sazetak: ", idIzracuna.value)
     try {
-        const cookieData = await initializeCookie(cookiesToGet);
+        // const cookieData = await initializeCookie(cookiesToGet);
 
-        vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
-        scenarij.value = cookieData['scenarij'] || 'RCP';
+        // vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
+        // scenarij.value = cookieData['scenarij'] || 'RCP';
+        // vrstaIzracuna.value = cardStore.vrstaIzracuna;
+        // scenarij.value = cardStore.scenarij;
         isScenarijLoaded.value = true;
 
         console.log("cookieData: ", vrstaIzracuna.value, scenarij.value);

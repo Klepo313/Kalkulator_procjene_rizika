@@ -124,12 +124,14 @@ const props = defineProps({
     tip: String,
 })
 
+const cardStore = useCardStore();
+
 const idIzracuna = computed(() => props.aiz_id == 'null' ? getIdFromUrl() : props.aiz_id)
 console.log("Id izracuna: ", idIzracuna.value)
 const tip = props.tip; // 'RZ' ili 'KR'
 
-const vrstaIzracuna = ref(null); // Inicijalno je null
-const scenarij = ref('');
+const vrstaIzracuna = computed(() => cardStore.vrstaIzracuna); // Inicijalno je null
+const scenarij = computed(() => cardStore.scenarij)
 
 const thirdRow = computed(() => [
     { class: 'grid-item nb', label: '', colSpan: 1, rowSpan: 1 },
@@ -165,15 +167,7 @@ const processGridData = async () => {
 
     //console.log(structuredData.value["11"])
 }
-
-const cookiesToGet = ['vrsta-izracuna', 'scenarij'];
-
 onMounted(async () => {
-    const cookieData = await initializeCookie(cookiesToGet);
-
-    vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
-    scenarij.value = cookieData['scenarij'] || 'RCP';
-
     processGridData();
 })
 
