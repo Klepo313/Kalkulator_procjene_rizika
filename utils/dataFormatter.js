@@ -22,9 +22,9 @@ const restructureData = (data) => {
     return groupedData;
 }
 
-const formatNumber = (value) => {
+const formatNumber = (value, maxDigitNumber) => {
     // return new Intl.NumberFormat('en-US').format(value);
-    return new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+    return new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: maxDigitNumber || 2 }).format(value);
 }
 
 const truncateText = (text, length) => {
@@ -62,39 +62,6 @@ const transformCategories = (categories) => {
     return result;
 };
 
-// // Step 3: Build the hierarchy by assigning children
-// const result = [];
-// categories.forEach(item => {
-//     const parent = map.get(item.ukt_ukt_id);
-//     const current = map.get(item.ukt_id);
-//     if (parent) {
-//         parent.children.push(current);
-//     } else {
-//         result.push(current); // Top-level nodes with no parent
-//     }
-// });
-
-// // Step 4: Assign random relevant values to parent nodes
-// const assignRelevance = (nodes) => {
-//     nodes.forEach(node => {
-//         // Randomly assign relevance for parent nodes
-//         node.relevant = Math.random() < 0.8 ? false : true;
-
-//         // Propagate relevance to children
-//         if (node.children.length > 0) {
-//             if (!node.relevant) {
-//                 // If parent is not relevant, children cannot be relevant
-//                 node.children.forEach(child => child.relevant = false);
-//             } else {
-//                 // If parent is relevant, assign random relevance to children
-//                 assignRelevance(node.children);
-//             }
-//         }
-//     });
-// };
-
-// assignRelevance(result);
-
 
 function splitOpis(opis) {
     return opis.split('-').filter(item => item.trim() !== '').map(item => item.trim());
@@ -103,6 +70,25 @@ function splitOpis(opis) {
 function formatOpis(opis) {
     return opis.split('-').map(item => item.trim()).join('<br />');
 }
+
+const formatEndl = (tekst) => {
+    if (typeof tekst !== 'string') return []; // Provjeri je li ulaz string
+
+    // Podijeli tekst na dijelove prema crtici '-', uključujući prazne linije
+    const dijelovi = tekst.split('\n'); // Razdvajanje prema linijama (novi red)
+
+    // Procesiranje linija kako bi se zadržale crtice i formatiranje
+    return dijelovi.map((linija) => {
+        const trimmedLine = linija.trim(); // Ukloni višak razmaka
+        if (trimmedLine.startsWith('-')) {
+            // Ako linija počinje s '-', zadrži je kako jest
+            return trimmedLine;
+        }
+        // Ako linija ne počinje s '-', samo vrati trimovanu liniju
+        return trimmedLine;
+    });
+};
+
 
 function advancedFormatOpis(opis) {
     const segments = opis.split(':'); // Dijelimo sadržaj prema dvotočki
@@ -189,6 +175,7 @@ export {
     truncateText,
     splitOpis,
     formatOpis,
+    formatEndl,
     advancedFormatOpis,
     transformCategories,
     transformAndFormatCategories,

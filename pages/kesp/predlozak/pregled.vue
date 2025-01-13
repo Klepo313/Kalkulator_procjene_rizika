@@ -150,6 +150,54 @@
                 </section>
                 <section>
                     <div class="data-heading">
+                        <h2>Popis odabranih kategorija emisija - Opseg 3</h2>
+                        <p>Prikaz odabranih kategorija emisija koje su izabrane kao relevantne iz Opsega 3</p>
+                    </div>
+                    <div class="kategorije">
+                        <Accordion v-if="filteredNodes.length && !loadingCategories" multiple>
+                            <AccordionPanel v-for="category in filteredNodes" :key="category.key" :value="category.key">
+                                <AccordionHeader>
+                                    {{ category.ukt_naziv }}
+                                </AccordionHeader>
+                                <AccordionContent>
+                                    <p v-if="category && category.ukt_opis" class="tab-opis">
+                                        <span v-for="(segment, index) in formatEndl(category.ukt_opis)" :key="index">
+                                            {{ segment }}
+                                            <template
+                                                v-if="index < formatEndl(category.ukt_opis).length - 1"><br></template>
+                                        </span>
+                                    </p>
+                                    <template v-if="category.children && category.children.length">
+                                        <Accordion multiple>
+                                            <AccordionPanel v-for="child in category.children" :key="child.key"
+                                                :value="child.key">
+                                                <AccordionHeader>
+                                                    {{ child.ukt_naziv }}
+                                                </AccordionHeader>
+                                                <AccordionContent>
+                                                    <p v-if="child && child.ukt_opis" class="tab-opis">
+                                                        <span v-for="(segment, index) in formatEndl(child.ukt_opis)"
+                                                            :key="index">
+                                                            {{ segment }}
+                                                            <template
+                                                                v-if="index < formatEndl(child.ukt_opis).length - 1"><br></template>
+                                                        </span>
+                                                    </p>
+                                                </AccordionContent>
+                                            </AccordionPanel>
+                                        </Accordion>
+                                    </template>
+                                </AccordionContent>
+                            </AccordionPanel>
+                        </Accordion>
+                        <span v-else>
+                            <font-awesome-icon icon="spinner" spin /> Učitavanje kategorija
+                        </span>
+
+                    </div>
+                </section>
+                <section>
+                    <div class="data-heading">
                         <h2>Ukupna emisija</h2>
                         <p>Ukupan prikaz stakleničkih plinova - Opseg 1 + Opseg 2 </p>
                     </div>
@@ -170,13 +218,6 @@
                 </div>
             </div>
             <div class="stats-content">
-                <!-- <div>
-                    <span class="stats-title">
-                        <font-awesome-icon icon="chart-pie" />
-                        <h2 style="border-bottom: none; padding: 0">Statistika</h2>
-                    </span>
-                </div> -->
-                <!-- <hr> -->
                 <div class="stats-table">
                     <div v-if="vozila.length" class="chart-container">
                         <span>
@@ -220,6 +261,8 @@
 
 <script setup>
 import { useKespStore, useVehicleStore, useOpseg2Store } from '#imports';
+import AccordionPanel from 'primevue/accordionpanel';
+import { getO3categories } from '~/service/kesp/fetchOpseg3';
 import { getEmmisionGroups } from '~/service/kesp/fetchVoziloData';
 import { formatNumber } from '~/utils/dataFormatter';
 
@@ -228,14 +271,16 @@ const kespStore = useKespStore();
 // Dohvati podatke iz storeova
 const vehicleStore = useVehicleStore();
 
+const props = defineProps({
+    sectionTitle: String,
+    uiz_id: String,
+});
+const kespId = ref(props.uiz_id);
+
 const vozila = computed(() => vehicleStore.vozila);
 const skupine = ref([null])
 
-// const groupedData = computed(() => {
-//     return skupine.value
-//         .filter(s => s !== null) // Filtriraj null vrednosti
-//         .map(s => s.uge_naziv);
-// });
+const kategorije = ref([null]);
 
 const groupedData = computed(() => {
     return skupine.value.filter(s => s !== null); // Vraćamo originalne objekte, isključujući null vrednosti
@@ -269,15 +314,32 @@ const combinedEmissions = computed(() => {
     return ukupno.toFixed(2);
 });
 
-const kespId = ref(null);
+const filterNodes = (nodeList) => {
+    if (!Array.isArray(nodeList)) return []; // Osiguraj da je nodeList polje
+    return nodeList
+        .filter((node) => node?.relevant) // Provjeri postoji li `node` i je li `relevant`
+        .map((node) => ({
+            ...node,
+            children: node.children ? filterNodes(node.children) : [], // Provjeri ima li `children`
+        }));
+};
+
+
+// Filtrirani čvorovi za prikaz u stablu
+const filteredNodes = computed(() => {
+    return kategorije.value ? filterNodes(kategorije.value) : [];
+});
+
+const loadingCategories = ref(true)
 
 onMounted(async () => {
-    const res = await initializeCookie('kesp-id');
-    kespId.value = parseInt(res['kesp-id']);
     try {
         skupine.value = await getEmmisionGroups();
-        // const sks = await getEmmisionGroups();
-        // skupine.value = sks.map(s => s)
+        const kats = await getO3categories(kespId.value);
+        kategorije.value = transformCategories(kats);
+        console.log("fetchane kategorije: ", kategorije.value)
+        console.log("filtrirane kategorije: ", filteredNodes.value)
+        loadingCategories.value = false;
     } catch (error) {
         console.error("Greška prilikom dohvaćanja emisijskih grupa:", error);
     }
@@ -433,6 +495,12 @@ hr {
 
 h3 {
     font-weight: 500;
+}
+
+.tab-opis {
+    font-size: 16px;
+    white-space: pre-wrap;
+    line-height: 1.5;
 }
 
 strong {

@@ -81,7 +81,7 @@ function downloadPDF() {
 
 
 const noviIzracun = () => {
-    cardStore.cardId = null;
+    cardStore.resetCardStore()
     opciStore.clearOpciPodaci();
     navigateWithParameter('/kpkr/predlozak', 'id', 'null')
 };

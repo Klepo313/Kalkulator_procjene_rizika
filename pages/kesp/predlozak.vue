@@ -1,12 +1,12 @@
 <template>
     <div class="body">
         <div ref="sidebar" :class="['sidebar', { 'collapsed': isCollapsed }]">
-            <KespSidebar :isCollapsed="isCollapsed" :uiz_id="kespId" @toggle-sidebar="toggleSidebar"
+            <KespSidebar v-if="kespId" :isCollapsed="isCollapsed" :uiz_id="kespId" @toggle-sidebar="toggleSidebar"
                 @update-active-section="updateActiveSection" />
         </div>
         <main :style="mainStyles" style="background-color: var(--kesp-bg);">
             <div class="main-content">
-                <NuxtPage :section-title="activeSectionTitle" :uiz_id="kespId" />
+                <NuxtPage v-if="kespId" :section-title="activeSectionTitle" :uiz_id="kespId" />
             </div>
         </main>
     </div>
@@ -29,9 +29,10 @@ const vehicleStore = useVehicleStore();
 const kespStore = useKespStore();
 const opseg2Store = useOpseg2Store();
 
-const kespId = computed(() => getIdFromUrl());
+const kespId = ref(null)
 
 onMounted(async () => {
+    kespId.value = getIdFromUrl()
     kespStore.clearStore();
     vehicleStore.resetData();
     opseg2Store.clearStore();

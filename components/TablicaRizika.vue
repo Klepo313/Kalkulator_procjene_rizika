@@ -268,11 +268,14 @@ const props = defineProps({
     aiz_id: String,
     tip: String,
 })
+
+const cardStore = useCardStore()
+
 const tip = props.tip;
 
 const idIzracuna = computed(() => props.aiz_id == 'null' ? getIdFromUrl() : props.aiz_id)
-const vrstaIzracuna = ref(null); // Inicijalno je null
-const scenarij = ref('');
+const vrstaIzracuna = computed(() => cardStore.vrstaIzracuna); // Inicijalno je null
+const scenarij = computed(() => cardStore.scenarij)
 const isScenarijLoaded = ref(false);
 
 const propertyGridData = async () => {
@@ -299,19 +302,8 @@ const propertyGridData = async () => {
     }
 }
 
-const cookiesToGet = ['vrsta-izracuna', 'scenarij'];
-
 onMounted(async () => {
-    try {
-        const cookieData = await initializeCookie(cookiesToGet);
-        vrstaIzracuna.value = cookieData['vrsta-izracuna'] || '';
-        scenarij.value = cookieData['scenarij'] || 'RCP';
-        isScenarijLoaded.value = true;
-
-    } catch (error) {
-        console.error("Error loading cookies: ", error);
-    }
-
+    isScenarijLoaded.value = true;
     await propertyGridData();
 })
 

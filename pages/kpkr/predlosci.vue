@@ -178,7 +178,7 @@ const doLogout = async () => {
 };
 
 const noviIzracun = async () => {
-    cardStore.cardId = null;
+    cardStore.resetCardStore();
     opciStore.clearOpciPodaci();
     navigateWithParameter('/kpkr/predlozak', 'id', 'null')
 };

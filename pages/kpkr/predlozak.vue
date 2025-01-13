@@ -5,7 +5,11 @@
         </div>
         <main :style="mainStyles">
             <div class="main-content">
-                <NuxtPage :aiz_id="idIzracuna" />
+                <NuxtPage v-if="idIzracuna || idIzracuna == null" :aiz_id="idIzracuna" :data="izracunData" />
+                <span v-else>
+                    <font-awesome-icon icon="spinner" spin />
+                    Dohvaćanje podataka...
+                </span>
             </div>
         </main>
     </div>
@@ -15,6 +19,8 @@
 
 import { ref, computed, watch } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
+import izracun from '~/middleware/izracun';
+import { getCalculations } from '~/service/kpkr/calculations';
 
 
 definePageMeta({
@@ -26,8 +32,12 @@ definePageMeta({
 
 const opciStore = useOpciStore();
 const toastErrorStore = useToastErrorStore();
+const cardStore = useCardStore();
 
-const idIzracuna = computed(() => getIdFromUrl());
+const idIzracuna = ref(null)
+const izracunData = ref(null)
+
+const compId = computed(() => cardStore.broj);
 
 // Reaktivna varijabla za praćenje stanja bočne trake
 const isCollapsed = ref(false)
@@ -45,6 +55,26 @@ watch(isCollapsed, (newValue) => {
     sidebarWidth.value = newValue ? '70px' : '275px'
 })
 
+watch(compId, async (newValue) => {
+    console.info("Novi broj: ", newValue);
+    idIzracuna.value = cardStore.cardId;
+    if (idIzracuna.value) {
+        try {
+            const response = await getCalculations(idIzracuna.value)
+            izracunData.value = response.data[0]
+            console.log("Predložak izračun: ", izracunData.value);
+
+            cardStore.setCardId(izracunData.value?.aiz_id);
+            cardStore.setBroj(izracunData.value?.aiz_broj);
+            cardStore.setVrstaIzracuna(izracunData.value?.tvz_naziv)
+            cardStore.setScenarij(izracunData.value?.tvs_sif == 1 ? 'RCP' : 'SSP');
+        } catch (error) {
+            console.log(error);
+            navigateTo('/kpkr/predlosci');
+        }
+    }
+});
+
 // Kompjuterana vrijednost za stilove main elementa
 const mainStyles = computed(() => ({
     marginLeft: sidebarWidth.value,
@@ -52,16 +82,28 @@ const mainStyles = computed(() => ({
 }))
 
 onMounted(async () => {
+    idIzracuna.value = getIdFromUrl();
+    console.log("Id u predlosku: " + idIzracuna.value);
+
     opciStore.clearOpciPodaci();
-    if (idIzracuna.value != 'null') {
+    await opciStore.fetchCalculationTypes();
+    await opciStore.fetchObjectTypes();
+    await opciStore.fetchActivities();
+    await opciStore.fetchMunicipalities();
+    await opciStore.fetchScenarios();
+
+    if (idIzracuna.value) {
         try {
-            await opciStore.fetchCalculation(idIzracuna.value);
+            const response = await getCalculations(idIzracuna.value)
+            izracunData.value = response.data[0]
+            console.log("Predložak izračun: ", izracunData.value);
+
+            cardStore.setCardId(izracunData.value?.aiz_id);
+            cardStore.setBroj(izracunData.value?.aiz_broj);
+            cardStore.setVrstaIzracuna(izracunData.value?.tvz_naziv)
+            cardStore.setScenarij(izracunData.value?.tvs_id == 1 ? 'RCP' : 'SSP');
         } catch (error) {
             console.log(error);
-            toastErrorStore.setToastMessage({
-                title: 'Greška prilikom dohvaćanja izračuna',
-                description: 'Izračun nije pronađen.',
-            });
             navigateTo('/kpkr/predlosci');
         }
     }
