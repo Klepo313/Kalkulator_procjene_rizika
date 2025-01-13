@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { useUsers } from '~/composables/users/useUsers';
 import { getFizickeOsobe, getPravneOsobe, getUsersForLegalPartner } from '~/service/admin/users';
 
 export const useKorisniciStore = defineStore('korisnici', {
@@ -9,7 +10,8 @@ export const useKorisniciStore = defineStore('korisnici', {
     actions: {
         async fetchPravneOsobe() {
             try {
-                const data = await getPravneOsobe();
+                const { $api } = useNuxtApp();
+                const data = await getPravneOsobe($api);
                 this.pravneOsobe = await Promise.all(
                     data.map(async (po) => {
                         if (parseInt(po.employees_num) > 0) {
@@ -25,7 +27,8 @@ export const useKorisniciStore = defineStore('korisnici', {
         },
         async fetchFizickeOsobe() {
             try {
-                const data = await getFizickeOsobe();
+                const { $api } = useNuxtApp();
+                const data = await getFizickeOsobe($api);
                 this.fizickeOsobe = data;
             } catch (error) {
                 console.error(error);

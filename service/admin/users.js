@@ -7,6 +7,7 @@ const getPartner = async (id) => {
         return null;
     }
 
+
     try {
         const url = id ? `${base_url}/partner/${id}` : `${base_url}/partner`;
 
@@ -20,11 +21,12 @@ const getPartner = async (id) => {
     }
 }
 
-const getPravneOsobe = async () => {
+const getPravneOsobe = async ($api) => {
+    // const { $api } = useNuxtApp();
     try {
-        const url = `${base_url}/partner/legal`;
+        const url = `/partner/legal`;
 
-        const response = await axios.get(url, { withCredentials: true });
+        const response = await $api.get(url);
         console.log("Pravne osobe: ", response.data)
 
         return response.data;
@@ -34,11 +36,11 @@ const getPravneOsobe = async () => {
     }
 }
 
-const getFizickeOsobe = async () => {
+const getFizickeOsobe = async ($api) => {
     try {
-        const url = `${base_url}/partner/physical`;
+        const url = `/partner/physical`;
 
-        const response = await axios.get(url, { withCredentials: true });
+        const response = await $api.get(url);
         console.log("Fizicke osobe: ", response.data)
 
         return response.data;
@@ -98,10 +100,29 @@ const savePartner = async (data) => {
     }
 }
 
+const saveUser = async (data) => {
+    console.log("Primljena osoba: ", data);
+
+    try {
+        const response = await axios.post(`${base_url}/user`, data,
+            { withCredentials: true }
+        );
+
+        const resData = await response.data;
+        console.log(resData);
+
+        return resData;
+    } catch (error) {
+        console.error('Greška pri spremanju osobe: ' + error)
+        return null;
+    }
+}
+
 export {
     getPartner,
     getPravneOsobe,
     getFizickeOsobe,
     getUsersForLegalPartner,
     savePartner,
+    saveUser
 }

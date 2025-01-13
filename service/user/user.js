@@ -97,10 +97,26 @@ const getSecKey = async () => {
     }
 };
 
+const updatePassword = async (data) => {
+    try {
+        const response = await axios.post(`${base_url}/user/update_password`, data, {
+            withCredentials: true, // Ensure cookies are included in requests
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.status;
+    } catch (error) {
+        console.error('Update password error: ' + error);
+        return 0;
+    }
+}
+
 export {
     login,
     logout,
     checkLogin,
     refresh_token,
-    getSecKey
+    getSecKey,
+    updatePassword
 }
