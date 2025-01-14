@@ -616,6 +616,135 @@
 
                 </Dialog>
 
+                <Dialog v-model:visible="openPartnerDialog" header="Uredi korisnika" :modal="true"
+                    :style="{ width: '500px' }" @hide="resetPartnerDialog">
+                    <template #header>
+                        <div class="dialog-header">
+                            <span>Dodaj partnera</span>
+                        </div>
+                    </template>
+                    <div class="field-heading">
+                        <h2 class="p-text-bold">Vrsta partnera</h2>
+                        <p>Odaberi fizičkog ili pravnog partnera</p>
+                        <div class="partnerSelect">
+                            <SelectButton v-model="addPartnerValue" :options="partneriOptions" option-label="naziv" />
+                        </div>
+                    </div>
+                    <form v-if="addPartnerValue.label == 'FIZ'" class="p-fluid-partner">
+                        <div class="fiz-form">
+                            <div class="section">
+                                <div class="field-heading">
+                                    <h2 class="p-text-bold">Podaci o partneru</h2>
+                                    <p>Dodaj novog fizičkog partnera</p>
+                                </div>
+                                <div class="field field-split">
+                                    <div>
+                                        <div class="label-container">
+                                            <font-awesome-icon icon="user" />
+                                            <label for="ime">Ime</label>
+                                        </div>
+                                        <InputText id="ime" v-model="tempPartner.epr_ime" placeholder="Ime korisnika"
+                                            required />
+                                    </div>
+                                    <div>
+                                        <div class="label-container">
+                                            <font-awesome-icon icon="user" />
+                                            <label for="prezime">Prezime</label>
+                                        </div>
+                                        <InputText id="prezime" v-model="tempPartner.epr_prezime"
+                                            placeholder="Prezime korisnika" required />
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <div class="label-container">
+                                        <font-awesome-icon icon="address-card" />
+                                        <label for="oib">OIB</label>
+                                    </div>
+                                    <InputOtp id="oib" v-model="tempPartner.epr_oib" class="otp" size="small"
+                                        :length="11" integer-only required />
+                                </div>
+                                <div class="field">
+                                    <div>
+                                        <div class="label-container">
+                                            <font-awesome-icon icon="envelope" />
+                                            <label for="email">Email</label>
+                                        </div>
+                                        <InputText id="email" v-model="tempPartner.epr_email"
+                                            placeholder="Email partnera" required />
+                                    </div>
+                                </div>
+                                <div class="field field-split">
+                                    <div>
+                                        <div class="label-container">
+                                            <font-awesome-icon icon="map-location" />
+                                            <label for="adresa">Adresa</label>
+                                        </div>
+                                        <InputText id="adresa" v-model="tempPartner.epr_adresa"
+                                            placeholder="Adresa tvrtke" required />
+                                    </div>
+                                    <div>
+                                        <div class="label-container">
+                                            <font-awesome-icon icon="city" />
+                                            <label for="telefon">Mjesto</label>
+                                        </div>
+                                        <InputText v-model="tempPartner.epr_mjesto" placeholder="Mjesto" required />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <form v-if="addPartnerValue.label == 'PRV'" class="p-fluid-partner">
+                        <div class="fiz-form">
+                            <div class="section">
+                                <div class="field-heading">
+                                    <h2 class="p-text-bold">Podaci o partneru</h2>
+                                    <p>Dodaj novog pravnog partnera</p>
+                                </div>
+                                <div class="field">
+                                    <div class="label-container">
+                                        <font-awesome-icon icon="building" />
+                                        <label for="tvrtka">Naziv tvrtke</label>
+                                    </div>
+                                    <InputText id="tvrtka" v-model="tempPartner.epr_naziv" placeholder="Naziv tvrtke"
+                                        required />
+                                </div>
+
+                                <div class="field">
+                                    <div class="label-container">
+                                        <font-awesome-icon icon="address-card" />
+                                        <label for="oib">OIB tvrtke</label>
+                                    </div>
+                                    <InputOtp id="oib" v-model="tempPartner.epr_oib" size="small" :length="11"
+                                        integer-only required />
+                                </div>
+                                <div class="field field-split">
+                                    <div>
+                                        <div class="label-container">
+                                            <font-awesome-icon icon="map-location" />
+                                            <label for="adresa">Adresa tvrtke</label>
+                                        </div>
+                                        <InputText id="adresa" v-model="tempPartner.epr_adresa"
+                                            placeholder="Adresa tvrtke" required />
+                                    </div>
+                                    <div>
+                                        <div class="label-container">
+                                            <font-awesome-icon icon="city" />
+                                            <label for="telefon">Mjesto</label>
+                                        </div>
+                                        <InputText v-model="tempPartner.epr_mjesto" placeholder="Mjesto" required />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <template #footer>
+                        <button class="p-button p-component p-button-secondary" @click="openPartnerDialog = false">
+                            Odustani
+                        </button>
+                        <button class="submitBtn" type="submit" @click="saveNewPartner">Dodaj partnera</button>
+                    </template>
+                </Dialog>
+
 
                 <!-- <section>
                     <div>
