@@ -14,11 +14,11 @@
                         </p>
                     </div>
                     <div>
-                        <Toolbar class="mb-6" style="display: flex; gap: 5px;">
+                        <Toolbar class="toolbar" style="display: flex; gap: 5px;">
                             <template #start>
                                 <button class="dodaj-btn" @click="onOpenNewUserDialog()">
                                     <font-awesome-icon icon="plus" />
-                                    Dodaj korisnika
+                                    Dodaj korisnički račun
                                 </button>
                             </template>
                             <template #end>
@@ -88,7 +88,7 @@
                                                 <span v-tooltip.top="'Nije još u funkciji.'"
                                                     class="dodaj-korisnika"><!--@click="onOpenNewUserDialog(slotProps.data)"-->
                                                     <font-awesome-icon icon="plus" />
-                                                    Dodaj korisnika
+                                                    Dodaj korisnički račun
                                                 </span>
                                             </div>
                                         </template>
@@ -506,7 +506,7 @@
                     </div>
                 </section>
 
-                <Dialog v-model:visible="openNewUserDialog" :modal="true" header="Dodaj korisnika"
+                <Dialog v-model:visible="openNewUserDialog" :modal="true" header="Dodaj korisnički račun"
                     :style="{ width: '600px' }" @hide="resetNewUserDialog(); hideNewUserDialog()">
                     <!-- <template #header>
                             <div class="dialog-header">
@@ -679,8 +679,8 @@
                                             <font-awesome-icon icon="map-location" />
                                             <label for="adresa">Adresa</label>
                                         </div>
-                                        <InputText id="adresa" v-model="tempPartner.epr_adresa"
-                                            placeholder="Adresa tvrtke" required />
+                                        <InputText id="adresa" v-model="tempPartner.epr_adresa" placeholder="Adresa"
+                                            required />
                                     </div>
                                     <div>
                                         <div class="label-container">
@@ -763,7 +763,7 @@
                                 <button class="dodaj-btn" :disabled="!odabraniPartner"
                                     @click="openNewUserDialog = true">
                                     <font-awesome-icon icon="plus" />
-                                    Dodaj korisnika
+                                    Dodaj korisnički račun
                                 </button>
                             </template>
                             <template #end>
@@ -1434,6 +1434,14 @@ const saveNewPartner = async () => {
 
     tempPartner.value.epr_naziv ||= tempPartner.value.epr_ime + ' ' + tempPartner.value.epr_prezime;
 
+    // UPPERCASE
+    tempPartner.value = Object.fromEntries(
+        Object.entries(tempPartner.value).map(([key, value]) => [
+            key,
+            key === 'epr_email' ? value : String(value).toUpperCase()
+        ])
+    );
+
     console.log("PARTNER: ", tempPartner.value)
 
     try {
@@ -1460,7 +1468,6 @@ const saveNewPartner = async () => {
                     console.error(error);
                 }
             }
-
         } else {
             console.error("Greska pri dodavanju partnera")
             showErrorPartner(tempPartner.value)
@@ -1468,9 +1475,10 @@ const saveNewPartner = async () => {
     } catch (error) {
         console.error(error)
         showErrorPartner(tempPartner.value);
+    } finally {
+        resetPartner();
+        openPartnerDialog.value = false;
     }
-    resetPartner();
-    openPartnerDialog.value = false;
 }
 
 </script>
@@ -1531,7 +1539,8 @@ main>div {
     gap: 26px;
 }
 
-.datatable {
+.datatable,
+.toolbar {
     max-width: 1100px;
 }
 
