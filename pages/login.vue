@@ -54,7 +54,6 @@ const userStore = useUserStore();
 
 const userToken = useCookie('userToken', {
     maxAge: 24 * 60 * 60, // 1 dan
-    // httpOnly: true,
     secure: true,
     sameSite: 'none',
     path: '/',

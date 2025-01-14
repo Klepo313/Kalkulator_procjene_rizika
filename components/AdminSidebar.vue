@@ -51,7 +51,7 @@
             </div>
         </div>
         <div class="bottom-container">
-            <button :class="['back', isCollapsed ? 'collapsed' : '']" @click="navigateTo('/kesp/predlosci')">
+            <button :class="['back', isCollapsed ? 'collapsed' : '']" @click="navigateTo('/')">
                 <font-awesome-icon icon="arrow-left-long" />
                 <span v-if="!isCollapsed">Početna stranica</span>
             </button>
@@ -60,7 +60,8 @@
                     <font-awesome-icon icon="circle-user" size="xl" />
                     <div :class="['profile-details', isCollapsed ? 'collapsed' : '']">
                         <h4 :class="isCollapsed ? 'collapsed' : ''"
-                            :style="{ fontSize: nameLength > 20 ? '14px' : 'initial' }" class="responsive-text">
+                            :style="{ fontSize: (name + surname).length > 20 ? '14px' : 'initial' }"
+                            class="responsive-text">
                             {{ capitalizeName(name + ' ' + surname) }}
                         </h4>
                         <span :class="isCollapsed ? 'collapsed' : ''" class="responsive-text">
@@ -107,7 +108,7 @@ const sections = ref([
         links: [
             { label: 'Početna stranica', to: '/admin', icon: 'house', isActive: false },
             { label: 'Dodavanje korisnika', to: '/admin/korisnici', icon: 'user-plus', isActive: false },
-            { label: 'Ažuriranje podataka', to: '/kesp/azuriranje', icon: 'code-compare', isActive: false },
+            { label: 'Ažuriranje podataka', to: '/admin/azuriranje', icon: 'code-compare', isActive: false },
         ],
     },
     {

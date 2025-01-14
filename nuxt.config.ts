@@ -17,7 +17,7 @@ export default defineNuxtConfig({
     transpile: ['@fortawesome/vue-fontawesome'],
   },
   router: {
-    middleware: ['loading'],
+    middleware: ['auth.global', 'loading'],
   },
   runtimeConfig: {
     secretKey: process.env.SECRET_KEY,

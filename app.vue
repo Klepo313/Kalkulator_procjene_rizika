@@ -1,46 +1,13 @@
 <template>
   <div>
-    <!-- <LoadingLayout v-if="loading" /> -->
     <NuxtLoadingIndicator />
     <NuxtPage />
-
-    <!-- <div v-if="showExtendSession" class="extendSession">
-      <div class="expand-content">
-        <h2>Sesija ističe za {{ formattedTime }} minuta </h2>
-        <p>Da bi ste nastavljali koristiti aplikaciju, morate produžiti sesiju.
-          Ukoliko vrijeme istekne, bit ćete automatski odjavljeni.
-        </p>
-        <div class="buttons">
-          <button class="odjava" @click="doLogout">Odjavi se</button>
-          <button class="produzi" @click="extendSession">Produži sesiju</button>
-        </div>
-      </div>
-    </div> -->
   </div>
 </template>
 
 <script setup>
-
-
-// import { useUserStore, useIzracunStore } from '~/stores/main-store';
-// const userStore = useUserStore();
-// const izracunStore = useIzracunStore();
-
-// onMounted(async () => {
-
-//   await userStore.initializeUser()
-//   console.log("Inicijalizacija storea: ", {
-//     name: userStore.name,
-//     surname: userStore.surname,
-//     username: userStore.username,
-//     email: userStore.email
-//   });
-
-// })
-
-
-const title = ref('Kalkulator procjene rizika')
-const description = ref('Kalkulator procjene rizika')
+const title = ref('Kalkulator procjene klimatskih rizika')
+const description = ref('ATD Solucije')
 
 useHead({
   title,
