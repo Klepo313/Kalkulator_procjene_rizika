@@ -16,11 +16,13 @@
             <main>
                 <div class="main-container">
                     <div class="card-container">
-                        <div v-if="roles?.message">
-                            <h3 class="no-results">Nema prava na aplikacije</h3>
-                            <p class="no-results">Nemate pravo pristupa nekoj od aplikacija</p>
+                        <div v-if="loading">
+                            <font-awesome-icon icon="spinner" spin />
+                            <span>
+                                Učitavanje podataka
+                            </span>
                         </div>
-                        <div v-for="(card, index) in filteredCards" v-else :key="index" class="card">
+                        <div v-for="(card, index) in filteredCards" v-else-if="roles.length" :key="index" class="card">
                             <div class="image-container">
                                 <font-awesome-icon v-if="!card.isLoaded" icon="spinner" spin />
                                 <img v-else :src="card.miniLogo" alt="logo">
@@ -40,11 +42,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div v-if="!res">
-                            <font-awesome-icon icon="spinner" spin />
-                            <span>
-                                Učitavanje podataka
-                            </span>
+
+                        <div v-else style="text-align: center;">
+                            <h2 class="no-results-header">Nemate definirana korisnička prava na korištenje nekih od
+                                aplikacija
+                            </h2>
+                            <p class="no-results">Javite se Vašem administratoru aplikacije</p>
                         </div>
                     </div>
                 </div>
@@ -129,6 +132,7 @@ const filteredCards = computed(() => {
 });
 
 const res = ref(null)
+const loading = ref(true);
 
 onMounted(async () => {
     res.value = await userStore.getAll;
@@ -145,6 +149,7 @@ onMounted(async () => {
         card.textLogo = await fetchImageAsBlob(card.textLogoId);
         card.isLoaded = true;
     }
+    loading.value = false;
 });
 
 const doLogout = async () => {
@@ -195,6 +200,14 @@ main {
     gap: 60px;
 
     transition: flex-direction 0.5s ease;
+}
+
+.no-results-header {
+    font-size: 2rem;
+}
+
+.no-results {
+    font-size: 1.5rem;
 }
 
 .image-container,
@@ -297,7 +310,7 @@ main {
     color: white;
 
     padding: 5px 10px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     white-space: nowrap;
 
