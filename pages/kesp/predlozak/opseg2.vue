@@ -148,7 +148,7 @@
                 <div class="stats-table">
                     <div class="chart-container">
                         <span>
-                            <p>Ukupne emisije CO<sub>2</sub>/kg</p>
+                            <p>Ukupne emisije CO<sub>2</sub>/kg (%)</p>
                             <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('pie')" />
                         </span>
                         <Chart type="pie" :data="combinedChartData" :options="chartOptions"
@@ -156,7 +156,7 @@
                     </div>
                     <div class="chart-container" style="margin-top: 20px;">
                         <span>
-                            <p>Ukupna potrošnja energije (kWh)</p>
+                            <p>Ukupna potrošnja energije [kWh] (%)</p>
                             <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('polar')" />
                         </span>
                         <Chart type="pie" :data="O2polarChartData" :options="chartOptions"
@@ -168,10 +168,10 @@
                     <div class="fullscreen-chart" @click.stop>
                         <font-awesome-icon icon="times" class="close-icon" @click="closeFullscreen" />
                         <span v-if="fullscreenChart === 'pie'">
-                            <h2>Emisije CO<sub>2</sub>/kg</h2>
+                            <h2>Emisije CO<sub>2</sub>/kg (%)</h2>
                         </span>
                         <span v-if="fullscreenChart === 'polar'">
-                            <h2>Ukupna potrošnja energije (kWh)</h2>
+                            <h2>Ukupna potrošnja energije [kWh] (%)</h2>
                         </span>
                         <Chart v-if="fullscreenChart === 'pie'" type="pie" :data="combinedChartData"
                             :options="chartOptions" class="fullscreen-chart-content" />
@@ -277,7 +277,7 @@ const O2polarChartData = computed(() => {
     });
 
     const labels = Object.keys(ukupnoPoEnergiji);
-    const data = Object.values(ukupnoPoEnergiji);
+    const data = calculatePercentage(Object.values(ukupnoPoEnergiji));
     const colors = labels.map((_, index) => shadeColor(baseColor, index * 10));
 
     console.log("Ukupno po energiji: ", ukupnoPoEnergiji, labels, data, colors);

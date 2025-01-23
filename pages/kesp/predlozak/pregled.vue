@@ -221,7 +221,7 @@
                 <div class="stats-table">
                     <div v-if="vozila.length" class="chart-container">
                         <span>
-                            <p>Emisije CO<sub>2</sub> t/god - Opseg 1</p>
+                            <p>Emisije CO<sub>2</sub> t/god - Opseg 1 (%)</p>
                             <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('pie')" />
                         </span>
                         <Chart type="pie" :data="emissionsPieData" :options="chartOptions" />
@@ -230,7 +230,7 @@
                     <div v-if="izracuni.some(item => item.neobnovljivo !== null || item.obnovljivo !== null)"
                         class="chart-container" style="margin-top: 20px;">
                         <span>
-                            <p>Emisije CO<sub>2</sub> t/god - Opseg 2</p>
+                            <p>Ukupna potrošnja energije [kWh] - Opseg 2 (%)</p>
                             <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('polar')" />
                         </span>
                         <Chart type="pie" :data="combinedChartData" :options="chartOptions"
@@ -242,10 +242,10 @@
                     <div class="fullscreen-chart" @click.stop>
                         <font-awesome-icon icon="times" class="close-icon" @click="closeFullscreen" />
                         <span v-if="fullscreenChart === 'pie'">
-                            <h2>Emisije CO<sub>2</sub>/kg</h2>
+                            <h2>Emisije CO<sub>2</sub> t/god - Opseg 1 (%)</h2>
                         </span>
                         <span v-if="fullscreenChart === 'polar'">
-                            <h2>Ukupna potrošnja energije (kWh)</h2>
+                            <h2>Ukupna potrošnja energije [kWh] - Opseg 2 (%)</h2>
                         </span>
                         <Chart v-if="fullscreenChart === 'pie'" type="pie" :data="emissionsPieData"
                             :options="chartOptions" class="fullscreen-chart-content" />
@@ -356,7 +356,7 @@ const izracuni = computed(() => opseg2Store.izracuni);
 // const combinedChartData = computed(() => opseg2Store.combinedChartData); // Preuzmi podatke za grafikon iz getter-a
 const combinedChartData = computed(() => {
     const labels = izracuni.value.map(row => row.energija);
-    const data = izracuni.value.map(row => row.emisije);
+    const data = calculatePercentage(izracuni.value.map(row => row.emisije));
 
     return {
         labels,
@@ -382,7 +382,7 @@ const emissionsPieData = computed(() => {
     });
 
     const labels = Object.keys(emisijePoSkupini); // Nazivi kategorija
-    const data = Object.values(emisijePoSkupini); // Ukupne emisije za svaku kategoriju
+    const data = calculatePercentage(Object.values(emisijePoSkupini)); // Ukupne emisije za svaku kategoriju
     const colors = labels.map((_, index) => shadeColor(baseColor, index * 10)); // Generisanje boja
 
     return {

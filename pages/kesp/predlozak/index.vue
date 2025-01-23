@@ -111,7 +111,7 @@
                                     Ukupno
                                     <strong style="margin-left: 5px;"> {{
                                         formatNumber(vehicleStore.emisijaZaKategoriju(slotProps.data.uge_naziv, 2))
-                                    }}</strong>
+                                        }}</strong>
                                 </div>
                             </template>
                             <Column field="uge_naziv" header="Naziv" />
@@ -232,8 +232,9 @@
 
                                 <div v-if="!odabraniEnergent?.uvg_oznaka" class="field">
                                     <label for="potrosnjaGoriva">
-                                        Potrošnja energenata <span v-if="odabraniEnergent">[{{
-                                            odabraniEnergent?.uvg_jedmj || '-' }}]</span>
+                                        {{ odabranaSkupina?.uge_lab_unos || 'Potrošnja energenta' }}
+                                        <!-- <span v-if="odabraniEnergent && !odabranaSkupina?.uge_lab_unos">[{{
+                                            odabraniEnergent?.uvg_jedmj || '-' }}]</span> -->
                                     </label>
                                     <InputText id="potrosnjaGoriva" v-model="potrosnja" placeholder="0" type="number"
                                         step="any" min="1" required
@@ -263,7 +264,7 @@
 
                         <!-- GWP Dialog -->
                         <Dialog v-model:visible="gwpDialogVisible" :style="{ minWidth: '1000px', maxWidth: '1400px' }"
-                            header="Izračun emisija rashladnih uređaja" :modal="true" @hide="gwpDialogHide">
+                            header="Izračun emisija iz rashladnih uređaja" :modal="true" @hide="gwpDialogHide">
                             <span class="field">
                                 <label for="vrstaSredstva">Vrsta rashladnog sredstva</label>
                                 <InputText id="vrstaSredstva" v-model="odabraniEnergent" style="width: min-content;"
@@ -287,14 +288,15 @@
                                             placeholder="Vrsta rashladnog uređaja" fluid />
                                     </template>
                                 </Column>
-                                <Column field="uir_kapacitet" header="Količina rashladnog u sustavu"
-                                    style="min-width: 12rem">
+                                <Column field="uir_kapacitet" header="Količina rashladnog sredstva u sustavu (kg)"
+                                    style="min-width: 8rem">
                                     <template #editor="{ data, field }">
                                         <InputNumber v-model="data[field]" placeholder="0" min="1" fluid />
                                     </template>
                                 </Column>
-                                <Column field="uir_ugradnja" header="Izvještajna godina ugradnje rashladne opreme"
-                                    style="min-width: 8rem">
+                                <Column field="uir_ugradnja"
+                                    header="Izvještajna godina bila je godina ugradnje rashladnih uređaja">
+                                    <!--style="min-width: 8rem"-->
                                     <template #editor="{ data, field }">
                                         <Select v-model="data[field]" :options="daNeOpcije" option-label="value"
                                             option-value="label" placeholder="Da/Ne" fluid>
@@ -310,7 +312,7 @@
                                     </template>
                                 </Column>
                                 <Column field="uir_rad"
-                                    header="Izvještajna godina bila godina normalnog rada rashladnih uređaja">
+                                    header="Izvještajna godina bila je godina normalnog rada rashladnih uređaja">
                                     <template #editor="{ data, field }">
                                         <Select v-model="data[field]" :options="daNeOpcije" option-label="value"
                                             option-value="label" placeholder="Da/Ne" fluid>
@@ -326,7 +328,7 @@
                                     </template>
                                 </Column>
                                 <Column field="uir_kraj"
-                                    header="Izvještajna godina godina u kojoj se oprema demontirala/ zbrinula">
+                                    header="Izvještajna godina bile je godina u kojoj se oprema demontirala/zbrinula">
                                     <template #editor="{ data, field }">
                                         <Select v-model="data[field]" :options="daNeOpcije" option-label="value"
                                             option-value="label" placeholder="Da/Ne" fluid>
@@ -341,14 +343,32 @@
                                             :severity="getStatusLabel(slotProps.data.uir_kraj)" />
                                     </template>
                                 </Column>
-                                <Column field="uir_emisija" header="Emisije CO2 /kg">
+                                <Column field="uir_emisija" header="Emisije Co2/t">
                                     <template #body="{ data, field }">
                                         <strong style="text-decoration: none; color: var(--kesp-primary);">{{
                                             formatNumber(data[field], 3) }}</strong>
                                     </template>
                                 </Column>
-                                <Column :row-editor="true" style="width: min-content; min-width: 2rem;"
-                                    body-style="text-align:center" />
+                                <!--pcRowEditorInit, pcRowEditorSave, pcRowEditorCancel-->
+                                <Column :row-editor="true" style="min-width: 4rem;" body-style="text-align:center" :pt="{
+                                    root: {
+                                        class: 'custom-icon-class'
+                                    },
+                                    // pcRowEditorInit: { class: 'custom-icon-class' },
+                                    // pcRowEditorSave: { class: 'custom-icon-class' },
+                                    // pcRowEditorCancel: { class: 'custom-icon-class' }
+                                }">
+                                    <template #roweditoriniticon>
+                                        Uredi
+                                    </template>
+                                    <template #roweditorsaveicon>
+                                        Dodaj
+                                    </template>
+                                    <template #roweditorcancelicon>
+                                        Izbriši
+                                    </template>
+                                </Column>
+
                                 <template #footer>
                                     <span class="gwp-calc" style="margin-top: 20px;" @click="addNewRow">
                                         <font-awesome-icon icon="plus" class="calc-icon" />
@@ -408,7 +428,7 @@
                     <!-- CO2 Emissions Chart -->
                     <div v-if="vozila.length" class="chart-container">
                         <span>
-                            <p>Emisije CO<sub>2</sub>/kg</p>
+                            <p>Emisije CO<sub>2</sub>/kg (%)</p>
                             <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('pie')" />
                         </span>
                         <Chart type="pie" :data="chartData" :options="chartOptions" class="w-full md:w-[30rem]" />
@@ -417,7 +437,7 @@
                     <!-- Energy Consumption Chart -->
                     <div v-if="vozila.length" class="chart-container" style="margin-top: 20px;">
                         <span>
-                            <p>Potrošnja energenata</p>
+                            <p>Potrošnja energenata (%)</p>
                             <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('polar')" />
                         </span>
                         <Chart type="pie" :data="polarChartData" :options="chartOptions" class="w-full md:w-[30rem]" />
@@ -428,10 +448,10 @@
                         <div class="fullscreen-chart" @click.stop>
                             <font-awesome-icon icon="times" class="close-icon" @click="closeFullscreen" />
                             <span v-if="fullscreenChart === 'pie'">
-                                <h2>Emisije CO<sub>2</sub>/kg</h2>
+                                <h2>Emisije CO<sub>2</sub>/kg (%)</h2>
                             </span>
                             <span v-if="fullscreenChart === 'polar'">
-                                <h2>Potrošnja energenata</h2>
+                                <h2>Potrošnja energenata (%)</h2>
                             </span>
                             <Chart v-if="fullscreenChart === 'pie'" type="pie" :data="chartData" :options="chartOptions"
                                 class="fullscreen-chart-content" />
@@ -450,8 +470,8 @@
 import { ref, watch } from 'vue';
 import { getCoolingCalculationItems, getCoolingLosses, getEmmisionGroups, getFuelTypes, getVehicles, getVehiclesForEmmisionGroups, saveCoolingCalculation } from '~/service/kesp/fetchVoziloData';
 import { addEmission, deleteEmission } from '~/service/kesp/postRequests';
-import { useVehicleStore, useIzvoriStore, useOpseg2Store, useKespStore } from '~/stores/main-store';
-import { getVehicleIcon, getStatusLabel } from '#build/imports';
+import { useVehicleStore, useKespStore } from '~/stores/main-store';
+import { getVehicleIcon, getStatusLabel, calculatePercentage } from '#build/imports';
 import InputNumber from 'primevue/inputnumber';
 
 definePageMeta({
@@ -806,8 +826,10 @@ const chartData = computed(() => {
     });
 
     const labels = Object.keys(emisijePoSkupini); // Nazivi kategorija
-    const data = Object.values(emisijePoSkupini); // Ukupne emisije za svaku kategoriju
+    const data = calculatePercentage(Object.values(emisijePoSkupini)); // Ukupne emisije za svaku kategoriju
     const colors = labels.map((_, index) => shadeColor(baseColor, index * 10)); // Generisanje boja
+
+    console.log("Emisije po skupini: ", data);
 
     return {
         labels,
@@ -833,7 +855,7 @@ const polarChartData = computed(() => {
     });
 
     const labels = Object.keys(potrosnjaPoSkupini);
-    const data = Object.values(potrosnjaPoSkupini);
+    const data = calculatePercentage(Object.values(potrosnjaPoSkupini)); // Ukupne emisije za svaku kategoriju
     const colors = labels.map((_, index) => shadeColor(baseColor, index * 10));
 
     console.log("Potrošnja po skupini: ", potrosnjaPoSkupini, labels, data, colors);
@@ -857,8 +879,34 @@ const chartOptions = {
         legend: {
             position: 'top',
         },
+        datalabels: {
+            formatter: (value, ctx) => {
+                // Dohvaćanje podataka iz trenutnog skupa podataka
+                let sum = 0;
+                let dataArr = ctx.chart.data.datasets[0].data;
+
+                // Izračunavanje ukupne sume vrijednosti
+                dataArr.forEach(data => {
+                    sum += data;
+                });
+
+                // Izračun postotka za trenutnu vrijednost
+                let percentage = ((value / sum) * 100).toFixed(2) + "%";
+                return percentage;
+            },
+            color: '#fff', // Boja teksta
+            font: {
+                size: 14, // Veličina fonta
+            },
+            anchor: 'end', // Pozicija prikaza
+            align: 'end', // Poravnanje teksta
+        },
+    },
+    tooltips: {
+        enabled: false, // Onemogućavanje defaultnih tooltipova (opcionalno)
     },
 };
+
 
 const activeSectionTitle = ref('Opseg 1');
 
@@ -1467,6 +1515,14 @@ strong {
     color: white;
 }
 
+.custom-icon-class * {
+    all: unset !important;
+    background-color: red;
+}
+
+:deep(.p-button-rounded) {
+    font-size: 14px;
+}
 
 #saveBtn {
     width: 150px;

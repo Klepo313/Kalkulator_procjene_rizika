@@ -169,6 +169,20 @@ const generirajLozinku = () => {
     return ukloniKvacicu(lozinka.split('').sort(() => 0.5 - Math.random()).join('')); // Promiješaj znakove i ukloni kvačicu
 }
 
+function calculatePercentage(data) {
+    // Provjera i pretvaranje elemenata u brojeve
+    const numericData = data.map(value => Number(value));
+
+    // Izračun ukupne sume elemenata
+    const total = numericData.reduce((sum, value) => sum + value, 0);
+
+    // Izračun postotaka za svaki element
+    const percentages = numericData.map(value => ((value / total) * 100).toFixed(2));
+
+    // Vraćanje niza s postotcima
+    return percentages;
+}
+
 export {
     restructureData,
     formatNumber,
@@ -181,4 +195,5 @@ export {
     transformAndFormatCategories,
     ukloniKvacicu,
     generirajLozinku,
+    calculatePercentage
 }

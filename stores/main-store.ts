@@ -959,7 +959,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
         combinedChartData() {
             const hasData = this.izracuni.some(row => row.neobnovljivo !== null || row.obnovljivo !== null);
             const labels = this.izracuni.map((row: { energija: number; }) => row.energija);
-            const data = this.izracuni.map((row: { emisije: number; }) => row.emisije);
+            const data = calculatePercentage(this.izracuni.map((row: { emisije: number; }) => row.emisije));
 
             if (!hasData) {
                 return {
