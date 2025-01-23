@@ -8,7 +8,7 @@ export const getVehicleIcon = (vrstaVozila) => {
             return 'tractor'; // Ikona za stroj
         case 'Zrakoplovi':
             return 'plane'; // Ikona za zrakoplovo
-        case 'Staklenički plinovi (GWP)':
+        case 'Fungitivne emisije':
             return 'atom';
         case 'Lož ulje':
             return 'oil-can'; // Ikona za osobno vozilo
