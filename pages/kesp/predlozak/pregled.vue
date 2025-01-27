@@ -89,7 +89,7 @@
                 <section>
                     <div class="data-heading">
                         <h2>Ukupna emisija - Opseg 2</h2>
-                        <p>UUkupni prikaz emisije stakleničkih plinova iz Opsega 2</p>
+                        <p>Ukupni prikaz emisije stakleničkih plinova iz Opsega 2</p>
                     </div>
                     <DataTable :value="opseg2Store.izracuni" show-gridlines :rows="5" data-key="id">
 
