@@ -1,7 +1,13 @@
 <template>
   <div>
-    <NuxtLoadingIndicator />
-    <NuxtPage />
+    <NuxtLoadingIndicator class="indicator" />
+    <NuxtPage class="page" />
+    <div class="screen-size">
+      <div>
+        <font-awesome-icon icon="desktop" size="3xl" />
+        <h1>Aplikacija nije podržana za rad na mobilnim i tablet uređajima.</h1>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -81,5 +87,38 @@ p {
 
 .odjava:hover {
   text-decoration: underline;
+}
+
+.screen-size {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  background-color: white;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 9999;
+  padding: 26px;
+  text-align: center;
+  color: #000;
+}
+
+.screen-size * {
+  font-size: 1.2rem;
+}
+
+@media screen and (max-width: 1120px) {
+
+  .indicator,
+  .page {
+    display: none;
+  }
+
+  .screen-size {
+    display: flex;
+  }
+
 }
 </style>
