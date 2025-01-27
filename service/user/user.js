@@ -20,6 +20,7 @@ const login = async (username, password) => {
             surname: response.data.surname,
             email: response.data.email,
             roles: response.data.roles,
+            isFirstLogin: !!response.data.isFirstLogin
         };
     } catch (error) {
         console.error('Login error: ' + error)
@@ -98,18 +99,22 @@ const getSecKey = async () => {
 };
 
 const updatePassword = async (data) => {
-    try {
-        const response = await axios.post(`${base_url}/user/update_password`, data, {
-            withCredentials: true, // Ensure cookies are included in requests
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        return response.status;
-    } catch (error) {
-        console.error('Update password error: ' + error);
-        return 0;
-    }
+    console.log("Password updated: ", data)
+    // try {
+    const response = await axios.post(`${base_url}/user/change_password`, data, {
+        withCredentials: true, // Ensure cookies are included in requests
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    console.log("response: ", response)
+
+    return response;
+    // } catch (error) {
+    //     console.error('Update password error: ' + error.message);
+    //     return { error: error.message };
+    // }
 }
 
 export {

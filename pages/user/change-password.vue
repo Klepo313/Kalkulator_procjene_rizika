@@ -1,5 +1,10 @@
 <template>
     <div class="body">
+        <Toast />
+        <button class="logout" @click="doLogout">
+            <font-awesome-icon icon="arrow-right-from-bracket" class="logout-icon" />
+            Odjava
+        </button>
         <main>
             <div>
                 <h1>Postavi novu lozinku</h1>
@@ -7,6 +12,19 @@
             </div>
             <Form v-slot="$form" :initialValues="initialValues" :resolver="formResolver" @submit="onFormSubmit"
                 class="form">
+                <div class="field">
+                    <label for="oldPassword" class="label">Stara lozinka</label>
+                    <Password v-model="oldPassword" name="oldPassword" placeholder="Unesi staru lozinku"
+                        :feedback="false" toggle-mask fluid />
+                    <Message v-if="$form.oldPassword?.invalid" severity="error" size="small" variant="simple">
+                        <ul class="my-0 px-4 flex flex-col gap-1">
+                            <li v-for="(error, index) of $form.oldPassword.errors" :key="index">
+                                {{ error.message }}
+                            </li>
+                        </ul>
+                    </Message>
+                </div>
+                <hr style="margin: 13px 0px; width: 100%;">
                 <div class="field">
                     <label for="password" class="label">Lozinka</label>
                     <Password v-model="password" name="password" placeholder="Unesi lozinku" :feedback="false"
@@ -43,7 +61,12 @@
                         </ul>
                     </Message>
                 </div>
-                <button type="submit">Spremi lozinku</button>
+                <button type="submit">
+                    <font-awesome-icon v-if="loading" icon="spinner" spin />
+                    <template v-else>
+                        Spremi lozinku
+                    </template>
+                </button>
             </Form>
         </main>
     </div>
@@ -53,17 +76,28 @@
 import { ref, reactive } from 'vue';
 import { z } from 'zod';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { logout, updatePassword } from '~/service/user/user';
 
+definePageMeta({
+    middleware: 'auth'
+})
+
+const oldPassword = ref('');
 const password = ref('');
 const passwordRepeat = ref('');
+
+const toast = useToast();
 
 const initialValues = reactive({
     password: '',
     passwordRepeat: '',
 });
 
+const loading = ref(false);
+
 const resolver = z
     .object({
+        oldPassword: z.string().min(1, { message: 'Lozinka mora biti popunjena.' }),
         password: z
             .string()
             .min(8, { message: 'Lozinka mora sadržavati barem 8 znakova.' })
@@ -76,13 +110,11 @@ const resolver = z
             })
             .refine((value) => /\d/.test(value), {
                 message: 'Lozinka mora sadržavati barem jedan broj.',
+            })
+            .refine((value) => /[!@#$%^&*(),.?":{}|<>]/.test(value), {
+                message: 'Lozinka mora sadržavati barem jedan specijalni znak.',
             }),
-        // passwordRepeat: z.string()
-        //     .refine(
-        //         (data) => data.password === data.passwordRepeat,
-        //         { message: 'Lozinke se moraju podudarati.', path: ['passwordRepeat'] }
-        //     )
-        passwordRepeat: z.string().min(1, { message: 'Lozinke se moraju podudarati.' }),
+        passwordRepeat: z.string().min(0, { message: 'Lozinke se moraju podudarati.' }),
     })
     .refine(
         (data) => data.password === data.passwordRepeat,
@@ -92,18 +124,45 @@ const resolver = z
 
 const formResolver = zodResolver(resolver);
 
+const showSuccess = () => toast.add({ severity: 'success', summary: 'Uspješno promjenjena lozinka', life: 3000 });
+
+const showError = (message) => toast.add({ severity: 'error', summary: 'Greška pri promjeni lozinke', detail: message, life: 3000 });
+
 const onFormSubmit = async ({ valid }) => {
     if (valid) {
         console.log("Forma je validna i podaci su spremljeni.")
+        loading.value = true;
 
-        console.log("Lozinka: ", password.value)
-        console.log("Ponovljena lozinka: ", passwordRepeat.value)
+        const data = {
+            oldPassword: oldPassword.value,
+            newPassword: passwordRepeat.value
+        }
+        try {
+            const response = await updatePassword(data);
+            if (response.status == 200) {
+                showSuccess();
+            }
+            // else {
+            //     showError(resError);
+            // }
+        } catch (error) {
+            console.error("Greška pri promjeni lozinke: ", error?.response?.data?.message);
+            showError(error?.response?.data?.message);
+        } finally {
+            loading.value = false;
+        }
+
+        console.log("Lozinke: ", data);
 
     } else {
         console.error("Forma nije validna.")
     }
 }
 
+const doLogout = async () => {
+    await logout();
+    navigateTo('/login');
+};
 </script>
 
 <style scoped>
@@ -155,6 +214,31 @@ h1 {
 
 .field {
     width: 100%;
+}
+
+.logout {
+    position: absolute;
+    top: 26px;
+    right: 26px;
+
+    background: none;
+    border: none;
+    color: var(--red);
+    font-weight: 600;
+    width: auto;
+}
+
+.logout:hover {
+    background-color: rgb(227, 227, 227);
+}
+
+.logout:active {
+    background-color: rgb(227, 227, 227);
+}
+
+.logout-icon,
+.plus-icon {
+    margin-right: 10px;
 }
 
 button[type="submit"] {

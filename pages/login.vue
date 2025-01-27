@@ -91,6 +91,8 @@ const checkLogin = async () => {
 
         statusCode.value = response.status;
 
+        const isFirstLogin = response.isFirstLogin;
+
         if (statusCode.value == 200) {
             console.log("response login: ", response);
 
@@ -100,17 +102,18 @@ const checkLogin = async () => {
                 name: response.name,
                 surname: response.surname,
                 username: response.username,
-                roles: response.roles
+                roles: response.roles,
             });
 
             userToken.value = newCsrfToken;
             expiryTime.value = new Date().getTime() + (24 * 60 * 60 * 1000); // 1 dan
 
-            // Preuzmi `redirectTo` iz query parametara, ako postoji
-            const redirectTo = route.query.redirectTo || '/';
-
-            // Preusmjeri korisnika na `redirectTo` ili na početnu ako nije postavljen
-            navigateTo(redirectTo);
+            if (isFirstLogin) {
+                navigateTo('/user/change-password');
+            } else {
+                const redirectTo = route.query.redirectTo || '/';
+                navigateTo(redirectTo);
+            }
         } else {
             highlightBorders();
         }
