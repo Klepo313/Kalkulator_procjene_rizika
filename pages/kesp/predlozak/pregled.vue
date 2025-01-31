@@ -50,8 +50,10 @@
                         <p>Ukupni prikaz emisije stakleničkih plinova iz Opsega 1</p>
                     </div>
                     <div class="datatable">
-                        <DataTable :value="groupedData" scrollable scroll-height="400px" table-style="min-width: 50rem"
-                            show-gridlines>
+                        <DataTable v-model:selection="odabranaGrupaEmisije" selection-mode="single" data-key="uge_id"
+                            :value="groupedData" scrollable scroll-height="400px" table-style="min-width: 50rem"
+                            show-gridlines @row-select="dialogEmisijaVisible = true">
+                            <!-- -->
                             <template #empty> Nema podataka za prikaz </template>
 
                             <Column header="Broj" header-style="width:3rem">
@@ -83,6 +85,65 @@
                                 </div>
                             </template>
                         </DataTable>
+
+                        <Dialog v-model:visible="dialogEmisijaVisible" :style="{ width: '75vw' }" maximizable modal
+                            :content-style="{ height: 'auto' }" @hide="odabranaGrupaEmisije = null">
+                            <template #header>
+                                <span style="font-size: 1.1rem; font-weight: 600;">
+                                    <font-awesome-icon :icon="getVehicleIcon(odabranaGrupaEmisije?.uge_naziv)" />
+                                    {{ odabranaGrupaEmisije?.uge_naziv }}
+                                </span>
+                            </template>
+                            <DataTable :value="energentiPotrosnja" table-style="min-width: 50rem" show-gridlines>
+                                <Column header="Broj" header-style="width:3rem">
+                                    <template #body="slotProps">
+                                        {{ slotProps.index + 1 }}
+                                    </template>
+                                </Column>
+                                <Column field="energent" :header="odabranaGrupaEmisije?.uge_lab_uvg">
+                                    <template #body="slotProps">
+                                        <Tag :value="slotProps.data.energent" :class="[
+                                            {
+                                                'etanol-tag': slotProps.data.energent === ('Etanol', 'Prirodni plin') ||
+                                                    odabranaGrupaEmisije?.uge_naziv == 'Staklenički plinovi (GWP)' &&
+                                                    slotProps.data.energent.charAt(0) !== 'R'
+                                            },
+                                            {
+                                                'dizel-tag': slotProps.data.energent === (
+                                                    'Dizel' || 'Biodizel' || 'B20 biodizel' || 'Biodizel'
+                                                )
+                                            },
+                                            { 'jet-tag': slotProps.data.energent === ('Jet Fuel', 'Gorivo za mlazne motore') },
+                                            { 'lozulje-tag': slotProps.data.energent === 'Loživo ulje' },
+                                            {
+                                                'lpg-tag': slotProps.data.energent === ('LNG' || 'LPG') ||
+                                                    slotProps.data.energent.charAt(0) === 'R'
+                                            },
+                                            { 'cng-tag': slotProps.data.energent === ('CNG') },
+                                        ]" />
+                                    </template>
+                                </Column>
+                                <Column field="ukupnaPotrosnja" header="Ukupna potrošnja" />
+                                <Column field="mjernaJedinica" header="Mjerna jedinica" />
+                                <Column field="ukupnaEmisija" header="Ukupne emisije CO2 t/god" />
+                                <template #footer>
+                                    <div class="flex justify-end font-bold w-full mt-4">
+                                        Ukupno:
+                                        <span>
+                                            <strong>{{
+                                                formatNumber(vehicleStore.emisijaZaKategoriju(odabranaGrupaEmisije?.uge_naziv)
+                                                    /
+                                                    1000) }}</strong></span> t/god
+                                    </div>
+                                </template>
+                            </DataTable>
+                            <template #footer>
+                                <button type="button" class="p-button p-component p-button-secondary"
+                                    @click="dialogEmisijaVisible = false">
+                                    Zatvori
+                                </button>
+                            </template>
+                        </Dialog>
 
                     </div>
                 </section>
@@ -286,7 +347,43 @@ const groupedData = computed(() => {
     return skupine.value.filter(s => s !== null); // Vraćamo originalne objekte, isključujući null vrednosti
 });
 
+const energentiPotrosnja = computed(() => {
+    const vozila = vehicleStore.vozila;
+    const skupina = odabranaGrupaEmisije.value?.uge_naziv;
+
+    if (!vozila.length || !skupina) {
+        return [];
+    }
+
+    // Dohvaćanje svih jedinstvenih goriva iz vozila u odabranoj skupini
+    const energenti = [...new Set(
+        vozila
+            .filter(vozilo => vozilo.uge_naziv === skupina)
+            .map(vozilo => vozilo.uvg_knaziv) // Izdvajamo naziv goriva (Benzin, Dizel, itd.)
+    )];
+
+    // Kreiranje niza s podacima o potrošnji i emisiji za svako gorivo
+    return energenti.map(energent => ({
+        energent,
+        ukupnaPotrosnja: parseFloat(vehicleStore.ukupnaPotrosnjaGorivaZaEnergentIzSkupineEmisija(skupina, energent)) || 0,
+        mjernaJedinica: vehicleStore.mjernaJedinicaZaSkupinuEmisija(skupina) || 'LL',
+        ukupnaEmisija: (parseFloat(vehicleStore.ukupnaEmisijaGorivaZaEnergentIzSkupineEmisija(skupina, energent)) / 1000).toFixed(2) || 0,
+    }));
+});
+
+
+watch(groupedData, () => {
+    console.log("Grouped data:", groupedData.value);
+})
+
 const fullscreenChart = ref(null);
+const dialogEmisijaVisible = ref(false);
+
+const odabranaGrupaEmisije = ref(null);
+
+watch(odabranaGrupaEmisije, () => {
+    console.log("Odabrana grupa emisije:", odabranaGrupaEmisije.value);
+})
 
 function openFullscreen(chartType) {
     fullscreenChart.value = chartType;
@@ -325,6 +422,9 @@ const filterNodes = (nodeList) => {
 };
 
 
+watch(energentiPotrosnja, () => {
+    console.log("Energenti potrosnja:", energentiPotrosnja.value);
+})
 // Filtrirani čvorovi za prikaz u stablu
 const filteredNodes = computed(() => {
     return kategorije.value ? filterNodes(kategorije.value) : [];
@@ -339,6 +439,9 @@ onMounted(async () => {
         kategorije.value = transformCategories(kats);
         console.log("fetchane kategorije: ", kategorije.value)
         console.log("filtrirane kategorije: ", filteredNodes.value)
+        console.log("Skupine: ", skupine.value)
+        console.log("VOZILA: ", vehicleStore.vozila)
+        console.log("Energenti potrošnja: ", energentiPotrosnja.value) //)
         loadingCategories.value = false;
     } catch (error) {
         console.error("Greška prilikom dohvaćanja emisijskih grupa:", error);
@@ -703,5 +806,53 @@ h3 {
     position: absolute;
     top: 16px;
     right: 16px;
+}
+
+:deep(.p-datatable-row-selected) {
+    background: var(--kesp-bg) !important;
+    color: var(--kesp-primary) !important;
+    border: var(--kesp-primary) !important;
+}
+
+:deep(.p-datatable-row-selected > td) {
+    /* border-block-color: var(--kesp-primary) !important; */
+    border-block-end-color: #24114728 !important;
+}
+
+:deep(.p-datatable-tbody > tr:has(+ .p-datatable-row-selected) > td) {
+    border-block-end-color: #24114728 !important;
+}
+
+
+.dizel-tag {
+    background-color: var(--text-color) !important;
+    color: white !important;
+    /* Ako želiš promijeniti i boju teksta */
+}
+
+.jet-tag {
+    background-color: lightskyblue;
+    color: var(--text-color);
+}
+
+.lozulje-tag {
+    background-color: gold;
+    color: var(--text-color);
+}
+
+.lpg-tag,
+.lng-tag {
+    background-color: var(--red-soft);
+    color: white;
+}
+
+.cng-tag {
+    background-color: green;
+    color: white;
+}
+
+.etanol-tag {
+    background-color: lightslategray;
+    color: white;
 }
 </style>
