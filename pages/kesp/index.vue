@@ -107,7 +107,8 @@ const kespStore = useKespStore();
 
 definePageMeta({
     middleware: [
-        'auth'
+        'auth',
+        'kesp-access'
     ],
     pageTransition: { name: 'slide', mode: 'out-in' }
 });

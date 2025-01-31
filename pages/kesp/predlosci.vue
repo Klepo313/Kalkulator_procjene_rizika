@@ -145,7 +145,7 @@ import { formatDateToDMY, getYearsRange } from '@/utils/dateFormatter';
 import { setCookie, deleteCookie } from '~/utils/cookieUtils';
 
 definePageMeta({
-    middleware: 'auth',
+    middleware: ['auth', 'kesp-access'],
 });
 
 const kespStore = useKespStore();

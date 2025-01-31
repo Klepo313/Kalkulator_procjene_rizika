@@ -21,6 +21,7 @@ import { useKespStore } from '#imports';
 definePageMeta({
     middleware: [
         'auth',
+        'kesp-access',
         'kesp'
     ],
 });
