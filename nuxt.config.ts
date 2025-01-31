@@ -22,7 +22,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     secretKey: process.env.SECRET_KEY,
     public: {
-      baseUrl: process.env.BASE_URL,
+      baseUrl: process.env.NODE_ENV === 'development'
+        ? `http://localhost:4000`
+        : `https://cadastre-server-mz7l.onrender.com`,
     },
   },
   modules: [
@@ -31,6 +33,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@sidebase/nuxt-pdf',
     '@nuxtjs/leaflet',
+    'nuxt-auth-utils',
   ],
   primevue: {
     options: {
