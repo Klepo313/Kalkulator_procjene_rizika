@@ -663,6 +663,30 @@ export const useVehicleStore = defineStore('vehicleStore', {
                 .reduce((sum, vozilo) => sum + parseFloat(vozilo.usi_emisija || 0), 0) // Zbir emisija
                 .toFixed(2); // Zaokruži na dve decimale
         },
+        // Ukupna potrosnja goriva za zadatu kategoriju (uge_naziv)
+        potrosnjaGorivaZaKategoriju: (state) => (kategorija: string) => {
+            return state.vozila
+                .filter(vozilo => vozilo.uge_naziv === kategorija) // Filtriraj vozila prema kategoriji
+                .reduce((sum, vozilo) => sum + parseFloat(vozilo.usi_kolicina || 0), 0) // Zbir potrosnje goriva
+                .toFixed(2); // Zaokruži na dve decimale
+        },
+        ukupnaPotrosnjaGorivaZaEnergentIzSkupineEmisija: (state) => (skupina: string, energent: string) => {
+            return state.vozila
+                .filter(vozilo => vozilo.uge_naziv === skupina && vozilo.uvg_knaziv === energent) // Filtriramo po skupini i energentu
+                .reduce((sum, vozilo) => sum + parseFloat(vozilo.usi_kolicina || 0), 0) // Računamo ukupnu potrošnju
+                .toFixed(2); // Zaokružujemo na dvije decimale
+        },
+
+        ukupnaEmisijaGorivaZaEnergentIzSkupineEmisija: (state) => (skupina: string, energent: string) => {
+            return state.vozila
+                .filter(vozilo => vozilo.uge_naziv === skupina && vozilo.uvg_knaziv === energent) // Filtriramo po skupini i energentu
+                .reduce((sum, vozilo) => sum + parseFloat(vozilo.usi_emisija || 0), 0) // Računamo ukupnu emisiju
+                .toFixed(2); // Zaokružujemo na dvije decimale
+        },
+        mjernaJedinicaZaSkupinuEmisija: (state) => (skupina: string) => {
+            return state.vozila
+                .find(vozilo => vozilo.uge_naziv === skupina)?.usi_jmj
+        }
     },
 
     // Actions: za funkcije koje manipulišu stanjem
