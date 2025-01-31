@@ -267,3 +267,36 @@ textarea {
     color: white;
     background-color: #3C7D22;
 }
+
+
+.dizel-tag {
+    background-color: var(--text-color) !important;
+    color: white !important;
+    /* Ako želiš promijeniti i boju teksta */
+}
+
+.jet-tag {
+    background-color: lightskyblue;
+    color: var(--text-color);
+}
+
+.lozulje-tag {
+    background-color: gold;
+    color: var(--text-color);
+}
+
+.lpg-tag,
+.lng-tag {
+    background-color: var(--red-soft);
+    color: white;
+}
+
+.cng-tag {
+    background-color: green;
+    color: white;
+}
+
+.etanol-tag {
+    background-color: lightslategray;
+    color: white;
+}
