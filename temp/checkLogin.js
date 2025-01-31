@@ -1,4 +1,5 @@
-import { base_url } from '../composables/variables'
+// checkLogin.js
+import { base_url } from '../composables/variables';
 import axios from 'axios';
 
 const checkLogin = async () => {
@@ -9,22 +10,14 @@ const checkLogin = async () => {
             withCredentials: true,
         });
 
-        console.log("Logiran? ", response.data.isLoggedin, response.status);
+        console.log("Logiran?", response.data.isLoggedin, response.status);
 
-        // Ako je status 200, vraćamo isLoggedin vrijednost
-        if (response.status == 200) {
-            return response.data.isLoggedin;
-        } else {
-            return false;
-        }
+        return response.status === 200 && response.data.isLoggedin === true;
 
     } catch (error) {
-        // Ako se dogodi neka druga greška (npr. mrežna greška), vraćamo 0
-        console.error('Greška pri provjeri logiranja: ' + error);
-        return 0;
+        console.error('Greška pri provjeri logiranja:', error);
+        return false; // Uvijek vraćamo `false` umjesto `0` radi konzistentnosti
     }
 };
 
-export {
-    checkLogin
-};
+export { checkLogin };
