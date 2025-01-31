@@ -51,6 +51,7 @@ definePageMeta({
 const route = useRoute();
 
 const userStore = useUserStore();
+const authStore = useAuthStore();
 
 const userToken = useCookie('userToken', {
     maxAge: 24 * 60 * 60, // 1 dan
@@ -107,6 +108,10 @@ const checkLogin = async () => {
 
             userToken.value = newCsrfToken;
             expiryTime.value = new Date().getTime() + (24 * 60 * 60 * 1000); // 1 dan
+
+            // Nakon provjere prijave, dohvatimo podatke korisnika
+            authStore.checkAuth()
+            authStore.fetchUserInfo();
 
             if (isFirstLogin) {
                 navigateTo('/user/change-password');

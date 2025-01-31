@@ -22,7 +22,8 @@ import AdminSidebar from '~/components/AdminSidebar.vue';
 
 definePageMeta({
     middleware: [
-        'auth'
+        'auth',
+        'admin-role'
     ],
 });
 // Reaktivna varijabla za praćenje stanja bočne trake

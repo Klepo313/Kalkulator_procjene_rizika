@@ -42,13 +42,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div v-else style="text-align: center;">
-                            <h2 class="no-results-header">Nemate definirana korisnička prava na korištenje nekih od
-                                aplikacija
-                            </h2>
-                            <p class="no-results">Javite se Vašem administratoru aplikacije</p>
-                        </div>
                     </div>
                 </div>
             </main>
@@ -65,13 +58,14 @@ import { logout } from '~/service/user/user';
 import { useUserStore } from '~/stores/main-store';
 
 definePageMeta({
-    middleware: [
-        'auth'
-    ],
+    // middleware: [
+    //     'auth'
+    // ],
     pageTransition: { name: 'slide', mode: 'out-in' }
 });
 
 const userStore = useUserStore();
+const authStore = useAuthStore();
 
 const roles = ref([null])
 
@@ -150,6 +144,8 @@ onMounted(async () => {
         card.isLoaded = true;
     }
     loading.value = false;
+
+    console.log(authStore.userRoles)
 });
 
 const doLogout = async () => {

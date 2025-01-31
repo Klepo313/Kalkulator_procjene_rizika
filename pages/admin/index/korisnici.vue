@@ -1103,12 +1103,6 @@ import { savePartner, saveUser } from '~/service/admin/users';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { objectUtil, z } from 'zod';
 
-definePageMeta({
-    middleware: [
-        'auth'
-    ],
-});
-
 const toast = useToast()
 
 const korisniciStore = useKorisniciStore();
