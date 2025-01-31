@@ -55,7 +55,7 @@ const cardStore = useCardStore();
 
 definePageMeta({
     middleware: [
-        'auth'
+        'kpkr-access'
     ],
     pageTransition: { name: 'slide', mode: 'out-in' }
 });

@@ -42,6 +42,12 @@
                                 </div>
                             </div>
                         </div>
+                        <div v-else style="text-align: center;">
+                            <h2 class="no-results-header">Nemate definirana korisnička prava na korištenje nekih od
+                                aplikacija
+                            </h2>
+                            <p class="no-results">Javite se Vašem administratoru aplikacije</p>
+                        </div>
                     </div>
                 </div>
             </main>

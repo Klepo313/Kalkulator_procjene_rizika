@@ -26,7 +26,8 @@ import { getCalculations } from '~/service/kpkr/calculations';
 definePageMeta({
     middleware: [
         'auth',
-        'izracun'
+        'kpkr-access',
+        'izracun',
     ],
 });
 

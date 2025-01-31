@@ -88,7 +88,10 @@ import { formatDateToDMY } from '@/utils/dateFormatter';
 import { setCookie, deleteCookie } from '~/utils/cookieUtils';
 
 definePageMeta({
-    middleware: 'auth',
+    middleware: [
+        'auth',
+        'kpkr-access'
+    ],
 });
 
 const toast = useToast();
