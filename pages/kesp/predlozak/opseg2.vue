@@ -108,8 +108,6 @@
                                 </template>
                             </Column>
 
-
-
                             <Column header="Ukupna potrošnja (kWh)" field="ukupno">
                                 <template #body="slotProps">
                                     {{ formatNumber(slotProps.data.ukupno) }}
@@ -132,6 +130,12 @@
                             </template>
                         </DataTable>
 
+                        <button class="dodaj-btn spremi-promjene" @click="spremiPromjene">
+                            <font-awesome-icon icon="floppy-disk" />
+                            <span style="width: 100%;">
+                                Spremi promjene
+                            </span>
+                        </button>
 
                     </div>
                 </section>
@@ -224,9 +228,9 @@ const props = defineProps({
 
 const kespId = ref(props.uiz_id);
 
-// const showSuccess = (skupina, vrsta) => {
-//     toast.add({ severity: 'success', summary: 'Uspješno dodano', detail: ``, life: 3000 });
-// };
+const showSuccess = () => {
+    toast.add({ severity: 'success', summary: 'Uspješno dodano', detail: `Vrijednost izvora uspješno ažurirana.`, life: 3000 });
+};
 
 const showError = () => {
     toast.add({ severity: 'error', summary: 'Došlo je do greške!', detail: `Vrijednost izvora neuspješno ažurirana.`, life: 3000 });
@@ -253,15 +257,31 @@ const totalEmissions = computed(() => opseg2Store.totalEmissions); // Preuzmi uk
 
 // Funkcija za završetak uređivanja ćelije
 const onCellEditComplete = async (event) => {
-    const status = await opseg2Store.onCellEditComplete(event); // Poziva akciju za uređivanje ćelija
-    console.log("Status: ", status);
+    const { data, newValue, field } = event;
+    data[field] = newValue;
+};
+// const onCellEditComplete = async (event) => {
+//     const status = await opseg2Store.onCellEditComplete(event); // Poziva akciju za uređivanje ćelija
+//     console.log("Status: ", status);
 
-    await opseg2Store.fetchEnergySources(kespId.value);
+//     await opseg2Store.fetchEnergySources(kespId.value);
 
-    if (status !== 200 && status !== undefined) {
+//     if (status !== 200 && status !== undefined) {
+//         showError();
+//     }
+// };
+
+const spremiPromjene = async () => {
+
+    try {
+        opseg2Store.updateEnergyItems()
+        showSuccess();
+    } catch (error) {
+        console.error('Greška prilikom spremanja promjena:', error);
         showError();
     }
-};
+
+}
 
 // Kombinovani podaci za grafikon
 const combinedChartData = computed(() => opseg2Store.combinedChartData); // Preuzmi podatke za grafikon iz getter-a
@@ -551,6 +571,21 @@ h3 {
     color: black;
 }
 
+.spremi-promjene {
+    margin-top: 8px;
+    align-self: flex-end;
+    width: 200px;
+
+    background-color: var(--kesp-primary);
+}
+
+.spremi-promjene:hover {
+    background-color: var(--kesp-primary-hover);
+}
+
+.spremi-promjene:active {
+    background-color: var(--kesp-primary-focus);
+}
 
 .razdoblje {
     max-width: 500px;

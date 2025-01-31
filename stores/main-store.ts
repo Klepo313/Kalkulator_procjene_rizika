@@ -961,6 +961,40 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                 }
             }
         },
+        updateEnergyItems() {
+            this.izracuni.forEach(async (row) => {
+                const energyItem = {
+                    p_use_id: row.id,
+                    p_uiz_id: row.uiz_id,
+                    p_uvn_id: row.uvn_id,
+                    p_neobnovljivo: row.neobnovljivo || 0,
+                    p_obnovljivo: row.obnovljivo || 0
+                };
+
+                if (!energyItem.p_uiz_id || !energyItem.p_uvn_id || !energyItem.p_use_id) return;
+
+                try {
+                    const response = await updateEnergyItem(energyItem);
+
+                    const { id, status } = response;
+
+                    if (status === 200) {
+                        const use_id = id;
+                        console.log(`Energy item updated with ID: ${use_id}`);
+
+                        if (use_id) await this.fetchEnergySources(energyItem.p_uiz_id);
+
+                        return status;
+                    } else {
+                        console.error(`Failed to update energy item with ID: ${id}`);
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error updating energy item:', error);
+                    return;
+                }
+            })
+        },
 
         isPositiveInteger(val) {
             return Number.isInteger(val) && val > 0;
