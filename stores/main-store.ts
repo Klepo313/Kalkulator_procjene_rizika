@@ -871,6 +871,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
         async fetchEnergySources(id) {
             try {
                 const energySources = await getEnergySources(id);
+                console.log("ENERGIJE: ", energySources)
                 if (energySources) this.clearStore();
                 for (const source of energySources) {
                     this.izracuni.push({
@@ -961,8 +962,10 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                 }
             }
         },
-        updateEnergyItems() {
-            this.izracuni.forEach(async (row) => {
+        async updateEnergyItems() {
+            const updatePromises = this.izracuni.map(row => {
+                console.log("Red u izračunima: ", row);
+
                 const energyItem = {
                     p_use_id: row.id,
                     p_uiz_id: row.uiz_id,
@@ -971,29 +974,22 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                     p_obnovljivo: row.obnovljivo || 0
                 };
 
-                if (!energyItem.p_uiz_id || !energyItem.p_uvn_id || !energyItem.p_use_id) return;
+                console.log("Primljeni energyItem: ", energyItem);
 
-                try {
-                    const response = await updateEnergyItem(energyItem);
-
-                    const { id, status } = response;
-
-                    if (status === 200) {
-                        const use_id = id;
-                        console.log(`Energy item updated with ID: ${use_id}`);
-
-                        if (use_id) await this.fetchEnergySources(energyItem.p_uiz_id);
-
-                        return status;
-                    } else {
-                        console.error(`Failed to update energy item with ID: ${id}`);
-                        return;
-                    }
-                } catch (error) {
-                    console.error('Error updating energy item:', error);
-                    return;
+                if (!energyItem.p_uiz_id || !energyItem.p_uvn_id || !energyItem.p_use_id) {
+                    return Promise.resolve(); // Ako podaci nisu ispravni, vraćamo resolved Promise kako ne bi blokirao Promise.all
                 }
-            })
+
+                return updateEnergyItem(energyItem).catch(error => {
+                    console.error('Error updating energy item:', error);
+                });
+            });
+
+            // Čekaj da se svi API pozivi završe
+            await Promise.all(updatePromises);
+
+            console.log("Sva ažuriranja završena.");
+            return 200;
         },
 
         isPositiveInteger(val) {
