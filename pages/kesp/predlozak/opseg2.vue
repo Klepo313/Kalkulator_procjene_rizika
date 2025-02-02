@@ -80,13 +80,9 @@
                                         mode="decimal" min="0" />
                                 </template>
                                 <template #body="slotProps">
-                                    <span
-                                        v-if="slotProps.data.neobnovljivo !== null && slotProps.data.neobnovljivo !== undefined">
+                                    <span :class="getCellClass(slotProps.data, 'neobnovljivo')">
                                         {{ slotProps.data.neobnovljivo == 0 ? '0' :
                                             formatNumber(slotProps.data.neobnovljivo) }}
-                                    </span>
-                                    <span v-else style="font-style: italic; opacity: 0.6;">
-                                        {{ '0' }}
                                     </span>
                                 </template>
                             </Column>
@@ -97,13 +93,9 @@
                                         min="0" />
                                 </template>
                                 <template #body="slotProps">
-                                    <span
-                                        v-if="slotProps.data.obnovljivo !== null && slotProps.data.obnovljivo !== undefined">
+                                    <span :class="getCellClass(slotProps.data, 'obnovljivo')">
                                         {{ slotProps.data.obnovljivo == 0 ? '0' :
                                             formatNumber(slotProps.data.obnovljivo) }}
-                                    </span>
-                                    <span v-else style="font-style: italic; opacity: 0.6;">
-                                        {{ '0' }}
                                     </span>
                                 </template>
                             </Column>
@@ -116,7 +108,10 @@
 
                             <Column header="Emisije CO2/kg" field="emisije">
                                 <template #body="slotProps">
-                                    {{ formatNumber(slotProps.data.emisije.toFixed(2)) }}
+                                    <span :class="getCellClass(slotProps.data, 'emisije')"
+                                        v-tooltip.top="getTooltip(slotProps.data)">
+                                        {{ formatNumber(slotProps.data.emisije.toFixed(2)) }}
+                                    </span>
                                 </template>
                             </Column>
 
@@ -130,14 +125,14 @@
                             </template>
                         </DataTable>
 
-                        <button class="dodaj-btn spremi-promjene" @click="spremiPromjene">
+                        <button class="dodaj-btn spremi-promjene" @click="spremiPromjene" :disabled="!imaPromjena">
                             <font-awesome-icon icon="floppy-disk" />
                             <span style="width: 100%;">
                                 Spremi promjene
                             </span>
                         </button>
-
                     </div>
+
                 </section>
             </div>
             <div v-if="izracuni.some(item => item.neobnovljivo !== null || item.obnovljivo !== null)"
@@ -192,6 +187,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import { updateEnergyItem } from '~/service/kesp/postRequests';
 import { useOpseg2Store } from '~/stores/main-store';
 
 const opseg2Store = useOpseg2Store(); // Inicijaliziraj store
@@ -199,21 +195,20 @@ const kespStore = useKespStore();
 
 const toast = useToast();
 
-const izracuni = computed(() => opseg2Store.izracuni);
+const izracuni = computed(() => JSON.parse(JSON.stringify(opseg2Store.izracuni)));
 const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
 const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
 
-const sortedIzracuni = computed(() => {
-    return izracuni.value.sort((a, b) => {
-        if (a.energija === 'Električna energija' && b.energija !== 'Električna energija') {
-            return -1; // A dolazi prije B
-        }
-        if (a.energija !== 'Električna energija' && b.energija === 'Električna energija') {
-            return 1; // B dolazi prije A
-        }
-        return 0; // Ako su obje iste energije, ostavi redoslijed kakav je
-    });
-});
+const sortedIzracuni = computed(() =>
+    [...izracuni.value].sort((a, b) =>
+        a.energija === 'Električna energija' ? -1 :
+            b.energija === 'Električna energija' ? 1 : 0
+    )
+);
+
+
+const originalData = ref([]);
+const imaPromjena = ref(false);
 
 function getRowClass(rowData) {
     return rowData.neobnovljivo > 100 ? 'high-energy-row' : '';
@@ -227,6 +222,40 @@ const props = defineProps({
 })
 
 const kespId = ref(props.uiz_id);
+
+const fetchData = async () => {
+    await opseg2Store.fetchEnergySources(kespId.value);
+    originalData.value = JSON.parse(JSON.stringify(opseg2Store.izracuni)); // Duboka kopija
+    imaPromjena.value = false;
+};
+
+// Provjera promjena u tablici
+const checkForChanges = () => {
+    imaPromjena.value = izracuni.value.some((item, index) => {
+        return JSON.stringify(item) !== JSON.stringify(originalData.value[index]);
+    });
+};
+
+// Klasa za isticanje promijenjenih vrijednosti
+const getCellClass = (row, field) => {
+    const originalRow = originalData.value.find(item => item.id === row.id);
+    if (!originalRow) return "";
+    return row[field] !== originalRow[field] ? "highlighted-cell" : "";
+};
+
+// Tooltip za emisije ako su nespremljene promjene
+const getTooltip = (row) => {
+    const originalRow = originalData.value.find(item => item.id === row.id);
+    if (!originalRow) return "";
+    return row.emisije !== originalRow.emisije ?
+        "Vrijednost možda nije istinita jer su se desile nespremljene promjene na formi." : "";
+};
+
+onMounted(async () => {
+    await fetchData();
+})
+
+watch(izracuni, checkForChanges, { deep: true });
 
 const showSuccess = () => {
     toast.add({ severity: 'success', summary: 'Uspješno dodano', detail: `Vrijednost izvora uspješno ažurirana.`, life: 3000 });
@@ -255,11 +284,28 @@ onBeforeUnmount(() => {
 // Ukupne emisije
 const totalEmissions = computed(() => opseg2Store.totalEmissions); // Preuzmi ukupne emisije iz getter-a
 
+const noviPodaci = ref([])
+
 // Funkcija za završetak uređivanja ćelije
 const onCellEditComplete = async (event) => {
     const { data, newValue, field } = event;
     data[field] = newValue;
+
+    // Pronađi indeks objekta s istom energijom unutar opseg2Store.izracuni
+    const index = opseg2Store.izracuni.findIndex(item => item.energija === data.energija);
+
+    if (index !== -1) {
+        // Zamijeni postojeći objekt novim objektom data
+        opseg2Store.izracuni[index] = { ...data };
+        noviPodaci.value.push = { ...data };
+        console.log("Ažuriran objekt u opseg2Store:", opseg2Store.izracuni[index], noviPodaci.value);
+    } else {
+        console.warn("Objekt s tom energijom nije pronađen u opseg2Store.");
+    }
+
+    checkForChanges();
 };
+
 // const onCellEditComplete = async (event) => {
 //     const status = await opseg2Store.onCellEditComplete(event); // Poziva akciju za uređivanje ćelija
 //     console.log("Status: ", status);
@@ -272,16 +318,18 @@ const onCellEditComplete = async (event) => {
 // };
 
 const spremiPromjene = async () => {
-
+    console.log("Dobiveni podaci: ", noviPodaci.value);
     try {
-        opseg2Store.updateEnergyItems()
+        await opseg2Store.updateEnergyItems(); // Čekamo završetak svih API poziva
+        await fetchData(); // Tek nakon što svi podaci budu ažurirani, dohvaćamo svježe podatke
+        imaPromjena.value = false;
         showSuccess();
     } catch (error) {
         console.error('Greška prilikom spremanja promjena:', error);
         showError();
     }
+};
 
-}
 
 // Kombinovani podaci za grafikon
 const combinedChartData = computed(() => opseg2Store.combinedChartData); // Preuzmi podatke za grafikon iz getter-a
@@ -333,6 +381,12 @@ const chartOptions = setChartOptions(); // Postavi opcije za grafikon
 
 
 <style scoped>
+.highlighted-cell {
+    font-weight: bold;
+    color: #d48712 !important;
+    text-decoration: underline 2px;
+}
+
 .body {
     position: relative;
     height: 100%;
@@ -585,6 +639,12 @@ h3 {
 
 .spremi-promjene:active {
     background-color: var(--kesp-primary-focus);
+}
+
+.spremi-promjene:disabled {
+    background-color: #b0b0b0;
+    cursor: not-allowed;
+    color: var(--text-color) !important;
 }
 
 .razdoblje {

@@ -90,7 +90,7 @@ import { setCookie, deleteCookie } from '~/utils/cookieUtils';
 definePageMeta({
     middleware: [
         'auth',
-        'kpkr-access'
+        // 'kpkr-access'
     ],
 });
 
