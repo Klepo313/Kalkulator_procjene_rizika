@@ -6,14 +6,17 @@
             <main>
                 <h1>
                     Opći podaci
+                    <font-awesome-icon v-if="isReadonly" v-tooltip.top="'Predložak je zaključan.'" icon="lock"
+                        class="lock-icon" />
                 </h1>
 
-                <Form v-slot="$form" :initial-values="initialValues" :resolver="resolver" :validateOnValueUpdate="true"
-                    class="main-grid" @submit="onFormSubmit">
+                <Form v-slot="$form" ref="formRef" :initial-values="initialValues" :resolver="resolver"
+                    :validateOnValueUpdate="true" class="main-grid" @submit="onFormSubmit">
                     <div class="grid-item">
                         <label for="naziv" class="header">Naziv predloška:</label>
                         <InputText v-model="naziv" id="naziv" class="form-input" name="naziv"
-                            placeholder="Unesi naziv predloška" fluid />
+                            placeholder="Unesi naziv predloška" fluid :class="{ 'readonly': isReadonly }"
+                            :tabindex="isReadonly ? '-1' : '0'" />
                         <div class="info-div">
                             <font-awesome-icon :icon="'info-circle'" style="display: none;" />
                         </div>
@@ -22,7 +25,8 @@
                     <div class="grid-item">
                         <label for="datum" class="header">Datum</label>
                         <DatePicker v-model="datum" id="datum" class="form-input" name="datum" show-icon
-                            icon-display="input" date-format="dd.mm.yy" placeholder="Unesi datum" fluid readonly />
+                            icon-display="input" date-format="dd.mm.yy" placeholder="Unesi datum" fluid readonly
+                            :class="{ 'readonly': isReadonly }" :tabindex="isReadonly ? '-1' : '0'" />
                         <div class="info-div">
                             <font-awesome-icon :icon="'info-circle'" style="display: none;" />
                         </div>
@@ -31,9 +35,10 @@
 
                     <div class="grid-item">
                         <label for="vrstaIzracuna" class="header">Vrsta izračuna</label>
-                        <Select v-model="vrstaIzracuna" id="vrstaIzracuna" class="form-input" name="vrstaIzracuna"
-                            :options="vrsteIzracuna" option-label="tvz_naziv" placeholder="Odaberi vrstu izračuna"
-                            @change="handleVrstaIzracunaChange(1)" />
+                        <Select v-model="vrstaIzracuna" id="vrstaIzracuna" class="form-input"
+                            :class="{ 'readonly': isReadonly }" name="vrstaIzracuna" :options="vrsteIzracuna"
+                            option-label="tvz_naziv" placeholder="Odaberi vrstu izračuna"
+                            :tabindex="isReadonly ? '-1' : '0'" @change="handleVrstaIzracunaChange(1)" />
                         <div class="info-div">
                             <Message v-if="$form.vrstaIzracuna?.invalid && vrstaIzracuna?.tvz_naziv" severity="error"
                                 size="small" variant="simple">
@@ -52,7 +57,8 @@
                             :option-label="option => formatOption(option, 'kop_sif', 'kop_naziv')"
                             :suggestions="filteredOpcine" @input="onInputChange" @complete="updateOpcina"
                             @item-select="fetchCestice" placeholder="Odaberi katastarsku općinu"
-                            :disabled="!vrstaIzracuna">
+                            :disabled="!vrstaIzracuna" :class="{ 'readonly': isReadonly }"
+                            :tabindex="isReadonly ? '-1' : '0'">
                             <template #option="slotProps">
                                 <span>{{ slotProps.option.kop_sif + ' - ' + slotProps.option.kop_naziv }}</span>
                             </template>
@@ -68,7 +74,8 @@
                         <AutoComplete v-model="katastarskaCestica" id="katastarskaCestica" name="katastarskaCestica"
                             class="form-input autocomplete" option-label="kcs_sif" :suggestions="filteredCestice"
                             @complete="updateCestica" placeholder="Odaberi katastarsku česticu (opcionalno)"
-                            :disabled="!katastarskaOpcina" />
+                            :disabled="!katastarskaOpcina" :class="{ 'readonly': isReadonly }"
+                            :tabindex="isReadonly ? '-1' : '0'" />
                         <div class="info-div">
                             <font-awesome-icon :icon="'info-circle'" style="display: none;" />
                         </div>
@@ -78,7 +85,8 @@
                         <Select v-model="vrstaImovine" id="vrstaImovine" class="form-input" name="vrstaImovine"
                             :options="vrsteImovine" option-label="tvo_naziv"
                             :placeholder="!vrstaIzracuna || isDjelatnost ? '' : 'Odaberi vrstu imovine'"
-                            :disabled="!vrstaIzracuna || isDjelatnost" />
+                            :disabled="!vrstaIzracuna || isDjelatnost" :class="{ 'readonly': isReadonly }"
+                            :tabindex="isReadonly ? '-1' : '0'" />
                         <!-- </Select> -->
                         <div class="info-div"><font-awesome-icon :icon="'info-circle'" style="display: none;" />
                         </div>
@@ -91,7 +99,8 @@
                             :suggestions="filteredDjelatnost" @complete="updateDjelatnost"
                             @item-select="fetchSkupinuDjelatnosti"
                             :placeholder="!vrstaIzracuna || isImovina ? '' : 'Odaberi djelatnost'"
-                            :disabled="!vrstaIzracuna || isImovina">
+                            :disabled="!vrstaIzracuna || isImovina" :class="{ 'readonly': isReadonly }"
+                            :tabindex="isReadonly ? '-1' : '0'">
                             <template #option="slotProps">
                                 <span>{{ slotProps.option.djl_sif + ' - ' + slotProps.option.djl_naziv }}</span>
                             </template>
@@ -105,7 +114,8 @@
                         <InputText :value="skupinaDjelatnosti.djl_skp_naziv" id="skupina" readonly
                             class="form-input dataInput" name="skupina"
                             :placeholder="!vrstaIzracuna || isImovina ? '' : 'Prikaz skupine djelatnosti'" fluid
-                            :disabled="!vrstaIzracuna || isImovina" />
+                            :disabled="!vrstaIzracuna || isImovina" :class="{ 'readonly': isReadonly }"
+                            :tabindex="isReadonly ? '-1' : '0'" />
                         <div class="info-div">
                             <font-awesome-icon :icon="'info-circle'" style="display: none;" />
                         </div>
@@ -113,10 +123,11 @@
 
                     <div class="grid-item">
                         <label for="scenariji" class="header">Klimatski scenarij:</label>
-                        <div class="radio-button-container">
+                        <div class="radio-button-container" :class="{ 'readonly': isReadonly }"
+                            :tabindex="isReadonly ? '-1' : '0'">
                             <div v-for="s in scenariji" :key="s.tvs_id" :title="s.tvs_naziv" class="radio-button">
-                                <RadioButton v-model="scenarij" :input-id="s.tvs_sif" :value="s.tvs_sif"
-                                    name="scenarij" />
+                                <RadioButton v-model="scenarij" :input-id="s.tvs_sif" :value="s.tvs_sif" name="scenarij"
+                                    :class="{ 'readonly': isReadonly }" :tabindex="isReadonly ? '-1' : '0'" />
                                 <label :for="s.tvs_sif">{{ s.tvs_sif }}</label>
                             </div>
                         </div>
@@ -134,7 +145,8 @@
                     <div class="grid-item">
                         <label for="ispostava" class="header">Ispostava:</label>
                         <InputText :value="ispostava.isp_naziv" id="ispostava" class="form-input dataInput"
-                            name="ispostava" placeholder="Prikaz ispostave" fluid readonly :disabled="!vrstaIzracuna" />
+                            name="ispostava" placeholder="Prikaz ispostave" fluid readonly :disabled="!vrstaIzracuna"
+                            :class="{ 'readonly': isReadonly }" :tabindex="isReadonly ? '-1' : '0'" />
                         <div class="info-div">
                             <font-awesome-icon :icon="'info-circle'" style="display: none;" />
                         </div>
@@ -143,7 +155,8 @@
                         <label for="podrucniUred" class="header">Područni ured:</label>
                         <InputText :value="podrucniUred.puk_naziv" id="podrucniUred" class="form-input"
                             name="podrucniUred" placeholder="Prikaz područnog ureda" fluid readonly
-                            :disabled="!vrstaIzracuna" />
+                            :disabled="!vrstaIzracuna" :class="{ 'readonly': isReadonly }"
+                            :tabindex="isReadonly ? '-1' : '0'" />
                         <div class="info-div">
                             <font-awesome-icon :icon="'info-circle'" style="display: none;" />
                         </div>
@@ -151,24 +164,39 @@
                     <div class="grid-item napomena">
                         <label for="napomena" class="header">Napomena:</label>
                         <Textarea v-model="napomena" id="napomena" rows="5" cols="30" class="form-input" name="napomena"
-                            placeholder="Napomena" fluid />
+                            placeholder="Napomena" fluid :class="{ 'readonly': isReadonly }"
+                            :tabindex="isReadonly ? '-1' : '0'" />
                         <div class="info-div">
                             <font-awesome-icon :icon="'info-circle'" style="display: none;" />
                         </div>
                     </div>
 
-                    <button id="saveBtn" type="submit">
-                        <font-awesome-icon icon="save" class="save-icon" />
-                        Spremi
-                    </button>
-                    <!-- <Button type="submit" severity="secondary" icon="pi pi-save" label="Spremi" /> -->
-                    <span>
-                        *Potrebno je popuniti sva obvezna polja (<span class="required">*</span>) kako bi se predložak
-                        mogao
-                        spremiti i
-                        kako biste mogli
-                        nastaviti u sljedeći korak.
-                    </span>
+                    <template v-if="!isReadonly">
+                        <button id="saveBtn" type="submit">
+                            <font-awesome-icon :icon="idIzracuna ? 'lock' : 'save'" class="save-icon" />
+                            Spremi i zaključaj
+                        </button>
+                        <!-- <button id="saveBtn" type="submit" class="zakljucanoBtn">
+                            <font-awesome-icon :icon="idIzracuna ? 'lock' : 'save'" class="save-icon" />
+                            <template v-if="idIzracuna">
+                                Zaključano
+                            </template>
+<template v-else>
+                                Spremi i zaključaj
+                            </template>
+</button> -->
+                        <span>
+                            *Potrebno je popuniti sva obvezna polja (<span class="required">*</span>) kako bi se
+                            predložak
+                            mogao
+                            spremiti i
+                            kako biste mogli
+                            nastaviti u sljedeći korak.
+                        </span>
+                    </template>
+                    <template v-else>
+                        <span style="margin-top: 8px;">Status: <strong class="zakljucanoText">Zaključano</strong></span>
+                    </template>
                 </Form>
                 <div id="map" class="map">
                     <Map />
@@ -196,6 +224,20 @@
                 </span>
             </main>
         </template>
+        <Dialog v-model:visible="visibleSaveDialog" header="Zaključavanje predloška" modal :style="{ width: '450px' }">
+            <p style="text-align: center; font-size: 1rem;">
+                Jeste li sigurni da želite zaključati predložak? Ako niste, provjerite predložak još jednom.
+            </p>
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 26px;">
+                <Button type="button" label="Odustani" severity="secondary" @click="visibleSaveDialog = false"></Button>
+
+                <!-- Kada korisnik potvrdi, pozivamo stvarni submit -->
+                <button id="saveBtn" type="submit" @click="confirmSubmit" style="margin-top: 0px;">
+                    <font-awesome-icon :icon="idIzracuna ? 'lock' : 'save'" class="save-icon" />
+                    Spremi i zaključaj
+                </button>
+            </div>
+        </Dialog>
         <NespremljenePromjenePopup class="alert-popup" :visible="isNespremljenePromjenePopupVisible"
             @confirm="confirmLeave" @cancel="cancelLeave" />
         <LoadingSpremanje v-if="isLoadingPopupVisible" :message="'Spremanje promjena...'"
@@ -240,6 +282,8 @@ const props = defineProps({
 const idIzracuna = ref(props.aiz_id || null);
 const izracun = ref(props.data || null)
 
+const isReadonly = computed(() => !!idIzracuna.value);
+
 const naziv = ref('');
 const datum = ref(new Date);
 const vrstaIzracuna = ref(null);
@@ -271,6 +315,8 @@ const isDjelatnost = computed(() => vrstaIzracuna.value?.tvz_naziv === "Djelatno
 
 const isLoadingPopupVisible = ref(false)
 const isNespremljenePromjenePopupVisible = ref(false)
+
+const visibleSaveDialog = ref(false);
 
 const vrsteIzracuna = computed(() => {
     const niz = opciStore.vrste_izracuna;
@@ -694,6 +740,12 @@ watch(katastarskaOpcina, async (newValue) => {
 })
 
 const onFormSubmit = async ({ valid }) => {
+    // event.preventDefault(); // Sprečava automatski submit forme
+    // visibleSaveDialog.value = true; // Prikazuje dijalog
+
+    // // Pohranjujemo funkciju za stvarno submitanje
+    // formSubmitFunction.value = event.submitter.form.requestSubmit.bind(event.submitter.form);
+
     if (valid) {
         console.log("Forma je validna i podaci su spremljeni.");
         isLoadingPopupVisible.value = true;
@@ -795,6 +847,16 @@ const onFormSubmit = async ({ valid }) => {
     } else {
         console.error('Validacija nije prošla.');
     }
+}
+
+const formSubmitFunction = ref(null);
+
+// Funkcija koja se poziva ako korisnik potvrdi spremanje
+const confirmSubmit = () => {
+    if (formSubmitFunction.value) {
+        formSubmitFunction.value(); // Izvršava stvarni submit forme
+        visibleSaveDialog.value = false; // Zatvara dijalog
+    }
 };
 
 const showSuccess = () => {
@@ -829,6 +891,10 @@ const formatOption = (option, sifKey, nazivKey) => {
     gap: 26px;
 }
 
+.lock-icon {
+    margin-left: 10px;
+}
+
 h1 {
     width: 100%;
     text-align: left;
@@ -856,6 +922,13 @@ h1 {
 .grid-item>*,
 .radio-button-container {
     width: 100%;
+}
+
+.readonly {
+    pointer-events: none;
+    /* Blokira klikove i promjene */
+    opacity: 1;
+    /* Ostavlja isti izgled */
 }
 
 .header {
@@ -965,7 +1038,8 @@ main {
 }
 
 #saveBtn {
-    width: 150px;
+    margin-top: 8px;
+    width: 230px;
     background: none;
     border: var(--border);
     font-weight: 500;
@@ -976,7 +1050,7 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
+    gap: 8px;
 }
 
 #saveBtn * {
@@ -1023,6 +1097,24 @@ main {
     /* Uklanja hover i active efekte */
     color: var(--text-color);
     /* Zadržava boju teksta */
+}
+
+.zakljucanoBtn {
+    background: none;
+    border: var(--primary-color) 1px solid !important;
+    border: 1px solid var(--text-color) !important;
+    /* border: var(--border) !important; */
+    font-weight: 500;
+
+    background: none !important;
+    color: var(--text-color) !important;
+    /* color: var(--primary-color) !important; */
+    cursor: not-allowed !important;
+}
+
+.zakljucanoBtn * {
+    color: var(--text-color) !important;
+    /* color: var(--primary-color) !important; */
 }
 
 .form-input-div {
@@ -1150,6 +1242,13 @@ footer {
 
 .required {
     color: var(--red-soft);
+}
+
+.zakljucanoText {
+    text-transform: uppercase;
+    text-decoration: underline;
+    font-weight: bolder;
+    color: var(--primary-color);
 }
 
 @media screen and (max-width: 1500px) {
