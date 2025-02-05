@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     console.log("SERVER SIDE TOKEN: ", token)
 
     if (!token) {
-        return { user: null };
+        return { user: null, success: false, error: "No token provided" };
     }
 
     // try {
