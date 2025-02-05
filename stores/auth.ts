@@ -25,12 +25,12 @@ export const useAuthStore = defineStore("auth", {
                 const { data } = await useFetch("/api/auth/info", {
                     credentials: "include",
                 });
-
+                console.log("Korisnički podaci:", data);
                 if (data.value?.success) {
                     this.userRoles = data.value.userRoles;
                     this.exp = data.value.exp;
                 } else {
-                    console.error("Neuspješno dohvaćanje korisničkih podataka:", data.value?.error);
+                    console.error("Neuspješno dohvaćanje korisničkih podataka.");
                 }
             } catch (error) {
                 console.error("Greška prilikom dohvaćanja korisničkih podataka:", error);
