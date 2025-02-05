@@ -95,6 +95,11 @@
                                 </span>
                             </template>
                             <DataTable :value="energentiPotrosnja" table-style="min-width: 50rem" show-gridlines>
+                                <template #empty>
+                                    <span style="font-style: italic; opacity: 0.75;">
+                                        Nema podataka za prikaz.
+                                    </span>
+                                </template>
                                 <Column header="Broj" header-style="width:3rem">
                                     <template #body="slotProps">
                                         {{ slotProps.index + 1 }}

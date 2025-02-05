@@ -111,7 +111,7 @@
                                     Ukupno
                                     <strong style="margin-left: 5px;"> {{
                                         formatNumber(vehicleStore.emisijaZaKategoriju(slotProps.data.uge_naziv, 2))
-                                        }}</strong>
+                                    }}</strong>
                                 </div>
                             </template>
                             <Column field="uge_naziv" header="Naziv" />
@@ -136,8 +136,8 @@
                                 <template #body="slotProps">
                                     <Tag :value="slotProps.data.uvg_knaziv" :class="[
                                         {
-                                            'etanol-tag': slotProps.data.uvg_knaziv === 'Etanol' ||
-                                                slotProps.data.uge_naziv == 'Staklenički plinovi (GWP)' &&
+                                            'etanol-tag': slotProps.data.uvg_knaziv === ('Etanol', 'Prirodni plin') ||
+                                                odabranaSkupina?.uge_naziv == 'Staklenički plinovi (GWP)' &&
                                                 slotProps.data.uvg_knaziv.charAt(0) !== 'R'
                                         },
                                         {
@@ -145,8 +145,8 @@
                                                 'Dizel' || 'Biodizel' || 'B20 biodizel' || 'Biodizel'
                                             )
                                         },
-                                        { 'jet-tag': slotProps.data.uvg_knaziv === 'Jet Fuel' },
-                                        { 'lozulje-tag': slotProps.data.uvg_knaziv === 'Lož ulje' },
+                                        { 'jet-tag': slotProps.data.uvg_knaziv === ('Jet Fuel', 'Gorivo za mlazne motore') },
+                                        { 'lozulje-tag': slotProps.data.uvg_knaziv === 'Loživo ulje' },
                                         {
                                             'lpg-tag': slotProps.data.uvg_knaziv === ('LNG' || 'LPG') ||
                                                 slotProps.data.uvg_knaziv.charAt(0) === 'R'

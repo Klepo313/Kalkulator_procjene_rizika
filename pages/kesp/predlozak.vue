@@ -41,7 +41,7 @@ onMounted(async () => {
     if (kespId.value != 'null') {
         try {
             await kespStore.fetchHeader(kespId.value);
-            await opseg2Store.fetchEnergySources(kespId.value);
+            // await opseg2Store.fetchEnergySources(kespId.value);
             await vehicleStore.fetchVehicles(kespId.value);
             // await vehicleStore.fetchEmissions();
             // await vehicleStore.fetchFuels();
