@@ -23,9 +23,10 @@ export const useAuthStore = defineStore("auth", {
             console.log("Dohvaćam korisničke podatke...");
             try {
                 const { data } = await useFetch("/api/auth/info", {
+                    method: 'get',
                     credentials: "include",
                 });
-                console.log("Korisnički podaci:", data);
+                console.log("Korisnički podaci:", data.value);
                 if (data.value?.success) {
                     this.userRoles = data.value.userRoles;
                     this.exp = data.value.exp;

@@ -6,6 +6,8 @@ export default defineEventHandler(async (event) => {
     const cookies = parseCookies(event);
     const token = cookies.authToken;
 
+    console.log("Token u info: ", token)
+
     if (!token) {
         return { success: false, error: "No token provided" };
     }
