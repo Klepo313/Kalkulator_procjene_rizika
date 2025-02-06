@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
 
                 if (!hasAccess) {
                     console.log(`Pristup odbijen za ${url} zbog nedostatka potrebne uloge.`);
-                    return sendRedirect(event, "/unauthorized");
+                    return sendRedirect(event, "/");
                 }
             }
         }

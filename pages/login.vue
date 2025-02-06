@@ -49,21 +49,10 @@ definePageMeta({
 });
 
 const route = useRoute();
+const router = useRouter();
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
-
-const userToken = useCookie('userToken', {
-    maxAge: 24 * 60 * 60, // 1 dan
-    secure: true,
-    sameSite: 'none',
-    path: '/',
-});
-
-const expiryTime = useCookie('expiryTime', {
-    maxAge: 24 * 60 * 60, // 1 dan
-    path: '/',
-})
 
 const statusCode = ref(0);
 const usernameInput = ref(null);
@@ -76,28 +65,23 @@ const loginBtnText = ref(null);
 const showAlert = ref(false);
 
 onMounted(async () => {
-    userToken.value = null;
     spinnerIcon.value.style.display = "none";
     loginBtnText.value.style.display = "inline";
 });
 
 const checkLogin = async () => {
-
     loginBtnText.value.style.display = "none";
     spinnerIcon.value.style.display = "inline";
 
     if (usernameInput.value.value && passwordInput.value.value) {
-        console.log(usernameInput.value.value, passwordInput.value.value)
+        console.log(usernameInput.value.value, passwordInput.value.value);
         const response = await login(usernameInput.value.value, passwordInput.value.value);
 
         statusCode.value = response.status;
-
         const isFirstLogin = response.isFirstLogin;
 
         if (statusCode.value == 200) {
             console.log("response login: ", response);
-
-            const newCsrfToken = generateCsrfToken();
 
             userStore.updateAll({
                 name: response.name,
@@ -106,26 +90,49 @@ const checkLogin = async () => {
                 roles: response.roles,
             });
 
-            userToken.value = newCsrfToken;
-            expiryTime.value = new Date().getTime() + (24 * 60 * 60 * 1000); // 1 dan
+            // ✅ Prvo čekamo da se podaci o korisniku dohvaćaju
+            await authStore.checkAuth();
+            await authStore.fetchUserInfo();
 
-            // Nakon provjere prijave, dohvatimo podatke korisnika
-            authStore.checkAuth()
-            authStore.fetchUserInfo();
-
+            // ✅ Sada imamo sigurno učitane podatke i možemo raditi redirekciju
             if (isFirstLogin) {
                 navigateTo('/user/change-password');
             } else {
-                const redirectTo = route.query.redirectTo || '/';
+                let redirectTo = route.query.redirectTo || '/';
+                console.log("redirectTo: ", redirectTo);
+
+                const userRoles = authStore.userRoles; // Sada je sigurno dohvaćen!
+                let hasAccess = true;
+
+                const accessRules = [
+                    { path: "/kpkr", requiredRole: "AP001" },
+                    { path: "/kesp", requiredRole: "AP002" },
+                    { path: "/admin", requiredRolePrefix: "AD" }
+                ];
+
+                // Tražimo pravilo koje odgovara `redirectTo`
+                const rule = accessRules.find(rule => redirectTo.startsWith(rule.path));
+
+                if (rule) {
+                    hasAccess = rule.requiredRole
+                        ? userRoles.includes(rule.requiredRole)
+                        : userRoles.some(role => role.startsWith(rule.requiredRolePrefix || ""));
+                }
+
+                // Ako korisnik nema pravo pristupa, preusmjeri ga na `/`
+                if (!hasAccess) {
+                    console.warn(`Korisnik nema pravo pristupa: ${redirectTo}, preusmjeravam na /`);
+                    redirectTo = '/';
+                }
+
                 navigateTo(redirectTo);
             }
         } else {
             highlightBorders();
         }
-
     }
+};
 
-}
 
 const highlightBorders = () => {
     // Provjerite da su `ref` objekti inicijalizirani prije nego što pristupite njihovim stilovima
