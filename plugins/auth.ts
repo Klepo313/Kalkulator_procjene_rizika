@@ -13,10 +13,12 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     if (nuxtApp.ssrContext?.event.context.isLoggedin !== undefined) {
         authStore.isLoggedin = nuxtApp.ssrContext.event.context.isLoggedin;
+        authStore.userRoles = nuxtApp.ssrContext.event.context.userRoles || [];
+        authStore.exp = nuxtApp.ssrContext.event.context.exp || null;
     } else {
         authStore.checkAuth();
     }
 
     // Nakon provjere prijave, dohvatimo podatke korisnika
-    authStore.fetchUserInfo();
+    // authStore.fetchUserInfo();
 });

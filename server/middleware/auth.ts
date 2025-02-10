@@ -21,5 +21,11 @@ export default defineEventHandler(async (event) => {
         return sendRedirect(event, loginRedirectUrl);
     }
 
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const userRoles: string[] = payload.userRoles || [];
+    
     event.context.isLoggedin = true;
+    event.context.userRoles = userRoles
+    event.context.exp = payload.exp;
+
 });

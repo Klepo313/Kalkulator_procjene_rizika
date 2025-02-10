@@ -90,9 +90,13 @@ const checkLogin = async () => {
                 roles: response.roles,
             });
 
+            authStore.isLoggedin = true;
+            authStore.userRoles = response.roles || [];
+            authStore.exp = response.exp || 0;
+
             // ✅ Prvo čekamo da se podaci o korisniku dohvaćaju
-            await authStore.checkAuth();
-            await authStore.fetchUserInfo();
+            // await authStore.checkAuth();
+            // await authStore.fetchUserInfo();
 
             // ✅ Sada imamo sigurno učitane podatke i možemo raditi redirekciju
             if (isFirstLogin) {
