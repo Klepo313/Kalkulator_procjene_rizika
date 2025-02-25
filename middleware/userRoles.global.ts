@@ -4,7 +4,6 @@ import { useAuthStore } from "~/stores/auth";
 
 export default defineNuxtRouteMiddleware((to, from) => {
     const authStore = useAuthStore();
-    const route = useRoute(); // Trenutna ruta
 
     const excludedPaths = [
         "/login",

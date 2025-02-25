@@ -83,7 +83,7 @@
 import { computed, defineEmits, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { navigateTo } from '#app';
-import { logout } from '~/temp/logout';
+import { logout } from '~/service/user/user';
 import { useIzracunStore } from '~/stores/main-store';
 // import { decryptCookie } from '#imports';
 

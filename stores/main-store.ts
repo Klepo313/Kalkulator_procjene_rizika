@@ -19,7 +19,7 @@ import {
     addMetricType,
     removeMetricType,
     getMetricTypes
-} from '~/service/kpkr/metric_types';
+} from '~/service/kpkr/metric_types'
 
 // KESP
 import {

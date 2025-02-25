@@ -256,8 +256,15 @@
                                 </AccordionContent>
                             </AccordionPanel>
                         </Accordion>
-                        <span v-else>
-                            <font-awesome-icon icon="spinner" spin /> Učitavanje kategorija
+                        <span v-else-if="loadingCategories"  style="display: flex; align-items: center; gap: 5px;">
+                            <font-awesome-icon icon="spinner" spin /> 
+                            <p>
+                                Učitavanje kategorija
+                            </p>
+                        </span>
+                        <span v-else  style="display: flex; align-items: center; gap: 5px; opacity: 0.8;">
+                            <font-awesome-icon :icon="['fas', 'circle-info']" />
+                            <p>Još nema odabranih kategorija emisija.</p>
                         </span>
 
                     </div>
@@ -435,7 +442,7 @@ const filteredNodes = computed(() => {
     return kategorije.value ? filterNodes(kategorije.value) : [];
 });
 
-const loadingCategories = ref(true)
+const loadingCategories = ref(false);
 
 onMounted(async () => {
     try {

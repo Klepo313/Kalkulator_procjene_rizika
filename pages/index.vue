@@ -122,6 +122,26 @@ const cards = ref([
             focus: '#8d813b'
         }
     },
+    {
+        role: 'AD',
+        miniLogoId: 'kesp_logo_mini',
+        textLogoId: 'kesp_logo_text',
+        miniLogo: 'user-tie',
+        textLogo: '',
+        buttonClass: 'kespBtn',
+        navigation: '/admin',
+        isLoaded: false,
+        showTooltip: false,
+        tooltip: {
+            text: 'Administratorska prava',
+            status: 0
+        },
+        styles: {
+            primary: '#1e1e1e',
+            hover: '#2a2a2a',
+            focus: '#3a3a3a'
+        }
+    },
 ])
 
 const filteredCards = computed(() => {

@@ -20,11 +20,8 @@ export default defineNuxtConfig({
     middleware: ['auth.global', 'loading'],
   },
   runtimeConfig: {
-    secretKey: process.env.SECRET_KEY,
     public: {
-      baseUrl: process.env.NODE_ENV === 'development'
-        ? `http://localhost:4000`
-        : `https://cadastre-server-mz7l.onrender.com`,
+      baseURL: process.env.BASE_URL,
     },
   },
   modules: [

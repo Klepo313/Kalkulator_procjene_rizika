@@ -39,9 +39,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { navigateTo } from '#app';
-import { login } from '~/service/user/user';
-import { generateCsrfToken } from '~/utils/generateCSRFtoken';
 import { useUserStore } from '~/stores/main-store';
+import { login } from '~/service/user/user';
 // import { encryptCookie, decryptCookie } from '~/utils/cookieUtils';
 
 definePageMeta({
@@ -49,7 +48,6 @@ definePageMeta({
 });
 
 const route = useRoute();
-const router = useRouter();
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
