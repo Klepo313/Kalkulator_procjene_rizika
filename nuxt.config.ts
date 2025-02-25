@@ -53,8 +53,6 @@ export default defineNuxtConfig({
   ],
   plugins: [
     '@/plugins/fontawesome.js',
-    // '@/plugins/primevue.js',
-    // '@/plugins/encryptCookies.js',
   ],
   vite: {
     build: {
@@ -64,6 +62,10 @@ export default defineNuxtConfig({
     },
     optimizeDeps: {
       include: ['xlsx'], // Uključivanje xlsx modula
+    },
+    esbuild: {
+      drop: ['debugger'],
+      pure: ['console.log', 'console.error', 'console.warn', 'console.debug', 'console.trace'],
     },
   },
   devtools: { enabled: true },

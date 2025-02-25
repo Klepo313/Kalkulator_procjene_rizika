@@ -25,28 +25,31 @@ definePageMeta({
         'auth',
         'admin-role'
     ],
-});
-// Reaktivna varijabla za praćenje stanja bočne trake
-const isCollapsed = ref(false)
+})
 
-// Reaktivna varijabla za spremanje trenutne širine bočne trake
-const sidebarWidth = ref('275px')
+// Inicijaliziramo isCollapsed na temelju vrijednosti spremljene u localStorage (ako postoji)
+const storedCollapsed = import.meta.client ? localStorage.getItem('isCollapsed') : false;
+const isCollapsed = ref(storedCollapsed ? JSON.parse(storedCollapsed) : false);
+
+// Postavljamo početnu širinu sidebar-a ovisno o isCollapsed vrijednosti
+const sidebarWidth = ref(isCollapsed.value ? '70px' : '275px');
 
 // Funkcija za prebacivanje stanja bočne trake
 const toggleSidebar = () => {
-    isCollapsed.value = !isCollapsed.value
-}
+    isCollapsed.value = !isCollapsed.value;
+};
 
-// Reaktivno praćenje promjena u isCollapsed za ažuriranje širine sidebarWidth
+// Reaktivno praćenje promjena u isCollapsed za ažuriranje širine sidebarWidth i spremanje u localStorage
 watch(isCollapsed, (newValue) => {
-    sidebarWidth.value = newValue ? '70px' : '275px'
-})
+    sidebarWidth.value = newValue ? '70px' : '275px';
+    localStorage.setItem('isCollapsed', JSON.stringify(newValue));
+});
 
 // Kompjuterana vrijednost za stilove main elementa
 const mainStyles = computed(() => ({
     marginLeft: sidebarWidth.value,
     width: `calc(100% - ${sidebarWidth.value})`,
-}))
+}));
 </script>
 
 <style scoped>
