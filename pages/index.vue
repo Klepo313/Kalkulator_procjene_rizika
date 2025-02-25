@@ -123,12 +123,12 @@ const cards = ref([
         }
     },
     {
-        role: 'AD',
-        miniLogoId: 'kesp_logo_mini',
-        textLogoId: 'kesp_logo_text',
-        miniLogo: 'user-tie',
+        role: 'AD%',
+        miniLogoId: 'admin_logo_mini',
+        textLogoId: 'admin_logo_text',
+        miniLogo: '',
         textLogo: '',
-        buttonClass: 'kespBtn',
+        buttonClass: 'adminBtn',
         navigation: '/admin',
         isLoaded: false,
         showTooltip: false,
@@ -148,8 +148,21 @@ const filteredCards = computed(() => {
     if (roles.value.message) {
         return [];
     }
-    return cards.value.filter(card => roles.value.includes(card.role));
+    return cards.value.filter(card => {
+        if (card.role === 'AD%') {
+            // Provjera postoji li u roles.value neka rola koja počinje s 'AD'
+            return roles.value.some(role => role.startsWith('AD'));
+        }
+        return roles.value.includes(card.role);
+    });
 });
+
+// const filteredCards = computed(() => {
+//     if (roles.value.message) {
+//         return [];
+//     }
+//     return cards.value.filter(card => roles.value.includes(card.role));
+// });
 
 const res = ref(null)
 const loading = ref(true);
@@ -290,6 +303,18 @@ main {
 
 .kespBtn:active {
     background-color: var(--kesp-primary-focus);
+}
+
+.adminBtn {
+    background-color: var(--text-color);
+}
+
+.adminBtn:hover {
+    background-color: var(--text-color-hover);
+}
+
+.adminBtn:active {
+    background-color: var(--text-color-focus);
 }
 
 .card {
