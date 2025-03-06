@@ -284,9 +284,9 @@
                     </div>
                 </section>
                 <div style="width: min-content;">
-                    <span v-tooltip.top="'Još nije u funkciji.'" class="download-btn">
+                    <span class="download-btn" @click="downloadReport(kespId)">
                         <font-awesome-icon icon="download" />
-                        <span>Preuzmi izvještaj</span>
+                        <span>Preuzmi izvještaj (.pdf)</span>
                     </span>
                 </div>
             </div>
@@ -335,6 +335,7 @@
 <script setup>
 import { useKespStore, useVehicleStore, useOpseg2Store } from '#imports';
 import AccordionPanel from 'primevue/accordionpanel';
+import { getReport } from '~/service/kesp/fetchHeader';
 import { getO3categories } from '~/service/kesp/fetchOpseg3';
 import { getEmmisionGroups } from '~/service/kesp/fetchVoziloData';
 import { formatNumber } from '~/utils/dataFormatter';
@@ -382,7 +383,6 @@ const energentiPotrosnja = computed(() => {
         ukupnaEmisija: (parseFloat(vehicleStore.ukupnaEmisijaGorivaZaEnergentIzSkupineEmisija(skupina, energent)) / 1000).toFixed(2) || 0,
     }));
 });
-
 
 watch(groupedData, () => {
     console.log("Grouped data:", groupedData.value);
@@ -433,10 +433,10 @@ const filterNodes = (nodeList) => {
         }));
 };
 
-
 watch(energentiPotrosnja, () => {
     console.log("Energenti potrosnja:", energentiPotrosnja.value);
 })
+
 // Filtrirani čvorovi za prikaz u stablu
 const filteredNodes = computed(() => {
     return kategorije.value ? filterNodes(kategorije.value) : [];
@@ -467,6 +467,24 @@ const opis = computed(() => kespStore.naziv);
 const napomena = computed(() => kespStore.napomena);
 
 const izracuni = computed(() => opseg2Store.izracuni);
+
+const downloadReport = async (id) => {
+    const pdfBlob = await getReport(id);
+
+    if (!pdfBlob) {
+        console.error('Neuspješno dohvaćanje PDF-a.');
+        return;
+    }
+
+    const blob = new Blob([pdfBlob], { type: 'application/pdf' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `report_${id}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+};
 
 // const combinedChartData = computed(() => opseg2Store.combinedChartData); // Preuzmi podatke za grafikon iz getter-a
 const combinedChartData = computed(() => {
@@ -637,6 +655,7 @@ strong,
     padding: 13px;
     border-radius: 5px;
     background-color: green;
+    background-color: var(--kesp-primary);
 }
 
 .ukupni-utrosak-o1o2>span {
