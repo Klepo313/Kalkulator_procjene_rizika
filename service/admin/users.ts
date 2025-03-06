@@ -53,7 +53,6 @@ export const getUsersForLegalPartner = async (id: number | string): Promise<unkn
     try {
         const url = `/partner/legal/${id}/users`;
         const response = await $api.get(url);
-        // console.log("Korisnici za pravnu osobu: ", response.data);
         return response.data;
     } catch (error) {
         console.error('Greška pri dohvaćanju korisnika za pravnu osobu: ', error);
