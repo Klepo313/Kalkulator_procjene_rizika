@@ -4,7 +4,7 @@ import { useNuxtApp } from '#app';
 export const getO3categories = async (id: number | string): Promise<unknown> => {
     const { $api } = useNuxtApp();
     console.log("Id: ", id);
-    const url = `/CO2/item/${id}/categories`;
+    const url = `/CO2/header/${id}/categories`;
 
     try {
         const response = await $api.get(url);
