@@ -1,6 +1,19 @@
 // partnerService.ts
 import { useNuxtApp } from '#app';
 
+export const getPartners = async (): Promise<unknown> => {
+    const { $api } = useNuxtApp();
+    try {
+        const url = `/partner`;
+        const response = await $api.get(url);
+        console.log("Osobe: ", response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Greška pri dohvaćanju partnera: ', error);
+        return null;
+    }
+};
+
 export const getPartner = async (id: number | string): Promise<unknown> => {
     if (!id) {
         console.error("Nije prosljeđen ID partnera!");

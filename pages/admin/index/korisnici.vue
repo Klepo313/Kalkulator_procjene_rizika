@@ -8,9 +8,9 @@
                     <div>
                         <h2>Popis korisnika</h2>
                         <p>
-                            Popis korisnika koji su zabilježeni u sustavu. <br>
-                            Tko je partner, a tko korisnik? <u style="font-style: italic; cursor: pointer;">Pročitaj
-                                ovdje</u>.
+                            Popis korisnika za pravne osobe koje su zabilježene u sustavu. <br>
+                            <!-- Tko je partner, a tko korisnik? <u style="font-style: italic; cursor: pointer;">Pročitaj
+                                ovdje</u>. -->
                         </p>
                     </div>
                     <div>
@@ -22,9 +22,6 @@
                                 </button>
                             </template>
                             <template #end>
-                                <!-- <button class="edit-btn" :disabled="!selectedVozilo" @click="enableEdit">
-                                    <font-awesome-icon icon="pen-to-square" /> Uredi vozilo
-                                </button> -->
                                 <button class="dodaj-partnera-btn" @click="addPartner">
                                     <font-awesome-icon icon="user-plus" /> Dodaj partnera
                                 </button>
@@ -35,7 +32,7 @@
 
                         <DataTable v-model:filters="filters" v-model:expanded-rows="expandedRows"
                             :value="noneEmptyKorisnici" :rows="10" scrollable scroll-height="800px" :sort-order="1"
-                            :loading="loading" size="small" removable-sort :global-filter-fields="[
+                            :loading="loading" loadingMode="icon" size="small" removable-sort :global-filter-fields="[
                                 'epr_naziv',
                                 'epr_oib',
                                 'user_accounts_num',
@@ -79,25 +76,30 @@
                             <Column field="employees_num" header="Broj korisnika" />
 
                             <template #expansion="slotProps">
-                                <div class="inside-table">
+                                <div v-if="!(slotProps.data.users && slotProps.data.users.length > 0)" class="loading-container">
+                                    <font-awesome-icon icon="spinner" spin />
+                                    Učitavanje korisnika 
+                                    <!-- tvrtke {{ ' ' + slotProps.data?.epr_naziv || '' }}. -->
+                                </div>
+                                <div v-else class="inside-table">
                                     <DataTable :value="slotProps.data.users">
                                         <template #loading> Učitavanje korisnika tvrtke{{ ' ' +
                                             slotProps.data?.epr_naziv || '' }}. Molimo pričekajte. </template>
                                         <template #footer>
                                             <div style="margin: 5px 0px;">
-                                                <span v-tooltip.top="'Nije još u funkciji.'"
-                                                    class="dodaj-korisnika"><!--@click="onOpenNewUserDialog(slotProps.data)"-->
-                                                    <font-awesome-icon icon="plus" />
+                                                <span 
+                                                    class="dodaj-korisnika" @click="onOpenNewUserDialog(slotProps.data)">
+                                                    <font-awesome-icon icon="plus" /> <!--v-tooltip.top="'Nije još u funkciji.'"-->
                                                     Dodaj korisnički račun
                                                 </span>
                                             </div>
                                         </template>
 
-                                        <!-- <Column header="#" header-style="width:3rem">
+                                        <Column header="#" header-style="width:3rem">
                                             <template #body="slotProps">
                                                 {{ slotProps.index + 1 }}
                                             </template>
-                                        </Column> -->
+                                        </Column>
                                         <Column field="epr_ime" header="Ime"
                                             header-style="width: 20%; min-width: 10rem" />
                                         <Column field="epr_prezime" header="Prezime"
@@ -143,14 +145,17 @@
                             :style="{ width: '1000px' }" @hide="resetOdabraniKorisnik">
                             <template #header>
                                 <div class="dialog-header">
-                                    <!-- <font-awesome-icon icon="user-pen" /> -->
-                                    <span>Uredi korisnika</span>
+                                    <font-awesome-icon icon="user-pen" />
+                                    <div class="dialog-header-text">
+                                        <strong>{{ odabraniKorisnik?.epr_ime + ' ' + odabraniKorisnik?.epr_prezime }}</strong>
+                                        <span>{{odabraniKorisnik?.epr_email || odabraniKorisnik?.epr_oib}}</span> 
+                                    </div>
                                 </div>
                             </template>
                             <Form v-slot="$form" :resolver="resolver" :initial-values="initialValues" class="p-fluid"
                                 @submit.prevent="saveKorisnik">
                                 <div class="left-form">
-                                    <div class="section">
+                                    <!-- <div class="section">
                                         <div class="field-heading">
                                             <h2 class="p-text-bold">Podaci o korisniku</h2>
                                             <p>Izmjeni podatake o korisniku</p>
@@ -189,9 +194,9 @@
                                             <InputText id="tvrtka_usluge" v-model="odabraniKorisnik.tvrtka_usluge"
                                                 placeholder="Tvrtka usluge korisnika" readonly required />
                                         </div>
-                                    </div>
-                                    <hr>
-                                    <div class="section">
+                                    </div> -->
+                                    <!-- <hr> -->
+                                    <!-- <div class="section">
                                         <div class="field-heading">
                                             <h2 class="p-text-bold">Pristupni podaci korisnika</h2>
                                             <p>Izmjeni pristupne podatke korisnika za prijavu u aplikaciju</p>
@@ -229,15 +234,8 @@
                                                 </template>
                                             </div>
                                         </div>
-                                        <!-- <div class="field-buttons">
-                                            <button id="reset" class="resetBtn fieldSaveBtn" type="reset"
-                                                @click="resetodabraniKorisnik">
-                                                <font-awesome-icon icon="save" />
-                                                Spremi
-                                            </button>
-                                        </div> -->
-                                    </div>
-                                    <hr>
+                                    </div> -->
+                                    <!-- <hr> -->
                                     <div class="section">
                                         <div class="field-heading">
                                             <h2 class="p-text-bold">Postavke korisničkog računa</h2>
@@ -507,7 +505,7 @@
                 </section>
 
                 <Dialog v-model:visible="openNewUserDialog" :modal="true" header="Dodaj korisnički račun"
-                    :style="{ width: '600px' }" @hide="resetNewUserDialog(); hideNewUserDialog()">
+                    :style="{ width: '600px' }" @hide="resetNewUserDialog(); hideNewUserDialog()" @show="updateFIZosobe()">
                     <!-- <template #header>
                             <div class="dialog-header">
                                 <font-awesome-icon icon="user-circle" size="lg" style="font-size: 20px;" />
@@ -561,7 +559,7 @@
                                     <font-awesome-icon icon="user" />
                                     <label for="osoba">Osoba</label>
                                 </div>
-                                <Select id="osoba" v-model="korisnik" name="osoba" filter :options="FIZpartneri"
+                                <Select id="osoba" v-model="korisnik" name="osoba" filter :options="searchFIZosobe"
                                     :option-label="(option) => option.epr_naziv + ' (' + (option?.epr_email || option?.epr_oib) + ')'"
                                     placeholder="Odaberi osobu koju želiš dodati kao korisnika" />
                                 <Message v-if="$formKorisnik.osoba?.invalid" severity="error" size="small"
@@ -604,6 +602,10 @@
                                             $formKorisnik.datumDo.error.message }}</Message>
                                 </div>
                             </div>
+                            <div class="checkbox-container">
+                                <Checkbox input-id="slanjeMaila" v-model="slanjeMaila" name="slanjeMaila" /> 
+                                <label for="slanjeMaila">Dodavanjem ovog korisničkog računa želim da se automatski pošalje i mail korisniku sa njegovim korisničkim podacima.</label>
+                            </div>
                             <div class="btn-container">
                                 <button id="saveBtn" type="submit" style="margin-top: 20px;">
                                     <font-awesome-icon icon="save" class="save-icon" />
@@ -616,13 +618,13 @@
 
                 </Dialog>
 
-                <Dialog v-model:visible="openPartnerDialog" header="Uredi korisnika" :modal="true"
-                    :style="{ width: '500px' }" @hide="resetPartnerDialog">
-                    <template #header>
+                <Dialog v-model:visible="openPartnerDialog" header="Dodaj partnera" :modal="true"
+                    :style="{ width: '600px' }" @hide="resetPartnerDialog">
+                    <!-- <template #header>
                         <div class="dialog-header">
                             <span>Dodaj partnera</span>
                         </div>
-                    </template>
+                    </template> -->
                     <div class="field-heading">
                         <h2 class="p-text-bold">Vrsta partnera</h2>
                         <p>Odaberi fizičkog ili pravnog partnera</p>
@@ -630,6 +632,7 @@
                             <SelectButton v-model="addPartnerValue" :options="partneriOptions" option-label="naziv" />
                         </div>
                     </div>
+                    <!-- ! ISPRAVI FORMU DA SE KORISTI PRIMEVUE I PROVJERA VALIDACIJE -->
                     <form v-if="addPartnerValue.label == 'FIZ'" class="p-fluid-partner">
                         <div class="fiz-form">
                             <div class="section">
@@ -744,353 +747,6 @@
                         <button class="submitBtn" type="submit" @click="saveNewPartner">Dodaj partnera</button>
                     </template>
                 </Dialog>
-
-
-                <!-- <section>
-                    <div>
-                        <h2>Popis partnera</h2>
-                        <p>
-                            Popis partnera koji se mogu dodati kao korisnici sustava. <br>
-                            Parner može biti ili fizička ili pravna osoba.
-                        </p>
-                    </div>
-                    <div class="select-container">
-                        <SelectButton v-model="selectPartneriValue" :options="partneriOptions" option-label="naziv" />
-                    </div>
-                    <div class="datatable">
-                        <Toolbar class="mb-6" style="display: flex; gap: 5px;">
-                            <template #start>
-                                <button class="dodaj-btn" :disabled="!odabraniPartner"
-                                    @click="openNewUserDialog = true">
-                                    <font-awesome-icon icon="plus" />
-                                    Dodaj korisnički račun
-                                </button>
-                            </template>
-                            <template #end>
-                                <button class="dodaj-partnera-btn" @click="addPartner">
-                                    <font-awesome-icon icon="user-plus" /> Dodaj partnera
-                                </button>
-                            </template>
-                        </Toolbar>
-                        <DataTable v-if="selectPartneriValue?.label == 'FIZ'" v-model:filters="filterFizicke"
-                            v-model:selection="odabraniPartner" :value="FIZpartneri" :rows="10" data-key="epr_id"
-                            selection-mode="single" scrollable scroll-height="400px"
-                            :global-filter-fields="['epr_ime', 'epr_prezime', 'epr_oib', 'epr_email', 'user_accounts_num']"
-                            :loading="loading" removable-sort table-style="min-width: 50rem">
-
-                            <template #header>
-                                <div class="flex justify-end">
-                                    <IconField>
-                                        <InputIcon>
-                                            <font-awesome-icon icon="search" />
-                                        </InputIcon>
-                                        <InputText v-model="filterFizicke['global'].value"
-                                            placeholder="Pretraži fizičke partnere" />
-                                    </IconField>
-                                </div>
-                            </template>
-                            <template #empty> Nema korisnika. </template>
-                            <template #loading> Učitavanje fizičkih osoba. Molimo pričekajte. </template>
-                            <template #footer>
-                                <div class="total-emissions">
-                                    Ukupno korisnika: <strong>{{ FIZpartneri.length }}</strong>
-                                </div>
-                            </template>
-                            <Column header="#" header-style="width:3rem">
-                                <template #body="slotProps">
-                                    {{ slotProps.index + 1 }}
-                                </template>
-                            </Column>
-                            <Column field="epr_ime" header="Ime" sortable />
-                            <Column field="epr_prezime" header="Prezime" sortable />
-                            <Column field="epr_oib" header="OIB" />
-                            <Column field="epr_email" header="Email">
-                                <template #body="slotProps">
-                                    {{ slotProps.data.epr_email || '--' }}
-                                </template>
-                            </Column>
-                            <Column field="user_accounts_num" header="Broj korisničkih računa" sortable />
-
-                        </DataTable>
-
-                        <DataTable v-if="selectPartneriValue?.label == 'PRV'" v-model:filters="filterPravne"
-                            :value="PRVpartneri" :rows="10" data-key="epr_id" selection-mode="single" scrollable
-                            scroll-height="400px"
-                            :global-filter-fields="['epr_naziv', 'epr_oib', 'epr_adresa', 'epr_mjesto', 'employees_num']"
-                            :loading="loading" removable-sort table-style="min-width: 50rem">
-                            <template #header>
-                                <div class="flex justify-end">
-                                    <IconField>
-                                        <InputIcon>
-                                            <font-awesome-icon icon="search" />
-                                        </InputIcon>
-                                        <InputText v-model="filterPravne['global'].value"
-                                            placeholder="Pretraži pravne partnere" />
-                                    </IconField>
-                                </div>
-                            </template>
-                            <template #empty> Nema korisnika. </template>
-                            <template #loading> Učitavanje pravnih osoba. Molimo pričekajte. </template>
-                            <template #footer>
-                                <div class="total-emissions">
-                                    Ukupno korisnika: <strong>{{ PRVpartneri.length }}</strong>
-                                </div>
-                            </template>
-                            <Column header="#" header-style="width:3rem">
-                                <template #body="slotProps">
-                                    {{ slotProps.index + 1 }}
-                                </template>
-                            </Column>
-                            <Column field="epr_naziv" header="Naziv" sortable />
-                            <Column field="epr_oib" header="OIB" />
-                            <Column field="epr_adresa" header="Adresa" />
-                            <Column field="epr_mjesto" header="Mjesto" />
-                            <Column field="employees_num" header="Broj korisnika" sortable />
-                        </DataTable>
-
-                    </div>
-
-                    <Dialog v-model:visible="openPartnerDialog" header="Uredi korisnika" :modal="true"
-                        :style="{ width: '500px' }" @hide="resetPartnerDialog">
-                        <template #header>
-                            <div class="dialog-header">
-                                <span>Dodaj partnera</span>
-                            </div>
-                        </template>
-                        <div class="field-heading">
-                            <h2 class="p-text-bold">Vrsta partnera</h2>
-                            <p>Odaberi fizičkog ili pravnog partnera</p>
-                            <div class="partnerSelect">
-                                <SelectButton v-model="addPartnerValue" :options="partneriOptions"
-                                    option-label="naziv" />
-                            </div>
-                        </div>
-                        <form v-if="addPartnerValue.label == 'FIZ'" class="p-fluid-partner">
-                            <div class="fiz-form">
-                                <div class="section">
-                                    <div class="field-heading">
-                                        <h2 class="p-text-bold">Podaci o partneru</h2>
-                                        <p>Dodaj novog fizičkog partnera</p>
-                                    </div>
-                                    <div class="field field-split">
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="user" />
-                                                <label for="ime">Ime</label>
-                                            </div>
-                                            <InputText id="ime" v-model="tempPartner.epr_ime"
-                                                placeholder="Ime korisnika" required />
-                                        </div>
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="user" />
-                                                <label for="prezime">Prezime</label>
-                                            </div>
-                                            <InputText id="prezime" v-model="tempPartner.epr_prezime"
-                                                placeholder="Prezime korisnika" required />
-                                        </div>
-                                    </div>
-                                    <div class="field">
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="address-card" />
-                                            <label for="oib">OIB</label>
-                                        </div>
-                                        <InputOtp id="oib" v-model="tempPartner.epr_oib" class="otp" size="small"
-                                            :length="11" integer-only required />
-                                    </div>
-                                    <div class="field">
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="envelope" />
-                                                <label for="email">Email</label>
-                                            </div>
-                                            <InputText id="email" v-model="tempPartner.epr_email"
-                                                placeholder="Email partnera" required />
-                                        </div>
-                                    </div>
-                                    <div class="field field-split">
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="map-location" />
-                                                <label for="adresa">Adresa</label>
-                                            </div>
-                                            <InputText id="adresa" v-model="tempPartner.epr_adresa"
-                                                placeholder="Adresa tvrtke" required />
-                                        </div>
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="city" />
-                                                <label for="telefon">Mjesto</label>
-                                            </div>
-                                            <InputText v-model="tempPartner.epr_mjesto" placeholder="Mjesto" required />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                        <form v-if="addPartnerValue.label == 'PRV'" class="p-fluid-partner">
-                            <div class="fiz-form">
-                                <div class="section">
-                                    <div class="field-heading">
-                                        <h2 class="p-text-bold">Podaci o partneru</h2>
-                                        <p>Dodaj novog pravnog partnera</p>
-                                    </div>
-                                    <div class="field">
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="building" />
-                                            <label for="tvrtka">Naziv tvrtke</label>
-                                        </div>
-                                        <InputText id="tvrtka" v-model="tempPartner.epr_naziv"
-                                            placeholder="Naziv tvrtke" required />
-                                    </div>
-                                    
-                                    <div class="field">
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="address-card" />
-                                            <label for="oib">OIB tvrtke</label>
-                                        </div>
-                                        <InputOtp id="oib" v-model="tempPartner.epr_oib" size="small" :length="11"
-                                            integer-only required />
-                                    </div>
-                                    <div class="field field-split">
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="map-location" />
-                                                <label for="adresa">Adresa tvrtke</label>
-                                            </div>
-                                            <InputText id="adresa" v-model="tempPartner.epr_adresa"
-                                                placeholder="Adresa tvrtke" required />
-                                        </div>
-                                        <div>
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="city" />
-                                                <label for="telefon">Mjesto</label>
-                                            </div>
-                                            <InputText v-model="tempPartner.epr_mjesto" placeholder="Mjesto" required />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                        <template #footer>
-                            <button class="p-button p-component p-button-secondary" @click="openPartnerDialog = false">
-                                Odustani
-                            </button>
-                            <button class="submitBtn" type="submit" @click="saveNewPartner">Dodaj partnera</button>
-                        </template>
-                    </Dialog>
-
-                    <Dialog v-model:visible="openNewUserDialog" :modal="true" :style="{ width: '500px' }"
-                        @hide="resetNewUserDialog(); hideNewUserDialog()">
-                        <template #header>
-                            <div class="dialog-header">
-                                <font-awesome-icon icon="user-circle" size="lg" style="font-size: 20px;" />
-                                <div class="credentials">
-                                    <template v-if="odabraniPartner?.epr_ime">
-                                        <h3 style="font-size: 20px; text-transform: capitalize;">
-                                            {{
-                                                odabraniPartner?.epr_ime + ' ' + odabraniPartner?.epr_prezime
-                                            }}
-                                        </h3>
-                                        <p style="font-size: 16px; font-weight: 400;">
-                                            {{
-                                                odabraniPartner?.epr_email || odabraniPartner?.epr_oib
-                                            }}
-                                        </p>
-                                    </template>
-                                    <template v-else-if="noviKorisnik.tvrtka?.epr_naziv">
-                                        <h3 style="font-size: 20px; text-transform: capitalize;">
-                                            {{
-                                                noviKorisnik.tvrtka?.epr_naziv
-                                            }}
-                                        </h3>
-                                        <p style="font-size: 16px; font-weight: 400;">
-                                            {{
-                                                noviKorisnik.tvrtka?.epr_oib + ', ' + noviKorisnik.tvrtka?.epr_adresa
-                                            }}
-                                        </p>
-                                    </template>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="form-div">
-                            <Form v-slot="$formKorisnik" :initial-values="initialValuesAddKorisnik"
-                                :resolver="addKorisnikResolver" :validate-on-value-update="true"
-                                :validate-on-blur="true" @submit="addKorisnik">
-                                <template v-if="odabraniPartner?.epr_ime">
-                                    <div class="field">
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="building" />
-                                            <label for="tvrtka">Tvrtka</label>
-                                        </div>
-                                        <Select id="tvrtka" name="tvrtka" filter v-model="noviKorisnik.tvrtka"
-                                            :options="PRVpartneri" option-label="epr_naziv"
-                                            placeholder="Odaberi tvrtku odabranog partnera" />
-                                        <Message v-if="$formKorisnik.tvrtka?.invalid" severity="error" size="small"
-                                            variant="simple">{{
-                                                $formKorisnik.tvrtka.error.message }}</Message>
-                                    </div>
-                                </template>
-                                <template v-else-if="noviKorisnik.tvrtka?.epr_naziv">
-                                    <div class="field">
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="user" />
-                                            <label for="tvrtka">Osoba</label>
-                                        </div>
-                                        <Select id="tvrtka" name="tvrtka" filter v-model="noviKorisnik.osoba"
-                                            :options="FIZpartneri" option-label="epr_naziv"
-                                            placeholder="Odaberi osobu" />
-                                        <Message v-if="$formKorisnik.tvrtka?.invalid" severity="error" size="small"
-                                            variant="simple">{{
-                                                $formKorisnik.tvrtka.error.message }}</Message>
-                                    </div>
-                                </template>
-                                <hr>
-                                <div class="field-heading">
-                                    <h2 class="p-text-bold">Postavke korisničkog računa</h2>
-                                    <p>Izmijeni raspon trajanja korisničkog računa</p>
-                                </div>
-                                <div class="field-split" style="margin-top: 13px;">
-                                    <div>
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="calendar-plus" />
-                                            <label for="datumOd">Vrijedi od</label>
-                                        </div>
-                                        <DatePicker id="datumOd" v-model="noviKorisnik.razdoblje.vrijemeOd"
-                                            name="datumOd" show-icon fluid icon-display="input"
-                                            input-id="odabraniKorisnik.vrijeme_od" date-format="dd.mm.yy"
-                                            placeholder="Vrijedi od" required />
-                                        <Message v-if="$formKorisnik.datumOd?.invalid" severity="error" size="small"
-                                            variant="simple">{{
-                                                $formKorisnik.datumOd.error.message }}</Message>
-                                    </div>
-                                    <div>
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="calendar-plus" />
-                                            <label for="datumDo">Vrijedi do</label>
-                                        </div>
-                                        <DatePicker id="datumDo" v-model="noviKorisnik.razdoblje.vrijemeDo"
-                                            name="datumDo" show-icon fluid icon-display="input"
-                                            input-id="odabraniKorisnik.vrijeme_do" date-format="dd.mm.yy"
-                                            placeholder="Vrijedi do" />
-                                        <Message v-if="$formKorisnik.datumDo?.invalid" severity="error" size="small"
-                                            variant="simple">{{
-                                                $formKorisnik.datumDo.error.message }}</Message>
-                                    </div>
-                                </div>
-                                <div class="btn-container">
-                                    <button id="saveBtn" type="submit" style="margin-top: 20px;">
-                                        <font-awesome-icon icon="save" class="save-icon" />
-                                        Spremi
-                                    </button>
-                                </div>
-
-                            </Form>
-                        </div>
-
-                    </Dialog>
-
-                </section> -->
             </div>
         </main>
         <footer />
@@ -1101,7 +757,7 @@
 import { FilterMatchMode } from '@primevue/core/api';
 import { savePartner, saveUser } from '~/service/admin/users';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { objectUtil, z } from 'zod';
+import { z } from 'zod';
 
 const toast = useToast()
 
@@ -1140,18 +796,18 @@ const resetNewUserDialog = ref(() => {
     }
 })
 
+const findPRVpartner = (epr_id) => {
+    return PRVpartneri.value.find(partner => partner.epr_id === epr_id);
+}
+
 const onOpenNewUserDialog = (data) => {
     const isFilled = !!data;
 
     console.log(data, isFilled)
 
     if (isFilled) {
-        tvrtka.value = {
-            epr_id: data.epr_id,
-            epr_naziv: data.epr_naziv,
-            epr_oib: data.epr_oib,
-            epr_adresa: data.epr_adresa
-        };
+        tvrtka.value = findPRVpartner(data?.epr_id)
+        initialValuesAddKorisnik.value.tvrtka = tvrtka.value;
         console.log("Popunjena tvrtka: ", tvrtka.value)
     }
 
@@ -1219,26 +875,6 @@ const filters = ref({
     employees_num: { value: null, matchMode: FilterMatchMode.EQUALS },
     epr_aktivan: { value: null, matchMode: 'equals' },
 });
-const filterFizicke = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_ime: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_prezime: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_oib: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_email: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_aktivan: { value: null, matchMode: 'equals' },
-});
-const filterPravne = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_naziv: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_oib: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_adresa: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_mjesto: { value: null, matchMode: FilterMatchMode.CONTAINS },
-});
-
-const selectPartneriValue = ref({
-    label: 'FIZ',
-    naziv: 'Fizički partneri'
-});
 
 const addPartnerValue = ref({
     label: 'FIZ',
@@ -1248,13 +884,15 @@ const addPartnerValue = ref({
 const partneriOptions = ref([
     {
         label: 'FIZ',
-        naziv: 'Fizički partneri'
+        naziv: 'Fizički partner'
     },
     {
         label: 'PRV',
-        naziv: 'Pravni partneri',
+        naziv: 'Pravni partner',
     }
 ]);
+
+const searchFIZosobe = computed(() => korisniciStore.searchFizickeOsobe);
 const FIZpartneri = computed(() => korisniciStore.fizickeOsobe);
 const PRVpartneri = computed(() => korisniciStore.pravneOsobe);
 const noneEmptyKorisnici = computed(() => {
@@ -1272,8 +910,14 @@ const noneEmptyKorisnici = computed(() => {
 // const noneEmptyKorisnici = computed(() => korisniciStore.pravneOsobe.filter((po) => parseInt(po.employees_num) > 0));
 // const partneri = ref(populatePartneri());
 
-const onRowExpand = () => {
-    console.log(noneEmptyKorisnici.value)
+const updateFIZosobe = () => {
+    korisniciStore.fetchFizickeOsobe()
+}
+
+const onRowExpand = (event) => {
+    console.log(event)
+
+    korisniciStore.fetchKorisniciForLegalPartner(event.data.epr_id)
 };
 
 const tempPartner = ref({
@@ -1310,7 +954,7 @@ const openedAccordionPanels = ref(['0']); // Početno otvoren prvi panel
 
 onMounted(async () => {
     // populateUsers();
-    await korisniciStore.fetchFizickeOsobe()
+    // await korisniciStore.fetchOsobe();
     await korisniciStore.fetchPravneOsobe()
 })
 
@@ -1378,7 +1022,8 @@ const addKorisnik = async ({ valid }) => {
             console.log("response: ", response)
             if (response) {
                 showSuccesKorisnik(korisnik.value)
-                await korisniciStore.fetchPravneOsobe()
+                // await korisniciStore.fetchPravneOsobe()
+                    await korisniciStore.fetchOsobe();
             }
         } catch (error) {
             showErrorKorisnik(korisnik.value)
@@ -1448,7 +1093,7 @@ const saveNewPartner = async () => {
             if (addPartnerValue.value.label === 'FIZ') {
                 try {
                     console.log("Dohvaćanje fizickih osoba")
-                    await korisniciStore.fetchFizickeOsobe();
+                    // await korisniciStore.fetchFizickeOsobe();
                     console.log(korisniciStore.fizickeOsobe)
                 } catch (error) {
                     console.error(error);
@@ -1456,12 +1101,13 @@ const saveNewPartner = async () => {
             } else {
                 try {
                     console.log("Dohvaćanje pravnih osoba")
-                    await korisniciStore.fetchPravneOsobe();
+                    // await korisniciStore.fetchPravneOsobe();
                     console.log(korisniciStore.pravneOsobe)
                 } catch (error) {
                     console.error(error);
                 }
             }
+            await korisniciStore.fetchOsobe();
         } else {
             console.error("Greska pri dodavanju partnera")
             showErrorPartner(tempPartner.value)
@@ -1542,6 +1188,16 @@ main>div {
     padding: 13px;
 }
 
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    height: 100%;
+    opacity: 0.5;
+    padding: 8px;
+}
+
 /* .dodaj-korisnika {
     font-weight: 500;
     opacity: 0.8;
@@ -1555,8 +1211,19 @@ main>div {
 
 .dodaj-korisnika {
     font-weight: 500;
-    opacity: 0.4;
-    cursor: not-allowed;
+    opacity: 0.8;
+    cursor: pointer;
+    /* opacity: 0.4;
+    cursor: not-allowed; */
+}
+
+.dodaj-korisnika:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.dodaj-korisnika:active {
+    opacity: 0.8;
 }
 
 .dodaj-btn,
@@ -1842,6 +1509,12 @@ sup {
     gap: 8px;
 }
 
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .btn-container {
     width: 100%;
     display: flex;
@@ -1905,7 +1578,29 @@ sup {
     margin: 5px 0px 13px 0px;
 }
 
-.dialog-header * {
+.dialog-header-text {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    /* gap: 1px; */
+}
+
+.dialog-header-text strong {
+    font-size: 20px;
+    font-weight: 700;
+    text-decoration: none;
+    opacity: 1 !important;
+}
+
+.dialog-header-text span {
+    opacity: 0.7;
+}
+
+/* .dialog-header * {
+    font-size: 20px;
+} */
+
+log-header * {
     font-size: 20px;
     font-weight: 700;
 }

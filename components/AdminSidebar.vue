@@ -3,15 +3,18 @@
     <div :class="['sidebar', isCollapsed ? 'collapsed' : '']">
         <div :class="['sidebar-main', isCollapsed ? 'collapsed' : '']">
             <div :class="['sidebar-header', isCollapsed ? 'collapsed' : '']">
-                <img :class="['logo-image', isCollapsed ? 'collapsed' : '']"
+                <img
+                    :class="['logo-image', isCollapsed ? 'collapsed' : '']"
                     src="../public/static/images/atd_solucije.png" alt="logo" style="cursor: pointer;"
                     @click="navigateTo('/')">
-                <font-awesome-icon :class="['narrow-icon', isCollapsed ? 'collapsed' : '']" icon="angles-left"
+                <font-awesome-icon
+                    :class="['narrow-icon', isCollapsed ? 'collapsed' : '']" icon="angles-left"
                     @click="toggleSidebar" />
             </div>
             <div :class="['sidebar-content izracun-content', isCollapsed ? 'collapsed' : '']">
                 <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']" style="opacity: 1;">
-                    <h2 :class="isCollapsed ? 'collapsed' : ''"
+                    <h2
+                        :class="isCollapsed ? 'collapsed' : ''"
                         style="font-size: 14px; font-weight: 400; color: var(--text-color);">
                         Korisnik:
                     </h2>
@@ -23,7 +26,6 @@
                     :class="['sidebar-section', isCollapsed ? 'collapsed' : '']">
 
                     <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']" @click="toggleSection(index)">
-                        <!-- Provjera da li postoji `icon` ili `image` atribut -->
                         <font-awesome-icon v-if="section.icon" :class="['list-icon', isCollapsed ? 'collapsed' : '']"
                             :icon="section.icon" />
 
@@ -36,9 +38,7 @@
 
                     <div v-if="!section.collapsed" :class="['navigation', isCollapsed ? 'collapsed' : '']">
                         <nuxt-link v-for="(link, linkIndex) in section.links" :key="linkIndex"
-                            :class="['nuxtlink-form', 'opci', isActiveRoute(link.to) ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
-                            :to="link.to">
-                            <!-- Provjera za `icon` ili `image` unutar linkova -->
+                            :class="['nuxtlink-form', 'opci', isActiveRoute(link.to) ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '', !link.available ? 'disabled' : '']" :to="link.available ? link.to : '#'">
                             <font-awesome-icon v-if="link.icon" :class="['icon', isCollapsed ? 'collapsed' : '']"
                                 :icon="link.icon" />
                             <img v-else-if="link.image" :src="link.image" :alt="link.label"
@@ -59,7 +59,8 @@
                 <div :class="['profile-content', isCollapsed ? 'collapsed' : '']">
                     <font-awesome-icon icon="circle-user" size="xl" />
                     <div :class="['profile-details', isCollapsed ? 'collapsed' : '']">
-                        <h4 :class="isCollapsed ? 'collapsed' : ''"
+                        <h4
+                            :class="isCollapsed ? 'collapsed' : ''"
                             :style="{ fontSize: (name + surname).length > 20 ? '14px' : 'initial' }"
                             class="responsive-text">
                             {{ capitalizeName(name + ' ' + surname) }}
@@ -70,7 +71,8 @@
                     </div>
                 </div>
                 <div :class="['logout-container', isCollapsed ? 'collapsed' : '']" @click="doLogout">
-                    <font-awesome-icon :class="['logout-icon', isCollapsed ? 'collapsed' : '']"
+                    <font-awesome-icon
+                        :class="['logout-icon', isCollapsed ? 'collapsed' : '']"
                         icon="arrow-right-from-bracket" />
                 </div>
             </div>
@@ -80,9 +82,9 @@
 
 
 <script setup>
-import { computed, defineEmits, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 import { navigateTo } from '#app';
+import { onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { logout } from '~/service/user/user';
 import { useIzracunStore } from '~/stores/main-store';
 // import { decryptCookie } from '#imports';
@@ -106,18 +108,18 @@ const sections = ref([
         icon: 'bars-staggered',
         collapsed: false,
         links: [
-            { label: 'Početna stranica', to: '/admin', icon: 'house', isActive: false },
-            { label: 'Dodavanje korisnika', to: '/admin/korisnici', icon: 'user-plus', isActive: false },
-            { label: 'Ažuriranje podataka', to: '/admin/azuriranje', icon: 'code-compare', isActive: false },
+            { label: 'Početna stranica', to: '/admin', icon: 'house', isActive: false, available: true },
+            { label: 'Dodavanje korisnika', to: '/admin/korisnici', icon: 'user-plus', isActive: false, available: true },
+            { label: 'Ažuriranje podataka', to: '/admin/azuriranje', icon: 'code-compare', isActive: false, available: false },
         ],
     },
     {
         title: 'Aplikacije',
-        icon: 'shapes', //C:\Users\igric\OneDrive - Fakultet elektrotehnike, strojarstva i brodogradnje\Documents\VSCode projekti\TDA\Kalkulator_procjene_rizika\public\static\images\kesp_logo_slim.svg
+        icon: 'shapes',
         collapsed: false,
         links: [
-            { label: 'Kalkulator procjene klimatskih rizika', to: '/admin/kpkr', image: '../static/images/kpkr_logo_slim.svg', isActive: false },
-            { label: 'Kalkulator emisija stakleničkih plinova', to: '/admin/kesp', image: '../static/images/kesp_logo_slim.svg', isActive: false },
+            { label: 'Kalkulator procjene klimatskih rizika', to: '/admin/kpkr', image: '../static/images/kpkr_logo_slim.svg', isActive: false, available: false },
+            { label: 'Kalkulator emisija stakleničkih plinova', to: '/admin/kesp', image: '../static/images/kesp_logo_slim.svg', isActive: false, available: false },
         ],
     },
 ]);

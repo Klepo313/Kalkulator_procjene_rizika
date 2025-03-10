@@ -1,45 +1,98 @@
 import { defineStore } from 'pinia';
 import { useUsers } from '~/composables/users/useUsers';
-import { getFizickeOsobe, getPravneOsobe, getUsersForLegalPartner } from '~/service/admin/users';
+import { getFizickeOsobe, getPartners, getPravneOsobe, getUsersForLegalPartner } from '~/service/admin/users';
 
 export const useKorisniciStore = defineStore('korisnici', {
     state: () => ({
         pravneOsobe: [],
         fizickeOsobe: [],
+        searchFizickeOsobe: [],
     }),
     actions: {
-        async fetchPravneOsobe() {
+        async fetchOsobe(): Promise<void> {
             try {
-                const { $api } = useNuxtApp();
-                const data = await getPravneOsobe($api);
-                this.pravneOsobe = await Promise.all(
-                    data.map(async (po) => {
-                        if (parseInt(po.employees_num) > 0) {
-                            const users = await this.fetchKorisniciForLegalPartner(po.epr_id);
-                            return { ...po, users }; // Dodaj korisnike u pravnu osobu
-                        }
-                        return { ...po, users: [] }; // Ako nema zaposlenih, postavi prazan niz
-                    })
-                );
+                const partners: { epr_tip: string; epr_id?: number; eko_par_id_za?: number }[] = await getPartners() || [];
+                if (!partners || !Array.isArray(partners)) return;
+        
+                this.fizickeOsobe = partners.filter((partner) => partner?.epr_tip === 'FO');
+                this.pravneOsobe = partners.filter((partner) => partner?.epr_tip === 'PO');
+
+                this.fizickeOsobe = this.fizickeOsobe.map((fizicka) => {
+                    return {
+                        ...fizicka,
+                        tvrtka_usluge: "ATD Solucije",
+                    };
+                })
+        
+                // Povezivanje fizičkih osoba s pravnim osobama
+                this.pravneOsobe = this.pravneOsobe.map((pravnaOsoba) => {
+                    return {
+                        ...pravnaOsoba,
+                        users: this.fizickeOsobe.filter((fizickaOsoba) => fizickaOsoba.eko_par_id_za === pravnaOsoba.epr_id) as typeof this.fizickeOsobe || []
+                    };
+                });
+        
+                console.log("PRAVNE I FIZICKE OSOBE: ", this.pravneOsobe, this.fizickeOsobe);
+            } catch (error) {
+                console.error('Error fetching osobe:', error);
+            }
+        },
+        async fetchPravneOsobe(): Promise<void> {
+            try {
+                this.pravneOsobe = await getPravneOsobe();
+
+                this.pravneOsobe = this.pravneOsobe.map((pravnaOsoba) => {
+                    return {
+                        ...pravnaOsoba,
+                        users: []
+                    };
+                });
             } catch (error) {
                 console.error('Error fetching pravne osobe:', error);
             }
         },
-        async fetchFizickeOsobe() {
+        async fetchFizickeOsobe(): Promise<void> {
             try {
-                const { $api } = useNuxtApp();
-                const data = await getFizickeOsobe($api);
-                this.fizickeOsobe = data;
+                this.searchFizickeOsobe = await getFizickeOsobe();
             } catch (error) {
-                console.error(error);
+                console.error('Error fetching fizicke osobe:', error);
             }
         },
-        async fetchKorisniciForLegalPartner(id) {
+        async fetchKorisniciForLegalPartner(id: string | number): Promise<void> {
             try {
-                return await getUsersForLegalPartner(id);
+                // Provjera postoji li već dohvaćeni korisnici za ovu pravnu osobu
+                if (this.fizickeOsobe[id]) {
+                    console.log(`Korisnici za pravnu osobu ${id} već postoje, preskačem dohvaćanje.`);
+                    return;
+                }
+        
+                const data = await getUsersForLegalPartner(id);
+                if (!Array.isArray(data)) {
+                    console.warn(`Neispravan format podataka za pravnu osobu ${id}.`);
+                    return;
+                }
+        
+                // Mapiranje dohvaćenih korisnika na fizickeOsobe pod ključem id-ja pravne osobe
+                this.fizickeOsobe = {
+                    ...this.fizickeOsobe,
+                    [id]: data
+                };
+
+                // Ažuriranje pravneOsobe tako da se dodaju korisnici u postojeći users niz
+                this.pravneOsobe = this.pravneOsobe.map(pravnaOsoba => {
+                    if (pravnaOsoba.epr_id === id) {
+                        return {
+                            ...pravnaOsoba,
+                            users: [...(pravnaOsoba.users || []), ...data]
+                        };
+                    }
+                    return pravnaOsoba;
+                });
+        
+                console.log(`Dohvaćeni korisnici za pravnu osobu ${id}:`, data);
             } catch (error) {
                 console.error(`Error fetching korisnici for legal partner ${id}:`, error);
-                return [];
+                return;
             }
         },
     }
