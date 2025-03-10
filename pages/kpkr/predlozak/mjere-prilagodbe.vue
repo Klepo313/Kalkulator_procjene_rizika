@@ -317,7 +317,7 @@ const splitOpis = (opis) => {
     width: 100%;
     height: 30px;
     /* Visina gradijenta */
-    background: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+    /* background: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0)); */
     /* background: linear-gradient(to top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0)); */
     /* Blagi gradijent */
     pointer-events: none;

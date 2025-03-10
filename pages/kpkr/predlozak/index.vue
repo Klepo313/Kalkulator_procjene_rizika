@@ -2,6 +2,18 @@
     <div class="body">
         <Toast />
         <Toast position="top-right" group="tc" />
+        <ConfirmDialog :style="{ width: '500px' }">
+            <template #message="slotProps">
+                <div class="confirm-dialog">
+                    <div class="confirm-header">
+                        <h2>{{ slotProps.message.title }}</h2>
+                    </div>
+                    <div class="confirm-desc">
+                        <p>{{ slotProps.message.message }}</p>
+                    </div>
+                </div>
+            </template>
+        </ConfirmDialog>
         <template v-if="!loading">
             <main>
                 <h1>
@@ -172,19 +184,31 @@
                     </div>
 
                     <template v-if="!isReadonly">
-                        <button id="saveBtn" type="submit">
+                        <button id="saveBtn" type="submit" @click="confirm1()" > <!--@click="visibleSaveDialog = true"-->
                             <font-awesome-icon :icon="idIzracuna ? 'lock' : 'save'" class="save-icon" />
                             Spremi i zaključaj
                         </button>
-                        <!-- <button id="saveBtn" type="submit" class="zakljucanoBtn">
-                            <font-awesome-icon :icon="idIzracuna ? 'lock' : 'save'" class="save-icon" />
-                            <template v-if="idIzracuna">
-                                Zaključano
-                            </template>
-<template v-else>
-                                Spremi i zaključaj
-                            </template>
-</button> -->
+                        
+
+                        <!-- <Dialog v-model:visible="visibleSaveDialog" header="Spremi i zaključaj" modal :style="{ width: '500px' }">
+                            <p style="text-align: center; font-size: 1.2rem; color: var(--primary-color); font-weight: bold; opacity: 1;">
+                                Jeste li sigurni da želite zaključati predložak? 
+                            </p>
+                            <p style="text-align: center; font-size: 1rem; margin-top: 10px;">
+                                Zaključavanjem ovog predloška <strong style="text-decoration: underline;">ne možete</strong> 
+                                više izmjenjivati opće podatke sa forme 
+                                (mjere prilagodbe se mogu naknadno izmjenjivati).
+                            </p>
+                            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 26px;">
+                                <Button type="button" label="Odustani" severity="secondary" @click="visibleSaveDialog = false"></Button>
+
+                                <button id="saveBtn" type="submit" @click="confirmSubmit" style="margin-top: 0px;">
+                                    <font-awesome-icon :icon="idIzracuna ? 'lock' : 'save'" class="save-icon" />
+                                    Spremi i zaključaj
+                                </button>
+                            </div>
+                        </Dialog> -->
+
                         <span>
                             *Potrebno je popuniti sva obvezna polja (<span class="required">*</span>) kako bi se
                             predložak
@@ -224,20 +248,7 @@
                 </span>
             </main>
         </template>
-        <Dialog v-model:visible="visibleSaveDialog" header="Zaključavanje predloška" modal :style="{ width: '450px' }">
-            <p style="text-align: center; font-size: 1rem;">
-                Jeste li sigurni da želite zaključati predložak? Ako niste, provjerite predložak još jednom.
-            </p>
-            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 26px;">
-                <Button type="button" label="Odustani" severity="secondary" @click="visibleSaveDialog = false"></Button>
-
-                <!-- Kada korisnik potvrdi, pozivamo stvarni submit -->
-                <button id="saveBtn" type="submit" @click="confirmSubmit" style="margin-top: 0px;">
-                    <font-awesome-icon :icon="idIzracuna ? 'lock' : 'save'" class="save-icon" />
-                    Spremi i zaključaj
-                </button>
-            </div>
-        </Dialog>
+        
         <NespremljenePromjenePopup class="alert-popup" :visible="isNespremljenePromjenePopupVisible"
             @confirm="confirmLeave" @cancel="cancelLeave" />
         <LoadingSpremanje v-if="isLoadingPopupVisible" :message="'Spremanje promjena...'"
@@ -270,6 +281,7 @@ definePageMeta({
 });
 
 const toast = useToast();
+const confirm = useConfirm();
 
 const opciStore = useOpciStore();
 const cardStore = useCardStore();
@@ -740,123 +752,162 @@ watch(katastarskaOpcina, async (newValue) => {
 })
 
 const onFormSubmit = async ({ valid }) => {
-    // event.preventDefault(); // Sprečava automatski submit forme
-    // visibleSaveDialog.value = true; // Prikazuje dijalog
 
-    // // Pohranjujemo funkciju za stvarno submitanje
-    // formSubmitFunction.value = event.submitter.form.requestSubmit.bind(event.submitter.form);
+    if(valid) {
+        confirm.require({
+            title: 'Jeste li sigurni da želite zaključati predložak?',
+            message: `
+                Zaključavanjem ovog predloška ne možete
+                više izmjenjivati opće podatke sa forme 
+                (mjere prilagodbe se mogu naknadno izmjenjivati).
+            `,
+            header: 'Spremi i zaključaj',
+            icon: 'pi pi-exclamation-triangle',
+            rejectProps: {
+                label: 'Odustani',
+                severity: 'secondary',
+                outlined: true
+            },
+            acceptProps: {
+                icon: 'pi pi-save',
+                label: 'Spremi i zaključaj',
+                severity: 'secondary',
+            },
+            accept: async () => {
+                // toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
+                if (valid) {
+                    console.log("Forma je validna i podaci su spremljeni.");
+                    isLoadingPopupVisible.value = true;
 
-    if (valid) {
-        console.log("Forma je validna i podaci su spremljeni.");
-        isLoadingPopupVisible.value = true;
-
-        const trazeniScenarij = scenariji.value.find(s => s.tvs_sif == scenarij.value);
-        if (!trazeniScenarij) {
-            console.error("Scenarij nije nađen")
-            return null;
-        }
-        console.log("Scenarij: ", trazeniScenarij)
-
-        const formData = {
-            calculationId: idIzracuna.value || null,
-            date: formatDateToDMY(datum.value, '-'),
-            calculationTypeId: vrstaIzracuna.value?.tvz_id,
-            cadastreMunicipalityId: katastarskaOpcina.value?.kop_id,
-            cadastreParticleId: katastarskaCestica.value?.kcs_id || null,
-            objectTypeId: vrstaImovine.value?.tvo_id || null,
-            activityId: djelatnost.value?.djl_id || null,
-            scenarioTypeId: trazeniScenarij?.tvs_id,
-            description: naziv.value || null,
-            remark: napomena.value || null,
-        }
-        console.log("spremanje data: ", formData)
-        let mainMessage;
-        try {
-            const { data, status } = await saveForm(formData);
-            const resId = data.calculationId;
-            console.log("resID: ", resId)
-            if (status === 200) {
-                cardStore.setVrstaIzracuna(vrstaIzracuna.value?.tvz_naziv)
-                cardStore.setScenarij(scenarij.value);
-                showSuccess();
-
-                Object.assign(initialValues.value, {
-                    naziv: naziv.value,
-                    datum: datum.value,
-                    vrstaIzracuna: vrstaIzracuna.value,
-                    katastarskaOpcina: katastarskaOpcina.value,
-                    katastarskaCestica: katastarskaCestica.value,
-                    vrstaImovine: vrstaImovine.value,
-                    djelatnost: djelatnost.value,
-                    skupinaDjelatnosti: skupinaDjelatnosti.value,
-                    scenarij: scenarij.value,
-                    ispostava: ispostava.value,
-                    podrucniUred: podrucniUred.value,
-                    napomena: napomena.value,
-                })
-                Object.assign(formValues.value, initialValues.value)
-
-            } else {
-                mainMessage = data.message;
-                showErrorSave(mainMessage.value);
-            }
-
-            if (!idIzracuna.value) {
-                console.log("Ušlo")
-                idIzracuna.value = resId;
-                console.log("novi id: ", idIzracuna.value)
-
-                const url = `/kpkr/predlozak?id=${idIzracuna.value.toString()}`;
-                console.log("url: " + url);
-                console.log('id: ', idIzracuna.value.toString());
-
-                cardStore.setCardId(idIzracuna.value);
-
-                const queryParams = { ...router.currentRoute.value.query };
-                queryParams.id = idIzracuna.value !== 'null' ? idIzracuna.value : undefined;
-
-                console.log("path: ", router.currentRoute.value.path, "queryParams: ", queryParams.id);
-                // Ažuriraj URL
-                router.replace({
-                    path: router.currentRoute.value.path,
-                    query: queryParams,
-                });
-
-                if (resId) {
-                    try {
-                        const izracunRes = await getCalculations(resId)
-                        const broj = izracunRes.data[0]?.aiz_broj
-                        cardStore.setBroj(broj)
-                        cardStore.setVrstaIzracuna(izracunRes.data[0]?.tvz_naziv)
-                        cardStore.setScenarij(izracunRes.data[0]?.tvs_id == 1 ? 'RCP' : 'SSP');
-                    } catch (error) {
-                        console.error('Greška prilikom dohvaćanja izračuna: ', error);
+                    const trazeniScenarij = scenariji.value.find(s => s.tvs_sif == scenarij.value);
+                    if (!trazeniScenarij) {
+                        console.error("Scenarij nije nađen")
                         return null;
                     }
+                    console.log("Scenarij: ", trazeniScenarij)
+
+                    const formData = {
+                        calculationId: idIzracuna.value || null,
+                        date: formatDateToDMY(datum.value, '-'),
+                        calculationTypeId: vrstaIzracuna.value?.tvz_id,
+                        cadastreMunicipalityId: katastarskaOpcina.value?.kop_id,
+                        cadastreParticleId: katastarskaCestica.value?.kcs_id || null,
+                        objectTypeId: vrstaImovine.value?.tvo_id || null,
+                        activityId: djelatnost.value?.djl_id || null,
+                        scenarioTypeId: trazeniScenarij?.tvs_id,
+                        description: naziv.value || null,
+                        remark: napomena.value || null,
+                    }
+                    console.log("spremanje data: ", formData)
+                    let mainMessage;
+                    try {
+                        const { data, status } = await saveForm(formData);
+                        const resId = data.calculationId;
+                        console.log("resID: ", resId)
+                        if (status === 200) {
+                            cardStore.setVrstaIzracuna(vrstaIzracuna.value?.tvz_naziv)
+                            cardStore.setScenarij(scenarij.value);
+                            showSuccess();
+
+                            Object.assign(initialValues.value, {
+                                naziv: naziv.value,
+                                datum: datum.value,
+                                vrstaIzracuna: vrstaIzracuna.value,
+                                katastarskaOpcina: katastarskaOpcina.value,
+                                katastarskaCestica: katastarskaCestica.value,
+                                vrstaImovine: vrstaImovine.value,
+                                djelatnost: djelatnost.value,
+                                skupinaDjelatnosti: skupinaDjelatnosti.value,
+                                scenarij: scenarij.value,
+                                ispostava: ispostava.value,
+                                podrucniUred: podrucniUred.value,
+                                napomena: napomena.value,
+                            })
+                            Object.assign(formValues.value, initialValues.value)
+
+                        } else {
+                            mainMessage = data.message;
+                            showErrorSave(mainMessage.value);
+                        }
+
+                        if (!idIzracuna.value) {
+                            console.log("Ušlo")
+                            idIzracuna.value = resId;
+                            console.log("novi id: ", idIzracuna.value)
+
+                            const url = `/kpkr/predlozak?id=${idIzracuna.value.toString()}`;
+                            console.log("url: " + url);
+                            console.log('id: ', idIzracuna.value.toString());
+
+                            cardStore.setCardId(idIzracuna.value);
+
+                            const queryParams = { ...router.currentRoute.value.query };
+                            queryParams.id = idIzracuna.value !== 'null' ? idIzracuna.value : undefined;
+
+                            console.log("path: ", router.currentRoute.value.path, "queryParams: ", queryParams.id);
+                            // Ažuriraj URL
+                            router.replace({
+                                path: router.currentRoute.value.path,
+                                query: queryParams,
+                            });
+
+                            if (resId) {
+                                try {
+                                    const izracunRes = await getCalculations(resId)
+                                    const broj = izracunRes.data[0]?.aiz_broj
+                                    cardStore.setBroj(broj)
+                                    cardStore.setVrstaIzracuna(izracunRes.data[0]?.tvz_naziv)
+                                    cardStore.setScenarij(izracunRes.data[0]?.tvs_id == 1 ? 'RCP' : 'SSP');
+                                } catch (error) {
+                                    console.error('Greška prilikom dohvaćanja izračuna: ', error);
+                                    return null;
+                                }
+                            }
+
+                        }
+
+                    } catch (error) {
+                        showError();
+                        console.error('Greška prilikom spremanja podataka: ', error);
+                        return null;
+                    } finally {
+                        isLoadingPopupVisible.value = false;
+                    }
+                } else {
+                    console.error('Validacija nije prošla.');
                 }
-
+            },
+            reject: () => {
+                // toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
             }
-
-        } catch (error) {
-            showError();
-            console.error('Greška prilikom spremanja podataka: ', error);
-            return null;
-        } finally {
-            isLoadingPopupVisible.value = false;
-        }
-    } else {
-        console.error('Validacija nije prošla.');
+        });
     }
+
 }
 
 const formSubmitFunction = ref(null);
 
 // Funkcija koja se poziva ako korisnik potvrdi spremanje
-const confirmSubmit = () => {
-    if (formSubmitFunction.value) {
-        formSubmitFunction.value(); // Izvršava stvarni submit forme
-        visibleSaveDialog.value = false; // Zatvara dijalog
-    }
+const confirm1 = () => {
+    confirm.require({
+        message: 'Are you sure you want to proceed?',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Save'
+        },
+        accept: () => {
+            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
+        },
+        reject: () => {
+            toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        }
+    });
 };
 
 const showSuccess = () => {
@@ -900,6 +951,24 @@ h1 {
     text-align: left;
     padding-bottom: 7px;
     border-bottom: 2px solid var(--text-color);
+}
+
+.confirm-dialog {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.confirm-header h2 {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.confirm-desc p {
+    text-align: center;
+    /* font-size: 1.1rem; */
 }
 
 .main-grid {
