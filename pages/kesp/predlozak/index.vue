@@ -850,7 +850,7 @@ const polarChartData = computed(() => {
     vozila.value.forEach((vozilo) => {
         const kategorija = vozilo.uge_naziv;
         if (!potrosnjaPoSkupini[kategorija]) {
-            potrosnjaPoSkupini[kategorija] = vehicleStore.emisijaZaKategoriju(kategorija);
+            potrosnjaPoSkupini[kategorija] = vehicleStore.potrosnjaGorivaZaKategoriju(kategorija);
         }
     });
 

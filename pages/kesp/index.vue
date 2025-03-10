@@ -46,9 +46,9 @@
                 <form class="pop-up-novo" @submit.prevent="addIzracun">
                     <div class="opisnap">
                         <label for="opis">
-                            Naziv
+                            Naziv<span class="required">*</span>
                         </label>
-                        <InputText id="opis" v-model="opis" type="text" placeholder="Unesi naziv" />
+                        <InputText id="opis" v-model="opis" type="text" placeholder="Unesi naziv" required />
                     </div>
                     <div>
                         <label for="startDate">
@@ -101,8 +101,6 @@
 <script setup>
 import { logout } from '~/service/user/user';
 
-const opciStore = useOpciStore();
-const cardStore = useCardStore();
 const kespStore = useKespStore();
 
 definePageMeta({
@@ -134,13 +132,6 @@ function downloadPDF() {
     link.click();
 }
 
-
-const noviIzracun = () => {
-    // cardStore.cardId = null;
-    // opciStore.clearOpciPodaci();
-    // navigateWithParameter('/kesp/predlozak', 'id', 'null')
-};
-
 function setEndDate() {
     if (datumOd.value) {
         const startDate = new Date(datumOd.value); // Ensure valid Date object
@@ -149,7 +140,9 @@ function setEndDate() {
     }
 }
 
+const blockButton = ref(false)
 const addIzracun = async () => {
+    blockButton.value = true;
     const header = {
         l_datum: formatDateToDMY(new Date(), '-'),
         l_datod: formatDateToDMY(datumOd.value, '-'),
@@ -163,14 +156,26 @@ const addIzracun = async () => {
         const res = await kespStore.addPredlozak(header);
         console.log("Dodani izračun: ", res);
         if (res) {
-            await setCookie({ name: 'kesp-id', value: res });
-            showSuccess(formatDateToDMY(datumOd.value, '.'), formatDateToDMY(datumDo.value, '.'));
-            navigateTo('/kesp/predlozak');
+            showSuccess(header.l_datod, header.l_datdo);
+            try {
+
+                // Dodavanje šifrovane vrednosti u URL
+                const url = `/kesp/predlozak?id=${kespStore.kespId}`;
+                console.log("url: " + url);
+                console.log('id: ', kespStore.kespId.toString()); // Spremanje ID-a u cookie
+
+                // Navigacija sa 'replace' kako bi se izbeglo dupliranje rute u istoriji
+                await navigateTo(url, { replace: true });
+
+            } catch (error) {
+                console.log("Greska pri dodavanju izračuna. 1111", error);
+                showError();
+            }
         }
         else showError();
 
     } catch (error) {
-        console.log("Greska pri dodavanju izračuna.", error);
+        console.log("Greska pri dodavanju izračuna. 2222", error);
         showError();
     }
 

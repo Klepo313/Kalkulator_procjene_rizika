@@ -75,9 +75,9 @@
                 </div> -->
             </div>
             <footer>
-                <nuxt-link to="/" class="footer-link">
+                <nuxt-link to="/kesp" class="footer-link">
                     <font-awesome-icon icon="arrow-left-long" />
-                    Početna stranica
+                    Prethodna stranica
                 </nuxt-link>
             </footer>
         </main>
@@ -115,7 +115,7 @@
                     <span class="p-button p-component p-button-secondary" @click="noviDialogVisible = false">
                         Odustani
                     </span>
-                    <button type="submit" :disabled="(!opis || !datumOd || !datumDo) && isLocked" class="submitBtn"
+                    <button type="submit" :disabled="(!opis || !datumOd || !datumDo) && isLocked || blockButton" class="submitBtn"
                         :click="isLocked == true">
                         <font-awesome-icon icon="save" class="dialog-plus-icom" />
                         Spremi predložak
@@ -242,10 +242,12 @@ const showSuccess = (dod, ddo) => {
 };
 
 const showError = () => {
-    toast.add({ severity: 'error', summary: 'Došlo je do greške!', detail: `Dodavanje novog predloška nije uspjelo.`, life: 3000 });
+    toast.add({ severity: 'error', summary: 'Došlo je do greške!', detail: `Radnja neuspješna.`, life: 3000 });
 };
 
+const blockButton = ref(false)
 const addIzracun = async () => {
+    blockButton.value = true;
     const header = {
         l_datum: formatDateToDMY(new Date(), '-'),
         l_datod: formatDateToDMY(datumOd.value, '-'),
