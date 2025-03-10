@@ -234,7 +234,7 @@ onUnmounted(() => {
 
 // watch funkcija koja reagira na promjene u reaktivnoj varijabli
 watch(isScreenWidthLessThan1500, (newValue) => {
-    console.log(`Screen width is less than 1500: ${newValue}`);
+    //cconsole.log(`Screen width is less than 1500: ${newValue}`);
 });
 
 const isDoubleDigit = (value) => {

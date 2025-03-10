@@ -72,14 +72,14 @@ const checkLogin = async () => {
     spinnerIcon.value.style.display = "inline";
 
     if (usernameInput.value.value && passwordInput.value.value) {
-        console.log(usernameInput.value.value, passwordInput.value.value);
+        // // console.log(usernameInput.value.value, passwordInput.value.value);
         const response = await login(usernameInput.value.value, passwordInput.value.value);
 
         statusCode.value = response.status;
         const isFirstLogin = response.isFirstLogin;
 
         if (statusCode.value == 200) {
-            console.log("response login: ", response);
+            // // console.log("response login: ", response);
 
             userStore.updateAll({
                 name: response.name,
@@ -101,7 +101,7 @@ const checkLogin = async () => {
                 navigateTo('/user/change-password');
             } else {
                 let redirectTo = route.query.redirectTo || '/';
-                console.log("redirectTo: ", redirectTo);
+                // // console.log("redirectTo: ", redirectTo);
 
                 const userRoles = authStore.userRoles; // Sada je sigurno dohvaćen!
                 let hasAccess = true;

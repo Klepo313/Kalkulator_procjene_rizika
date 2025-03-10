@@ -1,9 +1,9 @@
 const getDate = () => {
     try {
-        console.log("Datum")
+        // console.log("Datum")
         return WebTransportDatagramDuplexStream;
     } catch (error) {
-        console.error('Login error: ' + error)
+        // console.error('Login error: ' + error)
         return null;
     }
 }

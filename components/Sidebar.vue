@@ -122,7 +122,7 @@ const isDisabled = computed(
 );
 
 watch(() => cardStore.broj, (newValue) => {
-    console.log('Broj izračuna updated: ', newValue);
+    //cconsole.log('Broj izračuna updated: ', newValue);
     brojIzracuna.value = parseInt(newValue);
 });
 // watch(() => izracunStore.idIzracuna, (newValue) => {
@@ -139,9 +139,9 @@ onMounted(async () => {
         name.value = cookieData['name'] || '';
         surname.value = cookieData['surname'] || '';
         email.value = cookieData['email'] || null;
-        console.log("email sidebar: ", email.value)
+        //cconsole.log("email sidebar: ", email.value)
     } catch (error) {
-        console.error("Error loading cookies: ", error);
+        // console.error("Error loading cookies: ", error);
     }
 })
 

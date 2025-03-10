@@ -11,17 +11,17 @@ const getCalculations = async () => {
             withCredentials: true, // Ovo omogućava slanje kolačića
         });
 
-        console.log(response.data)
+        // console.log(response.data)
 
         if (response.status == 200) {
             return response.data; // Vratite podatke ako je potrebno
         } else {
-            console.error('Došlo je do pogreške na serveru!');
+            // console.error('Došlo je do pogreške na serveru!');
             return null; // Vratite null ako je greška
         }
 
     } catch (error) {
-        console.error('Greška pri dohvaćanju vrste izračuna: ' + error)
+        // console.error('Greška pri dohvaćanju vrste izračuna: ' + error)
         return null;
     }
 }

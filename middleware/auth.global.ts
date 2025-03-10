@@ -6,11 +6,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   
     // Ako je korisnik na /login stranici, preskačemo provjere autentifikacije
     if (to.path === "/login") {
-      console.log("Na login stranici - preskačemo auth provjere.");
+      //c// console.log("Na login stranici - preskačemo auth provjere.");
       return;
     }
   
-    console.log("user mid: ", user);
+    //c// console.log("user mid: ", user);
     if (!user.isLoggedin) {
       return navigateTo(`/login?redirectTo=${encodeURIComponent(to.fullPath)}`);
     }
@@ -24,11 +24,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
 //     // Ako je korisnik na /login stranici, ne radimo provjere autentifikacije
 //     if (route.path === "/login") {
-//         console.log("Na login stranici - preskačemo auth provjere.");
+//         // console.log("Na login stranici - preskačemo auth provjere.");
 //         return;
 //     }
 
-//     console.log("user mid: ", user);
+//     // console.log("user mid: ", user);
 //     if (!user.isLoggedin) {
 //         return navigateTo(`/login?redirectTo=${encodeURIComponent(to.fullPath)}`);
 //     }

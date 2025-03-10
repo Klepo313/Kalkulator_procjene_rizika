@@ -23,7 +23,7 @@ const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipa
             },
         });
 
-        console.log(response.status)
+        // console.log(response.status)
 
         return {
             data: response.data,
@@ -31,7 +31,7 @@ const saveForm = async (calculationId, date, calculationTypeId, cadastreMunicipa
             status: response.status
         };
     } catch (error) {
-        console.error('Saving error: ' + error)
+        // console.error('Saving error: ' + error)
         return 0;
     }
 

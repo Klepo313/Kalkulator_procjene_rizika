@@ -84,7 +84,7 @@ const checkLogin = async () => {
         statusCode.value = response.status;
 
         if (statusCode.value == 200) {
-            console.log("response login: ", response)
+            // // console.log("response login: ", response)
             token.value = response.token;
             username.value = response.username;
 

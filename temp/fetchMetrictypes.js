@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const getMetricTypes = async (id) => {
     try {
-        console.log("IDID: ", id);
+        // console.log("IDID: ", id);
         // Postavite URL na osnovu prisustva id-a
         const url = id !== undefined
             ? `${base_url}/calculation/${id}/metric_types`
@@ -14,17 +14,17 @@ const getMetricTypes = async (id) => {
             withCredentials: true, // Ovo omogućava slanje kolačića
         });
 
-        console.log(response.data)
+        // console.log(response.data)
 
         if (response.status == 200) {
             return response; // Vratite podatke ako je potrebno
         } else {
-            console.error('Došlo je do pogreške na serveru!');
+            // console.error('Došlo je do pogreške na serveru!');
             return null; // Vratite null ako je greška
         }
 
     } catch (error) {
-        console.error('Greška pri dohvaćanju vrste izračuna: ' + error)
+        // console.error('Greška pri dohvaćanju vrste izračuna: ' + error)
         return null;
     }
 }

@@ -497,11 +497,11 @@ const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
 const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
 
 const kespId = ref(props.uiz_id);
-console.log("kespId u index: " + kespId.value);
+// console.log("kespId u index: " + kespId.value);
 
 const vozila = computed(() => vehicleStore.vozila);
 const ukupnaEmisija = computed(() => vehicleStore.ukupnaEmisija)
-console.log("Evo vozila: ", vozila, " | ", ukupnaEmisija.value);
+// console.log("Evo vozila: ", vozila, " | ", ukupnaEmisija.value);
 
 // Varijabla za pohranu odabrane skupine vozila
 const odabranaSkupina = ref(null);
@@ -586,8 +586,8 @@ const gwpDialogHide = async () => {
 
 async function onGwpIzracunSave(event) {
     let { newData, index } = event;
-    console.log("newData: ", newData);
-    console.log("index: ", index);
+    // console.log("newData: ", newData);
+    // console.log("index: ", index);
 
     const getUsiId = async () => {
         const foundVehicle = vozila.value.find(item => item?.usi_uvg_id === odabraniEnergent.value?.uvg_id);
@@ -597,7 +597,7 @@ async function onGwpIzracunSave(event) {
     const getEmisija = async (usiId) => {
         try {
             const gwpItems = await getCoolingCalculationItems(usiId);
-            console.log("Svi GWP izračuni: ", gwpItems);
+            // console.log("Svi GWP izračuni: ", gwpItems);
 
             const emisija = gwpItems.find(item =>
                 item.uir_ugr_id == newData.uir_ugr_id &&
@@ -610,13 +610,13 @@ async function onGwpIzracunSave(event) {
             )?.uir_emisija;
 
             if (!emisija) {
-                console.error("GWP izračun za ovaj red ne postoji");
+                // console.error("GWP izračun za ovaj red ne postoji");
                 return null;
             }
-            console.log("Emisija: ", Number(emisija).toFixed(4));
+            // console.log("Emisija: ", Number(emisija).toFixed(4));
             return emisija;
         } catch (error) {
-            console.error("Error fetching GWP for cooling losses:", error);
+            // console.error("Error fetching GWP for cooling losses:", error);
             return null;
         }
     };
@@ -626,8 +626,8 @@ async function onGwpIzracunSave(event) {
         const ugrGroup = vrsteRashUredjaja.value.find(item => item?.ugr_naziv === newData?.ugr_naziv);
 
         if (!ugrGroup) {
-            console.log(usiId, ', ', ugrGroup)
-            console.error("Nedostaju podaci za ažuriranje newData");
+            // console.log(usiId, ', ', ugrGroup)
+            // console.error("Nedostaju podaci za ažuriranje newData");
             //return null;
         }
 
@@ -642,7 +642,7 @@ async function onGwpIzracunSave(event) {
     };
 
     if (!newData?.uir_usi_id || !newData?.uir_ugr_id || !newData?.uir_uvg_id) {
-        console.log("Nisu popunjena sva polja za gwp izračun");
+        // console.log("Nisu popunjena sva polja za gwp izračun");
         newData = await updateNewData();
         if (!newData) return;
     }
@@ -658,15 +658,15 @@ async function onGwpIzracunSave(event) {
 
             let usiId;
             if (!newData?.uir_usi_id) {
-                console.log("Nema za ovo plinova")
+                // console.log("Nema za ovo plinova")
                 try {
                     const newVehicles = await getVehicles(kespId.value)
                     usiId = newVehicles.find(item =>
                         item?.usi_uvg_id == odabraniEnergent.value?.uvg_id
                     )?.usi_id
-                    console.log("usi_id: " + usiId)
+                    // console.log("usi_id: " + usiId)
                 } catch (error) {
-                    console.error("Error saving vehicle:", error);
+                    // console.error("Error saving vehicle:", error);
                     return;
                 }
             }
@@ -674,16 +674,16 @@ async function onGwpIzracunSave(event) {
             const emisija = await getEmisija(newData.uir_usi_id || usiId);
             if (emisija) newData.uir_emisija = emisija;
 
-            console.log("Save Successful: ", data);
+            // console.log("Save Successful: ", data);
             gwpIzracuni.value[index] = newData;
             needUpdate.value = true;
         } else {
-            console.error("Save Failed: ", data);
+            // console.error("Save Failed: ", data);
             showSaveFailed(data.message);
             gwpIzracuni.value[index] = null;
         }
     } catch (error) {
-        console.error("Error saving cooling calculation:", error);
+        // console.error("Error saving cooling calculation:", error);
         gwpIzracuni.value[index] = null;
     }
 }
@@ -706,11 +706,11 @@ onMounted(async () => {
         vrsteSkupina.value = await getEmmisionGroups();
         vrsteRashUredjaja.value = await getCoolingLosses();
         mapVrsteRashUredjaja()
-        console.log("Evo vrste skupina: ", vrsteSkupina.value);
-        console.log("Evo vrste rashleda: ", vrsteRashUredjaja.value);
-        console.log("Gwp izračuni: ", gwpIzracuni.value);
+        // console.log("Evo vrste skupina: ", vrsteSkupina.value);
+        // console.log("Evo vrste rashleda: ", vrsteRashUredjaja.value);
+        // console.log("Gwp izračuni: ", gwpIzracuni.value);
     } catch (error) {
-        console.error('Error fetching emission groups or cooling losses:', error);
+        // console.error('Error fetching emission groups or cooling losses:', error);
     }
 })
 
@@ -718,8 +718,8 @@ watch(odabranaSkupina, async () => {
 
     if (!odabranaSkupina.value) return;
 
-    console.log("Odabrana skupina: ", odabranaSkupina.value);
-    console.log("Broj vozila: ", parseInt(odabranaSkupina.value?.br_vozila));
+    // console.log("Odabrana skupina: ", odabranaSkupina.value);
+    // console.log("Broj vozila: ", parseInt(odabranaSkupina.value?.br_vozila));
 
     odabranaVrstaEmsiije.value = null;
     odabraniEnergent.value = null
@@ -729,20 +729,20 @@ watch(odabranaSkupina, async () => {
 
     try {
         vrsteEmisija.value = await getVehiclesForEmmisionGroups(parseInt(odabranaSkupina.value.uge_id));
-        console.log("Evo vrste vozila: ", vrsteEmisija.value);
+        // console.log("Evo vrste vozila: ", vrsteEmisija.value);
     } catch (error) {
-        console.error('Error fetching vrste vozila:', error);
+        // console.error('Error fetching vrste vozila:', error);
     }
 
     if (!parseInt(odabranaSkupina.value?.br_vozila)) {
         try {
             vrsteEnergenata.value = await getFuelTypes(parseInt(odabranaSkupina.value.uge_id));
-            console.log("Evo vrste goriva: ", vrsteEnergenata.value);
+            // console.log("Evo vrste goriva: ", vrsteEnergenata.value);
         } catch (error) {
-            console.error('Error fetching fuels:', error);
+            // console.error('Error fetching fuels:', error);
         }
     } else {
-        console.log("Ima vrste vozila");
+        // console.log("Ima vrste vozila");
     }
 })
 
@@ -750,34 +750,34 @@ watch(odabranaVrstaEmsiije, async () => {
 
     if (!odabranaVrstaEmsiije.value) return;
 
-    console.log("Odabrana vrsta emisija: ", odabranaVrstaEmsiije.value);
+    // console.log("Odabrana vrsta emisija: ", odabranaVrstaEmsiije.value);
 
     if (parseInt(odabranaSkupina.value?.br_vozila)) {
         try {
             vrsteEnergenata.value = await getFuelTypes(parseInt(odabranaSkupina.value.uge_id), parseInt(odabranaVrstaEmsiije.value.uvv_id));
-            console.log("Evo vrste goriva: ", vrsteEnergenata.value);
+            // console.log("Evo vrste goriva: ", vrsteEnergenata.value);
         } catch (error) {
-            console.error('Error fetching fuels:', error);
+            // console.error('Error fetching fuels:', error);
         }
     } else {
-        console.log("Energent već dohvaćen: ", vrsteEnergenata.value);
+        // console.log("Energent već dohvaćen: ", vrsteEnergenata.value);
     }
 })
 
 watch(odabraniEnergent, async () => {
-    console.log("Odabrani energent: ", odabraniEnergent.value);
+    // console.log("Odabrani energent: ", odabraniEnergent.value);
 
     if (odabraniEnergent.value?.uvg_oznaka) {
         gwpIzracuni.value = [];
         const foundGwp = vozila.value.find(item => item?.uvg_naziv === odabraniEnergent.value?.uvg_naziv);
-        console.log("GWP izračun: ", foundGwp)
+        // console.log("GWP izračun: ", foundGwp)
         if (foundGwp) {
             const usi_id = foundGwp?.usi_id;
             try {
                 gwpIzracuni.value = await getCoolingCalculationItems(usi_id);
-                console.log("Evo GWP za rashladni uređaji: ", gwpIzracuni.value);
+                // console.log("Evo GWP za rashladni uređaji: ", gwpIzracuni.value);
             } catch (error) {
-                console.error('Error fetching GWP for cooling losses:', error);
+                // console.error('Error fetching GWP for cooling losses:', error);
             }
         }
     }
@@ -797,7 +797,7 @@ async function saveGwpIzracun() {
     try {
         await vehicleStore.fetchVehicles(kespId.value);
     } catch (error) {
-        console.error('Error fetching vehicles:', error);
+        // console.error('Error fetching vehicles:', error);
     }
     needUpdate.value = false;
     gwpDialogVisible.value = false;
@@ -829,7 +829,7 @@ const chartData = computed(() => {
     const data = calculatePercentage(Object.values(emisijePoSkupini)); // Ukupne emisije za svaku kategoriju
     const colors = labels.map((_, index) => shadeColor(baseColor, index * 10)); // Generisanje boja
 
-    console.log("Emisije po skupini: ", data);
+    // console.log("Emisije po skupini: ", data);
 
     return {
         labels,
@@ -858,7 +858,7 @@ const polarChartData = computed(() => {
     const data = calculatePercentage(Object.values(potrosnjaPoSkupini)); // Ukupne emisije za svaku kategoriju
     const colors = labels.map((_, index) => shadeColor(baseColor, index * 10));
 
-    console.log("Potrošnja po skupini: ", potrosnjaPoSkupini, labels, data, colors);
+    // console.log("Potrošnja po skupini: ", potrosnjaPoSkupini, labels, data, colors);
 
     return {
         labels,
@@ -967,7 +967,7 @@ const saveVozilo = async () => {
     const tempSkupina = odabranaSkupina.value?.uge_naziv
     const tempVrsta = odabranaVrstaEmsiije.value?.uvv_naziv || odabranaVrstaEmsiije.value;
 
-    console.log("Spremanje: ", odabranaSkupina.value?.uge_id, odabranaVrstaEmsiije.value?.uvv_naziv || odabranaVrstaEmsiije.value, odabraniEnergent.value?.uvg_id)
+    // console.log("Spremanje: ", odabranaSkupina.value?.uge_id, odabranaVrstaEmsiije.value?.uvv_naziv || odabranaVrstaEmsiije.value, odabraniEnergent.value?.uvg_id)
 
     const itemId = checkSameEmisije(
         odabranaSkupina.value?.uge_id,
@@ -975,7 +975,7 @@ const saveVozilo = async () => {
         odabraniEnergent.value?.uvg_id
     )
 
-    console.log("itemId: ", itemId)
+    // console.log("itemId: ", itemId)
 
     const data = {
         itemId: itemId,
@@ -991,7 +991,7 @@ const saveVozilo = async () => {
         quantity: Number(potrosnja.value),
     };
 
-    console.log("Podaci: ", data)
+    // console.log("Podaci: ", data)
 
     try {
         const response = await addEmission(data);
@@ -1000,28 +1000,28 @@ const saveVozilo = async () => {
 
         if (status === 200 && !message) {
             const usi_id = id;
-            console.log("Vozilo ID: ", usi_id);
+            // console.log("Vozilo ID: ", usi_id);
 
             showSuccess(tempSkupina, tempVrsta);
 
             try {
                 await vehicleStore.fetchVehicles(kespId.value);
             } catch (error) {
-                console.log("Greska pri filtriranju novih vozila.", error);
+                // console.log("Greska pri filtriranju novih vozila.", error);
             }
 
 
         } else if (status === 200 && message) {
             showWarning(message);
-            console.log("Poruka: ", message)
+            // console.log("Poruka: ", message)
         }
 
         else {
-            console.log("Greska pri dodavanju vozila.");
+            // console.log("Greska pri dodavanju vozila.");
             showError();
         }
     } catch (error) {
-        console.log("Greska pri dodavanju vozila.", error);
+        // console.log("Greska pri dodavanju vozila.", error);
         showError();
     }
 
@@ -1030,7 +1030,7 @@ const saveVozilo = async () => {
 };
 const deleteVozilo = async () => {
     try {
-        console.log("Vozilo za brisanje: ", selectedVozilo.value);
+        // console.log("Vozilo za brisanje: ", selectedVozilo.value);
         const response = await deleteEmission(selectedVozilo.value.usi_id);
         const { status } = response;
 
@@ -1041,11 +1041,11 @@ const deleteVozilo = async () => {
             }
             showDeleteVozilo();
         } else {
-            console.log("Greska pri brisanju stavke.");
+            // console.log("Greska pri brisanju stavke.");
             showError();
         }
     } catch (error) {
-        console.log("Greska pri brisanju stavke.", error);
+        // console.log("Greska pri brisanju stavke.", error);
         showError();
     }
     deleteVoziloDialog.value = false;

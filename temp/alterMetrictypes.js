@@ -14,11 +14,11 @@ const addMetricType = async (calculationId, metricTypeId) => {
             },
         });
 
-        console.log(response.status)
+        // console.log(response.status)
 
         return response.status;
     } catch (error) {
-        console.error('Saving error: ' + error)
+        // console.error('Saving error: ' + error)
         return 0;
     }
 }
@@ -35,12 +35,12 @@ const removeMetricType = async (calculationId, metricTypeId) => {
             },
         });
 
-        console.log(response.status)
+        // console.log(response.status)
 
         return response.status;
     } catch (error) {
-        console.error('Error response:', error.response);
-        console.error('Saving error: ' + error)
+        // console.error('Error response:', error.response);
+        // console.error('Saving error: ' + error)
         return 0;
     }
 }

@@ -65,20 +65,20 @@ const mainStyles = computed(() => ({
 }));
 
 watch(compId, async (newValue) => {
-    console.info("Novi broj: ", newValue);
+    //// console.info("Novi broj: ", newValue);
     idIzracuna.value = cardStore.cardId;
     if (idIzracuna.value) {
         try {
             const response = await getCalculations(idIzracuna.value)
             izracunData.value = response.data[0]
-            console.log("Predložak izračun: ", izracunData.value);
+            // console.log("Predložak izračun: ", izracunData.value);
 
             cardStore.setCardId(izracunData.value?.aiz_id);
             cardStore.setBroj(izracunData.value?.aiz_broj);
             cardStore.setVrstaIzracuna(izracunData.value?.tvz_naziv)
             cardStore.setScenarij(izracunData.value?.tvs_sif == 1 ? 'RCP' : 'SSP');
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             navigateTo('/kpkr/predlosci');
         }
     }
@@ -86,7 +86,7 @@ watch(compId, async (newValue) => {
 
 onMounted(async () => {
     idIzracuna.value = getIdFromUrl();
-    console.log("Id u predlosku: " + idIzracuna.value);
+    // console.log("Id u predlosku: " + idIzracuna.value);
 
     opciStore.clearOpciPodaci();
     await opciStore.fetchCalculationTypes();
@@ -99,14 +99,14 @@ onMounted(async () => {
         try {
             const response = await getCalculations(idIzracuna.value)
             izracunData.value = response.data[0]
-            console.log("Predložak izračun: ", izracunData.value);
+            // console.log("Predložak izračun: ", izracunData.value);
 
             cardStore.setCardId(izracunData.value?.aiz_id);
             cardStore.setBroj(izracunData.value?.aiz_broj);
             cardStore.setVrstaIzracuna(izracunData.value?.tvz_naziv)
             cardStore.setScenarij(izracunData.value?.tvs_id == 1 ? 'RCP' : 'SSP');
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             navigateTo('/kpkr/predlosci');
         }
     }

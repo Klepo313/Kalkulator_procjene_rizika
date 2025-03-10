@@ -150,32 +150,32 @@ const addIzracun = async () => {
         l_opis: opis.value || null,
         l_napomena: napomena.value || null
     }
-    console.log(header);
+    // console.log(header);
 
     try {
         const res = await kespStore.addPredlozak(header);
-        console.log("Dodani izračun: ", res);
+        // console.log("Dodani izračun: ", res);
         if (res) {
             showSuccess(header.l_datod, header.l_datdo);
             try {
 
                 // Dodavanje šifrovane vrednosti u URL
                 const url = `/kesp/predlozak?id=${kespStore.kespId}`;
-                console.log("url: " + url);
-                console.log('id: ', kespStore.kespId.toString()); // Spremanje ID-a u cookie
+                // console.log("url: " + url);
+                // console.log('id: ', kespStore.kespId.toString()); // Spremanje ID-a u cookie
 
                 // Navigacija sa 'replace' kako bi se izbeglo dupliranje rute u istoriji
                 await navigateTo(url, { replace: true });
 
             } catch (error) {
-                console.log("Greska pri dodavanju izračuna. 1111", error);
+                // console.log("Greska pri dodavanju izračuna. 1111", error);
                 showError();
             }
         }
         else showError();
 
     } catch (error) {
-        console.log("Greska pri dodavanju izračuna. 2222", error);
+        // console.log("Greska pri dodavanju izračuna. 2222", error);
         showError();
     }
 
@@ -203,7 +203,7 @@ onMounted(async () => {
     const startYear = month === 11 ? year : year - 1;
     datumOd.value = new Date(startYear, 0, 1); // 01.01.startYear
     setEndDate();
-    console.log("Datum od: ", datumOd.value, "Datum do: ", datumDo.value)
+    // console.log("Datum od: ", datumOd.value, "Datum do: ", datumDo.value)
 })
 
 </script>

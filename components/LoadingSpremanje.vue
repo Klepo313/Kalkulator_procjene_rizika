@@ -26,7 +26,7 @@ const message = computed(() => props.message);
 const loader = computed(() => props.loader);
 const description = computed(() => props.description);
 
-console.log("loader: ", loader.value, "message: ", message.value);
+//cconsole.log("loader: ", loader.value, "message: ", message.value);
 </script>
 
 <style scoped>

@@ -3,7 +3,7 @@ import { defineNuxtPlugin } from '#app'
 
 export default defineNuxtPlugin(nuxtApp => {
   const config = useRuntimeConfig()
-  console.log("baseURL iz .environments: ", config.public.baseURL)
+  // console.log("baseURL iz .environments: ", config.public.baseURL)
 
   // Kreiramo axios instancu s baznim URL-om iz runtime konfiguracije
   const api = axios.create({
@@ -28,7 +28,7 @@ export default defineNuxtPlugin(nuxtApp => {
           headers: { 'Content-Type': 'application/json' }
         })
       } catch (error) {
-        console.error('Greška kod osvježavanja tokena:', error)
+        // console.error('Greška kod osvježavanja tokena:', error)
         // Dodatno: ovdje možete implementirati logiku za odjavu korisnika ili obavještavanje
       }
 

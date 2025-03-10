@@ -96,7 +96,7 @@ const router = useRouter();
 
 const brojIzracuna = computed(() => kespStore.getKespBrojIzracuna);
 const kespId = computed(() => props.uiz_id);
-console.log("U sidebaru: ", kespId.value)
+//cconsole.log("U sidebaru: ", kespId.value)
 
 const username = ref('');
 const name = ref('');
@@ -135,7 +135,7 @@ function capitalizeName(fullName) {
 }
 
 watch(() => kespStore.kespBrojIzracuna, (newValue) => {
-    console.log('broj izračuna updated:', newValue);
+    //cconsole.log('broj izračuna updated:', newValue);
     brojIzracuna.value = newValue;
 });
 
@@ -168,10 +168,10 @@ onMounted(async () => {
         name.value = cookieData['name'] || '';
         surname.value = cookieData['surname'] || '';
         email.value = cookieData['email'] || null;
-        console.log(
-            username.value, name.value, surname.value, email.value);
+        //cconsole.log(
+            //cusername.value, name.value, surname.value, email.value);
     } catch (error) {
-        console.error("Error loading cookies: ", error);
+        // console.error("Error loading cookies: ", error);
     }
 })
 

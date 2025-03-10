@@ -130,7 +130,7 @@ const showError = (message) => toast.add({ severity: 'error', summary: 'Greška 
 
 const onFormSubmit = async ({ valid }) => {
     if (valid) {
-        console.log("Forma je validna i podaci su spremljeni.")
+        // console.log("Forma je validna i podaci su spremljeni.")
         loading.value = true;
 
         const data = {
@@ -146,16 +146,16 @@ const onFormSubmit = async ({ valid }) => {
             //     showError(resError);
             // }
         } catch (error) {
-            console.error("Greška pri promjeni lozinke: ", error?.response?.data?.message);
+            // console.error("Greška pri promjeni lozinke: ", error?.response?.data?.message);
             showError(error?.response?.data?.message);
         } finally {
             loading.value = false;
         }
 
-        console.log("Lozinke: ", data);
+        // console.log("Lozinke: ", data);
 
     } else {
-        console.error("Forma nije validna.")
+        // console.error("Forma nije validna.")
     }
 }
 

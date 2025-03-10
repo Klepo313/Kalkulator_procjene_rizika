@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const cookies = parseCookies(event);
     const token = cookies.authToken; // Čitamo JWT token iz kolačića
 
-    console.log("SERVER SIDE TOKEN: ", token)
+    // console.log("SERVER SIDE TOKEN: ", token)
 
     if (!token) {
         return { user: null, success: false, error: "No token provided" };
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     //         return { user: null };
     //     }
     // } catch (error) {
-    //     console.error("Error fetching user:", error);
+    //     // console.error("Error fetching user:", error);
     //     return { user: null };
     // }
 });

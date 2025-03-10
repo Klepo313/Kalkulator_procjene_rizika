@@ -298,7 +298,7 @@ const onCellEditComplete = async (event) => {
         // Zamijeni postojeći objekt novim objektom data
         opseg2Store.izracuni[index] = { ...data };
         noviPodaci.value.push = { ...data };
-        console.log("Ažuriran objekt u opseg2Store:", opseg2Store.izracuni[index], noviPodaci.value);
+        // console.log("Ažuriran objekt u opseg2Store:", opseg2Store.izracuni[index], noviPodaci.value);
     } else {
         console.warn("Objekt s tom energijom nije pronađen u opseg2Store.");
     }
@@ -308,7 +308,7 @@ const onCellEditComplete = async (event) => {
 
 // const onCellEditComplete = async (event) => {
 //     const status = await opseg2Store.onCellEditComplete(event); // Poziva akciju za uređivanje ćelija
-//     console.log("Status: ", status);
+//     // console.log("Status: ", status);
 
 //     await opseg2Store.fetchEnergySources(kespId.value);
 
@@ -318,14 +318,14 @@ const onCellEditComplete = async (event) => {
 // };
 
 const spremiPromjene = async () => {
-    console.log("Dobiveni podaci: ", noviPodaci.value);
+    // console.log("Dobiveni podaci: ", noviPodaci.value);
     try {
         await opseg2Store.updateEnergyItems(); // Čekamo završetak svih API poziva
         await fetchData(); // Tek nakon što svi podaci budu ažurirani, dohvaćamo svježe podatke
         imaPromjena.value = false;
         showSuccess();
     } catch (error) {
-        console.error('Greška prilikom spremanja promjena:', error);
+        // console.error('Greška prilikom spremanja promjena:', error);
         showError();
     }
 };
@@ -348,7 +348,7 @@ const O2polarChartData = computed(() => {
     const data = calculatePercentage(Object.values(ukupnoPoEnergiji));
     const colors = labels.map((_, index) => shadeColor(baseColor, index * 10));
 
-    console.log("Ukupno po energiji: ", ukupnoPoEnergiji, labels, data, colors);
+    // console.log("Ukupno po energiji: ", ukupnoPoEnergiji, labels, data, colors);
 
     return {
         labels,

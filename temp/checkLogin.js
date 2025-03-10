@@ -10,12 +10,12 @@ const checkLogin = async () => {
             withCredentials: true,
         });
 
-        console.log("Logiran?", response.data.isLoggedin, response.status);
+        // console.log("Logiran?", response.data.isLoggedin, response.status);
 
         return response.status === 200 && response.data.isLoggedin === true;
 
     } catch (error) {
-        console.error('Greška pri provjeri logiranja:', error);
+        // console.error('Greška pri provjeri logiranja:', error);
         return false; // Uvijek vraćamo `false` umjesto `0` radi konzistentnosti
     }
 };

@@ -46,7 +46,7 @@ onMounted(async () => {
             // await vehicleStore.fetchEmissions();
             // await vehicleStore.fetchFuels();
         } catch (error) {
-            console.error('Error fetching data:', error);
+            // console.error('Error fetching data:', error);
             navigateTo('/kesp/predlosci')
         }
     } else {

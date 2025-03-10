@@ -7,15 +7,15 @@ export const getVehicles = async (id: number | string): Promise<unknown> => {
 
     try {
         const response = await $api.get(url);
-        console.log(response.data);
+        // console.log(response.data);
         if (response.status === 200) {
             return response.data;
         } else {
-            console.error('Došlo je do pogreške na serveru!');
+            // console.error('Došlo je do pogreške na serveru!');
             return null;
         }
     } catch (error) {
-        console.error('Greška pri dohvaćanju izračuna: ', error);
+        // console.error('Greška pri dohvaćanju izračuna: ', error);
         return null;
     }
 };
@@ -26,15 +26,15 @@ export const getEmmisionGroups = async (id?: number | string): Promise<unknown> 
 
     try {
         const response = await $api.get(url);
-        console.log(response.data);
+        // console.log(response.data);
         if (response.status === 200) {
             return response.data;
         } else {
-            console.error('Došlo je do pogreške na serveru!');
+            // console.error('Došlo je do pogreške na serveru!');
             return null;
         }
     } catch (error) {
-        console.error('Greška pri dohvaćanju izračuna: ', error);
+        // console.error('Greška pri dohvaćanju izračuna: ', error);
         return null;
     }
 };
@@ -45,15 +45,15 @@ export const getVehiclesForEmmisionGroups = async (id: number | string): Promise
 
     try {
         const response = await $api.get(url);
-        console.log(response.data);
+        // console.log(response.data);
         if (response.status === 200) {
             return response.data;
         } else {
-            console.error('Došlo je do pogreške na serveru!');
+            // console.error('Došlo je do pogreške na serveru!');
             return null;
         }
     } catch (error) {
-        console.error('Greška pri dohvaćanju izračuna: ', error);
+        // console.error('Greška pri dohvaćanju izračuna: ', error);
         return null;
     }
 };
@@ -63,22 +63,22 @@ export const getFuelTypes = async (
     p_uvv_id?: number | string
 ): Promise<unknown> => {
     const { $api } = useNuxtApp();
-    console.log("parametri: ", p_uge_id, ", ", p_uvv_id);
+    // console.log("parametri: ", p_uge_id, ", ", p_uvv_id);
     const url = p_uvv_id
         ? `/CO2/fuel_types/by_filters/${p_uge_id}/${p_uvv_id}`
         : `/CO2/fuel_types/by_filters/${p_uge_id}`;
 
     try {
         const response = await $api.get(url);
-        console.log(response.data);
+        // console.log(response.data);
         if (response.status === 200) {
             return response.data;
         } else {
-            console.error('Došlo je do pogreške na serveru!');
+            // console.error('Došlo je do pogreške na serveru!');
             return null;
         }
     } catch (error) {
-        console.error('Greška pri dohvaćanju izračuna: ', error);
+        // console.error('Greška pri dohvaćanju izračuna: ', error);
         return null;
     }
 };
@@ -89,10 +89,10 @@ export const getCoolingLosses = async (): Promise<unknown> => {
 
     try {
         const response = await $api.get(url);
-        console.log("LOSSES: ", response.data);
+        // console.log("LOSSES: ", response.data);
         return response.data;
     } catch (error) {
-        console.error('Greška pri dohvaćanju izračuna: ', error);
+        // console.error('Greška pri dohvaćanju izračuna: ', error);
         return null;
     }
 };
@@ -105,24 +105,24 @@ export const getCoolingCalculationItems = async (id: number | string): Promise<u
         const response = await $api.get(url);
         return response.data;
     } catch (error) {
-        console.error('Greška pri dohvaćanju izračuna: ', error);
+        // console.error('Greška pri dohvaćanju izračuna: ', error);
         return null;
     }
 };
 
 export const saveCoolingCalculation = async (data): Promise<unknown> => {
     const { $api } = useNuxtApp();
-    console.log("Primljeni podaci: ", data);
+    // console.log("Primljeni podaci: ", data);
 
     if (!(
         data?.uir_ugr_id && data?.uir_brjed &&
         data?.uir_uvg_id && data?.uir_kapacitet && data?.uir_ugradnja &&
         data?.uir_rad && data?.uir_kraj
     )) {
-        console.log("Invalid data");
+        // console.log("Invalid data");
         return null;
     } else {
-        console.log("Valid data");
+        // console.log("Valid data");
         const url = `/CO2/cooling_calculation`;
 
         try {
@@ -143,10 +143,10 @@ export const saveCoolingCalculation = async (data): Promise<unknown> => {
                     headers: { 'Content-Type': 'application/json' },
                 }
             );
-            console.log("Rezultat savea: ", response.data);
+            // console.log("Rezultat savea: ", response.data);
             return response;
         } catch (error) {
-            console.error('Greška pri spremanju cooling calculation: ', error);
+            // console.error('Greška pri spremanju cooling calculation: ', error);
             return null;
         }
     }

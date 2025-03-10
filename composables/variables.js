@@ -3,7 +3,7 @@ const local_port = 4000
 const public_url = 'https://{PUBLIC_KEY}:'
 const public_port = 4000
 
-console.log("mode: ", process.env.NODE_ENV)
+//cconsole.log("mode: ", process.env.NODE_ENV)
 
 const isDev = process.env.NODE_ENV === 'development';
 const base_url = isDev

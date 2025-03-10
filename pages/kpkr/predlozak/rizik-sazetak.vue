@@ -210,7 +210,7 @@ onMounted(async () => {
     if (!idIzracuna.value) {
         idIzracuna.value = getIdFromUrl()
     }
-    console.log("id rizik-sazetak: ", idIzracuna.value)
+    // console.log("id rizik-sazetak: ", idIzracuna.value)
     try {
         // const cookieData = await initializeCookie(cookiesToGet);
 
@@ -220,10 +220,10 @@ onMounted(async () => {
         // scenarij.value = cardStore.scenarij;
         isScenarijLoaded.value = true;
 
-        console.log("cookieData: ", vrstaIzracuna.value, scenarij.value);
+        // console.log("cookieData: ", vrstaIzracuna.value, scenarij.value);
 
     } catch (error) {
-        console.error("Error loading cookies: ", error);
+        // console.error("Error loading cookies: ", error);
     }
 
     await opciStore.fetchCalculation(idIzracuna.value);
@@ -321,9 +321,9 @@ function mapDataToCellRanges(structuredData, djelatnostCellRanges) {
 const test = () => {
     const bezMjeraPopis = mapDataToCellRanges(structuredDataBezMjera.value, imovinaCellRanges);
     const saMjeramaPopis = mapDataToCellRanges(structuredDataSaMjerama.value, imovinaCellRanges);
-    console.log("rezultat mapiranja (bez mjera): ", bezMjeraPopis);
-    console.log("rezultat mapiranja (sa mjerama): ", saMjeramaPopis);
-    console.log("adapt mjere: ", adaptMjere.value);
+    // console.log("rezultat mapiranja (bez mjera): ", bezMjeraPopis);
+    // console.log("rezultat mapiranja (sa mjerama): ", saMjeramaPopis);
+    // console.log("adapt mjere: ", adaptMjere.value);
 }
 
 const downloadRizikSazetak = async () => {
@@ -334,7 +334,7 @@ const downloadRizikSazetak = async () => {
             return `${item.value}${index !== filteredItems.value.length - 1 ? item.suffix + ' ' : ''}`;
         }).join('');
 
-        console.log("formattedString: ", formattedString);
+        // console.log("formattedString: ", formattedString);
 
         let bezMjeraPopis = []
         let saMjeramaPopis = []
@@ -373,11 +373,11 @@ const downloadRizikSazetak = async () => {
         const bezMjeraWorksheet = workbook.getWorksheet('Izračun bez mjera prilagodbe');
         const saMjeramaWorksheet = workbook.getWorksheet('Izračun s mjerama prilagodbe');
 
-        // console.log("rezultat mapiranja (bez mjera): ", bezMjeraPopis);
-        // console.log("rezultat mapiranja (sa mjerama): ", saMjeramaPopis);
+        // // console.log("rezultat mapiranja (bez mjera): ", bezMjeraPopis);
+        // // console.log("rezultat mapiranja (sa mjerama): ", saMjeramaPopis);
 
         opciWorksheet.getCell('T11').value = brojIzracuna.value;
-        console.log("broj izracuna funkcija: ", brojIzracuna.value)
+        // console.log("broj izracuna funkcija: ", brojIzracuna.value)
 
         const logoBuffer = await axios.get('/static/images/KPKR_logo.svg', {
             responseType: 'arraybuffer'
@@ -421,7 +421,7 @@ const downloadRizikSazetak = async () => {
         });
 
         const adaptMjereData = adaptMjere.value; // Uzimanje podataka iz computed property
-        console.log(" adaptMjereData: ", adaptMjereData);
+        // console.log(" adaptMjereData: ", adaptMjereData);
         // Definiraj početni red
         const startingRow = 39;
 
@@ -586,7 +586,7 @@ const downloadRizikSazetak = async () => {
             katCesticaClean      // Dodaj katastarsku česticu (zamijeni '/' s '-')
         ].filter(Boolean).join('_') + '.xlsx';
 
-        console.log("fileName: ", fileName);
+        // console.log("fileName: ", fileName);
 
         // Generate a buffer for the updated workbook and trigger file download
         const updatedBuffer = await workbook.xlsx.writeBuffer();
@@ -594,7 +594,7 @@ const downloadRizikSazetak = async () => {
         saveAs(blob, fileName);
 
     } catch (error) {
-        console.error('Error downloading or processing Excel file:', error);
+        // console.error('Error downloading or processing Excel file:', error);
     }
 };
 

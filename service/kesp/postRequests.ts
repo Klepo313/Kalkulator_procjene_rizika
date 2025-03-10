@@ -5,7 +5,7 @@ export const postHeader = async (
     header: { l_datum: string; l_datod: string; l_datdo: string; l_opis: string; l_napomena: string }
 ): Promise<{ id: number; status: number } | number> => {
     const { $api } = useNuxtApp();
-    console.log("header: ", header);
+    // console.log("header: ", header);
 
     try {
         const response = await $api.post(
@@ -23,14 +23,14 @@ export const postHeader = async (
             }
         );
 
-        console.log(response.data);
+        // console.log(response.data);
 
         return {
             id: response.data.calculationId,
             status: response.status
         };
     } catch (error) {
-        console.error('Saving error: ', error);
+        // console.error('Saving error: ', error);
         return 0;
     }
 };
@@ -57,7 +57,7 @@ export const addEmission = async (
             }
         );
 
-        console.log(response.data);
+        // console.log(response.data);
 
         return {
             id: response.data.fn_spremi_ugo_stavku_o1,
@@ -65,21 +65,21 @@ export const addEmission = async (
             message: response.data.message
         };
     } catch (error) {
-        console.error('Saving error: ', error);
+        // console.error('Saving error: ', error);
         return 0;
     }
 };
 
 export const deleteEmission = async (id: number | string): Promise<unknown> => {
     const { $api } = useNuxtApp();
-    console.log("id brisajući: ", id);
+    // console.log("id brisajući: ", id);
 
     try {
         const response = await $api.delete(`/CO2/item/${id}`);
-        console.log(response);
+        // console.log(response);
         return response;
     } catch (error) {
-        console.error('Saving error: ', error);
+        // console.error('Saving error: ', error);
         return 0;
     }
 };
@@ -88,13 +88,13 @@ export const updateEnergyItem = async (
     data: { p_use_id: number; p_uiz_id: number; p_uvn_id: number; p_neobnovljivo: number; p_obnovljivo: number }
 ): Promise<{ id: number; status: number } | number> => {
     const { $api } = useNuxtApp();
-    console.log("data: ", {
-        energyItemId: data.p_use_id,
-        calculationId: data.p_uiz_id,
-        energyTypeId: data.p_uvn_id,
-        nonrenewable: data.p_neobnovljivo,
-        renewable: data.p_obnovljivo
-    });
+    // console.log("data: ", {
+    //     energyItemId: data.p_use_id,
+    //     calculationId: data.p_uiz_id,
+    //     energyTypeId: data.p_uvn_id,
+    //     nonrenewable: data.p_neobnovljivo,
+    //     renewable: data.p_obnovljivo
+    // });
 
     try {
         const response = await $api.post(
@@ -111,14 +111,14 @@ export const updateEnergyItem = async (
             }
         );
 
-        console.log(response.data);
+        // console.log(response.data);
 
         return {
             id: response.data.fn_spremi_ugo_energiju_o2,
             status: response.status
         };
     } catch (error) {
-        console.error('Saving error: ', error);
+        // console.error('Saving error: ', error);
         return 0;
     }
 };

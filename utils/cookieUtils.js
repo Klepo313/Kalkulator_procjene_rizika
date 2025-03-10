@@ -43,7 +43,7 @@ import { base_url } from "#imports";
 //         withCredentials: true, // Ensure cookies are included in requests
 //     });
 
-//     console.log(response.data);
+//     // console.log(response.data);
 //     return response.data;
 // };
 
@@ -53,7 +53,7 @@ import { base_url } from "#imports";
 //             name, // Dodaj ime kolačića kao parametar
 //         },
 //     });
-//     console.log(response.data);
+//     // console.log(response.data);
 //     return response.data;
 // };
 
@@ -64,7 +64,7 @@ import { base_url } from "#imports";
 //         },
 //     });
 
-//     console.log(response.data);
+//     // console.log(response.data);
 //     return response.data;
 // };
 
@@ -76,7 +76,7 @@ const setCookie = async (cookies) => {
         withCredentials: true, // Ensure cookies are included in requests
     });
 
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
 };
 
@@ -87,7 +87,7 @@ const getCookie = async (names) => {
     if (Array.isArray(names)) {
         // For an array, join the names with a comma for the query string
         const nameString = names.join(',');
-        console.log("Name string for array: ", nameString);
+        // console.log("Name string for array: ", nameString);
 
         response = await axios.get(`${base_url}/user/get-cookie`, {
             params: {
@@ -97,7 +97,7 @@ const getCookie = async (names) => {
         });
     } else {
         // For a single name, send it directly
-        console.log("Single name: ", names);
+        // console.log("Single name: ", names);
 
         response = await axios.get(`${base_url}/user/get-cookie`, {
             params: {
@@ -107,7 +107,7 @@ const getCookie = async (names) => {
         });
     }
 
-    console.log(response.data);
+    // console.log(response.data);
     return response.data; // This should return an object containing all requested cookie values
 };
 
@@ -124,7 +124,7 @@ const deleteCookie = async (names) => {
         withCredentials: true,
     });
 
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
 };
 

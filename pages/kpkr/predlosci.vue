@@ -127,8 +127,8 @@ const onRowSelect = async () => {
 
         // Dodavanje šifrovane vrednosti u URL
         const url = `/kpkr/predlozak?id=${odabraniIzracun.value.aiz_id.toString()}`;
-        console.log("url: " + url);
-        console.log('id: ', odabraniIzracun.value.aiz_id.toString()); // Spremanje ID-a u cookie
+        // console.log("url: " + url);
+        // console.log('id: ', odabraniIzracun.value.aiz_id.toString()); // Spremanje ID-a u cookie
 
         // Navigacija sa 'replace' kako bi se izbeglo dupliranje rute u istoriji
         await navigateTo(url, { replace: true });
@@ -137,7 +137,7 @@ const onRowSelect = async () => {
         cardStore.setCardId(odabraniIzracun.value.aiz_id.toString());
 
     } catch (error) {
-        console.error("Greška prilikom postavljanja kolačića:", error);
+        // console.error("Greška prilikom postavljanja kolačića:", error);
         showError();
     }
     // finally {
@@ -150,7 +150,7 @@ const onRowSelect = async () => {
 onMounted(async () => {
 
     deleteCookie(cookiesToDelete);
-    console.log(toastErrorStore.toastMessage)
+    // console.log(toastErrorStore.toastMessage)
     if (toastErrorStore.toastMessage.title && toastErrorStore.toastMessage.description) {
         toast.add({
             severity: 'error',
@@ -171,7 +171,7 @@ onMounted(async () => {
             izracuni.value = data.data;
         }
     }
-    console.log(izracuni.value)
+    // console.log(izracuni.value)
     loading.value = false;
 });
 

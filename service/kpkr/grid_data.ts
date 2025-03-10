@@ -10,10 +10,10 @@ export const getProcessGridData = async (
 
     try {
         const response = await $api.get(url);
-        console.log("Proces response: ", response);
+        // console.log("Proces response: ", response);
         return response;
     } catch (error) {
-        console.error("Greška pri dohvaćanju grid podataka: ", error);
+        // console.error("Greška pri dohvaćanju grid podataka: ", error);
         return null;
     }
 };
@@ -27,10 +27,10 @@ export const getPropertyGridData = async (
 
     try {
         const response = await $api.get(url);
-        console.log("Imovina response: ", response);
+        // console.log("Imovina response: ", response);
         return response;
     } catch (error) {
-        console.error("Greška pri dohvaćanju grid podataka: ", error);
+        // console.error("Greška pri dohvaćanju grid podataka: ", error);
         return null;
     }
 };

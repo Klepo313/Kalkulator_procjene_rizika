@@ -254,7 +254,7 @@ const totalEmissions = computed(() => opseg2Store.totalEmissions); // Preuzmi uk
 // Funkcija za završetak uređivanja ćelije
 const onCellEditComplete = async (event) => {
     const status = await opseg2Store.onCellEditComplete(event); // Poziva akciju za uređivanje ćelija
-    console.log("Status: ", status);
+    // console.log("Status: ", status);
 
     await opseg2Store.fetchEnergySources(kespId.value);
 
@@ -280,7 +280,7 @@ const O2polarChartData = computed(() => {
     const data = calculatePercentage(Object.values(ukupnoPoEnergiji));
     const colors = labels.map((_, index) => shadeColor(baseColor, index * 10));
 
-    console.log("Ukupno po energiji: ", ukupnoPoEnergiji, labels, data, colors);
+    // console.log("Ukupno po energiji: ", ukupnoPoEnergiji, labels, data, colors);
 
     return {
         labels,

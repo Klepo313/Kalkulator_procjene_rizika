@@ -44,7 +44,7 @@ const godina = computed({
 const datumOd = computed(() => kespStore.datumOd);
 const datumDo = computed(() => kespStore.datumDo);
 
-console.log(datumOd.value, datumDo.value, godina.value);
+//cconsole.log(datumOd.value, datumDo.value, godina.value);
 
 </script>
 

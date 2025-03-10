@@ -7,15 +7,15 @@ export const getCalculationTypes = async (id?: number | string): Promise<unknown
 
   try {
     const response = await $api.get(url);
-    console.log(response.data);
+    // console.log(response.data);
     if (response.status === 200) {
       return response;
     } else {
-      console.error('Došlo je do pogreške na serveru!');
+      // console.error('Došlo je do pogreške na serveru!');
       return null;
     }
   } catch (error) {
-    console.error('Greška pri dohvaćanju vrste izračuna: ', error);
+    // console.error('Greška pri dohvaćanju vrste izračuna: ', error);
     return null;
   }
 };
@@ -26,15 +26,15 @@ export const getActivities = async (id?: number | string): Promise<unknown> => {
 
   try {
     const response = await $api.get(url);
-    console.log(response.data);
+    // console.log(response.data);
     if (response.status === 200) {
       return response;
     } else {
-      console.error('Došlo je do pogreške na serveru!');
+      // console.error('Došlo je do pogreške na serveru!');
       return null;
     }
   } catch (error) {
-    console.error('Greška pri dohvaćanju aktivnosti: ', error);
+    // console.error('Greška pri dohvaćanju aktivnosti: ', error);
     return null;
   }
 };
@@ -45,15 +45,15 @@ export const getMunicipalities = async (id?: number | string): Promise<unknown> 
 
   try {
     const response = await $api.get(url);
-    console.log("cestice", response.data);
+    // console.log("cestice", response.data);
     if (response.status === 200) {
       return response;
     } else {
-      console.error('Došlo je do pogreške na serveru!');
+      // console.error('Došlo je do pogreške na serveru!');
       return null;
     }
   } catch (error) {
-    console.error('Greška pri dohvaćanju općina: ', error);
+    // console.error('Greška pri dohvaćanju općina: ', error);
     return null;
   }
 };
@@ -64,15 +64,15 @@ export const getObjectTypes = async (id?: number | string): Promise<unknown> => 
 
   try {
     const response = await $api.get(url);
-    console.log(response.data);
+    // console.log(response.data);
     if (response.status === 200) {
       return response;
     } else {
-      console.error('Došlo je do pogreške na serveru!');
+      // console.error('Došlo je do pogreške na serveru!');
       return null;
     }
   } catch (error) {
-    console.error('Greška pri dohvaćanju tipova objekata: ', error);
+    // console.error('Greška pri dohvaćanju tipova objekata: ', error);
     return null;
   }
 };
@@ -80,23 +80,23 @@ export const getObjectTypes = async (id?: number | string): Promise<unknown> => 
 export const getParticlesForMunicipalities = async (id: number | string): Promise<unknown> => {
   const { $api } = useNuxtApp();
   if (!id) {
-    console.log("Nije prosljeđen ID");
+    // console.log("Nije prosljeđen ID");
     return null;
   }
   const url = `/cadastre/municipality/${id}/particle`;
-  console.log(url);
+  // console.log(url);
 
   try {
     const response = await $api.get(url);
-    console.log(response.data);
+    // console.log(response.data);
     if (response.status === 200) {
       return response;
     } else {
-      console.error('Došlo je do pogreške na serveru!');
+      // console.error('Došlo je do pogreške na serveru!');
       return null;
     }
   } catch (error) {
-    console.error('Greška pri dohvaćanju particija: ', error);
+    // console.error('Greška pri dohvaćanju particija: ', error);
     return null;
   }
 };
@@ -107,22 +107,22 @@ export const getScenarios = async (): Promise<unknown> => {
 
   try {
     const response = await $api.get(url);
-    console.log("scenariji: ", response.data);
+    // console.log("scenariji: ", response.data);
     if (response.status === 200) {
       return response;
     } else {
-      console.error('Došlo je do pogreške na serveru!');
+      // console.error('Došlo je do pogreške na serveru!');
       return null;
     }
   } catch (error) {
-    console.error('Greška pri dohvaćanju scenarija: ', error);
+    // console.error('Greška pri dohvaćanju scenarija: ', error);
     return null;
   }
 };
 
 export const saveForm = async (data: unknown): Promise<unknown> => {
   const { $api } = useNuxtApp();
-  console.log("Primljeni podaci: ", data);
+  // console.log("Primljeni podaci: ", data);
 
   try {
     const response = await $api.post(
@@ -130,13 +130,13 @@ export const saveForm = async (data: unknown): Promise<unknown> => {
       data,
       { headers: { 'Content-Type': 'application/json' } }
     );
-    console.log(response.status);
+    // console.log(response.status);
     return {
       data: response.data,
       status: response.status
     };
   } catch (error) {
-    console.error('Saving error: ', error);
+    // console.error('Saving error: ', error);
     return 0;
   }
 };

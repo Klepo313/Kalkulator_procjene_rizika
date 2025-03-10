@@ -32,9 +32,9 @@ export const useKorisniciStore = defineStore('korisnici', {
                     };
                 });
         
-                console.log("PRAVNE I FIZICKE OSOBE: ", this.pravneOsobe, this.fizickeOsobe);
+                // console.log("PRAVNE I FIZICKE OSOBE: ", this.pravneOsobe, this.fizickeOsobe);
             } catch (error) {
-                console.error('Error fetching osobe:', error);
+                // console.error('Error fetching osobe:', error);
             }
         },
         async fetchPravneOsobe(): Promise<void> {
@@ -48,21 +48,21 @@ export const useKorisniciStore = defineStore('korisnici', {
                     };
                 });
             } catch (error) {
-                console.error('Error fetching pravne osobe:', error);
+                // console.error('Error fetching pravne osobe:', error);
             }
         },
         async fetchFizickeOsobe(): Promise<void> {
             try {
                 this.searchFizickeOsobe = await getFizickeOsobe();
             } catch (error) {
-                console.error('Error fetching fizicke osobe:', error);
+                // console.error('Error fetching fizicke osobe:', error);
             }
         },
         async fetchKorisniciForLegalPartner(id: string | number): Promise<void> {
             try {
                 // Provjera postoji li već dohvaćeni korisnici za ovu pravnu osobu
                 if (this.fizickeOsobe[id]) {
-                    console.log(`Korisnici za pravnu osobu ${id} već postoje, preskačem dohvaćanje.`);
+                    // console.log(`Korisnici za pravnu osobu ${id} već postoje, preskačem dohvaćanje.`);
                     return;
                 }
         
@@ -89,9 +89,9 @@ export const useKorisniciStore = defineStore('korisnici', {
                     return pravnaOsoba;
                 });
         
-                console.log(`Dohvaćeni korisnici za pravnu osobu ${id}:`, data);
+                // console.log(`Dohvaćeni korisnici za pravnu osobu ${id}:`, data);
             } catch (error) {
-                console.error(`Error fetching korisnici for legal partner ${id}:`, error);
+                // console.error(`Error fetching korisnici for legal partner ${id}:`, error);
                 return;
             }
         },

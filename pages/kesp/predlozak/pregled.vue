@@ -385,7 +385,7 @@ const energentiPotrosnja = computed(() => {
 });
 
 watch(groupedData, () => {
-    console.log("Grouped data:", groupedData.value);
+    // console.log("Grouped data:", groupedData.value);
 })
 
 const fullscreenChart = ref(null);
@@ -394,7 +394,7 @@ const dialogEmisijaVisible = ref(false);
 const odabranaGrupaEmisije = ref(null);
 
 watch(odabranaGrupaEmisije, () => {
-    console.log("Odabrana grupa emisije:", odabranaGrupaEmisije.value);
+    // console.log("Odabrana grupa emisije:", odabranaGrupaEmisije.value);
 })
 
 function openFullscreen(chartType) {
@@ -419,7 +419,7 @@ const combinedEmissions = computed(() => {
     const opseg1 = parseFloat(vehicleStore.ukupnaEmisija / 1000);
     const opseg2 = parseFloat(totalEmissions.value);
     const ukupno = opseg1 + opseg2;
-    console.log("opseg1: ", opseg1, "opseg2: ", opseg2, "ukupno: ", ukupno);
+    // console.log("opseg1: ", opseg1, "opseg2: ", opseg2, "ukupno: ", ukupno);
     return ukupno.toFixed(2);
 });
 
@@ -434,7 +434,7 @@ const filterNodes = (nodeList) => {
 };
 
 watch(energentiPotrosnja, () => {
-    console.log("Energenti potrosnja:", energentiPotrosnja.value);
+    // console.log("Energenti potrosnja:", energentiPotrosnja.value);
 })
 
 // Filtrirani čvorovi za prikaz u stablu
@@ -449,16 +449,16 @@ onMounted(async () => {
         skupine.value = await getEmmisionGroups();
         const kats = await getO3categories(kespId.value);
         kategorije.value = transformCategories(kats);
-        console.log("fetchane kategorije: ", kategorije.value)
-        console.log("filtrirane kategorije: ", filteredNodes.value)
-        console.log("Skupine: ", skupine.value)
-        console.log("VOZILA: ", vehicleStore.vozila)
-        console.log("Energenti potrošnja: ", energentiPotrosnja.value) //)
+        // console.log("fetchane kategorije: ", kategorije.value)
+        // console.log("filtrirane kategorije: ", filteredNodes.value)
+        // console.log("Skupine: ", skupine.value)
+        // console.log("VOZILA: ", vehicleStore.vozila)
+        // console.log("Energenti potrošnja: ", energentiPotrosnja.value) //)
         loadingCategories.value = false;
     } catch (error) {
-        console.error("Greška prilikom dohvaćanja emisijskih grupa:", error);
+        // console.error("Greška prilikom dohvaćanja emisijskih grupa:", error);
     }
-    console.log("IZIIZ: ", izracuni.value)
+    // console.log("IZIIZ: ", izracuni.value)
 })
 
 const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
@@ -472,7 +472,7 @@ const downloadReport = async (id) => {
     const pdfBlob = await getReport(id);
 
     if (!pdfBlob) {
-        console.error('Neuspješno dohvaćanje PDF-a.');
+        // console.error('Neuspješno dohvaćanje PDF-a.');
         return;
     }
 

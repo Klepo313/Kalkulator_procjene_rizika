@@ -12,12 +12,12 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
     // Ako je korisnik već na toj ruti ili ide na isključenu rutu, preskoči provjeru
     if (from.path === to.path || excludedPaths.includes(to.path)) {
-        console.info(`'${to.path}' - preskačemo auth provjere.`);
+        // console.info(`'${to.path}' - preskačemo auth provjere.`);
         return;
     }
 
     const userRoles = authStore.userRoles;
-    console.log("Roles middleware (klijent):", userRoles);
+    //c// console.log("Roles middleware (klijent):", userRoles);
 
     // Definiramo pravila pristupa
     const accessRules = [
@@ -40,5 +40,5 @@ export default defineNuxtRouteMiddleware((to, from) => {
         }
     }
 
-    console.log(`Pristup odobren za ${to.path} s ulogama:`, userRoles);
+    //c// console.log(`Pristup odobren za ${to.path} s ulogama:`, userRoles);
 });

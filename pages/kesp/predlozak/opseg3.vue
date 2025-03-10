@@ -182,15 +182,15 @@ const initializeIsChecked = () => {
 };
 
 watch(selectedKey, (newSelectedKey) => {
-    // console.log("old: ", selectedKey.value);
+    // // console.log("old: ", selectedKey.value);
     const selectedNodeKey = Object.keys(newSelectedKey).find(key => newSelectedKey[key] === true);
-    console.log("Selected Node Key:", selectedNodeKey);
-    // console.log("Nodes:", nodes.value);
+    // console.log("Selected Node Key:", selectedNodeKey);
+    // // console.log("Nodes:", nodes.value);
 
     if (selectedNodeKey && nodes.value) {
         const selectedNode = findNodeByKey(nodes.value, selectedNodeKey);
-        // console.log("Selected Node:", selectedNode);
-        console.log("Selected Node children:", selectedNode.children);
+        // // console.log("Selected Node:", selectedNode);
+        // console.log("Selected Node children:", selectedNode.children);
 
         if (selectedNode) {
             if (selectedNode.relevant) {
@@ -214,13 +214,13 @@ watch(selectedKey, (newSelectedKey) => {
 });
 
 watch(filteredNodes, (newFilteredNodes) => {
-    console.log("Filtered Nodes:", newFilteredNodes);
+    // console.log("Filtered Nodes:", newFilteredNodes);
 });
 
 
 function findNodeByKey(nodeList, key) {
     if (!Array.isArray(nodeList)) {
-        console.error("Invalid nodeList:", nodeList);
+        // console.error("Invalid nodeList:", nodeList);
         return null;
     }
 
@@ -252,19 +252,19 @@ const showError = (message) => {
 }
 
 const onRelevantChange = async (key) => {
-    console.log(`Checkbox for key ${key} changed`);
+    // console.log(`Checkbox for key ${key} changed`);
 
     // Pronađi čvor pomoću ključa
     const selectedNode = findNodeByKey(nodes.value, key);
     if (!selectedNode) {
-        console.error(`Node with key ${key} not found.`);
+        // console.error(`Node with key ${key} not found.`);
         return;
     }
-    console.log("Selected Node:", selectedNode);
+    // console.log("Selected Node:", selectedNode);
 
     // Provjeravamo je li trenutni checkbox označen
     const isChecked = checked.value.includes(parseInt(key));
-    console.log("Checked? ", isChecked);
+    // console.log("Checked? ", isChecked);
 
     // Pripremi podatke za API poziv
     const data = {
@@ -277,15 +277,15 @@ const onRelevantChange = async (key) => {
     try {
         const response = await saveCategoryStatus(data);
         if (response?.message) {
-            console.log(response.message);
+            // console.log(response.message);
             showWarning(response.message);
             return;
         } else {
-            console.log("Uspješno spremljeno!");
+            // console.log("Uspješno spremljeno!");
             showSuccess();
         }
     } catch (error) {
-        console.error("Greška prilikom spremanja:", error);
+        // console.error("Greška prilikom spremanja:", error);
         showError('Došlo je do pogreške pri spremanju relevantnosti kategorije.');
         return;
     }
@@ -300,7 +300,7 @@ const onRelevantChange = async (key) => {
         unmarkParentNode(selectedNode);
     }
 
-    console.log('Updated tabs:', tabs.value);
+    // console.log('Updated tabs:', tabs.value);
 };
 
 const updateNodeState = (node, isChecked) => {
@@ -327,7 +327,7 @@ const markParentNode = (node) => {
     if (node.ukt_ukt_id) {
         const parentNode = findNodeByKey(nodes.value, node.ukt_ukt_id);
         if (parentNode && !parentNode.relevant) {
-            console.log(`Parent node with key ${parentNode.key} is not selected. Selecting it now.`);
+            // console.log(`Parent node with key ${parentNode.key} is not selected. Selecting it now.`);
             checked.value.push(parseInt(parentNode.key));
             onRelevantChange(parentNode.key); // Rekurzivno označavanje roditelja
         }
@@ -342,7 +342,7 @@ const unmarkParentNode = (node) => {
                 child => !checked.value.includes(parseInt(child.key))
             );
             if (allChildrenUnchecked) {
-                console.log(`All children of parent node with key ${parentNode.key} are unchecked. Unchecking parent.`);
+                // console.log(`All children of parent node with key ${parentNode.key} are unchecked. Unchecking parent.`);
                 checked.value = checked.value.filter(item => item !== parseInt(parentNode.key));
                 onRelevantChange(parentNode.key); // Rekurzivno odznačavanje roditelja
             }
@@ -356,7 +356,7 @@ const truncateTextRef = ref(null); // Referenca na tekstualni element
 // Funkcija za provjeru preljeva i dodavanje `title` atributa
 const addTooltipToOverflowingNodes = () => {
     const treeNodes = document.querySelectorAll('.tree-node');
-    console.log(treeNodes)
+    // console.log(treeNodes)
     treeNodes.forEach(node => {
         const truncateText = node.querySelector('.truncate-text');
         if (truncateText) {
@@ -372,15 +372,15 @@ const addTooltipToOverflowingNodes = () => {
 
 
 onMounted(async () => {
-    console.log("KESP ID: " + kespId.value)
+    // console.log("KESP ID: " + kespId.value)
     const response = await getO3categories(kespId.value);
     // nodes.value = response;
     nodes.value = transformCategories(response);
     initializeIsChecked();
-    console.log("nodes: ", nodes.value);
-    console.log("relevant: ", nodes.value.map(n => n.relevant));
-    console.log("checked: ", checked.value)
-    console.log("Filtered nodes: ", filteredNodes.value)
+    // console.log("nodes: ", nodes.value);
+    // console.log("relevant: ", nodes.value.map(n => n.relevant));
+    // console.log("checked: ", checked.value)
+    // console.log("Filtered nodes: ", filteredNodes.value)
 
     await nextTick();
     addTooltipToOverflowingNodes();

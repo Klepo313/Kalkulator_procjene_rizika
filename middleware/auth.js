@@ -19,7 +19,7 @@ export default defineNuxtRouteMiddleware(async () => {
     // };
 
     // const response = await checkLogin();
-    // console.log("Provjera prijave:", response);
+    // // console.log("Provjera prijave:", response);
 
     // if (!response || !response.isLoggedin) {
     //     return navigateTo('/login');
@@ -38,5 +38,5 @@ export default defineNuxtRouteMiddleware(async () => {
 //         return navigateTo(`/login?redirectTo=${encodeURIComponent(to.fullPath)}`);
 //     }
 
-//     console.log("User logged in");
+//     // console.log("User logged in");
 // });

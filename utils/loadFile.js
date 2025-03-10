@@ -8,11 +8,11 @@ export const loadExcelFile = async (filePath) => {
         const file = await blob.arrayBuffer();
         const workbook = read(file);
 
-        console.log('Excel file loaded successfully:', workbook);
+        // console.log('Excel file loaded successfully:', workbook);
 
         return workbook;
     } catch (error) {
-        console.error('Error loading Excel file:', error);
+        // console.error('Error loading Excel file:', error);
         throw error;
     }
 };

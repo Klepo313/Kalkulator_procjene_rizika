@@ -170,13 +170,13 @@ const loading = ref(true);
 onMounted(async () => {
     res.value = await userStore.getAll;
     roles.value = res.value.roles || { message: 'Nemate dopuštenih prava.' };
-    console.log({
-        username: res.value.username,
-        name: res.value.name,
-        surname: res.value.surname,
-        email: res.value.email,
-        roles: res.value.roles
-    })
+    // console.log({
+    //     username: res.value.username,
+    //     name: res.value.name,
+    //     surname: res.value.surname,
+    //     email: res.value.email,
+    //     roles: res.value.roles
+    // })
     for (const card of cards.value) {
         card.miniLogo = await fetchImageAsBlob(card.miniLogoId);
         card.textLogo = await fetchImageAsBlob(card.textLogoId);
@@ -184,7 +184,7 @@ onMounted(async () => {
     }
     loading.value = false;
 
-    console.log(authStore.userRoles)
+    // // console.log(authStore.userRoles)
 });
 
 const doLogout = async () => {

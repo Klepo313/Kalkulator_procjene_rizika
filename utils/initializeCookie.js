@@ -6,7 +6,7 @@ const initializeCookie = async (name) => {
         const id = await getCookie(name);
         return id;
     } catch (error) {
-        console.error(`Error getting ${name} cookie`, error);
+        // console.error(`Error getting ${name} cookie`, error);
         return null;
     }
 }

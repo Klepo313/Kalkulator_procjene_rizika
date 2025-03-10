@@ -309,7 +309,7 @@ const skupinaDjelatnosti = ref({
 });
 const scenarij = ref('');
 watch(scenarij, (newVal) => {
-    console.log("Scenarij odabran: ", newVal);
+    // console.log("Scenarij odabran: ", newVal);
 });
 
 const ispostava = ref({
@@ -362,7 +362,7 @@ const dataLoader = computed(() =>
     scenariji.value.length > 0
 );
 
-console.log("inicijalni dataLoader:", dataLoader.value);
+// console.log("inicijalni dataLoader:", dataLoader.value);
 
 const loading = ref(false)
 
@@ -404,7 +404,7 @@ const hasUnsavedChanges = computed(() => {
     });
 });
 watch(hasUnsavedChanges, () => {
-    console.log("Promjene? ", hasUnsavedChanges.value);
+    // console.log("Promjene? ", hasUnsavedChanges.value);
 })
 
 const pendingNavigation = ref(null)
@@ -481,7 +481,7 @@ const beforeWindowUnload = (event) => {
 const router = useRouter();
 
 router.beforeEach((to, from, next) => {
-    console.log('Navigacija počinje:', to.fullPath);
+    // console.log('Navigacija počinje:', to.fullPath);
     NProgress.start(); // Pokreni traku učitavanja
     if (hasUnsavedChanges.value) {
         // Pokaži popup i spremi referencu na `next`
@@ -489,11 +489,11 @@ router.beforeEach((to, from, next) => {
         // Spremljena funkcija za nastavak ili prekid navigacije
         pendingNavigation.value = (proceed) => {
             if (proceed === false) {
-                console.log('Navigacija otkazana.');
+                // console.log('Navigacija otkazana.');
                 NProgress.done(); // Zaustavi traku učitavanja ako je navigacija otkazana
                 next(false); // Spriječi navigaciju
             } else {
-                console.log('Navigacija bez promjena, nastavljam.');
+                // console.log('Navigacija bez promjena, nastavljam.');
                 next(); // Nastavi navigaciju
             }
             pendingNavigation.value = null; // Resetiraj pending navigaciju
@@ -515,8 +515,8 @@ onBeforeUnmount(() => {
 onMounted(async () => {
     window.addEventListener('beforeunload', beforeWindowUnload);
 
-    console.log("Preuzeti id izračuna iz predloška: ", idIzracuna.value);
-    console.log("Preuzeti izračun iz predloška: ", izracun.value);
+    // console.log("Preuzeti id izračuna iz predloška: ", idIzracuna.value);
+    // console.log("Preuzeti izračun iz predloška: ", izracun.value);
 
     if (!idIzracuna.value || idIzracuna.value == 'null') {
         idIzracuna.value = getIdFromUrl();
@@ -527,9 +527,9 @@ onMounted(async () => {
         try {
             const response = await getCalculations(idIzracuna.value)
             izracun.value = response.data[0]
-            console.log("index izračun: ", izracun.value);
+            // console.log("index izračun: ", izracun.value);
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             navigateTo('/kpkr/predlosci');
         }
     }
@@ -537,7 +537,7 @@ onMounted(async () => {
     if (idIzracuna.value && izracun.value) {
         const stopWatcher = watch(dataLoader, async (loaded) => {
             if (loaded) {
-                console.log("Svi podaci su učitani!");
+                // console.log("Svi podaci su učitani!");
 
                 // Postavite potrebne vrednosti
 
@@ -548,14 +548,14 @@ onMounted(async () => {
                 vrstaIzracuna.value = vrsteIzracuna.value.find(
                     (tvz) => tvz.tvz_id === izracun.value?.aiz_tvz_id
                 ) || { tvz_naziv: '' };
-                console.log("vrvrv: ", vrstaIzracuna.value)
+                // console.log("vrvrv: ", vrstaIzracuna.value)
                 handleVrstaIzracunaChange(0);
 
                 katastarskaOpcina.value = katastarskeOpcine.value.find(
                     (ko) => ko.kop_id === izracun.value?.aiz_kop_id
                 );
                 const cestice = await opciStore.fetchParticlesForMunicipalities(katastarskaOpcina.value?.kop_id);
-                console.log("Učitane čestice: ", cestice?.particles)
+                // console.log("Učitane čestice: ", cestice?.particles)
 
                 katastarskaCestica.value = izracun.value?.aiz_kcs_id
                     ? cestice?.particles.find((kc) => kc.kcs_id === izracun.value?.aiz_kcs_id)
@@ -577,24 +577,24 @@ onMounted(async () => {
                     (s) => s.tvs_id == izracun.value?.tvs_id
                 );
                 if (!trazeniScenarij) {
-                    console.error("Scenarij nije nađen");
+                    // console.error("Scenarij nije nađen");
                     return null;
                 }
-                console.log("Scenarij: ", trazeniScenarij);
+                // console.log("Scenarij: ", trazeniScenarij);
                 scenarij.value = trazeniScenarij?.tvs_sif;
 
-                console.log("Učitano...", {
-                    naziv: naziv.value,
-                    datum: datum.value,
-                    vrstaIzracuna: vrstaIzracuna.value,
-                    katastarskaOpcina: katastarskaOpcina.value,
-                    katastarskaCestica: katastarskaCestica.value,
-                    vrstaImovine: vrstaImovine.value,
-                    djelatnost: djelatnost.value,
-                    skupinaDjelatnosti: skupinaDjelatnosti.value,
-                    scenarij: scenarij.value,
-                    napomena: napomena.value,
-                })
+                // console.log("Učitano...", {
+                //     naziv: naziv.value,
+                //     datum: datum.value,
+                //     vrstaIzracuna: vrstaIzracuna.value,
+                //     katastarskaOpcina: katastarskaOpcina.value,
+                //     katastarskaCestica: katastarskaCestica.value,
+                //     vrstaImovine: vrstaImovine.value,
+                //     djelatnost: djelatnost.value,
+                //     skupinaDjelatnosti: skupinaDjelatnosti.value,
+                //     scenarij: scenarij.value,
+                //     napomena: napomena.value,
+                // })
 
                 const noviData = {
                     naziv: naziv.value,
@@ -660,7 +660,7 @@ const updateDjelatnost = (event) => {
 }
 
 function fetchSkupinuDjelatnosti() {
-    console.log("Djelatnost: ", djelatnost.value);
+    // console.log("Djelatnost: ", djelatnost.value);
     if (djelatnost.value?.djl_id) {
         skupinaDjelatnosti.value.djl_skp = djelatnost.value?.djl_skp
         skupinaDjelatnosti.value.djl_skp_naziv = djelatnost.value?.djl_skp_naziv;
@@ -731,7 +731,7 @@ function resetdivs(fields) {
 }
 function handleVrstaIzracunaChange(isForm) {
     if (isForm) {
-        console.log("Sa forme promjena")
+        // console.log("Sa forme promjena")
         resetdivs([vrstaImovine, djelatnost, skupinaDjelatnosti]);
         skupinaDjelatnosti.value = { djl_skp: '', djl_skp_naziv: '' };
     }
@@ -740,7 +740,7 @@ function handleVrstaIzracunaChange(isForm) {
 }
 
 watch(katastarskaOpcina, async (newValue) => {
-    console.log('Odabrana katastarska općina:', newValue);
+    // console.log('Odabrana katastarska općina:', newValue);
     if (newValue === (null, undefined, '') || newValue.length == 0) { katastarskaCestica.value = null; }
     if (newValue?.kop_id) {
         ispostava.value.isp_sif = katastarskaOpcina.value?.isp_sif;
@@ -776,15 +776,15 @@ const onFormSubmit = async ({ valid }) => {
             accept: async () => {
                 // toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
                 if (valid) {
-                    console.log("Forma je validna i podaci su spremljeni.");
+                    // console.log("Forma je validna i podaci su spremljeni.");
                     isLoadingPopupVisible.value = true;
 
                     const trazeniScenarij = scenariji.value.find(s => s.tvs_sif == scenarij.value);
                     if (!trazeniScenarij) {
-                        console.error("Scenarij nije nađen")
+                        // console.error("Scenarij nije nađen")
                         return null;
                     }
-                    console.log("Scenarij: ", trazeniScenarij)
+                    // console.log("Scenarij: ", trazeniScenarij)
 
                     const formData = {
                         calculationId: idIzracuna.value || null,
@@ -798,12 +798,12 @@ const onFormSubmit = async ({ valid }) => {
                         description: naziv.value || null,
                         remark: napomena.value || null,
                     }
-                    console.log("spremanje data: ", formData)
+                    // console.log("spremanje data: ", formData)
                     let mainMessage;
                     try {
                         const { data, status } = await saveForm(formData);
                         const resId = data.calculationId;
-                        console.log("resID: ", resId)
+                        // console.log("resID: ", resId)
                         if (status === 200) {
                             cardStore.setVrstaIzracuna(vrstaIzracuna.value?.tvz_naziv)
                             cardStore.setScenarij(scenarij.value);
@@ -831,20 +831,20 @@ const onFormSubmit = async ({ valid }) => {
                         }
 
                         if (!idIzracuna.value) {
-                            console.log("Ušlo")
+                            // console.log("Ušlo")
                             idIzracuna.value = resId;
-                            console.log("novi id: ", idIzracuna.value)
+                            // console.log("novi id: ", idIzracuna.value)
 
                             const url = `/kpkr/predlozak?id=${idIzracuna.value.toString()}`;
-                            console.log("url: " + url);
-                            console.log('id: ', idIzracuna.value.toString());
+                            // console.log("url: " + url);
+                            // console.log('id: ', idIzracuna.value.toString());
 
                             cardStore.setCardId(idIzracuna.value);
 
                             const queryParams = { ...router.currentRoute.value.query };
                             queryParams.id = idIzracuna.value !== 'null' ? idIzracuna.value : undefined;
 
-                            console.log("path: ", router.currentRoute.value.path, "queryParams: ", queryParams.id);
+                            // console.log("path: ", router.currentRoute.value.path, "queryParams: ", queryParams.id);
                             // Ažuriraj URL
                             router.replace({
                                 path: router.currentRoute.value.path,
@@ -859,7 +859,7 @@ const onFormSubmit = async ({ valid }) => {
                                     cardStore.setVrstaIzracuna(izracunRes.data[0]?.tvz_naziv)
                                     cardStore.setScenarij(izracunRes.data[0]?.tvs_id == 1 ? 'RCP' : 'SSP');
                                 } catch (error) {
-                                    console.error('Greška prilikom dohvaćanja izračuna: ', error);
+                                    // console.error('Greška prilikom dohvaćanja izračuna: ', error);
                                     return null;
                                 }
                             }
@@ -868,13 +868,13 @@ const onFormSubmit = async ({ valid }) => {
 
                     } catch (error) {
                         showError();
-                        console.error('Greška prilikom spremanja podataka: ', error);
+                        // console.error('Greška prilikom spremanja podataka: ', error);
                         return null;
                     } finally {
                         isLoadingPopupVisible.value = false;
                     }
                 } else {
-                    console.error('Validacija nije prošla.');
+                    // console.error('Validacija nije prošla.');
                 }
             },
             reject: () => {

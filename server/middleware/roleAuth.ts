@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (!token) {
-        console.log("Nema auth tokena, preusmjeravanje na login.");
+        // console.log("Nema auth tokena, preusmjeravanje na login.");
         return sendRedirect(event, "/login");
     }
 
@@ -37,15 +37,15 @@ export default defineEventHandler(async (event) => {
                     : userRoles.some(role => role.startsWith(rule.requiredRolePrefix || ""));
 
                 if (!hasAccess) {
-                    console.log(`Pristup odbijen za ${url} zbog nedostatka potrebne uloge.`);
+                    // console.log(`Pristup odbijen za ${url} zbog nedostatka potrebne uloge.`);
                     return sendRedirect(event, "/");
                 }
             }
         }
 
-        console.log(`Pristup odobren za ${url} s ulogama:`, userRoles);
+        // console.log(`Pristup odobren za ${url} s ulogama:`, userRoles);
     } catch (error) {
-        console.error("Greška pri dekodiranju tokena:", error);
+        // console.error("Greška pri dekodiranju tokena:", error);
         return sendRedirect(event, "/login");
     }
 });

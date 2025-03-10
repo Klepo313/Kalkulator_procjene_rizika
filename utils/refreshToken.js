@@ -8,10 +8,10 @@ export async function refresh_token() {
             withCredentials: true, // Omogućava slanje kolačića
         });
         
-        console.log('Sesija je uspješno produljena');
+        // console.log('Sesija je uspješno produljena');
         return response;
     } catch (error) {
-        console.error('Greška pri produljenju tokena', error);
+        // console.error('Greška pri produljenju tokena', error);
         throw error;
     }
 }

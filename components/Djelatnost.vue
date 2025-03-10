@@ -127,7 +127,7 @@ const props = defineProps({
 const cardStore = useCardStore();
 
 const idIzracuna = computed(() => props.aiz_id == 'null' ? getIdFromUrl() : props.aiz_id)
-console.log("Id izracuna: ", idIzracuna.value)
+// console.log("Id izracuna: ", idIzracuna.value)
 const tip = props.tip; // 'RZ' ili 'KR'
 
 const vrstaIzracuna = computed(() => cardStore.vrstaIzracuna); // Inicijalno je null
@@ -154,13 +154,13 @@ const processGridData = async () => {
         if (tip == 'RZ') {
             structuredDataStore.clearStructureDataBezMjera();
             structuredDataStore.setStructuredDataBezMjera(structuredData.value);
-            console.log("data bez mjera: ", structuredDataStore.structuredDataBezMjera);
+            //console.log("data bez mjera: ", structuredDataStore.structuredDataBezMjera);
         } else if (tip == 'KR') {
             structuredDataStore.clearStructureDataSaMjerama();
             structuredDataStore.setStructuredDataSaMjerama(structuredData.value);
-            console.log("data sa mjerama: ", structuredDataStore.structuredDataSaMjerama);
+            //console.log("data sa mjerama: ", structuredDataStore.structuredDataSaMjerama);
         } else {
-            console.log("Greška u tipu:", tip);
+            //cconsole.log("Greška u tipu:", tip);
         }
     }
     // console.log("proces: ", processData.value);
@@ -217,7 +217,7 @@ const generateDataPositions = (structuredData, popisPozicija) => {
         }
     });
 
-    console.log('Generirani dataPositions:', dataPositions);
+    //cconsole.log('Generirani dataPositions:', dataPositions);
     return dataPositions;
 };
 

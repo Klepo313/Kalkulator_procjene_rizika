@@ -17,7 +17,7 @@ export const login = async (username: string, password: string) => {
       isFirstLogin: !!response.data.isFirstLogin
     }
   } catch (error) {
-    console.error('Login error: ', error)
+    // console.error('Login error: ', error)
     return 0
   }
 }
@@ -34,7 +34,7 @@ export const logout = async () => {
     );
     return response.status;
   } catch (error) {
-    console.error('Logout error: ', error);
+    // console.error('Logout error: ', error);
     return 0;
   }
 };
@@ -43,10 +43,10 @@ export const checkLogin = async () => {
   const { $api } = useNuxtApp();
   try {
     const response = await $api.get('/user/is_loggedin');
-    console.log('Logiran? ', response.data.isLoggedin, response.status);
+    // console.log('Logiran? ', response.data.isLoggedin, response.status);
     return response.status === 200 ? response.data.isLoggedin : false;
   } catch (error) {
-    console.error('Greška pri provjeri logiranja: ', error);
+    // console.error('Greška pri provjeri logiranja: ', error);
     return 0;
   }
 };
@@ -62,7 +62,7 @@ export const refresh_token = async () => {
     );
     return response.status;
   } catch (error) {
-    console.error('Refresh token error: ', error);
+    // console.error('Refresh token error: ', error);
     return 0;
   }
 };
@@ -75,10 +75,10 @@ export const updatePassword = async (data: Record<string, unknown>) => {
       data,
       { headers: { 'Content-Type': 'application/json' } }
     );
-    console.log('Response: ', response);
+    // console.log('Response: ', response);
     return response;
   } catch (error) {
-    console.error('Greška pri update password: ', error);
+    // console.error('Greška pri update password: ', error);
     return 0;
   }
 };

@@ -6,27 +6,27 @@ export const getPartners = async (): Promise<unknown> => {
     try {
         const url = `/partner`;
         const response = await $api.get(url);
-        console.log("Osobe: ", response.data);
+        // console.log("Osobe: ", response.data);
         return response.data;
     } catch (error) {
-        console.error('Greška pri dohvaćanju partnera: ', error);
+        // console.error('Greška pri dohvaćanju partnera: ', error);
         return null;
     }
 };
 
 export const getPartner = async (id: number | string): Promise<unknown> => {
     if (!id) {
-        console.error("Nije prosljeđen ID partnera!");
+        // console.error("Nije prosljeđen ID partnera!");
         return null;
     }
     const { $api } = useNuxtApp();
     try {
         const url = `/partner/${id}`;
         const response = await $api.get(url);
-        console.log("Partneri: ", response.data);
+        // console.log("Partneri: ", response.data);
         return response.data;
     } catch (error) {
-        console.error('Greška pri dohvaćanju partnera: ', error);
+        // console.error('Greška pri dohvaćanju partnera: ', error);
         return null;
     }
 };
@@ -36,10 +36,10 @@ export const getPravneOsobe = async (): Promise<unknown> => {
     try {
         const url = `/partner/legal`;
         const response = await $api.get(url);
-        console.log("Pravne osobe: ", response.data);
+        // console.log("Pravne osobe: ", response.data);
         return response.data;
     } catch (error) {
-        console.error('Greška pri dohvaćanju pravne osobe: ', error);
+        // console.error('Greška pri dohvaćanju pravne osobe: ', error);
         return null;
     }
 };
@@ -49,17 +49,17 @@ export const getFizickeOsobe = async (): Promise<unknown> => {
     try {
         const url = `/partner/physical`;
         const response = await $api.get(url);
-        console.log("Fizicke osobe: ", response.data);
+        // console.log("Fizicke osobe: ", response.data);
         return response.data;
     } catch (error) {
-        console.error('Greška pri dohvaćanju fizicke osobe: ', error);
+        // console.error('Greška pri dohvaćanju fizicke osobe: ', error);
         return null;
     }
 };
 
 export const getUsersForLegalPartner = async (id: number | string): Promise<unknown> => {
     if (!id) {
-        console.error("Nije prosljeđen ID partnera!");
+        // console.error("Nije prosljeđen ID partnera!");
         return null;
     }
     const { $api } = useNuxtApp();
@@ -68,7 +68,7 @@ export const getUsersForLegalPartner = async (id: number | string): Promise<unkn
         const response = await $api.get(url);
         return response.data;
     } catch (error) {
-        console.error('Greška pri dohvaćanju korisnika za pravnu osobu: ', error);
+        // console.error('Greška pri dohvaćanju korisnika za pravnu osobu: ', error);
         return null;
     }
 };
@@ -84,7 +84,7 @@ export const savePartner = async (data: {
     epr_email?: string;
 }): Promise<unknown> => {
     if (!data.epr_tip) {
-        console.error("Tip pravne osobe nije unesen!");
+        // console.error("Tip pravne osobe nije unesen!");
         return null;
     }
     const partner = {
@@ -97,32 +97,32 @@ export const savePartner = async (data: {
         address: data.epr_adresa || null,
         email: data.epr_email || null,
     };
-    console.log("partner za spremanje: ", partner);
+    // console.log("partner za spremanje: ", partner);
     const { $api } = useNuxtApp();
     try {
         const response = await $api.post('/partner', partner, {
             headers: { 'Content-Type': 'application/json' }
         });
-        console.log(response.data);
+        // console.log(response.data);
         return response;
     } catch (error) {
-        console.error('Greška pri spremanju osobe: ', error);
+        // console.error('Greška pri spremanju osobe: ', error);
         return null;
     }
 };
 
 export const saveUser = async (data: unknown): Promise<unknown> => {
-    console.log("Primljena osoba: ", data);
+    // console.log("Primljena osoba: ", data);
     const { $api } = useNuxtApp();
     try {
         const response = await $api.post('/user', data, {
             headers: { 'Content-Type': 'application/json' }
         });
         const resData = response.data;
-        console.log(resData);
+        // console.log(resData);
         return resData;
     } catch (error) {
-        console.error('Greška pri spremanju osobe: ', error);
+        // console.error('Greška pri spremanju osobe: ', error);
         return null;
     }
 };

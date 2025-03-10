@@ -133,7 +133,7 @@ onMounted(async () => {
     if (!idIzracuna.value) {
         idIzracuna.value = getIdFromUrl()
     }
-    console.log("id adapt: ", idIzracuna.value)
+    // console.log("id adapt: ", idIzracuna.value)
 
     updateScrollHeight(); // Postavi scrollHeight prilikom montiranja
     window.addEventListener('resize', updateScrollHeight); // Dodaj listener za promjenu veličine
@@ -143,10 +143,10 @@ onMounted(async () => {
     if (idIzracuna.value) {
         await adaptStore.fetchMetrictypes(idIzracuna.value);
         await adaptStore.fetchMetrictypes();
-        console.log('Uspješno dohvaćene odabrane mjere.', adaptStore.odabrane_mjere);
-        console.log('Uspješno dohvaćene sve mjere prilagodbe.', adaptStore.adaptacijske_mjere);
+        // console.log('Uspješno dohvaćene odabrane mjere.', adaptStore.odabrane_mjere);
+        // console.log('Uspješno dohvaćene sve mjere prilagodbe.', adaptStore.adaptacijske_mjere);
     } else {
-        console.log('ID izračuna je "/", nećemo dohvatiti mjere prilagodbe.');
+        // console.log('ID izračuna je "/", nećemo dohvatiti mjere prilagodbe.');
     }
     isLoading.value = false;
 });
@@ -193,7 +193,7 @@ watch(mjere, () => {
 }, { immediate: true });
 
 watch(odabraneMjereCheckbox, (newValues) => {
-    console.log("Odabrane vrste mjera: ", newValues);
+    // console.log("Odabrane vrste mjera: ", newValues);
 
     if (newValues.length === 0) {
         filteredMjere.value = []; // Ako nema odabranih vrsta, prikazuju se sve mjere
@@ -209,19 +209,19 @@ const addMjera = async () => {
         adaptStore.odabrane_mjere.push({ ...selectedMjera.value });
 
         const response = await adaptStore.addMetrictype(idIzracuna.value, selectedMjera.value.tva_id)
-        console.log("dodano-povratno: ", response)
+        // console.log("dodano-povratno: ", response)
 
         selectedMjera.value = null; // Resetuj odabranu meru nakon dodavanja
     } else {
-        console.log("Već ste dodali ovu mjeru.");
+        // console.log("Već ste dodali ovu mjeru.");
     }
 };
 
 const removeMjera = async (mjera) => {
-    console.log(idIzracuna.value, mjera.tva_id)
+    // console.log(idIzracuna.value, mjera.tva_id)
     adaptStore.odabrane_mjere = adaptStore.odabrane_mjere.filter(item => item.tva_sif !== mjera.tva_sif);
     const response = await adaptStore.deleteMetrictype(idIzracuna.value, mjera.tva_id)
-    console.log("uklonjeno-povratno: ", response)
+    // console.log("uklonjeno-povratno: ", response)
 };
 
 const onSelectionChange = async (event) => {

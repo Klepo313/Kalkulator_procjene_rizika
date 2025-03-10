@@ -309,7 +309,7 @@ export const useOpciStore = defineStore('opci-podaci', {
             if (items?.status == 200) {
                 this.vrste_izracuna = items.data;
             } else {
-                console.error('Error fetching calculation types:', items?.status);
+                // console.error('Error fetching calculation types:', items?.status);
             }
         },
         async fetchCalculation(id: string) {
@@ -340,9 +340,9 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.tvz_naziv = data.tvz_naziv || this.opci_podaci.tvz_naziv;
                 this.opci_podaci.tvs_id = data.tvs_id || this.opci_podaci.tvs_id;
             } else {
-                console.error('Error fetching calculation types:', items?.status);
+                // console.error('Error fetching calculation types:', items?.status);
             }
-            console.log("EKV: ", this.opci_podaci)
+            // console.log("EKV: ", this.opci_podaci)
         },
         async fetchObjectTypes() {
             const items = await getObjectTypes();
@@ -350,7 +350,7 @@ export const useOpciStore = defineStore('opci-podaci', {
             if (items?.status == 200) {
                 this.vrste_objekta = items.data;
             } else {
-                console.error('Error fetching calculation types:', items?.status);
+                // console.error('Error fetching calculation types:', items?.status);
             }
         },
         async fetchActivities() {
@@ -359,7 +359,7 @@ export const useOpciStore = defineStore('opci-podaci', {
             if (items?.status == 200) {
                 this.djelatnosti = items.data;
             } else {
-                console.error('Error fetching calculation types:', items?.status);
+                // console.error('Error fetching calculation types:', items?.status);
             }
         },
         async fetchMunicipalities() {
@@ -368,7 +368,7 @@ export const useOpciStore = defineStore('opci-podaci', {
             if (items?.status == 200) {
                 this.katastarske_opcine = items.data;
             } else {
-                console.error('Error fetching calculation types:', items?.status);
+                // console.error('Error fetching calculation types:', items?.status);
             }
         },
         async fetchScenarios() {
@@ -377,48 +377,48 @@ export const useOpciStore = defineStore('opci-podaci', {
             if (items?.status == 200) {
                 this.scenariji = items.data;
             } else {
-                console.error('Error fetching scenarios: ', items?.status);
+                // console.error('Error fetching scenarios: ', items?.status);
             }
         },
         async fetchParticlesForMunicipalities(id: number) {
             try {
                 const items = await getParticlesForMunicipalities(id);
 
-                console.log("status: " + items?.status);
-                console.log("items: ", items?.data)
+                // console.log("status: " + items?.status);
+                // console.log("items: ", items?.data)
 
                 if (items?.status == 200) {
                     if (items?.data.message) {
-                        console.log("Postoji poruka");
+                        // console.log("Postoji poruka");
                         return { message: items.data.message };
                     } else {
-                        console.log("Nema poruke");
+                        // console.log("Nema poruke");
                         this.katastarske_cestice = items.data;
                         return { particles: items.data };
                     }
                 } else {
-                    console.error('Error fetching calculation types:', items?.status);
+                    // console.error('Error fetching calculation types:', items?.status);
                     return { message: 'Greška pri dohvaćanju podataka' }; // Vraćamo poruku o grešci
                 }
             } catch (error) {
-                console.error('Error fetching particles:', error);
+                // console.error('Error fetching particles:', error);
                 return { message: 'Došlo je do greške prilikom dohvaćanja podataka' };
             }
         },
         async saveData() {
 
-            console.log("Prije savea: ",
-                this.opci_podaci.aiz_id === '' ? null : this.opci_podaci.aiz_id,
-                formatDateToDMY(this.opci_podaci.aiz_datum, '-'),
-                this.opci_podaci.aiz_tvz_id,
-                this.opci_podaci.aiz_kop_id,
-                this.opci_podaci.aiz_kcs_id === 0 || this.opci_podaci.aiz_kcs_id == undefined ? null : this.opci_podaci.aiz_kcs_id,
-                this.opci_podaci.aiz_tvo_id === 0 ? null : this.opci_podaci.aiz_tvo_id,
-                this.opci_podaci.aiz_djl_id === 0 ? null : this.opci_podaci.aiz_djl_id,
-                this.opci_podaci.aiz_opis === '' || this.opci_podaci.aiz_opis === undefined ? null : this.opci_podaci.aiz_opis,
-                this.opci_podaci.aiz_napomena === '' ? null : this.opci_podaci.aiz_napomena,
-                this.opci_podaci.tvs_id === 0 ? null : this.opci_podaci.tvs_id
-            )
+            // console.log("Prije savea: ",
+                // this.opci_podaci.aiz_id === '' ? null : this.opci_podaci.aiz_id,
+            //     formatDateToDMY(this.opci_podaci.aiz_datum, '-'),
+            //     this.opci_podaci.aiz_tvz_id,
+            //     this.opci_podaci.aiz_kop_id,
+            //     this.opci_podaci.aiz_kcs_id === 0 || this.opci_podaci.aiz_kcs_id == undefined ? null : this.opci_podaci.aiz_kcs_id,
+            //     this.opci_podaci.aiz_tvo_id === 0 ? null : this.opci_podaci.aiz_tvo_id,
+            //     this.opci_podaci.aiz_djl_id === 0 ? null : this.opci_podaci.aiz_djl_id,
+            //     this.opci_podaci.aiz_opis === '' || this.opci_podaci.aiz_opis === undefined ? null : this.opci_podaci.aiz_opis,
+            //     this.opci_podaci.aiz_napomena === '' ? null : this.opci_podaci.aiz_napomena,
+            //     this.opci_podaci.tvs_id === 0 ? null : this.opci_podaci.tvs_id
+            // )
 
             const response = await saveForm(
                 this.opci_podaci.aiz_id === '' ? null : this.opci_podaci.aiz_id,
@@ -433,8 +433,8 @@ export const useOpciStore = defineStore('opci-podaci', {
                 this.opci_podaci.tvs_id === 0 ? null : this.opci_podaci.tvs_id
             )
 
-            console.log("Response savea: ", response.data)
-            console.log("Res-id-response: ", response.data.calculationId)
+            // console.log("Response savea: ", response.data)
+            // console.log("Res-id-response: ", response.data.calculationId)
             return response;
         }
 
@@ -454,14 +454,14 @@ export const useAdaptStore = defineStore('adaptacijske-mjere', {
                 if (id) {
                     if (!items.data.message) {
                         this.odabrane_mjere = items.data
-                        console.log("odabrane: ", this.odabrane_mjere)
+                        // console.log("odabrane: ", this.odabrane_mjere)
                     }
                 } else {
-                    console.log("sve: ", items.data)
+                    // console.log("sve: ", items.data)
                     this.adaptacijske_mjere = items.data
                 }
             } else {
-                console.error('Error fetching calculation types:', items?.status);
+                // console.error('Error fetching calculation types:', items?.status);
             }
         },
         async addMetrictype(calculationId: string, metricTypeId: number) {
@@ -519,11 +519,11 @@ export const useKespStore = defineStore('kespStore', {
                     }
                 } else {
                     this.predlosci = [];
-                    console.log('Error fetching calculations:', data);
+                    // console.log('Error fetching calculations:', data);
                 }
 
             } catch (error) {
-                console.error('Error fetching calculations:', error);
+                // console.error('Error fetching calculations:', error);
             }
         },
         async addPredlozak(header) {
@@ -533,7 +533,7 @@ export const useKespStore = defineStore('kespStore', {
 
                 if (status === 200) {
                     const kespId = id;
-                    console.log("Kesp ID u store: ", kespId);
+                    // console.log("Kesp ID u store: ", kespId);
                     if (kespId) {
                         // Kreiraj novi objekt u traženoj strukturi
                         const newPredlozak = {
@@ -547,17 +547,17 @@ export const useKespStore = defineStore('kespStore', {
                         this.setKespId(kespId)
                         this.predlosci.push(newPredlozak);
                     } else {
-                        console.log("Kesp ID nije validan.");
+                        // console.log("Kesp ID nije validan.");
                     }
 
                     return kespId;
                 } else {
-                    console.log("Greška pri dodavanju izračuna.");
+                    // console.log("Greška pri dodavanju izračuna.");
                     return 0;
                 }
 
             } catch (error) {
-                console.log("Greška pri dodavanju izračuna.", error);
+                // console.log("Greška pri dodavanju izračuna.", error);
                 return 0;
             }
         },
@@ -579,7 +579,7 @@ export const useKespStore = defineStore('kespStore', {
             this.datumDo = new Date(godina, 11, 31); // December 31st
         },
         async fetchHeader(id) {
-            console.log("id: ", id)
+            // console.log("id: ", id)
             try {
                 const response = await getHeader(id);
                 if (response) {
@@ -591,7 +591,7 @@ export const useKespStore = defineStore('kespStore', {
                 }
                 return response;
             } catch (error) {
-                console.error('Error fetching header:', error);
+                // console.error('Error fetching header:', error);
             }
         },
         clearStore() {
@@ -718,10 +718,10 @@ export const useVehicleStore = defineStore('vehicleStore', {
                     );
                 } else {
                     this.vozila = [];
-                    console.log("Nema vozila");
+                    // console.log("Nema vozila");
                 }
             } catch (error) {
-                console.error("Greška prilikom dohvaćanja vozila:", error);
+                // console.error("Greška prilikom dohvaćanja vozila:", error);
                 this.vozila = [];
             }
         },
@@ -778,7 +778,7 @@ export const useVehicleStore = defineStore('vehicleStore', {
             //     })
             // }
 
-            console.log("goriva: ", this.vrsteGoriva)
+            // console.log("goriva: ", this.vrsteGoriva)
         },
         resetData() {
             this.vozila = [];
@@ -871,7 +871,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
         async fetchEnergySources(id) {
             try {
                 const energySources = await getEnergySources(id);
-                console.log("ENERGIJE: ", energySources)
+                // console.log("ENERGIJE: ", energySources)
                 if (energySources) this.clearStore();
                 for (const source of energySources) {
                     this.izracuni.push({
@@ -886,16 +886,16 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                         koeficijent: source.use_uvn_id == 76 ? 0.288 : 0.133
                     });
                 }
-                console.log("IZRACUNI NAKON FETCHA: ", this.izracuni)
+                // console.log("IZRACUNI NAKON FETCHA: ", this.izracuni)
             } catch (error) {
-                console.error('Error fetching energy sources:', error);
+                // console.error('Error fetching energy sources:', error);
             }
         },
         clearStore() {
             this.izracuni = [];
         },
         updateCalculations(rowData) {
-            console.log(" rowData: ", rowData)
+            // console.log(" rowData: ", rowData)
             const neobnovljivo = Number(rowData.neobnovljivo) || 0;
             const obnovljivo = Number(rowData.obnovljivo) || 0;
             rowData.ukupno = neobnovljivo + obnovljivo;
@@ -905,7 +905,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
             const { data, newValue, field } = event;
             let parsedValue = Number(newValue);
 
-            console.log("data: ", data, "newValue: ", newValue, "field: ", field, "parsedValue: ", parsedValue);
+            // console.log("data: ", data, "newValue: ", newValue, "field: ", field, "parsedValue: ", parsedValue);
 
             // Ako je unos prazan, postavljamo vrednost na 0
             if (!newValue || String(newValue).trim() === '') {
@@ -925,7 +925,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                         p_obnovljivo: data.obnovljivo || 0
                     };
 
-                    console.log("energyItem: ", energyItem);
+                    // console.log("energyItem: ", energyItem);
 
                     try {
                         const response = await updateEnergyItem(energyItem);
@@ -934,17 +934,17 @@ export const useOpseg2Store = defineStore('opseg2-store', {
 
                         if (status === 200) {
                             const use_id = id;
-                            console.log(`Energy item updated with ID: ${use_id}`);
+                            // console.log(`Energy item updated with ID: ${use_id}`);
 
                             if (use_id) await this.fetchEnergySources(energyItem.p_uiz_id);
 
                             return status;
                         } else {
-                            console.error(`Failed to update energy item with ID: ${id}`);
+                            // console.error(`Failed to update energy item with ID: ${id}`);
                             return;
                         }
                     } catch (error) {
-                        console.error('Error updating energy item:', error);
+                        // console.error('Error updating energy item:', error);
                         return;
                     }
                 } else {
@@ -964,7 +964,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
         },
         async updateEnergyItems() {
             const updatePromises = this.izracuni.map(row => {
-                console.log("Red u izračunima: ", row);
+                // console.log("Red u izračunima: ", row);
 
                 const energyItem = {
                     p_use_id: row.id,
@@ -974,21 +974,21 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                     p_obnovljivo: row.obnovljivo || 0
                 };
 
-                console.log("Primljeni energyItem: ", energyItem);
+                // console.log("Primljeni energyItem: ", energyItem);
 
                 if (!energyItem.p_uiz_id || !energyItem.p_uvn_id || !energyItem.p_use_id) {
                     return Promise.resolve(); // Ako podaci nisu ispravni, vraćamo resolved Promise kako ne bi blokirao Promise.all
                 }
 
                 return updateEnergyItem(energyItem).catch(error => {
-                    console.error('Error updating energy item:', error);
+                    // console.error('Error updating energy item:', error);
                 });
             });
 
             // Čekaj da se svi API pozivi završe
             await Promise.all(updatePromises);
 
-            console.log("Sva ažuriranja završena.");
+            // console.log("Sva ažuriranja završena.");
             return 200;
         },
 

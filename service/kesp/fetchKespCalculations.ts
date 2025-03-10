@@ -7,16 +7,16 @@ export const getKespCalculations = async (): Promise<unknown> => {
 
     try {
         const response = await $api.get(url);
-        console.log(response.data);
+        // console.log(response.data);
 
         if (response.status === 200) {
             return response.data;
         } else {
-            console.error('Došlo je do pogreške na serveru!');
+            // console.error('Došlo je do pogreške na serveru!');
             return null;
         }
     } catch (error) {
-        console.error('Greška pri dohvaćanju izračuna: ', error);
+        // console.error('Greška pri dohvaćanju izračuna: ', error);
         return null;
     }
 };

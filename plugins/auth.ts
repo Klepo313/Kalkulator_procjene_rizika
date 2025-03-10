@@ -7,7 +7,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     // Ako je korisnik na /login stranici, ne radimo provjere autentifikacije
     if (route.path === "/login") {
-        console.log("Na login stranici - preskačemo auth provjere.");
+        // console.log("Na login stranici - preskačemo auth provjere.");
         return;
     }
 

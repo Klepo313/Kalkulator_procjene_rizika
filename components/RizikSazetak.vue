@@ -439,18 +439,18 @@ const processGridData = async () => {
         showPopup.value = true;
     } else {
         structuredData.value = restructureData(processData.value);
-        console.log("structuredData u komponenti: ", structuredData.value);
+        //cconsole.log("structuredData u komponenti: ", structuredData.value);
 
         if (tip == 'RZ') {
             structuredDataStore.clearStructureDataBezMjera();
             structuredDataStore.setStructuredDataBezMjera(structuredData.value);
-            console.log("data bez mjera: ", structuredDataStore.structuredDataBezMjera);
+            //cconsole.log("data bez mjera: ", structuredDataStore.structuredDataBezMjera);
         } else if (tip == 'KR') {
             structuredDataStore.clearStructureDataSaMjerama();
             structuredDataStore.setStructuredDataSaMjerama(structuredData.value);
-            console.log("data sa mjerama: ", structuredDataStore.structuredDataSaMjerama);
+            //cconsole.log("data sa mjerama: ", structuredDataStore.structuredDataSaMjerama);
         } else {
-            console.log("Greška u tipu:", tip);
+            //cconsole.log("Greška u tipu:", tip);
         }
     }
     // console.log("proces: ", processData.value);

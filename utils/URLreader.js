@@ -2,7 +2,7 @@ export const getIdFromUrl = () => {
     if (import.meta.client) {
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
-        console.log("parametar predlozak: ", id);
+        // console.log("parametar predlozak: ", id);
         if (typeof id === 'string' && id !== null && id !== 'null') {
             return id; // Vrati dešifrovanu vrednost
         }

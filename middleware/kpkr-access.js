@@ -6,7 +6,7 @@ export default defineNuxtRouteMiddleware(() => {
     const authStore = useAuthStore();
 
     const hasAccess = authStore.userRoles.includes("AP001");
-    console.log("KPKR: ??? ", hasAccess);
+    //c// console.log("KPKR: ??? ", hasAccess);
 
     if (!hasAccess) {
         return navigateTo("/");

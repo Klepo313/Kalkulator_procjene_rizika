@@ -23,7 +23,7 @@ const login = async (username, password) => {
             roles: response.data.roles,
         };
     } catch (error) {
-        console.error('Login error: ' + error)
+        // console.error('Login error: ' + error)
         return 0;
     }
 

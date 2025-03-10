@@ -9,16 +9,16 @@ export const getMetricTypes = async (id?: number | string): Promise<unknown> => 
 
     try {
         const response = await $api.get(url);
-        console.log(response.data);
+        // console.log(response.data);
 
         if (response.status === 200) {
             return response; // Vraća cjelokupni response ili prilagodite kako trebate
         } else {
-            console.error('Došlo je do pogreške na serveru!');
+            // console.error('Došlo je do pogreške na serveru!');
             return null;
         }
     } catch (error) {
-        console.error('Greška pri dohvaćanju vrste izračuna: ', error);
+        // console.error('Greška pri dohvaćanju vrste izračuna: ', error);
         return null;
     }
 };
@@ -34,10 +34,10 @@ export const addMetricType = async (
             { metricTypeId: parseInt(metricTypeId.toString(), 10) },
             { headers: { 'Content-Type': 'application/json' } }
         );
-        console.log(response.status);
+        // console.log(response.status);
         return response.status;
     } catch (error) {
-        console.error('Saving error: ', error);
+        // console.error('Saving error: ', error);
         return 0;
     }
 };
@@ -55,11 +55,11 @@ export const removeMetricType = async (
                 headers: { 'Content-Type': 'application/json' }
             }
         );
-        console.log(response.status);
+        // console.log(response.status);
         return response.status;
     } catch (error: any) {
-        console.error('Error response:', error.response);
-        console.error('Saving error: ', error);
+        // console.error('Error response:', error.response);
+        // console.error('Saving error: ', error);
         return 0;
     }
 };
