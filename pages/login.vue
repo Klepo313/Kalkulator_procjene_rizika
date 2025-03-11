@@ -92,6 +92,12 @@ const checkLogin = async () => {
             authStore.userRoles = response.roles || [];
             authStore.exp = response.exp || 0;
 
+            // ✅ Postavljanje korisničke sesije
+            // await setUserSession({
+            //     userRoles: response.roles || [],
+            //     exp: response.exp || 0
+            // });
+
             // ✅ Prvo čekamo da se podaci o korisniku dohvaćaju
             // await authStore.checkAuth();
             // await authStore.fetchUserInfo();
