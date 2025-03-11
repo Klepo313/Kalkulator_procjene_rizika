@@ -23,42 +23,42 @@
 // });
 
 // middleware/auth.global.js
-export default defineNuxtRouteMiddleware(async (to, from) => {
-  // Preskoči provjeru ako smo na /login
-  if (to.path === "/login") {
-    console.log("Na login stranici - preskačemo auth provjere.");
-    return;
-  }
+// export default defineNuxtRouteMiddleware(async (to, from) => {
+//   // Preskoči provjeru ako smo na /login
+//   if (to.path === "/login") {
+//     console.log("Na login stranici - preskačemo auth provjere.");
+//     return;
+//   }
 
-  const auth = useAuthStore();
+//   const auth = useAuthStore();
 
-  // Ako stanje autentifikacije još nije inicijalizirano, čekamo provjeru
-  if (!auth.initialized) {
-    await auth.checkAuth();
-    auth.initialized = true;
-  }
+//   // Ako stanje autentifikacije još nije inicijalizirano, čekamo provjeru
+//   if (!auth.initialized) {
+//     await auth.checkAuth();
+//     auth.initialized = true;
+//   }
 
-  // Ako korisnik nije prijavljen, preusmjeri ga na login stranicu
-  if (!auth.isLoggedin) {
-    return navigateTo(`/login?redirectTo=${encodeURIComponent(to.fullPath)}`);
-  }
-});
+//   // Ako korisnik nije prijavljen, preusmjeri ga na login stranicu
+//   if (!auth.isLoggedin) {
+//     return navigateTo(`/login?redirectTo=${encodeURIComponent(to.fullPath)}`);
+//   }
+// });
 
   
 
-// export default defineNuxtRouteMiddleware(async (to, from) => {
-//     const user = useAuthStore();
+export default defineNuxtRouteMiddleware(async (to, from) => {
+    const user = useAuthStore();
 
-//     const route = useRoute(); // Dohvaćamo trenutnu rutu
+    const route = useRoute(); // Dohvaćamo trenutnu rutu
 
-//     // Ako je korisnik na /login stranici, ne radimo provjere autentifikacije
-//     if (route.path === "/login") {
-//         console.log("Na login stranici - preskačemo auth provjere.");
-//         return;
-//     }
+    // Ako je korisnik na /login stranici, ne radimo provjere autentifikacije
+    if (route.path === "/login") {
+        console.log("Na login stranici - preskačemo auth provjere.");
+        return;
+    }
 
-//     console.log("user mid: ", user);
-//     if (!user.isLoggedin) {
-//         return navigateTo(`/login?redirectTo=${encodeURIComponent(to.fullPath)}`);
-//     }
-// })
+    console.log("user mid: ", user);
+    if (!user.isLoggedin) {
+        return navigateTo(`/login?redirectTo=${encodeURIComponent(to.fullPath)}`);
+    }
+})
