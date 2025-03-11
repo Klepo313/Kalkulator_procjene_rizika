@@ -1,41 +1,35 @@
-// stores/auth.ts
-import { defineStore } from "pinia";
-import { checkLogin } from "~/temp/checkLogin";
+// /stores/auth.js
+import axios from 'axios';
+import { defineStore } from 'pinia';
+import { checkLogin } from '~/service/user/user';
 
-export const useAuthStore = defineStore("auth", {
-    state: () => ({
-        isLoggedin: null, // Početno nepoznato stanje
-        userRoles: [],
-        exp: null,
-    }),
-    actions: {
-        async checkAuth() {
-            console.log("Provjeravam status prijave...");
-            try {
-                this.isLoggedin = await checkLogin();
-            } catch (error) {
-                console.error("Greška prilikom provjere autentifikacije:", error);
-                this.isLoggedin = false;
-            }
-        },
+export const useAuthStore = defineStore('auth', {
+  state: () => ({
+    isLoggedin: false,
+    userRoles: [],
+    exp: null,
+    initialized: false, // Nova zastavica
+  }),
+  actions: {
+    async checkAuth() {
+      try {
+        // Primjer poziva endpointa koji provjerava status autentifikacije
+        const { data } = await useFetch('/api/auth/info');
+        const { success, userRoles, exp } = data.value;
+        console.log("checkAuth: ", success, userRoles, exp);
 
-        async fetchUserInfo() {
-            console.log("Dohvaćam korisničke podatke...");
-            try {
-                const { data } = await useFetch("/api/auth/info", {
-                    method: 'get',
-                    credentials: "include",
-                });
-                console.log("Korisnički podaci:", data.value);
-                if (data.value?.success) {
-                    this.userRoles = data.value.userRoles;
-                    this.exp = data.value.exp;
-                } else {
-                    console.error("Neuspješno dohvaćanje korisničkih podataka.");
-                }
-            } catch (error) {
-                console.error("Greška prilikom dohvaćanja korisničkih podataka:", error);
-            }
-        },
+        console.log("checkAuth: ", success, userRoles, exp);
+
+        if(success) {
+            this.isLoggedin = true;
+            this.userRoles = userRoles || [];
+            this.exp = exp;
+        } else {
+            this.isLoggedin = false;
+        }
+      } catch (err) {
+        this.isLoggedin = false;
+      }
     },
+  },
 });

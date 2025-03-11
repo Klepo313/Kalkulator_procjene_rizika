@@ -92,16 +92,6 @@ const checkLogin = async () => {
             authStore.userRoles = response.roles || [];
             authStore.exp = response.exp || 0;
 
-            // ✅ Postavljanje korisničke sesije
-            // await setUserSession({
-            //     userRoles: response.roles || [],
-            //     exp: response.exp || 0
-            // });
-
-            // ✅ Prvo čekamo da se podaci o korisniku dohvaćaju
-            // await authStore.checkAuth();
-            // await authStore.fetchUserInfo();
-
             // ✅ Sada imamo sigurno učitane podatke i možemo raditi redirekciju
             if (isFirstLogin) {
                 navigateTo('/user/change-password');
@@ -140,7 +130,6 @@ const checkLogin = async () => {
         }
     }
 };
-
 
 const highlightBorders = () => {
     // Provjerite da su `ref` objekti inicijalizirani prije nego što pristupite njihovim stilovima
