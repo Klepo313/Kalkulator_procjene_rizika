@@ -854,11 +854,11 @@ const razdoblje = ref({
 const slanjeMaila = ref(false);
 
 watch(tvrtka, () => {
-    // // console.log("Odabrana tvrtka: ", tvrtka.value)
+    // console.log("Odabrana tvrtka: ", tvrtka.value)
 })
 
 watch(korisnik, () => {
-    // // console.log("Odabrani korisnik: ", korisnik.value)
+    // console.log("Odabrani korisnik: ", korisnik.value)
 })
 
 const resetNewUserDialog = ref(() => {
@@ -877,12 +877,12 @@ const findPRVpartner = (epr_id) => {
 const onOpenNewUserDialog = (data) => {
     const isFilled = !!data;
 
-    // // console.log(data, isFilled)
+    // console.log(data, isFilled)
 
     if (isFilled) {
         tvrtka.value = findPRVpartner(data?.epr_id)
         initialValuesAddKorisnik.value.tvrtka = tvrtka.value;
-        // // console.log("Popunjena tvrtka: ", tvrtka.value)
+        // console.log("Popunjena tvrtka: ", tvrtka.value)
     }
 
     openNewUserDialog.value = true;
@@ -1053,7 +1053,7 @@ const updateFIZosobe = () => {
 }
 
 const onRowExpand = (event) => {
-    // // console.log(event)
+    // console.log(event)
 
     korisniciStore.fetchKorisniciForLegalPartner(event.data.epr_id)
 };
@@ -1147,12 +1147,12 @@ const saveKorisnik = () => {
 };
 
 watch(odabraniPartner, () => {
-    // // console.log("Odabrani partner: ", odabraniPartner.value)
+    // console.log("Odabrani partner: ", odabraniPartner.value)
 })
 
 const addKorisnik = async ({ valid }) => {
     if (valid) {
-        // // console.log("Dodajem korisnika...")
+        // console.log("Dodajem korisnika...", korisnik.value)
         openNewUserDialog.value = true
 
         const userData = {
@@ -1163,24 +1163,24 @@ const addKorisnik = async ({ valid }) => {
             dateTo: formatDateToDMY(razdoblje.value.vrijemeDo, '-'),
         }
 
-        // // console.log("userData: ", userData)
+        // console.log("userData: ", userData)
 
         try {
             const response = await saveUser(userData);
-            // // console.log("response: ", response)
+            // console.log("response: ", response)
             if (response) {
                 showSuccesKorisnik(korisnik.value)
                 await korisniciStore.fetchPravneOsobe()
                 korisniciStore.fizickeOsobe = []
-                console.log( korisniciStore.pravneOsobe , korisniciStore.fizickeOsobe)
+                // console.log( korisniciStore.pravneOsobe , korisniciStore.fizickeOsobe)
 
                 if(slanjeMaila.value) {
                     try {
                         await checkIfEmailIsSent(korisnik.value?.eko_id)
                         // const isSent = notifyData?.isNotified || notifyData?.message || undefined
-                        // console.log("notifyData: ", notifyData, "isSent: ", isSent)
+                        // // console.log("notifyData: ", notifyData, "isSent: ", isSent)
                     } catch (e) {
-                        console.log(e)
+                        // console.log(e)
                         showError("Greška pri slanju e-pošte korisniku!")
                     }
                 }
@@ -1188,19 +1188,19 @@ const addKorisnik = async ({ valid }) => {
             }
         } catch (error) {
             showErrorKorisnik(korisnik.value)
-            // // console.log("Greška pri spremanju korisnika: ", error)
+            // console.log("Greška pri spremanju korisnika: ", error)
         } finally {
             openNewUserDialog.value = false
         }
 
     } else {
-        // console.error("Neispravno uneseni podaci!")
+        console.error("Neispravno uneseni podaci!")
     }
 }
 
 const editKorisnik = (korisnik) => {
     if (korisnik) {
-        // // console.log("Odabrani korisnik: ", korisnik);
+        // console.log("Odabrani korisnik: ", korisnik);
         odabraniKorisnik.value = korisnik;
 
         // Pristup pravima iz korisnika
@@ -1208,7 +1208,7 @@ const editKorisnik = (korisnik) => {
 
         // Ekstrakcija podataka
         prava.value = pravaData.map(kor => kor.naziv); // Lista naziva prava
-        // // console.log("prava: ", prava.value.includes('kpkr'))
+        // console.log("prava: ", prava.value.includes('kpkr'))
         vrsteIzracuna.value = pravaData.find(kor => kor.naziv === 'kpkr')?.vrstaIzracuna || [];
         vrsteRizika.value = pravaData.find(kor => kor.naziv === 'kpkr')?.vrstaRizika || null;
         vrsteImovine.value = pravaData.find(kor => kor.naziv === 'kpkr')?.vrstaImovine || [];
@@ -1223,9 +1223,9 @@ const addPartner = () => {
     openPartnerDialog.value = true;
 }
 
-const saveNewPartner = async () => {
-    // // console.log("Odabrani partner: ", addPartnerValue.value)
-
+const saveNewPartner = async ({ valid }) => {
+    // console.log("tempPartner: ", tempPartner.value)
+    if(valid) {
         tempPartner.value.epr_tip = addPartnerValue.value.label === 'FIZ'
             ? 'FO'
             : addPartnerValue.value.label === 'PRV'
@@ -1242,44 +1242,93 @@ const saveNewPartner = async () => {
             ])
         );
 
-    // // console.log("PARTNER: ", tempPartner.value)
+        // console.log("PARTNER: ", tempPartner.value)
 
-    try {
-        const response = await savePartner(tempPartner.value);
-        if (response.status == 200) {
-            const osoba = response.data;
-            // // console.log("Osoba: ", osoba);
-            showSuccessPartner(tempPartner.value)
+        try {
+            const response = await savePartner(tempPartner.value);
+            if (response.status == 200) {
+                const osoba = response.data;
+                // console.log("Osoba: ", osoba);
+                showSuccessPartner(tempPartner.value)
 
-            if (addPartnerValue.value.label === 'FIZ') {
-                try {
-                    // // console.log("Dohvaćanje fizickih osoba")
-                    // await korisniciStore.fetchFizickeOsobe();
-                    // // console.log(korisniciStore.fizickeOsobe)
-                } catch (error) {
-                    // console.error(error);
+                if (addPartnerValue.value.label === 'FIZ') {
+                    try {
+                        // console.log("Dohvaćanje fizickih osoba")
+                        await korisniciStore.fetchFizickeOsobe();
+                        // console.log(korisniciStore.fizickeOsobe)
+                    } catch (error) {
+                        console.error(error);
+                    }
+                } else {
+                    try {
+                        // console.log("Dohvaćanje pravnih osoba")
+                        await korisniciStore.fetchPravneOsobe();
+                        korisniciStore.fizickeOsobe = []
+                        // console.log(korisniciStore.pravneOsobe)
+                    } catch (error) {
+                        console.error(error);
+                    }
                 }
+                // await korisniciStore.fetchOsobe();
             } else {
-                try {
-                    // // console.log("Dohvaćanje pravnih osoba")
-                    // await korisniciStore.fetchPravneOsobe();
-                    // // console.log(korisniciStore.pravneOsobe)
-                } catch (error) {
-                    // console.error(error);
-                }
+                console.error("Greska pri dodavanju partnera")
+                showErrorPartner(tempPartner.value)
             }
-            await korisniciStore.fetchOsobe();
-        } else {
-            // console.error("Greska pri dodavanju partnera")
-            showErrorPartner(tempPartner.value)
+        } catch (error) {
+            console.error(error)
+            showErrorPartner(tempPartner.value);
+        } finally {
+            resetPartner();
+            openPartnerDialog.value = false;
         }
-    } catch (error) {
-        // console.error(error)
-        showErrorPartner(tempPartner.value);
-    } finally {
-        resetPartner();
-        openPartnerDialog.value = false;
     }
+}
+
+const mailLogs = ref([
+    { id: 1, naziv: 'Generirani korisnički podataci', date: '12/12/2024' },
+    { id: 2, naziv: 'Uređivanje korisničkih podataka', date: '11/11/2024' },
+    { id: 3, naziv: 'Generiranje e-pošte', date: '10/10/2024' },
+]);
+
+const mailLogsDialog = ref(false);
+const showMailLogs = (data) => {
+    odabraniKorisnik.value = data;
+    // console.log("Prikazivam dijalog za prikaz logova: ", odabraniKorisnik.value)
+    
+    mailLogsDialog.value = true;
+}
+
+const sendMail = (data) => {
+    confirm.require({
+        group: 'mail',
+        title: 'Želiš li poslati pristupne korisničke podatke korisniku?',
+        message: 'Poslat će se e-pošta korisniku sa njegovim pristupnim podacima za korištenje aplikacije.',
+        header: 'Slanje e-pošte',
+        icon: 'pi pi-envelope',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Save'
+        },
+        accept: async () => {
+            
+            odabraniKorisnik.value = data;
+            try {
+                await checkIfEmailIsSent(odabraniKorisnik.value?.eko_id)
+                showSuccessEmail();
+            } catch (error) {
+                console.error(error)
+                toast.add({ severity: 'error', summary: 'Greška pri slanju e-pošte', detail: error.message, life: 3000 });
+            } finally {
+                odabraniKorisnik.value = null
+            }
+            
+        },
+        reject: () => {}
+    });
 }
 
 </script>
