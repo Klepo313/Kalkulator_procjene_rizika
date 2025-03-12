@@ -1,6 +1,33 @@
 <template>
     <div class="body">
         <Toast />
+        <ConfirmDialog group="mail">
+            <template #container="{ message, acceptCallback, rejectCallback }">
+                <div class="mail-container">
+                    <div class="mail-header">
+                        <font-awesome-icon icon="envelope" />
+                        <span>{{ message.title }}</span>
+                    </div>
+                    <div class="mail-body">
+                        <p>{{ message.message }}</p>
+                    </div>
+                    <div class="mail-footer">
+                        <Button label="Odustani" severity="secondary" class="p-button-text" @click="rejectCallback()" />
+                        <button class="dodaj-btn" @click="acceptCallback()">
+                            <font-awesome-icon icon="paper-plane" />    
+                            Pošalji
+                        </button>
+                    </div>
+                </div>
+            </template>
+            <!-- <template #footer="slotProps">
+                <button class="dodaj-btn" @click="slotProps.accept()">
+                    <font-awesome-icon icon="paper-plane" />
+                    Pošalji
+                </button>
+                <Button label="Odustani" severity="secondary" class="p-button-text" @click="slotProps.reject()" />
+            </template> -->
+        </ConfirmDialog>
         <main>
             <h1>Dodavanje korisnika</h1>
             <div class="main-content">
@@ -38,17 +65,21 @@
                                 'user_accounts_num',
                                 'epr_adresa',
                                 'epr_mjesto',
-                                'usersFlat',
+                                'users.epr_ime',
+                                'users.epr_prezime',
                             ]" table-style="min-width: 60rem" @row-expand="onRowExpand">
                             <template #header>
-                                <div class="flex justify-end">
-                                    <IconField>
+                                <div class="global-search-container">
+                                    <IconField class="global-search-iconfield input">
                                         <InputIcon>
                                             <font-awesome-icon icon="search" />
                                         </InputIcon>
                                         <InputText v-model="filters['global'].value"
-                                            placeholder="Pretraži tvrtke, ..." />
+                                            placeholder="Pretraži tvrtke" />
                                     </IconField>
+                                    <div class="global-search-iconfield refresh" @click="refreshData()">
+                                        <font-awesome-icon icon="rotate-right" class="refresh-icon" />
+                                    </div>
                                 </div>
                             </template>
                             <template #rowtoggleicon>
@@ -125,14 +156,17 @@
                                         </Column>
                                         <Column header-style="width: 5rem;">
                                             <template #body="{ data }">
-                                                <div style="display: flex; justify-content: flex-end">
-                                                    <span class="edit-btn" @click="editKorisnik(data)">
+                                                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                                                    <span v-if="!data?.eko_inicijalno && data?.epr_email" class="edit-btn" @click="sendMail(data);"> <!--@click="showMailLogs(data)"-->
+                                                        <font-awesome-icon icon="envelope" />
+                                                    </span>
+                                                    <!-- <span v-else v-tooltip.top="'Korisnik nema spremljenu email adresu'" class="edit-btn no-email">
+                                                        <font-awesome-icon icon="envelope" /> 
+                                                    </span>-->
+                                                    <span class="edit-btn disabled"> <!--@click="editKorisnik(data)"-->
                                                         <font-awesome-icon icon="user-pen" />
                                                     </span>
                                                 </div>
-                                                <!-- <Button type="button" icon="pi pi-user-edit"
-                                                    style="background-color: var(--text-color); border: none;" rounded
-                                                    @click="editKorisnik(data)" /> -->
                                             </template>
                                         </Column>
                                     </DataTable>
@@ -501,42 +535,53 @@
                             </template>
                         </Dialog>
 
+                        <Dialog v-model:visible="mailLogsDialog" :style="{ width: '800px' }" maximizable modal
+                            :content-style="{ height: 'auto' }" removable-sort>
+                            <template #empty>
+                                Nema poslane pošte
+                            </template>
+                            <template #header>
+                                <span class="dialog-header-text-grid">
+                                    <font-awesome-icon icon="envelope" class="dialog-header-icon-grid" />
+                                    <span class="dialog-header-text-span span1">
+                                        Povijest poslane pošte
+                                    </span>
+                                    <span class="dialog-header-text-span span2">
+                                        {{ odabraniKorisnik?.epr_ime + ' ' + odabraniKorisnik?.epr_prezime }}
+                                    </span>
+                                </span>
+                            </template>
+                            <template #default>
+                                <DataTable data-key="id" :value="mailLogs" :rows="10"
+                                    :scrollable="true" scroll-height="200px">
+                                    <Column header="#" header-style="width:3rem">
+                                        <template #body="slotProps">
+                                            {{ slotProps.index + 1 }}
+                                        </template>
+                                    </Column>
+                                    <Column field="naziv" header="Naslov" sortable></Column>
+                                    <Column field="date" header="Datum" sortable></Column>
+                                </DataTable>
+                            </template>
+                            <template #footer>
+                                <div class="mail-dialog-footer">
+                                    <button type="button" class="p-button p-component p-button-secondary"
+                                        @click="mailLogsDialog = false">
+                                        Zatvori
+                                    </button>
+                                    <button class="submitBtn" type="submit">
+                                        <font-awesome-icon icon="paper-plane" />
+                                        Generiraj nove korisničke podatke
+                                    </button>
+                                </div>
+                            </template>
+                        </Dialog>
+
                     </div>
                 </section>
 
                 <Dialog v-model:visible="openNewUserDialog" :modal="true" header="Dodaj korisnički račun"
                     :style="{ width: '600px' }" @hide="resetNewUserDialog(); hideNewUserDialog()" @show="updateFIZosobe()">
-                    <!-- <template #header>
-                            <div class="dialog-header">
-                                <font-awesome-icon icon="user-circle" size="lg" style="font-size: 20px;" />
-                                <div class="credentials">
-                                    <template v-if="odabraniPartner?.epr_ime">
-                                        <h3 style="font-size: 20px; text-transform: capitalize;">
-                                            {{
-                                                odabraniPartner?.epr_ime + ' ' + odabraniPartner?.epr_prezime
-                                            }}
-                                        </h3>
-                                        <p style="font-size: 16px; font-weight: 400;">
-                                            {{
-                                                odabraniPartner?.epr_email || odabraniPartner?.epr_oib
-                                            }}
-                                        </p>
-                                    </template>
-                                    <template v-else-if="noviKorisnik.tvrtka?.epr_naziv">
-                                        <h3 style="font-size: 20px; text-transform: capitalize;">
-                                            {{
-                                                noviKorisnik.tvrtka?.epr_naziv
-                                            }}
-                                        </h3>
-                                        <p style="font-size: 16px; font-weight: 400;">
-                                            {{
-                                                noviKorisnik.tvrtka?.epr_oib + ', ' + noviKorisnik.tvrtka?.epr_adresa
-                                            }}
-                                        </p>
-                                    </template>
-                                </div>
-                            </div>
-                        </template> -->
                     <div class="form-div">
                         <Form v-slot="$formKorisnik" :initial-values="initialValuesAddKorisnik"
                             :resolver="addKorisnikResolver" :validate-on-value-update="true" :validate-on-blur="true"
@@ -602,9 +647,9 @@
                                             $formKorisnik.datumDo.error.message }}</Message>
                                 </div>
                             </div>
-                            <div class="checkbox-container">
-                                <Checkbox input-id="slanjeMaila" v-model="slanjeMaila" name="slanjeMaila" /> 
-                                <label for="slanjeMaila">Dodavanjem ovog korisničkog računa želim da se automatski pošalje i mail korisniku sa njegovim korisničkim podacima.</label>
+                            <div v-if="korisnik?.eko_id && korisnik?.epr_email" class="checkbox-container">
+                                <Checkbox v-model="slanjeMaila" input-id="slanjeMaila" value="true" name="slanjeMaila" /> 
+                                <label for="slanjeMaila">Dodavanjem ovog korisničkog računa želim da se automatski pošalje email korisniku sa njegovim pristupnim korisničkim podacima.</label>
                             </div>
                             <div class="btn-container">
                                 <button id="saveBtn" type="submit" style="margin-top: 20px;">
@@ -618,13 +663,7 @@
 
                 </Dialog>
 
-                <Dialog v-model:visible="openPartnerDialog" header="Dodaj partnera" :modal="true"
-                    :style="{ width: '600px' }" @hide="resetPartnerDialog">
-                    <!-- <template #header>
-                        <div class="dialog-header">
-                            <span>Dodaj partnera</span>
-                        </div>
-                    </template> -->
+                <Dialog v-model:visible="openPartnerDialog" header="Dodaj partnera" :modal="true" :style="{ width: '600px' }" @hide="resetPartnerDialog">
                     <div class="field-heading">
                         <h2 class="p-text-bold">Vrsta partnera</h2>
                         <p>Odaberi fizičkog ili pravnog partnera</p>
@@ -632,30 +671,39 @@
                             <SelectButton v-model="addPartnerValue" :options="partneriOptions" option-label="naziv" />
                         </div>
                     </div>
-                    <!-- ! ISPRAVI FORMU DA SE KORISTI PRIMEVUE I PROVJERA VALIDACIJE -->
-                    <form v-if="addPartnerValue.label == 'FIZ'" class="p-fluid-partner">
-                        <div class="fiz-form">
+                    
+                    <!-- Forma za fizičkog partnera -->
+                    <template v-if="addPartnerValue.label === 'FIZ'">
+                        <Form
+                            v-slot="$formPartner"
+                            :initial-values="initialValueAddPartner.FIZ"
+                            :resolver="addPartnerResolverFIZ"
+                            :validate-on-value-update="true"
+                            :validate-on-blur="true"
+                            class="form"
+                            @submit="saveNewPartner"
+                        >
                             <div class="section">
-                                <div class="field-heading">
-                                    <h2 class="p-text-bold">Podaci o partneru</h2>
-                                    <p>Dodaj novog fizičkog partnera</p>
-                                </div>
                                 <div class="field field-split">
-                                    <div>
+                                    <div class="field">
                                         <div class="label-container">
                                             <font-awesome-icon icon="user" />
                                             <label for="ime">Ime</label>
                                         </div>
-                                        <InputText id="ime" v-model="tempPartner.epr_ime" placeholder="Ime korisnika"
-                                            required />
+                                        <InputText id="ime" v-model="tempPartner.epr_ime" name="epr_ime" placeholder="Ime korisnika" />
+                                        <Message v-if="$formPartner.epr_ime?.invalid" severity="error" size="small" variant="simple">
+                                        {{ $formPartner.epr_ime.error.message }}
+                                        </Message>
                                     </div>
-                                    <div>
+                                    <div class="field">
                                         <div class="label-container">
                                             <font-awesome-icon icon="user" />
                                             <label for="prezime">Prezime</label>
                                         </div>
-                                        <InputText id="prezime" v-model="tempPartner.epr_prezime"
-                                            placeholder="Prezime korisnika" required />
+                                        <InputText id="prezime" v-model="tempPartner.epr_prezime" name="epr_prezime" placeholder="Prezime korisnika" />
+                                        <Message v-if="$formPartner.epr_prezime?.invalid" severity="error" size="small" variant="simple">
+                                        {{ $formPartner.epr_prezime.error.message }}
+                                        </Message>
                                     </div>
                                 </div>
                                 <div class="field">
@@ -663,88 +711,111 @@
                                         <font-awesome-icon icon="address-card" />
                                         <label for="oib">OIB</label>
                                     </div>
-                                    <InputOtp id="oib" v-model="tempPartner.epr_oib" class="otp" size="small"
-                                        :length="11" integer-only required />
-                                </div>
-                                <div class="field">
-                                    <div>
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="envelope" />
-                                            <label for="email">Email</label>
-                                        </div>
-                                        <InputText id="email" v-model="tempPartner.epr_email"
-                                            placeholder="Email partnera" required />
-                                    </div>
-                                </div>
-                                <div class="field field-split">
-                                    <div>
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="map-location" />
-                                            <label for="adresa">Adresa</label>
-                                        </div>
-                                        <InputText id="adresa" v-model="tempPartner.epr_adresa" placeholder="Adresa"
-                                            required />
-                                    </div>
-                                    <div>
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="city" />
-                                            <label for="telefon">Mjesto</label>
-                                        </div>
-                                        <InputText v-model="tempPartner.epr_mjesto" placeholder="Mjesto" required />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                    <form v-if="addPartnerValue.label == 'PRV'" class="p-fluid-partner">
-                        <div class="fiz-form">
-                            <div class="section">
-                                <div class="field-heading">
-                                    <h2 class="p-text-bold">Podaci o partneru</h2>
-                                    <p>Dodaj novog pravnog partnera</p>
+                                    <InputOtp id="oib" v-model="tempPartner.epr_oib" name="epr_oib" :length="11" integer-only />
+                                    <Message v-if="$formPartner.epr_oib?.invalid" severity="error" size="small" variant="simple">
+                                    {{ $formPartner.epr_oib.error.message }}
+                                    </Message>
                                 </div>
                                 <div class="field">
                                     <div class="label-container">
-                                        <font-awesome-icon icon="building" />
-                                        <label for="tvrtka">Naziv tvrtke</label>
+                                        <font-awesome-icon icon="envelope" />
+                                        <label for="email">Email</label>
                                     </div>
-                                    <InputText id="tvrtka" v-model="tempPartner.epr_naziv" placeholder="Naziv tvrtke"
-                                        required />
+                                    <InputText id="email" v-model="tempPartner.epr_email" name="epr_email" placeholder="Email partnera" />
+                                    <Message v-if="$formPartner.epr_email?.invalid" severity="error" size="small" variant="simple">
+                                    {{ $formPartner.epr_email.error.message }}
+                                    </Message>
                                 </div>
+                                <div class="field">
+                                    <div class="label-container">
+                                        <font-awesome-icon icon="map-location" />
+                                        <label for="adresa">Adresa</label>
+                                    </div>
+                                    <InputText id="adresa" v-model="tempPartner.epr_adresa" name="epr_adresa" placeholder="Adresa" />
+                                    <Message v-if="$formPartner.epr_adresa?.invalid" severity="error" size="small" variant="simple">
+                                    {{ $formPartner.epr_adresa.error.message }}
+                                    </Message>
+                                </div>
+                                <div class="field">
+                                    <div class="label-container">
+                                        <font-awesome-icon icon="city" />
+                                        <label for="mjesto">Mjesto</label>
+                                    </div>
+                                    <InputText id="mjesto" v-model="tempPartner.epr_mjesto" name="epr_mjesto" placeholder="Mjesto" />
+                                    <Message v-if="$formPartner.epr_mjesto?.invalid" severity="error" size="small" variant="simple">
+                                    {{ $formPartner.epr_mjesto.error.message }}
+                                    </Message>
+                                </div>
+                            </div>
+                            <div class="btn-container">
+                                <button class="p-button p-component p-button-secondary" @click="openPartnerDialog = false">
+                                    Odustani
+                                </button>
+                                <button class="submitBtn" type="submit">Dodaj partnera</button>
+                            </div>
+                        </Form>
+                    </template>
 
+                    <!-- Forma za pravnog partnera -->
+                    <template v-if="addPartnerValue.label === 'PRV'">
+                        <Form
+                            v-slot="$formPartner"
+                            :initial-values="initialValueAddPartner.PRV"
+                            :resolver="addPartnerResolverPRV"
+                            :validate-on-value-update="true"
+                            :validate-on-blur="true"
+                            class="form"
+                            @submit="saveNewPartner"
+                        >
+                            <div class="section">
+                                <div class="field">
+                                    <div class="label-container">
+                                        <font-awesome-icon icon="building" />
+                                        <label for="naziv">Naziv tvrtke</label>
+                                    </div>
+                                    <InputText id="naziv" v-model="tempPartner.epr_naziv" name="epr_naziv" placeholder="Naziv tvrtke" />
+                                    <Message v-if="$formPartner.epr_naziv?.invalid" severity="error" size="small" variant="simple">
+                                    {{ $formPartner.epr_naziv.error.message }}
+                                    </Message>
+                                </div>
                                 <div class="field">
                                     <div class="label-container">
                                         <font-awesome-icon icon="address-card" />
                                         <label for="oib">OIB tvrtke</label>
                                     </div>
-                                    <InputOtp id="oib" v-model="tempPartner.epr_oib" size="small" :length="11"
-                                        integer-only required />
+                                    <InputOtp id="oib" v-model="tempPartner.epr_oib" name="epr_oib" :length="11" integer-only />
+                                    <Message v-if="$formPartner.epr_oib?.invalid" severity="error" size="small" variant="simple">
+                                    {{ $formPartner.epr_oib.error.message }}
+                                    </Message>
                                 </div>
-                                <div class="field field-split">
-                                    <div>
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="map-location" />
-                                            <label for="adresa">Adresa tvrtke</label>
-                                        </div>
-                                        <InputText id="adresa" v-model="tempPartner.epr_adresa"
-                                            placeholder="Adresa tvrtke" required />
+                                <div class="field">
+                                    <div class="label-container">
+                                        <font-awesome-icon icon="map-location" />
+                                        <label for="adresa">Adresa tvrtke</label>
                                     </div>
-                                    <div>
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="city" />
-                                            <label for="telefon">Mjesto</label>
-                                        </div>
-                                        <InputText v-model="tempPartner.epr_mjesto" placeholder="Mjesto" required />
+                                    <InputText id="adresa" v-model="tempPartner.epr_adresa" name="epr_adresa" placeholder="Adresa tvrtke" />
+                                    <Message v-if="$formPartner.epr_adresa?.invalid" severity="error" size="small" variant="simple">
+                                    {{ $formPartner.epr_adresa.error.message }}
+                                    </Message>
+                                </div>
+                                <div class="field">
+                                    <div class="label-container">
+                                        <font-awesome-icon icon="city" />
+                                        <label for="mjesto">Mjesto</label>
                                     </div>
+                                    <InputText id="mjesto" v-model="tempPartner.epr_mjesto" name="epr_mjesto" placeholder="Mjesto" />
+                                    <Message v-if="$formPartner.epr_mjesto?.invalid" severity="error" size="small" variant="simple">
+                                    {{ $formPartner.epr_mjesto.error.message }}
+                                    </Message>
                                 </div>
                             </div>
-                        </div>
-                    </form>
-                    <template #footer>
-                        <button class="p-button p-component p-button-secondary" @click="openPartnerDialog = false">
-                            Odustani
-                        </button>
-                        <button class="submitBtn" type="submit" @click="saveNewPartner">Dodaj partnera</button>
+                            <div class="btn-container">
+                                <button class="p-button p-component p-button-secondary" @click="openPartnerDialog = false">
+                                    Odustani
+                                </button>
+                                <button class="submitBtn" type="submit">Dodaj partnera</button>
+                            </div>
+                        </Form>
                     </template>
                 </Dialog>
             </div>
@@ -755,11 +826,12 @@
 
 <script setup>
 import { FilterMatchMode } from '@primevue/core/api';
-import { savePartner, saveUser } from '~/service/admin/users';
+import { checkIfEmailIsSent, savePartner, saveUser } from '~/service/admin/users';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
 
 const toast = useToast()
+const confirm = useConfirm()
 
 const korisniciStore = useKorisniciStore();
 
@@ -778,6 +850,8 @@ const razdoblje = ref({
     vrijemeOd: new Date(),
     vrijemeDo: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate())
 })
+
+const slanjeMaila = ref(false);
 
 watch(tvrtka, () => {
     console.log("Odabrana tvrtka: ", tvrtka.value)
@@ -831,6 +905,23 @@ const initialValuesAddKorisnik = ref({
     datumDo: razdoblje.value.vrijemeDo
 });
 
+const initialValueAddPartner = ref({
+    FIZ: {
+        epr_ime: '',
+        epr_prezime: '',
+        epr_email: '',
+        epr_oib: '',
+        epr_adresa: '',
+        epr_mjesto: ''
+    },
+    PRV: {
+        epr_naziv: '',
+        epr_oib: '',
+        epr_adresa: '',
+        epr_mjesto: ''
+    }
+})
+
 watch(
     () => razdoblje.value,
     (noviRazdoblje) => {
@@ -845,7 +936,7 @@ const addKorisnikResolver = ref(zodResolver(
         osoba: z.object({
             epr_ime: z.string().min(1, { message: 'Ime je obvezno' }),
             epr_prezime: z.string().min(1, { message: 'Prezime je obvezno' }),
-            epr_email: z.string().nullish() //.min(1, { message: 'Email je obvezan' }).nullish(),
+            epr_email: z.string().email().min(1, { message: 'Email je obvezan' }),
         }).refine((obj) => obj && obj.epr_ime && obj.epr_prezime && obj.epr_email, { message: 'Osoba je obvezna' }),
         tvrtka: z.object({
             epr_naziv: z.string().min(1, { message: 'Tvrtka je obvezna' }),
@@ -863,6 +954,48 @@ const addKorisnikResolver = ref(zodResolver(
     })
 ));
 
+const addPartnerResolverFIZ = zodResolver(
+  z.object({
+    epr_ime: z.string().min(1, { message: 'Ime je obavezno' }),
+    epr_prezime: z.string().min(1, { message: 'Prezime je obavezno' }),
+    epr_oib: z.string().superRefine((_, ctx) => {
+      // Koristimo vrijednost iz tempPartner varijable kao cjelinu
+      const oibValue = tempPartner.value.epr_oib || ''
+      if (oibValue.length !== 11) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `OIB mora imati točno 11 znakova, trenutno ima ${oibValue.length} znakova`
+        })
+      }
+    }),
+    epr_email: z
+      .string()
+      .min(1, { message: 'Email je obavezan' })
+      .email('Email nije ispravnog formata (primjer@tvrtka.com)'),
+    epr_adresa: z.string().min(1, { message: 'Adresa je obavezna' }),
+    epr_mjesto: z.string().min(1, { message: 'Mjesto je obavezno' })
+  })
+)
+
+
+const addPartnerResolverPRV = zodResolver(
+  z.object({
+    epr_naziv: z.string().min(1, { message: 'Tvrtka je obavezna' }),
+    epr_oib: z.string().superRefine((_, ctx) => {
+      // Koristimo vrijednost iz tempPartner varijable kao cjelinu
+      const oibValue = tempPartner.value.epr_oib || ''
+      if (oibValue.length !== 11) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `OIB mora imati točno 11 znakova, trenutno ima ${oibValue.length} znakova`
+        })
+      }
+    }),
+    epr_adresa: z.string().min(1, { message: 'Adresa je obavezna' }),
+    epr_mjesto: z.string().min(1, { message: 'Mjesto je obavezno' })
+  })
+)
+
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -878,7 +1011,7 @@ const filters = ref({
 
 const addPartnerValue = ref({
     label: 'FIZ',
-    naziv: 'Fizički partneri'
+    naziv: 'Fizički partner'
 });
 
 const partneriOptions = ref([
@@ -891,6 +1024,11 @@ const partneriOptions = ref([
         naziv: 'Pravni partner',
     }
 ]);
+
+// write watch method to clear tempPartner on addPartnerValue change
+watch(addPartnerValue, () => {
+    resetPartner()
+})
 
 const searchFIZosobe = computed(() => korisniciStore.searchFizickeOsobe);
 const FIZpartneri = computed(() => korisniciStore.fizickeOsobe);
@@ -920,27 +1058,32 @@ const onRowExpand = (event) => {
     korisniciStore.fetchKorisniciForLegalPartner(event.data.epr_id)
 };
 
+const refreshData = async () => {
+    await korisniciStore.fetchPravneOsobe()
+    korisniciStore.fizickeOsobe = []
+}
+
 const tempPartner = ref({
-    epr_tip: null,
-    epr_oib: null,
-    epr_naziv: null,
-    epr_ime: null,
-    epr_prezime: null,
-    epr_mjesto: null,
-    epr_adresa: null,
-    epr_email: null,
+    epr_tip: '',
+    epr_oib: '',
+    epr_naziv: '',
+    epr_ime: '',
+    epr_prezime: '',
+    epr_mjesto: '',
+    epr_adresa: '',
+    epr_email: '',
 })
 
 const resetPartner = () => {
     tempPartner.value = {
-        epr_tip: null,
-        epr_oib: null,
-        epr_naziv: null,
-        epr_ime: null,
-        epr_prezime: null,
-        epr_mjesto: null,
-        epr_adresa: null,
-        epr_email: null,
+        epr_tip: '',
+        epr_oib: '',
+        epr_naziv: '',
+        epr_ime: '',
+        epr_prezime: '',
+        epr_mjesto: '',
+        epr_adresa: '',
+        epr_email: '',
     }
 }
 
@@ -985,6 +1128,10 @@ const showErrorKorisnik = (osoba) => {
     toast.add({ severity: 'error', summary: 'Greška dodavanja korisnika', detail: `Korisnik: ${osoba.epr_ime} ${osoba.epr_prezime}`, life: 5000 });
 }
 
+const showSuccessEmail = () => {
+    toast.add({ severity:'success', summary: 'Uspješno poslan email', detail: 'Poslan je email za željenog korisnika', life: 3000 });
+}
+
 const resetOdabraniKorisnik = () => {
     odabraniKorisnik.value = null; // Ako imate originalne podatke ili postavite prazne vrijednosti
 };
@@ -1005,10 +1152,11 @@ watch(odabraniPartner, () => {
 
 const addKorisnik = async ({ valid }) => {
     if (valid) {
-        console.log("Dodajem korisnika...")
+        console.log("Dodajem korisnika...", korisnik.value)
         openNewUserDialog.value = true
 
         const userData = {
+            // eko_id: korisnik.value?.eko_id,
             partnerId: korisnik.value?.epr_id,
             partnerLegalId: tvrtka.value?.epr_id,
             dateFrom: formatDateToDMY(razdoblje.value.vrijemeOd, '-'),
@@ -1022,8 +1170,21 @@ const addKorisnik = async ({ valid }) => {
             console.log("response: ", response)
             if (response) {
                 showSuccesKorisnik(korisnik.value)
-                // await korisniciStore.fetchPravneOsobe()
-                    await korisniciStore.fetchOsobe();
+                await korisniciStore.fetchPravneOsobe()
+                korisniciStore.fizickeOsobe = []
+                console.log( korisniciStore.pravneOsobe , korisniciStore.fizickeOsobe)
+
+                if(slanjeMaila.value) {
+                    try {
+                        await checkIfEmailIsSent(korisnik.value?.eko_id)
+                        // const isSent = notifyData?.isNotified || notifyData?.message || undefined
+                        // console.log("notifyData: ", notifyData, "isSent: ", isSent)
+                    } catch (e) {
+                        console.log(e)
+                        showError("Greška pri slanju e-pošte korisniku!")
+                    }
+                }
+
             }
         } catch (error) {
             showErrorKorisnik(korisnik.value)
@@ -1062,63 +1223,118 @@ const addPartner = () => {
     openPartnerDialog.value = true;
 }
 
-const saveNewPartner = async () => {
-    console.log("Odabrani partner: ", addPartnerValue.value)
+const saveNewPartner = async ({ valid }) => {
+    console.log("tempPartner: ", tempPartner.value)
+    if(valid) {
+        console.log("Dodajem partnera...")
 
-    tempPartner.value.epr_tip = addPartnerValue.value.label === 'FIZ'
-        ? 'FO'
-        : addPartnerValue.value.label === 'PRV'
-            ? 'PO'
-            : null;
+        console.log("Odabrani partner: ", addPartnerValue.value)
 
-    tempPartner.value.epr_naziv ||= tempPartner.value.epr_ime + ' ' + tempPartner.value.epr_prezime;
+        tempPartner.value.epr_tip = addPartnerValue.value.label === 'FIZ'
+            ? 'FO'
+            : addPartnerValue.value.label === 'PRV'
+                ? 'PO'
+                : null;
 
-    // UPPERCASE
-    tempPartner.value = Object.fromEntries(
-        Object.entries(tempPartner.value).map(([key, value]) => [
-            key,
-            key === 'epr_email' ? value : String(value).toUpperCase()
-        ])
-    );
+        tempPartner.value.epr_naziv ||= tempPartner.value.epr_ime + ' ' + tempPartner.value.epr_prezime;
 
-    console.log("PARTNER: ", tempPartner.value)
+        // UPPERCASE
+        tempPartner.value = Object.fromEntries(
+            Object.entries(tempPartner.value).map(([key, value]) => [
+                key,
+                key === 'epr_email' ? value : String(value).toUpperCase()
+            ])
+        );
 
-    try {
-        const response = await savePartner(tempPartner.value);
-        if (response.status == 200) {
-            const osoba = response.data;
-            console.log("Osoba: ", osoba);
-            showSuccessPartner(tempPartner.value)
+        console.log("PARTNER: ", tempPartner.value)
 
-            if (addPartnerValue.value.label === 'FIZ') {
-                try {
-                    console.log("Dohvaćanje fizickih osoba")
-                    // await korisniciStore.fetchFizickeOsobe();
-                    console.log(korisniciStore.fizickeOsobe)
-                } catch (error) {
-                    console.error(error);
+        try {
+            const response = await savePartner(tempPartner.value);
+            if (response.status == 200) {
+                const osoba = response.data;
+                console.log("Osoba: ", osoba);
+                showSuccessPartner(tempPartner.value)
+
+                if (addPartnerValue.value.label === 'FIZ') {
+                    try {
+                        console.log("Dohvaćanje fizickih osoba")
+                        await korisniciStore.fetchFizickeOsobe();
+                        console.log(korisniciStore.fizickeOsobe)
+                    } catch (error) {
+                        console.error(error);
+                    }
+                } else {
+                    try {
+                        console.log("Dohvaćanje pravnih osoba")
+                        await korisniciStore.fetchPravneOsobe();
+                        korisniciStore.fizickeOsobe = []
+                        console.log(korisniciStore.pravneOsobe)
+                    } catch (error) {
+                        console.error(error);
+                    }
                 }
+                // await korisniciStore.fetchOsobe();
             } else {
-                try {
-                    console.log("Dohvaćanje pravnih osoba")
-                    // await korisniciStore.fetchPravneOsobe();
-                    console.log(korisniciStore.pravneOsobe)
-                } catch (error) {
-                    console.error(error);
-                }
+                console.error("Greska pri dodavanju partnera")
+                showErrorPartner(tempPartner.value)
             }
-            await korisniciStore.fetchOsobe();
-        } else {
-            console.error("Greska pri dodavanju partnera")
-            showErrorPartner(tempPartner.value)
+        } catch (error) {
+            console.error(error)
+            showErrorPartner(tempPartner.value);
+        } finally {
+            resetPartner();
+            openPartnerDialog.value = false;
         }
-    } catch (error) {
-        console.error(error)
-        showErrorPartner(tempPartner.value);
-    } finally {
-        resetPartner();
-        openPartnerDialog.value = false;
     }
+}
+
+const mailLogs = ref([
+    { id: 1, naziv: 'Generirani korisnički podataci', date: '12/12/2024' },
+    { id: 2, naziv: 'Uređivanje korisničkih podataka', date: '11/11/2024' },
+    { id: 3, naziv: 'Generiranje e-pošte', date: '10/10/2024' },
+]);
+
+const mailLogsDialog = ref(false);
+const showMailLogs = (data) => {
+    odabraniKorisnik.value = data;
+    console.log("Prikazivam dijalog za prikaz logova: ", odabraniKorisnik.value)
+    
+    mailLogsDialog.value = true;
+}
+
+const sendMail = (data) => {
+    confirm.require({
+        group: 'mail',
+        title: 'Želiš li poslati pristupne korisničke podatke korisniku?',
+        message: 'Poslat će se e-pošta korisniku sa njegovim pristupnim podacima za korištenje aplikacije.',
+        header: 'Slanje e-pošte',
+        icon: 'pi pi-envelope',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Save'
+        },
+        accept: async () => {
+            
+            odabraniKorisnik.value = data;
+            console.log("Poslji e-poštu...", odabraniKorisnik.value)
+
+            try {
+                await checkIfEmailIsSent(odabraniKorisnik.value?.eko_id)
+                showSuccessEmail();
+            } catch (error) {
+                console.error(error)
+                toast.add({ severity: 'error', summary: 'Greška pri slanju e-pošte', detail: error.message, life: 3000 });
+            } finally {
+                odabraniKorisnik.value = null
+            }
+            
+        },
+        reject: () => {}
+    });
 }
 
 </script>
@@ -1182,6 +1398,69 @@ main>div {
 .datatable,
 .toolbar {
     max-width: 1100px;
+}
+
+.global-search-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.global-search-iconfield.input {
+    width: 100%;
+    max-width: 500px;
+}
+
+.global-search-iconfield.refresh {
+    width: 26px;
+    height: 26px;
+    padding: 5px;
+    border-radius: 50%;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.global-search-iconfield:hover{
+    background: rgb(236, 236, 236);
+}
+.global-search-iconfield:hover .refresh-icon{
+    transform: rotate(45deg);
+}
+.global-search-iconfield:active .refresh-icon{
+    transform: rotate(120deg);
+}
+
+.mail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 26px;
+}
+
+.mail-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.mail-body {
+    padding: 5px 0px;
+    /* border-left: 1px solid var(--text-color); */
+}
+
+.mail-body p {
+    font-size: 1rem;
+}
+
+.mail-header * {
+    font-size: 1.2rem;
+    font-weight: bold;
 }
 
 .inside-table {
@@ -1515,6 +1794,11 @@ sup {
     gap: 8px;
 }
 
+:deep(.p-checkbox-checked .p-checkbox-box) {
+    border-color: var(--text-color) !important;
+    background: var(--text-color) !important;
+}
+
 .btn-container {
     width: 100%;
     display: flex;
@@ -1711,6 +1995,14 @@ strong {
     background-color: #2ecc71;
 } */
 
+.mail-dialog-footer, .mail-footer {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .closeDialog,
 .closeDialog * {
     font-size: 16px;
@@ -1762,12 +2054,27 @@ strong {
     padding: 5px;
     cursor: pointer;
 }
+.edit-btn.no-email {
+    color: var(--red-soft);
+}
+.edit-btn.disabled {
+    opacity: 0.3;
+    cursor: default;
+}
 
 .edit-btn:hover {
     background-color: rgb(236, 236, 236);
 }
 
 .edit-btn:active {
+    background-color: rgb(223, 223, 223);
+}
+
+.edit-btn.disabled:hover {
+    background-color: rgb(236, 236, 236);
+}
+
+.edit-btn.disabled:active {
     background-color: rgb(223, 223, 223);
 }
 
@@ -1907,6 +2214,30 @@ footer {
     background-color: var(--red-soft, rgb(192, 57, 43));
     /* crveno */
     color: #fff;
+}
+
+.dialog-header-text-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr 1fr;
+    justify-content: center;
+    align-items: center;
+    column-gap: 10px;
+    font-size: 1.2rem; 
+    font-weight: 600;
+}
+
+.dialog-header-icon-grid {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    font-size: 1.2rem;
+}
+
+.dialog-header-text-span.span1 {
+    font-size: 1.2rem;
+}
+.dialog-header-text-span.span2 {
+    opacity: 0.6;
 }
 
 :deep(.p-datatable-row-toggle-button) {
