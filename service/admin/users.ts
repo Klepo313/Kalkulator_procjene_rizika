@@ -73,6 +73,22 @@ export const getUsersForLegalPartner = async (id: number | string): Promise<unkn
     }
 };
 
+export const checkIfEmailIsSent = async (id: string | number): Promise<unknown> => {
+    if (!id) {
+        console.error("Nije prosljeđen ID partnera!");
+        return null;
+    }
+    const { $api } = useNuxtApp();
+    const url = `/user/notify`;
+    const response = await $api.post(url, { userId: id }, 
+        {
+            headers: { 'Content-Type': 'application/json' }
+        }
+    );
+    console.log("Poslano obavijesti: ", response.data);
+    return response.data;
+}
+
 export const savePartner = async (data: {
     epr_tip: string;
     epr_oib: string;

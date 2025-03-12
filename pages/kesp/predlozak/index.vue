@@ -343,7 +343,7 @@
                                             :severity="getStatusLabel(slotProps.data.uir_kraj)" />
                                     </template>
                                 </Column>
-                                <Column field="uir_emisija" header="Emisije Co2/t">
+                                <Column field="uir_emisija" header="Emisija eCO2/kg">
                                     <template #body="{ data, field }">
                                         <strong style="text-decoration: none; color: var(--kesp-primary);">{{
                                             formatNumber(data[field], 3) }}</strong>
@@ -382,7 +382,7 @@
                                     Odustani
                                 </button>
                                 <button class="submitBtn" :disabled="!needUpdate" @click="saveGwpIzracun">
-                                    Ažuriraj
+                                    Spremi
                                 </button>
                             </template>
                         </Dialog>

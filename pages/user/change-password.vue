@@ -153,6 +153,7 @@ const onFormSubmit = async ({ valid }) => {
         }
 
         // console.log("Lozinke: ", data);
+        navigateTo('/');
 
     } else {
         // console.error("Forma nije validna.")

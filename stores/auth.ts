@@ -1,6 +1,7 @@
-// stores/auth.ts
-import { defineStore } from "pinia";
-import { checkLogin } from "~/temp/checkLogin";
+// /stores/auth.js
+import axios from 'axios';
+import { defineStore } from 'pinia';
+import { checkLogin } from '~/service/user/user';
 
 export const useAuthStore = defineStore("auth", {
     state: () => ({

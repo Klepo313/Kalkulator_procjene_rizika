@@ -71,7 +71,7 @@
                                 </template>
                             </Column>
 
-                            <Column field="totalEmissions" header="Ukupne emisije CO2 t/god">
+                            <Column field="totalEmissions" header="Ukupne emisije eCO2 t/god">
                                 <template #body="slotProps">
                                     <span>{{ formatNumber(vehicleStore.emisijaZaKategoriju(slotProps.data.uge_naziv) /
                                         1000) }}</span>
@@ -81,7 +81,7 @@
                             <template #footer>
                                 <div class="flex justify-end font-bold w-full mt-4">
                                     Ukupno: <strong>{{ formatNumber(vehicleStore.ukupnaEmisija / 1000) }}</strong>
-                                    CO<sub>2</sub> t/god
+                                    eCO<sub>2</sub> t/god
                                 </div>
                             </template>
                         </DataTable>
@@ -208,7 +208,7 @@
                             <div class="total-emissions">
 
                                 <span>Ukupno: </span>
-                                <strong>{{ formatNumber(totalEmissions) }}</strong> CO<sub>2</sub> t/god
+                                <strong>{{ formatNumber(totalEmissions) }}</strong> eCO<sub>2</sub> t/god
 
                             </div>
                         </template>

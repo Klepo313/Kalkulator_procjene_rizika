@@ -87,7 +87,7 @@
                                 </template>
                             </Column>
 
-                            <Column header="Obnovljiva energija (kWh)" field="obnovljivo">
+                            <Column header="Obnovljiva energija predana u mrežu (kWh)" field="obnovljivo">
                                 <template #editor="slotProps">
                                     <InputNumber v-model="slotProps.data.obnovljivo" :show-buttons="true" mode="decimal"
                                         min="0" />
@@ -100,13 +100,13 @@
                                 </template>
                             </Column>
 
-                            <Column header="Ukupna potrošnja (kWh)" field="ukupno">
+                            <Column header="Osnova za izračun emisija (kWh)" field="ukupno">
                                 <template #body="slotProps">
                                     {{ formatNumber(slotProps.data.ukupno) }}
                                 </template>
                             </Column>
 
-                            <Column header="Emisije CO2/kg" field="emisije">
+                            <Column header="Emisija eCO2/kg" field="emisije">
                                 <template #body="slotProps">
                                     <span :class="getCellClass(slotProps.data, 'emisije')"
                                         v-tooltip.top="getTooltip(slotProps.data)">
