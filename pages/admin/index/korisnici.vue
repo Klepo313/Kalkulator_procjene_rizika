@@ -1320,8 +1320,6 @@ const sendMail = (data) => {
         accept: async () => {
             
             odabraniKorisnik.value = data;
-            console.log("Poslji e-poštu...", odabraniKorisnik.value)
-
             try {
                 await checkIfEmailIsSent(odabraniKorisnik.value?.eko_id)
                 showSuccessEmail();
