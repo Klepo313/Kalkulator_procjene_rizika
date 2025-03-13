@@ -58,15 +58,14 @@
                     <div class="datatable">
 
                         <DataTable v-model:filters="filters" v-model:expanded-rows="expandedRows"
-                            :value="noneEmptyKorisnici" :rows="10" scrollable scroll-height="800px" :sort-order="1"
+                            :value="processedPRVpartneri" :rows="10" scrollable scroll-height="800px" :sort-order="1"
                             :loading="loading" loadingMode="icon" size="small" removable-sort :global-filter-fields="[
                                 'epr_naziv',
                                 'epr_oib',
                                 'user_accounts_num',
                                 'epr_adresa',
                                 'epr_mjesto',
-                                'users.epr_ime',
-                                'users.epr_prezime',
+                                'fizOsobeText'
                             ]" table-style="min-width: 60rem" @row-expand="onRowExpand">
                             <template #header>
                                 <div class="global-search-container">
@@ -91,7 +90,7 @@
                             <template #loading> Učitavanje pravnih osoba. Molimo pričekajte. </template>
                             <template #footer>
                                 <div class="total-emissions">
-                                    Ukupno pravnih osoba: <strong>{{ noneEmptyKorisnici.length }}</strong>
+                                    Ukupno pravnih osoba: <strong>{{ PRVpartneri.length }}</strong>
                                 </div>
                             </template>
 
@@ -189,87 +188,6 @@
                             <Form v-slot="$form" :resolver="resolver" :initial-values="initialValues" class="p-fluid"
                                 @submit.prevent="saveKorisnik">
                                 <div class="left-form">
-                                    <!-- <div class="section">
-                                        <div class="field-heading">
-                                            <h2 class="p-text-bold">Podaci o korisniku</h2>
-                                            <p>Izmjeni podatake o korisniku</p>
-                                        </div>
-                                        <div class="field field-split">
-                                            <div>
-                                                <div class="label-container">
-                                                    <font-awesome-icon icon="user" />
-                                                    <label for="ime">Ime</label>
-                                                </div>
-                                                <InputText id="ime" v-model="odabraniKorisnik.ime"
-                                                    placeholder="Ime korisnika" readonly required />
-                                            </div>
-                                            <div>
-                                                <div class="label-container">
-                                                    <font-awesome-icon icon="user" />
-                                                    <label for="prezime">Prezime</label>
-                                                </div>
-                                                <InputText id="prezime" v-model="odabraniKorisnik.prezime"
-                                                    placeholder="Prezime korisnika" readonly required />
-                                            </div>
-                                        </div>
-                                        <div class="field">
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="building" />
-                                                <label for="tvrtka">Tvrtka</label>
-                                            </div>
-                                            <InputText id="tvrtka" v-model="odabraniKorisnik.tvrtka"
-                                                placeholder="Tvrtka korisnika" readonly required />
-                                        </div>
-                                        <div class="field">
-                                            <div class="label-container">
-                                                <font-awesome-icon icon="building-circle-arrow-right" />
-                                                <label for="tvrtka_usluge">Tvrtka usluge</label>
-                                            </div>
-                                            <InputText id="tvrtka_usluge" v-model="odabraniKorisnik.tvrtka_usluge"
-                                                placeholder="Tvrtka usluge korisnika" readonly required />
-                                        </div>
-                                    </div> -->
-                                    <!-- <hr> -->
-                                    <!-- <div class="section">
-                                        <div class="field-heading">
-                                            <h2 class="p-text-bold">Pristupni podaci korisnika</h2>
-                                            <p>Izmjeni pristupne podatke korisnika za prijavu u aplikaciju</p>
-                                        </div>
-                                        <div class="field-split">
-                                            <div>
-                                                <div class="label-container">
-                                                    <font-awesome-icon icon="clipboard-user" />
-                                                    <label for="korime">Korisničko ime</label>
-                                                    <button id="reset" class="resetBtn" type="reset"
-                                                        @click="updateKorime">
-                                                        <font-awesome-icon icon="rotate-right" class="button-icon" />
-                                                    </button>
-                                                </div>
-                                                <InputText id="korime" v-model="odabraniKorisnik.korime" name="username"
-                                                    placeholder="Korisničko ime korisnika" required />
-                                            </div>
-                                            <div>
-                                                <div class="label-container">
-                                                    <font-awesome-icon icon="lock" />
-                                                    <label for="lozinka">Lozinka</label>
-                                                    <button id="reset" class="resetBtn" type="reset"
-                                                        @click="updateLozinka">
-                                                        <font-awesome-icon icon="rotate-right" class="button-icon" />
-                                                    </button>
-                                                </div>
-                                                <Password id="lozinka" v-model="odabraniKorisnik.lozinka"
-                                                    name="password" :feedback="false" toggle-mask fluid
-                                                    placeholder="Lozinka korisnika" type="password" required />
-                                                <template v-if="$form.password?.invalid">
-                                                    <Message v-for="(error, index) of $form.password.errors"
-                                                        :key="index" severity="error" size="small" variant="simple">{{
-                                                            error.message }}
-                                                    </Message>
-                                                </template>
-                                            </div>
-                                        </div>
-                                    </div> -->
-                                    <!-- <hr> -->
                                     <div class="section">
                                         <div class="field-heading">
                                             <h2 class="p-text-bold">Postavke korisničkog računa</h2>
@@ -1033,6 +951,23 @@ watch(addPartnerValue, () => {
 const searchFIZosobe = computed(() => korisniciStore.searchFizickeOsobe);
 const FIZpartneri = computed(() => korisniciStore.fizickeOsobe);
 const PRVpartneri = computed(() => korisniciStore.pravneOsobe);
+
+const processedPRVpartneri = computed(() => {
+  return PRVpartneri.value.map(partner => {
+    // Filtriramo fizičke osobe koje pripadaju partneru
+    // const povezaneOsobe = searchFIZosobe.value.filter(osoba => partner.epr_id === 7914)
+    const povezaneOsobe = searchFIZosobe.value.filter(osoba => osoba.eko_par_id_za === partner.epr_id)
+    // Spojite podatke, npr. ime i prezime, ili druge atribute po potrebi
+    const fizOsobeText = povezaneOsobe.map(osoba => `${osoba.epr_ime} ${osoba.epr_prezime}`).join(' ')
+    
+    // Vraćamo partnera s dodatnim atributom
+    return {
+      ...partner,
+      fizOsobeText,
+    }
+  })
+})
+
 const noneEmptyKorisnici = computed(() => {
     return korisniciStore.pravneOsobe
         .filter((po) => parseInt(po.employees_num) > 0)
@@ -1059,6 +994,7 @@ const onRowExpand = (event) => {
 };
 
 const refreshData = async () => {
+    expandedRows.value = null;
     await korisniciStore.fetchPravneOsobe()
     korisniciStore.fizickeOsobe = []
 }
@@ -1407,8 +1343,8 @@ main>div {
 }
 
 .global-search-iconfield.input {
-    width: 100%;
-    max-width: 500px;
+    width: 100% !important;
+    /* max-width: 500px; */
 }
 
 .global-search-iconfield.refresh {
