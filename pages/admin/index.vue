@@ -57,7 +57,6 @@ const mainStyles = computed(() => ({
     display: flex;
     gap: 25px;
     overflow: visible;
-
     background-color: var(--admin-bg-color);
 }
 
@@ -86,6 +85,7 @@ main {
     overflow: visible;
     overflow-y: auto;
     transition: margin-left 0.3s ease, width 0.3s ease;
+    background-color: var(--admin-bg-color) !important;
 }
 
 .main-content {

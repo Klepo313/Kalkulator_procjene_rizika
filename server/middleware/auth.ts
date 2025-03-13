@@ -11,6 +11,8 @@ export default defineEventHandler(async (event) => {
         return;
     }
 
+    console.log("token: ", token);
+
     if (!token || !isValidToken(token)) {
         // console.log("Neispravan token ili token ne postoji, brisanje cookija...");
         deleteCookie(event, "authToken");

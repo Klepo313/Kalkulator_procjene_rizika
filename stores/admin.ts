@@ -67,6 +67,12 @@ export const useKorisniciStore = defineStore('korisnici', {
                 }
         
                 const data = await getUsersForLegalPartner(id);
+                console.log("data: ", data)
+                if(data?.status === 404) {
+                    return {
+                        message: data?.response?.data?.message || 'Not found'
+                    }
+                }
                 if (!Array.isArray(data)) {
                     console.warn(`Neispravan format podataka za pravnu osobu ${id}.`);
                     return;
