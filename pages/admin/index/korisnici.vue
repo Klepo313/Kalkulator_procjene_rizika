@@ -106,13 +106,18 @@
                             <Column field="employees_num" header="Broj korisnika" />
 
                             <template #expansion="slotProps">
-                                <div v-if="!(slotProps.data.users && slotProps.data.users.length > 0)" class="loading-container">
+                                <div v-if="!(slotProps.data.users && slotProps.data.users.length > 0) && !userEmptyMessage" class="loading-container">
                                     <font-awesome-icon icon="spinner" spin />
                                     Učitavanje korisnika 
                                     <!-- tvrtke {{ ' ' + slotProps.data?.epr_naziv || '' }}. -->
                                 </div>
                                 <div v-else class="inside-table">
                                     <DataTable :value="slotProps.data.users">
+                                        <template #empty>
+                                            <span style="opacity: 0.6;">
+                                                Nema korisnika za ovaj pravni subjekt.
+                                            </span>
+                                        </template>
                                         <template #loading> Učitavanje korisnika tvrtke{{ ' ' +
                                             slotProps.data?.epr_naziv || '' }}. Molimo pričekajte. </template>
                                         <template #footer>
@@ -134,8 +139,8 @@
                                             header-style="width: 20%; min-width: 10rem" />
                                         <Column field="epr_prezime" header="Prezime"
                                             header-style="width: 20%; min-width: 10rem" />
-                                        <Column field="tvrtka_usluge" header="Tvrtka usluge"
-                                            header-style="width: 20%; min-width: 10rem" />
+                                        <Column field="epr_email" header="Tvrtka usluge"
+                                            header-style="width: 25%; min-width: 10rem" />
                                         <Column field="aktivan" header="Status" :show-filter-menu="false"
                                             style="width: 3rem">
                                             <template #body="{ data }">
@@ -156,7 +161,7 @@
                                         <Column header-style="width: 5rem;">
                                             <template #body="{ data }">
                                                 <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                                                    <span v-if="!data?.eko_inicijalno && data?.epr_email" class="edit-btn" @click="sendMail(data);"> <!--@click="showMailLogs(data)"-->
+                                                    <span v-if="!data?.eko_inicijalno && data?.epr_email" v-tooltip.left="'Pošalji email korisniku'" class="edit-btn" @click="sendMail(data);"> <!--@click="showMailLogs(data)"-->
                                                         <font-awesome-icon icon="envelope" />
                                                     </span>
                                                     <!-- <span v-else v-tooltip.top="'Korisnik nema spremljenu email adresu'" class="edit-btn no-email">
@@ -987,10 +992,21 @@ const updateFIZosobe = () => {
     korisniciStore.fetchFizickeOsobe()
 }
 
-const onRowExpand = (event) => {
+const userEmptyMessage = ref(null);
+const onRowExpand = async (event) => {
     console.log(event)
+    userEmptyMessage.value = null;
 
-    korisniciStore.fetchKorisniciForLegalPartner(event.data.epr_id)
+    try {
+        const response = await korisniciStore.fetchKorisniciForLegalPartner(event.data.epr_id)
+        console.log("RES: ", response)
+        if(response?.message) {
+            userEmptyMessage.value = response.message
+        }
+    } catch (error) {
+        console.error("error: ", error.message)
+        console.error('Error fetching korisnici for legal partner:', event.data.epr_id);
+    }
 };
 
 const refreshData = async () => {
@@ -1120,7 +1136,7 @@ const addKorisnik = async ({ valid }) => {
                         showError("Greška pri slanju e-pošte korisniku!")
                     }
                 }
-
+                refreshData();
             }
         } catch (error) {
             showErrorKorisnik(korisnik.value)

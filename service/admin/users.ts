@@ -69,7 +69,7 @@ export const getUsersForLegalPartner = async (id: number | string): Promise<unkn
         return response.data;
     } catch (error) {
         console.error('Greška pri dohvaćanju korisnika za pravnu osobu: ', error);
-        return null;
+        return error;
     }
 };
 
