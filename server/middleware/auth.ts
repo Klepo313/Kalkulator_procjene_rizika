@@ -1,14 +1,20 @@
 // /server/middleware/auth.ts
 import { parseCookies, sendRedirect, deleteCookie } from "h3";
-import { isValidToken } from "../utils/authToken"; // Import funkcije iz utils/auth.ts
+import { isValidToken, getAuthTokenFromEndpoint } from "../utils/authToken"; // Import funkcije iz utils/auth.ts
 
 export default defineEventHandler(async (event) => {
     const cookies = parseCookies(event);
-    const token = cookies.authToken;
+    let token = cookies.authToken;
     const currentPath = event.node.req.url; // Trenutna ruta
 
     if (currentPath?.startsWith("/login")) {
         return;
+    }
+
+    
+    if (!token) {
+        token = await getAuthTokenFromEndpoint(event);
+        console.log('Token dohvaćen iz endpointa:', token);
     }
 
     console.log("token: ", token);
