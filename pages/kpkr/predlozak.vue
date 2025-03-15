@@ -76,7 +76,7 @@ watch(compId, async (newValue) => {
             cardStore.setCardId(izracunData.value?.aiz_id);
             cardStore.setBroj(izracunData.value?.aiz_broj);
             cardStore.setVrstaIzracuna(izracunData.value?.tvz_naziv)
-            cardStore.setScenarij(izracunData.value?.tvs_sif == 1 ? 'RCP' : 'SSP');
+            cardStore.setScenarij(izracunData.value?.tvs_id == 1 ? 'RCP' : 'SSP');
         } catch (error) {
             console.log(error);
             navigateTo('/kpkr/predlosci');
