@@ -77,7 +77,7 @@ import { compile, computed, defineEmits, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { navigateTo } from '#app';
 import { logout } from '~/temp/logout';
-import { useIzracunStore, useKespStore } from '~/stores/main-store';
+import { useKespStore } from '~/stores/main-store';
 // import { decryptCookie } from '#imports';
 
 const props = defineProps({
@@ -87,7 +87,6 @@ const props = defineProps({
 
 // const isCollapsed = ref(false);
 
-const izracunStore = useIzracunStore();
 const kespStore = useKespStore();
 
 // Koristite useRoute za dobivanje trenutne rute

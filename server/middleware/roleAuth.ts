@@ -11,8 +11,9 @@ export default defineEventHandler(async (event) => {
     }
 
     if (!token) {
-        console.log("Nema auth tokena, preusmjeravanje na login.");
-        return sendRedirect(event, "/login");
+        console.log("Nema auth tokena, nema rola.");
+        return;
+        // return sendRedirect(event, "/login");
     }
 
     try {

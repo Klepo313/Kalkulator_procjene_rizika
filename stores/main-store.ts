@@ -43,54 +43,6 @@ import {
 } from '~/service/kesp/fetchKespCalculations';
 
 
-
-export const useIzracunStore = defineStore('izracun-store', {
-    state: () => ({
-        idIzracuna: '',
-        vrstaIzracuna: '',
-        scenarij: '',
-    }),
-    actions: {
-        updateIdIzracuna(newValue: string) {
-            this.idIzracuna = newValue;
-            setCookie({ name: 'id-izracuna', value: newValue });
-        },
-        updateVrstaIzracuna(newValue: string) {
-            this.vrstaIzracuna = newValue;
-            setCookie({ name: 'vrsta-izracuna', value: newValue });
-        },
-        updateScenarij(newValue: string) {
-            this.scenarij = newValue;
-            setCookie({ name: 'scenarij', value: newValue });
-        },
-        updateAll(newValue: { idIzracuna: number, vrstaIzracuna: string, scenarij: string }) {
-            this.idIzracuna = newValue.idIzracuna;
-            this.vrstaIzracuna = newValue.vrstaIzracuna;
-            this.scenarij = newValue.scenarij;
-            setCookie([
-                { name: 'id-izracuna', value: newValue.idIzracuna },
-                { name: 'vrsta-izracuna', value: newValue.vrstaIzracuna },
-                { name: 'scenarij', value: newValue.scenarij },
-            ])
-
-        },
-        async initializeIzracun() {
-            const response = await getCookie(
-                ['id-izracuna', 'vrsta-izracuna', 'scenarij']
-            );
-            this.idIzracuna = response['id-izracuna'] || 0;
-            this.vrstaIzracuna = response['vrsta-izracuna'] || '';
-            this.scenarij = response['scenarij'] || '';
-        },
-        clearStore() {
-            deleteCookie(['id-izracuna', 'vrsta-izracuna', 'scenarij']);
-            this.idIzracuna = 0;
-            this.vrstaIzracuna = '';
-            this.scenarij = '';
-        }
-    }
-})
-
 export const useUserStore = defineStore('user-store', {
     state: () => ({
         name: '',
@@ -192,117 +144,18 @@ export const useUserStore = defineStore('user-store', {
     }
 });
 
-export const useToastErrorStore = defineStore('toast-error-store', {
-    state: () => ({
-        toastMessage: {
-            title: '',
-            description: '',
-        }, // Stanje za čuvanje poruke greške
-    }),
-    actions: {
-        setToastMessage(message: object) {
-            this.toastMessage.title = message.title;
-            this.toastMessage.description = message.description;
-        },
-        clearToastMessage() {
-            this.toastMessage.title = '';
-            this.toastMessage.description = '';
-        },
-    }
-})
-
 export const useOpciStore = defineStore('opci-podaci', {
     state: () => ({
-        opci_podaci: {
-            aiz_datum: "",
-
-            aiz_djl_id: 0,
-
-            aiz_djl_id_sk: 0,
-
-            aiz_id: '',
-
-            aiz_kcs_id: 0,
-
-            aiz_kop_id: 0,
-
-            aiz_status: 0,
-
-            aiz_tvo_id: 0,
-
-            aiz_tvz_id: 0,
-
-            aiz_opis: '',
-
-            aiz_napomena: '',
-
-            aiz_broj: '',
-
-            djl_naziv: "",
-
-            djl_naziv_sk: "",
-
-            djl_sif: "",
-
-            isp_naziv: "",
-
-            kcs_sif: "",
-
-            kop_naziv: "",
-
-            kop_sif: "",
-
-            puk_naziv: "",
-
-            tvo_naziv: "",
-
-            tvz_naziv: "",
-
-            tvs_id: 0
-        },
-
+        izracun: [],
         vrste_izracuna: [],
-
         katastarske_opcine: [],
-
         katastarske_cestice: [],
-
         vrste_objekta: [],
-
         djelatnosti: [],
-
         skupina_djelatnosti: [],
-
         scenariji: [],
-
     }),
     actions: {
-        clearOpciPodaci() {
-            this.opci_podaci.aiz_datum = '';
-            this.opci_podaci.aiz_djl_id = 0;
-            this.opci_podaci.aiz_djl_id_sk = 0;
-            this.opci_podaci.aiz_id = '';
-            this.opci_podaci.aiz_kcs_id = 0;
-            this.opci_podaci.aiz_kop_id = 0;
-            this.opci_podaci.aiz_status = 0;
-            this.opci_podaci.aiz_tvo_id = 0;
-            this.opci_podaci.aiz_tvz_id = 0;
-            this.opci_podaci.aiz_opis = '';
-            this.opci_podaci.aiz_broj = '';
-            this.opci_podaci.aiz_napomena = '';
-            this.opci_podaci.djl_naziv = '';
-            this.opci_podaci.djl_naziv_sk = '';
-            this.opci_podaci.djl_sif = '';
-            this.opci_podaci.isp_naziv = '';
-            this.opci_podaci.kcs_sif = '';
-            this.opci_podaci.kop_naziv = '';
-            this.opci_podaci.kop_sif = '';
-            this.opci_podaci.puk_naziv = '';
-            this.opci_podaci.tvo_naziv = '';
-            this.opci_podaci.tvz_naziv = '';
-            this.opci_podaci.tvs_id = 0;
-        },
-
         async fetchCalculationTypes() {
             const items = await getCalculationTypes();
 
@@ -316,33 +169,11 @@ export const useOpciStore = defineStore('opci-podaci', {
             const items = await getCalculations(id);
             if (items?.status == 200 && items.data) {
                 const data = items.data[0];
-                this.opci_podaci.aiz_datum = data.aiz_datum || this.opci_podaci.aiz_datum;
-                this.opci_podaci.aiz_djl_id = data.aiz_djl_id || this.opci_podaci.aiz_djl_id;
-                this.opci_podaci.aiz_djl_id_sk = data.aiz_djl_id_sk || this.opci_podaci.aiz_djl_id_sk;
-                this.opci_podaci.aiz_id = data.aiz_id || this.opci_podaci.aiz_id;
-                this.opci_podaci.aiz_kcs_id = data.aiz_kcs_id || this.opci_podaci.aiz_kcs_id;
-                this.opci_podaci.aiz_kop_id = data.aiz_kop_id || this.opci_podaci.aiz_kop_id;
-                this.opci_podaci.aiz_status = data.aiz_status || this.opci_podaci.aiz_status;
-                this.opci_podaci.aiz_tvo_id = data.aiz_tvo_id || this.opci_podaci.aiz_tvo_id;
-                this.opci_podaci.aiz_tvz_id = data.aiz_tvz_id || this.opci_podaci.aiz_tvz_id;
-                this.opci_podaci.aiz_opis = data.aiz_opis || this.opci_podaci.aiz_opis;
-                this.opci_podaci.aiz_broj = data.aiz_broj || this.opci_podaci.aiz_broj;
-                this.opci_podaci.aiz_napomena = data.aiz_napomena || this.opci_podaci.aiz_napomena;
-                this.opci_podaci.djl_naziv = data.djl_naziv || this.opci_podaci.djl_naziv;
-                this.opci_podaci.djl_naziv_sk = data.djl_naziv_sk || this.opci_podaci.djl_naziv_sk;
-                this.opci_podaci.djl_sif = data.djl_sif || this.opci_podaci.djl_sif;
-                this.opci_podaci.isp_naziv = data.isp_naziv || this.opci_podaci.isp_naziv;
-                this.opci_podaci.kcs_sif = data.kcs_sif || this.opci_podaci.kcs_sif;
-                this.opci_podaci.kop_naziv = data.kop_naziv || this.opci_podaci.kop_naziv;
-                this.opci_podaci.kop_sif = data.kop_sif || this.opci_podaci.kop_sif;
-                this.opci_podaci.puk_naziv = data.puk_naziv || this.opci_podaci.puk_naziv;
-                this.opci_podaci.tvo_naziv = data.tvo_naziv || this.opci_podaci.tvo_naziv;
-                this.opci_podaci.tvz_naziv = data.tvz_naziv || this.opci_podaci.tvz_naziv;
-                this.opci_podaci.tvs_id = data.tvs_id || this.opci_podaci.tvs_id;
+                this.izracun = data;
             } else {
                 console.error('Error fetching calculation types:', items?.status);
             }
-            console.log("EKV: ", this.opci_podaci)
+            console.log("EKV: ", this.izracun)
         },
         async fetchObjectTypes() {
             const items = await getObjectTypes();
@@ -406,32 +237,22 @@ export const useOpciStore = defineStore('opci-podaci', {
             }
         },
         async saveData() {
+            const data = {
+                aiz_id: this.izracun.aiz_id === '' ? null : this.izracun.aiz_id,
+                aiz_datum: formatDateToDMY(this.izracun.aiz_datum, '-'),
+                aiz_tvz_id: this.izracun.aiz_tvz_id,
+                aiz_kop_id: this.izracun.aiz_kop_id,
+                aiz_kcs_id: this.izracun.aiz_kcs_id === 0 || this.izracun.aiz_kcs_id == undefined ? null : this.izracun.aiz_kcs_id,
+                aiz_tvo_id: this.izracun.aiz_tvo_id === 0 ? null : this.izracun.aiz_tvo_id,
+                aiz_djl_id: this.izracun.aiz_djl_id === 0 ? null : this.izracun.aiz_djl_id,
+                aiz_opis: this.izracun.aiz_opis === '' || this.izracun.aiz_opis === undefined ? null : this.izracun.aiz_opis,
+                aiz_napomena: this.izracun.aiz_napomena === '' ? null : this.izracun.aiz_napomena,
+                tvs_id: this.izracun.tvs_id === 0 ? null : this.izracun.tvs_id
+            }
 
-            console.log("Prije savea: ",
-                this.opci_podaci.aiz_id === '' ? null : this.opci_podaci.aiz_id,
-                formatDateToDMY(this.opci_podaci.aiz_datum, '-'),
-                this.opci_podaci.aiz_tvz_id,
-                this.opci_podaci.aiz_kop_id,
-                this.opci_podaci.aiz_kcs_id === 0 || this.opci_podaci.aiz_kcs_id == undefined ? null : this.opci_podaci.aiz_kcs_id,
-                this.opci_podaci.aiz_tvo_id === 0 ? null : this.opci_podaci.aiz_tvo_id,
-                this.opci_podaci.aiz_djl_id === 0 ? null : this.opci_podaci.aiz_djl_id,
-                this.opci_podaci.aiz_opis === '' || this.opci_podaci.aiz_opis === undefined ? null : this.opci_podaci.aiz_opis,
-                this.opci_podaci.aiz_napomena === '' ? null : this.opci_podaci.aiz_napomena,
-                this.opci_podaci.tvs_id === 0 ? null : this.opci_podaci.tvs_id
-            )
+            console.log("Prije savea: ", data);
 
-            const response = await saveForm(
-                this.opci_podaci.aiz_id === '' ? null : this.opci_podaci.aiz_id,
-                formatDateToDMY(this.opci_podaci.aiz_datum, '-'),
-                this.opci_podaci.aiz_tvz_id,
-                this.opci_podaci.aiz_kop_id,
-                this.opci_podaci.aiz_kcs_id === 0 || this.opci_podaci.aiz_kcs_id == undefined ? null : this.opci_podaci.aiz_kcs_id,
-                this.opci_podaci.aiz_tvo_id === 0 ? null : this.opci_podaci.aiz_tvo_id,
-                this.opci_podaci.aiz_djl_id === 0 ? null : this.opci_podaci.aiz_djl_id,
-                this.opci_podaci.aiz_opis === '' || this.opci_podaci.aiz_opis === undefined ? null : this.opci_podaci.aiz_opis,
-                this.opci_podaci.aiz_napomena === '' ? null : this.opci_podaci.aiz_napomena,
-                this.opci_podaci.tvs_id === 0 ? null : this.opci_podaci.tvs_id
-            )
+            const response = await saveForm(data)
 
             console.log("Response savea: ", response.data)
             console.log("Res-id-response: ", response.data.calculationId)

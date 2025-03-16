@@ -86,10 +86,7 @@ import { navigateTo } from '#app';
 import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { logout } from '~/service/user/user';
-import { useIzracunStore } from '~/stores/main-store';
 // import { decryptCookie } from '#imports';
-
-const izracunStore = useIzracunStore();
 
 // Koristite useRoute za dobivanje trenutne rute
 const route = useRoute();
@@ -136,11 +133,6 @@ function capitalizeName(fullName) {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
 }
-
-watch(() => izracunStore.idIzracuna, (newValue) => {
-    console.log('idIzracuna updated:', newValue);
-    idIzracuna.value = parseInt(newValue);
-});
 
 // Prima prop za stanje bočne trake
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

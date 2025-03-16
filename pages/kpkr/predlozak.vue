@@ -32,7 +32,6 @@ definePageMeta({
 });
 
 const opciStore = useOpciStore();
-const toastErrorStore = useToastErrorStore();
 const cardStore = useCardStore();
 
 const idIzracuna = ref(null)
@@ -71,6 +70,7 @@ watch(compId, async (newValue) => {
         try {
             const response = await getCalculations(idIzracuna.value)
             izracunData.value = response.data[0]
+            opciStore.izracun = izracunData.value
             console.log("Predložak izračun: ", izracunData.value);
 
             cardStore.setCardId(izracunData.value?.aiz_id);
@@ -88,7 +88,7 @@ onMounted(async () => {
     idIzracuna.value = getIdFromUrl();
     console.log("Id u predlosku: " + idIzracuna.value);
 
-    opciStore.clearOpciPodaci();
+    // opciStore.clearOpciPodaci();
     await opciStore.fetchCalculationTypes();
     await opciStore.fetchObjectTypes();
     await opciStore.fetchActivities();
@@ -99,6 +99,7 @@ onMounted(async () => {
         try {
             const response = await getCalculations(idIzracuna.value)
             izracunData.value = response.data[0]
+            opciStore.izracun = izracunData.value
             console.log("Predložak izračun: ", izracunData.value);
 
             cardStore.setCardId(izracunData.value?.aiz_id);

@@ -20,6 +20,7 @@ export default defineNuxtConfig({
     middleware: ['auth.global', 'loading'],
   },
   runtimeConfig: {
+    secretKey: process.env.SECRET_KEY,
     public: {
       baseURL: process.env.BASE_URL,
     },
@@ -51,9 +52,9 @@ export default defineNuxtConfig({
     '@/styles.css',
     '@fortawesome/fontawesome-svg-core/styles.css',
   ],
-  plugins: [
-    '@/plugins/fontawesome.js',
-  ],
+  // plugins: [
+  //   '@/plugins/fontawesome.js',
+  // ],
   vite: {
     build: {
       rollupOptions: {

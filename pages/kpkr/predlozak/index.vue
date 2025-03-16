@@ -261,7 +261,7 @@
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import { ref, onMounted, onBeforeUnmount } from "vue" //onBeforeMount
-import { useOpciStore, useIzracunStore } from '~/stores/main-store';
+import { useOpciStore } from '~/stores/main-store';
 import { useCardStore } from '~/stores/index';
 import { formatDateToDMY } from '~/utils/dateFormatter'
 import { useRouter } from 'vue-router';

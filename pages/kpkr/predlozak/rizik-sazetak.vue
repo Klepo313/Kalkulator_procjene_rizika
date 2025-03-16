@@ -235,25 +235,25 @@ onMounted(async () => {
     }
 })
 
-const datum = computed(() => opciStore.opci_podaci.aiz_datum);
-const katOpcinaSifra = computed(() => opciStore.opci_podaci.kop_sif);
-const katOpcina = computed(() => opciStore.opci_podaci.kop_naziv);
+const datum = computed(() => opciStore.izracun.aiz_datum);
+const katOpcinaSifra = computed(() => opciStore.izracun.kop_sif);
+const katOpcina = computed(() => opciStore.izracun.kop_naziv);
 const katCestica = computed(() =>
-    opciStore.opci_podaci.kcs_sif === ''
+    opciStore.izracun.kcs_sif === ''
         ? null
-        : opciStore.opci_podaci.kcs_sif
+        : opciStore.izracun.kcs_sif
 );
-const vrstaObjektaId = computed(() => opciStore.opci_podaci.aiz_tvo_id);
-const vrstaImovine = computed(() => opciStore.opci_podaci.tvo_naziv);
-const djelatnostSifra = computed(() => opciStore.opci_podaci.djl_sif)
+const vrstaObjektaId = computed(() => opciStore.izracun.aiz_tvo_id);
+const vrstaImovine = computed(() => opciStore.izracun.tvo_naziv);
+const djelatnostSifra = computed(() => opciStore.izracun.djl_sif)
 const djelatnost = computed(() =>
-    opciStore.opci_podaci.djl_naziv === ''
+    opciStore.izracun.djl_naziv === ''
         ? null
-        : opciStore.opci_podaci.djl_naziv
+        : opciStore.izracun.djl_naziv
 );
-const skupinaDjelatnosti = computed(() => opciStore.opci_podaci.djl_naziv_sk);
-const ispostava = computed(() => opciStore.opci_podaci.isp_naziv);
-const podrucniUred = computed(() => opciStore.opci_podaci.puk_naziv);
+const skupinaDjelatnosti = computed(() => opciStore.izracun.djl_naziv_sk);
+const ispostava = computed(() => opciStore.izracun.isp_naziv);
+const podrucniUred = computed(() => opciStore.izracun.puk_naziv);
 
 const displayItems = computed(() => [
     { value: katOpcinaSifra.value && katOpcina.value ? `${katOpcinaSifra.value} - ${katOpcina.value}` : '', suffix: ',' },
@@ -265,8 +265,6 @@ const filteredItems = computed(() => displayItems.value.filter(item => item.valu
 
 const noviIzracun = () => {
     cardStore.cardId = null;
-    opciStore.clearOpciPodaci();
-    useIzracunStore().clearStore();
     navigateTo('/kpkr');
     // navigateWithParameter('/kpkr/predlozak', 'id', 'null')
     // nextTick();

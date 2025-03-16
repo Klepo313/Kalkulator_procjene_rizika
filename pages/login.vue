@@ -92,6 +92,21 @@ const checkLogin = async () => {
             authStore.userRoles = response.roles || [];
             authStore.exp = response.exp || 0;
 
+            // const { data, error } = await useFetch('/api/encrypt-tokens', {
+            //     method: 'POST'
+            // });
+
+            // if (error.value) {
+            //     console.error('Greška kod enkripcije tokena:', error.value);
+            //     return;
+            // }
+
+            // if (data.value) {
+            //     // Spremamo enkriptirane tokene u localStorage
+            //     localStorage.setItem('userAuthToken', data.value.encryptedAuthToken);
+            //     //localStorage.setItem('userRefreshToken', data.value.encryptedRefreshToken);
+            // }
+
             // ✅ Sada imamo sigurno učitane podatke i možemo raditi redirekciju
             if (isFirstLogin) {
                 navigateTo('/user/change-password');
