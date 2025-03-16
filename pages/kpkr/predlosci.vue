@@ -97,7 +97,6 @@ definePageMeta({
 const toast = useToast();
 
 const cardStore = useCardStore();
-const toastErrorStore = useToastErrorStore();
 const opciStore = useOpciStore();
 
 const filters = ref({
@@ -150,18 +149,6 @@ const onRowSelect = async () => {
 onMounted(async () => {
 
     deleteCookie(cookiesToDelete);
-    // console.log(toastErrorStore.toastMessage)
-    if (toastErrorStore.toastMessage.title && toastErrorStore.toastMessage.description) {
-        toast.add({
-            severity: 'error',
-            summary: toastErrorStore.toastMessage.title,
-            detail: toastErrorStore.toastMessage.description,
-            life: 3000,
-            position: 'top-right'
-        });
-        toastErrorStore.clearToastMessage() // Očistite poruku nakon prikazivanja
-    }
-
     cardStore.cardId = null;
     const data = await getCalculations();
     if (data.data) {
@@ -182,7 +169,6 @@ const doLogout = async () => {
 
 const noviIzracun = async () => {
     cardStore.resetCardStore();
-    opciStore.clearOpciPodaci();
     navigateWithParameter('/kpkr/predlozak', 'id', 'null')
 };
 </script>

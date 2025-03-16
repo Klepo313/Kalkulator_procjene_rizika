@@ -120,14 +120,26 @@ export const getScenarios = async (): Promise<unknown> => {
   }
 };
 
-export const saveForm = async (data: unknown): Promise<unknown> => {
+export const saveForm = async (data: any): Promise<unknown> => {
   const { $api } = useNuxtApp();
-  // console.log("Primljeni podaci: ", data);
+  
+  const podaci = {
+    calculationId: data.aiz_id,
+    date: data.aiz_datum,
+    calculationTypeId: data.aiz_tvz_id,
+    cadastreMunicipalityId: data.aiz_kop_id,
+    cadastreParticleId: data.aiz_kcs_id,
+    objectTypeId: data.aiz_tvo_id,
+    activityId: data.aiz_djl_id,
+    scenarioTypeId: data.tvs_id,
+    description: data.aiz_opis,
+    remark: data.aiz_napomena
+  }
 
   try {
     const response = await $api.post(
       `/calculation`,
-      data,
+      podaci,
       { headers: { 'Content-Type': 'application/json' } }
     );
     // console.log(response.status);

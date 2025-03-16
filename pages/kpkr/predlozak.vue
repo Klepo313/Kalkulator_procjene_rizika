@@ -32,7 +32,6 @@ definePageMeta({
 });
 
 const opciStore = useOpciStore();
-const toastErrorStore = useToastErrorStore();
 const cardStore = useCardStore();
 
 const idIzracuna = ref(null)
@@ -71,12 +70,13 @@ watch(compId, async (newValue) => {
         try {
             const response = await getCalculations(idIzracuna.value)
             izracunData.value = response.data[0]
+            opciStore.izracun = izracunData.value
             // console.log("Predložak izračun: ", izracunData.value);
 
             cardStore.setCardId(izracunData.value?.aiz_id);
             cardStore.setBroj(izracunData.value?.aiz_broj);
             cardStore.setVrstaIzracuna(izracunData.value?.tvz_naziv)
-            cardStore.setScenarij(izracunData.value?.tvs_sif == 1 ? 'RCP' : 'SSP');
+            cardStore.setScenarij(izracunData.value?.tvs_id == 1 ? 'RCP' : 'SSP');
         } catch (error) {
             // console.log(error);
             navigateTo('/kpkr/predlosci');
@@ -88,7 +88,7 @@ onMounted(async () => {
     idIzracuna.value = getIdFromUrl();
     // console.log("Id u predlosku: " + idIzracuna.value);
 
-    opciStore.clearOpciPodaci();
+    // opciStore.clearOpciPodaci();
     await opciStore.fetchCalculationTypes();
     await opciStore.fetchObjectTypes();
     await opciStore.fetchActivities();
@@ -99,6 +99,7 @@ onMounted(async () => {
         try {
             const response = await getCalculations(idIzracuna.value)
             izracunData.value = response.data[0]
+            opciStore.izracun = izracunData.value
             // console.log("Predložak izračun: ", izracunData.value);
 
             cardStore.setCardId(izracunData.value?.aiz_id);

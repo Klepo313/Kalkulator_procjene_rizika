@@ -106,7 +106,7 @@
                     <div class="grid-item">
                         <label for="djelatnost" class="header">Djelatnost</label>
                         <AutoComplete v-model="djelatnost" id="djelatnost" name="djelatnost"
-                            class="form-input autocomplete"
+                            class="form-input autocomplete" 
                             :option-label="option => formatOption(option, 'djl_sif', 'djl_naziv')"
                             :suggestions="filteredDjelatnost" @complete="updateDjelatnost"
                             @item-select="fetchSkupinuDjelatnosti"
@@ -184,7 +184,7 @@
                     </div>
 
                     <template v-if="!isReadonly">
-                        <button id="saveBtn" type="submit" @click="confirm1()" > <!--@click="visibleSaveDialog = true"-->
+                        <button id="saveBtn" type="submit" > <!--@click="visibleSaveDialog = true"-->
                             <font-awesome-icon :icon="idIzracuna ? 'lock' : 'save'" class="save-icon" />
                             Spremi i zaključaj
                         </button>
@@ -261,7 +261,7 @@
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import { ref, onMounted, onBeforeUnmount } from "vue" //onBeforeMount
-import { useOpciStore, useIzracunStore } from '~/stores/main-store';
+import { useOpciStore } from '~/stores/main-store';
 import { useCardStore } from '~/stores/index';
 import { formatDateToDMY } from '~/utils/dateFormatter'
 import { useRouter } from 'vue-router';
@@ -887,29 +887,6 @@ const onFormSubmit = async ({ valid }) => {
 
 const formSubmitFunction = ref(null);
 
-// Funkcija koja se poziva ako korisnik potvrdi spremanje
-const confirm1 = () => {
-    confirm.require({
-        message: 'Are you sure you want to proceed?',
-        header: 'Confirmation',
-        icon: 'pi pi-exclamation-triangle',
-        rejectProps: {
-            label: 'Cancel',
-            severity: 'secondary',
-            outlined: true
-        },
-        acceptProps: {
-            label: 'Save'
-        },
-        accept: () => {
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
-        },
-        reject: () => {
-            toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
-        }
-    });
-};
-
 const showSuccess = () => {
     toast.add({ severity: 'success', summary: 'Uspješno spremljeno', detail: 'Promjene na formi su spremljene', group: 'tc', life: 5000 });
 };
@@ -1032,6 +1009,11 @@ h1 {
 
 :deep(.p-autocomplete-dropdown) {
     width: auto !important;
+    border-radius: 0 5px 5px 0 !important;
+    padding: 12px;
+}
+:deep(.p-autocomplete-list-container) {
+    width: 600px !important;
 }
 
 .info-div {
