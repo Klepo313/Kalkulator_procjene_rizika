@@ -106,7 +106,7 @@
                     <div class="grid-item">
                         <label for="djelatnost" class="header">Djelatnost</label>
                         <AutoComplete v-model="djelatnost" id="djelatnost" name="djelatnost"
-                            class="form-input autocomplete" dropdown 
+                            class="form-input autocomplete" 
                             :option-label="option => formatOption(option, 'djl_sif', 'djl_naziv')"
                             :suggestions="filteredDjelatnost" @complete="updateDjelatnost"
                             @item-select="fetchSkupinuDjelatnosti"
