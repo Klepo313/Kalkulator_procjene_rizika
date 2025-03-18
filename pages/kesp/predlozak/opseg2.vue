@@ -147,7 +147,7 @@
                 <div class="stats-table">
                     <div class="chart-container">
                         <span>
-                            <p>Ukupne emisije CO<sub>2</sub>/kg (%)</p>
+                            <p>Emisije eCO<sub>2</sub>/kg (%)</p>
                             <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('pie')" />
                         </span>
                         <Chart type="pie" :data="combinedChartData" :options="chartOptions"
@@ -167,7 +167,7 @@
                     <div class="fullscreen-chart" @click.stop>
                         <font-awesome-icon icon="times" class="close-icon" @click="closeFullscreen" />
                         <span v-if="fullscreenChart === 'pie'">
-                            <h2>Emisije CO<sub>2</sub>/kg (%)</h2>
+                            <h2>Emisije eCO<sub>2</sub>/kg (%)</h2>
                         </span>
                         <span v-if="fullscreenChart === 'polar'">
                             <h2>Ukupna potrošnja energije [kWh] (%)</h2>
