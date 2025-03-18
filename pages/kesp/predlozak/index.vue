@@ -170,7 +170,7 @@
                                     {{ slotProps.data.usi_jmj }}
                                 </template>
                             </Column>
-                            <Column field="emisije" header="Emisije CO₂/kg" sortable>
+                            <Column field="emisije" header="Emisija eCO2/kg" sortable>
                                 <template #body="slotProps">
                                     <span>{{ formatNumber(parseFloat(slotProps.data.usi_emisija, 2)) }}</span>
                                 </template>
@@ -178,7 +178,7 @@
                             <template #footer>
                                 <div class="total-emissions">
                                     <div>
-                                        Ukupno: <strong>{{ formatNumber(ukupnaEmisija, 2) }}</strong> CO<sub>2</sub>/kg
+                                        Ukupno: <strong>{{ formatNumber(ukupnaEmisija, 2) }}</strong> eCO<sub>2</sub>/kg
                                     </div> <!--.toFixed(2)-->
                                 </div>
                             </template>
@@ -428,7 +428,7 @@
                     <!-- CO2 Emissions Chart -->
                     <div v-if="vozila.length" class="chart-container">
                         <span>
-                            <p>Emisije CO<sub>2</sub>/kg (%)</p>
+                            <p>Emisije eCO<sub>2</sub>/kg (%)</p>
                             <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('pie')" />
                         </span>
                         <Chart type="pie" :data="chartData" :options="chartOptions" class="w-full md:w-[30rem]" />
@@ -448,7 +448,7 @@
                         <div class="fullscreen-chart" @click.stop>
                             <font-awesome-icon icon="times" class="close-icon" @click="closeFullscreen" />
                             <span v-if="fullscreenChart === 'pie'">
-                                <h2>Emisije CO<sub>2</sub>/kg (%)</h2>
+                                <h2>Emisije eCO<sub>2</sub>/kg (%)</h2>
                             </span>
                             <span v-if="fullscreenChart === 'polar'">
                                 <h2>Potrošnja energenata (%)</h2>

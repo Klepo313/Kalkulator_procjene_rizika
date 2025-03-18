@@ -78,9 +78,16 @@
                                 </template>
                             </Column>
 
+                            <Column headerStyle="width:4rem">
+                                <template #body>
+                                    <font-awesome-icon icon="arrow-up-right-from-square" />
+                                    <!-- <Button icon="pi pi-search" /> -->
+                                </template>
+                            </Column>
+
                             <template #footer>
                                 <div class="flex justify-end font-bold w-full mt-4">
-                                    Ukupno: <strong>{{ formatNumber(vehicleStore.ukupnaEmisija / 1000) }}</strong>
+                                    Ukupno: <strong>{{ formatNumber(vehicleStore.ukupnaEmisija / 1000, 3) }}</strong>
                                     eCO<sub>2</sub> t/god
                                 </div>
                             </template>
@@ -138,7 +145,7 @@
                                             <strong>{{
                                                 formatNumber(vehicleStore.emisijaZaKategoriju(odabranaGrupaEmisije?.uge_naziv)
                                                     /
-                                                    1000) }}</strong></span> t/god
+                                                    1000, 4) }}</strong></span> t/god
                                     </div>
                                 </template>
                             </DataTable>
@@ -185,20 +192,20 @@
                             </template>
                         </Column>
 
-                        <Column header="Obnovljiva energija (kWh)" field="obnovljivo">
+                        <Column header="Obnovljiva energija predana u mrežu (kWh)" field="obnovljivo">
                             <template #body="slotProps">
                                 {{ slotProps.data.obnovljivo !== null ? formatNumber(slotProps.data.obnovljivo) : '0.00'
                                 }}
                             </template>
                         </Column>
 
-                        <Column header="Ukupna potrošnja (kWh)" field="ukupno">
+                        <Column header="Osnova za izračun emisija (kWh)" field="ukupno">
                             <template #body="slotProps">
                                 {{ formatNumber(slotProps.data.ukupno) }}
                             </template>
                         </Column>
 
-                        <Column header="Emisije CO2 t/god" field="emisije">
+                        <Column header="Emisija eCO2 t/god" field="emisije">
                             <template #body="slotProps">
                                 {{ formatNumber(slotProps.data.emisije.toFixed(2) / 1000) }}
                             </template>
@@ -294,7 +301,7 @@
                 <div class="stats-table">
                     <div v-if="vozila.length" class="chart-container">
                         <span>
-                            <p>Emisije CO<sub>2</sub> t/god - Opseg 1 (%)</p>
+                            <p>Emisije eCO<sub>2</sub> t/god - Opseg 1 (%)</p>
                             <font-awesome-icon icon="expand" class="expand-icon" @click="openFullscreen('pie')" />
                         </span>
                         <Chart type="pie" :data="emissionsPieData" :options="chartOptions" />
@@ -315,7 +322,7 @@
                     <div class="fullscreen-chart" @click.stop>
                         <font-awesome-icon icon="times" class="close-icon" @click="closeFullscreen" />
                         <span v-if="fullscreenChart === 'pie'">
-                            <h2>Emisije CO<sub>2</sub> t/god - Opseg 1 (%)</h2>
+                            <h2>Emisije eCO<sub>2</sub> t/god - Opseg 1 (%)</h2>
                         </span>
                         <span v-if="fullscreenChart === 'polar'">
                             <h2>Ukupna potrošnja energije [kWh] - Opseg 2 (%)</h2>
