@@ -3,7 +3,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     const user = useAuthStore();
 
     if (to.path === "/login") {
-        console.log("Na login stranici - preskačemo auth provjere.");
+        // console.log("Na login stranici - preskačemo auth provjere.");
         return;
     }
 

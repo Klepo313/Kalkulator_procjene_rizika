@@ -64,9 +64,6 @@ import { logout } from '~/service/user/user';
 import { useUserStore } from '~/stores/main-store';
 
 definePageMeta({
-    // middleware: [
-    //     'auth'
-    // ],
     pageTransition: { name: 'slide', mode: 'out-in' }
 });
 
@@ -74,6 +71,8 @@ const userStore = useUserStore();
 const authStore = useAuthStore();
 
 const roles = ref([null])
+const res = ref(null)
+const loading = ref(true);
 
 async function fetchImageAsBlob(imageId) {
     const response = await fetch(`/static/images/${imageId}.svg`); // Dohvati sliku pomoću API poziva
@@ -157,34 +156,15 @@ const filteredCards = computed(() => {
     });
 });
 
-// const filteredCards = computed(() => {
-//     if (roles.value.message) {
-//         return [];
-//     }
-//     return cards.value.filter(card => roles.value.includes(card.role));
-// });
-
-const res = ref(null)
-const loading = ref(true);
-
 onMounted(async () => {
     res.value = await userStore.getAll;
     roles.value = res.value.roles || { message: 'Nemate dopuštenih prava.' };
-    // console.log({
-    //     username: res.value.username,
-    //     name: res.value.name,
-    //     surname: res.value.surname,
-    //     email: res.value.email,
-    //     roles: res.value.roles
-    // })
     for (const card of cards.value) {
         card.miniLogo = await fetchImageAsBlob(card.miniLogoId);
         card.textLogo = await fetchImageAsBlob(card.textLogoId);
         card.isLoaded = true;
     }
     loading.value = false;
-
-    // // console.log(authStore.userRoles)
 });
 
 const doLogout = async () => {
