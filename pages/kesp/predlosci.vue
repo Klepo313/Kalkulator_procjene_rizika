@@ -156,7 +156,8 @@ const filters = ref({
     global: { value: '', matchMode: 'contains' }
 });
 
-const izracuni = computed(() => kespStore.predlosci || []);
+const izracuni = computed(() => (kespStore.predlosci || []).slice().reverse());
+
 const loading = ref(true);
 const isLocked = ref(false);
 
