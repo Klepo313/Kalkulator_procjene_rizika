@@ -11,17 +11,19 @@ export default defineEventHandler(async (event) => {
         return;
     }
 
-    console.log("token: ", token);
+    // console.log("token: ", token);
 
     if (!token || !isValidToken(token)) {
+
+        // console.log("Neispravan JWT token, preusmjeravanje na login.")
         
         event.context.isLoggedin = false;
         event.context.userRoles = []
         event.context.exp = null;
 
-        // // Dodaj redirectTo parametar za vraćanje nakon logina
-        // const loginRedirectUrl = `/login?redirectTo=${encodeURIComponent(currentPath)}`;
-        // return sendRedirect(event, loginRedirectUrl);
+        // Dodaj redirectTo parametar za vraćanje nakon logina
+        const loginRedirectUrl = `/login?redirectTo=${encodeURIComponent(currentPath)}`;
+        return sendRedirect(event, loginRedirectUrl);
     } else {
         const payload = JSON.parse(atob(token.split(".")[1]));
         const userRoles: string[] = payload.userRoles || [];
