@@ -25,9 +25,24 @@ export const getStatusLabel = (status) => {
     switch (status) {
         case 'D':
             return 'success';
+        case 'Da':
+            return 'success';
         case 'N':
+            return 'danger';
+        case 'Ne':
             return 'danger';
         default:
             return 'secondary';
     }
 };
+
+export const getSeverity = (status) => {
+    switch (status) {
+        case 1:
+            return 'success'
+        case false:
+            return 'danger';
+        default:
+            return 'info';
+    }
+}
