@@ -78,10 +78,6 @@ import { z } from 'zod';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { logout, updatePassword } from '~/service/user/user';
 
-definePageMeta({
-    middleware: 'auth'
-})
-
 const oldPassword = ref('');
 const password = ref('');
 const passwordRepeat = ref('');

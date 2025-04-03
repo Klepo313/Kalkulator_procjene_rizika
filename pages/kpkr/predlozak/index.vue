@@ -265,6 +265,7 @@ import { useOpciStore } from '~/stores/main-store';
 import { useCardStore } from '~/stores/index';
 import { formatDateToDMY } from '~/utils/dateFormatter'
 import { useRouter } from 'vue-router';
+import NespremljenePromjenePopup from '~/components/kpkr/NespremljenePromjenePopup.vue';
 
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
@@ -275,7 +276,6 @@ import 'nprogress/nprogress.css'; // Stilovi za traku učitavanja
 
 definePageMeta({
     middleware: [
-        'auth',
         'izracun'
     ],
 });

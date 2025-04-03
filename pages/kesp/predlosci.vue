@@ -144,10 +144,6 @@ import { logout } from '~/temp/logout';
 import { formatDateToDMY, getYearsRange } from '@/utils/dateFormatter';
 import { setCookie, deleteCookie } from '~/utils/cookieUtils';
 
-definePageMeta({
-    middleware: ['auth', 'kesp-access'],
-});
-
 const kespStore = useKespStore();
 
 const toast = useToast();
@@ -156,7 +152,7 @@ const filters = ref({
     global: { value: '', matchMode: 'contains' }
 });
 
-const izracuni = computed(() => kespStore.predlosci || []);
+const izracuni = computed(() => (kespStore.predlosci || []).slice().reverse());
 const loading = ref(true);
 const isLocked = ref(false);
 

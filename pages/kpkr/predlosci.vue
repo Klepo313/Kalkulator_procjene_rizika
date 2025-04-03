@@ -87,13 +87,6 @@ import { getCalculations } from '~/service/kpkr/calculations';
 import { formatDateToDMY } from '@/utils/dateFormatter';
 import { setCookie, deleteCookie } from '~/utils/cookieUtils';
 
-definePageMeta({
-    middleware: [
-        'auth',
-        // 'kpkr-access'
-    ],
-});
-
 const toast = useToast();
 
 const cardStore = useCardStore();
