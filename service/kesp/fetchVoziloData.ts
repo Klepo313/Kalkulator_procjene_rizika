@@ -110,6 +110,32 @@ export const getCoolingCalculationItems = async (id: number | string): Promise<u
     }
 };
 
+export const getCoolingCalculation = async (id: number | string): Promise<unknown> => {
+    const { $api } = useNuxtApp();
+    const url = id ? `/CO2/cooling_calculation/${id}` : `/CO2/cooling_calculation`;
+
+    try {
+        const response = await $api.get(url);
+        return response.data;
+    } catch (error) {
+        // console.error('Greška pri dohvaćanju izračuna: ', error);
+        return null;
+    }
+}
+
+export const getFuel = async (id: number | string): Promise<unknown> => {
+    const { $api } = useNuxtApp();
+    const url = id ? `/CO2/fuel_types/${id}` : `/CO2/fuel_types`;
+
+    try {
+        const response = await $api.get(url);
+        return response.data;
+    } catch (error) {
+        // console.error('Greška pri dohvaćanju izračuna: ', error);
+        return null;
+    }
+}
+
 export const saveCoolingCalculation = async (data): Promise<unknown> => {
     const { $api } = useNuxtApp();
     // console.log("Primljeni podaci: ", data);

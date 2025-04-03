@@ -82,3 +82,55 @@ export const updatePassword = async (data: Record<string, unknown>) => {
     return 0;
   }
 };
+
+export const getUser = async (id: string | number) => {
+  const { $api } = useNuxtApp();
+  try {
+    const response = await $api.get(`/user/${id}`);
+    return response?.data[0];
+  } catch (error) {
+    // console.error('Greška pri dohvaćanju podataka o korisniku: ', error);
+    return 0;
+  }
+}
+
+export const getPravaForUser = async (userId: string | number, groupCode: string, appId: string | null) => {
+  const { $api } = useNuxtApp();
+  try {
+    const response = await $api.get(`/user/rights`, {
+      params: {
+        userId: userId,
+        groupCode: groupCode,
+        ...(groupCode !== 'APP' ? { appId: appId } : {})
+      }
+    });
+    console.log("Response prava: ", response?.data);
+    return response?.data;
+  } catch (error) {
+    // console.error('Greška pri dohvaćanju podataka o korisniku: ', error);
+    return 0;
+  }
+}
+
+export const savePravaForUser = async (data: {
+  userId: string | number,
+  rightTypeId: string | number,
+  dateFrom: string,
+  dateTo: string,
+  status: number
+}): Promise<unknown> => {
+  // if (!(data.userId && data.rightTypeId && data.dateFrom && data.dateTo && data.status)) {
+  //   return;
+  // }
+  // console.log("partner za spremanje: ", partner);
+  const { $api } = useNuxtApp();
+  try {
+    const response = await $api.post('/user/rights', data, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return response;
+  } catch (error) {
+    // console.error('Greška pri spremanju osobe: ', error);
+    return null;
+  }
+};

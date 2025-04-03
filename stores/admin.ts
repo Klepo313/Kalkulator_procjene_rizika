@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia';
 import { useUsers } from '~/composables/users/useUsers';
-import { getFizickeOsobe, getPartners, getPravneOsobe, getUsersForLegalPartner } from '~/service/admin/users';
+import { getContracts, getFizickeOsobe, getPartners, getPravneOsobe, getUsersForLegalPartner } from '~/service/admin/users';
 
 export const useKorisniciStore = defineStore('korisnici', {
     state: () => ({
         pravneOsobe: [],
         fizickeOsobe: [],
         searchFizickeOsobe: [],
+        expandedRows: [],
+        ugovori: [],
+        selectedPrava: [],
     }),
     actions: {
         async fetchOsobe(): Promise<void> {
@@ -99,6 +102,14 @@ export const useKorisniciStore = defineStore('korisnici', {
             } catch (error) {
                 // console.error(`Error fetching korisnici for legal partner ${id}:`, error);
                 return;
+            }
+        },
+        async fetchUgovori(id): Promise<void> {
+            try {
+                this.ugovori = await getContracts(id);
+            } catch (error) {
+                // console.error('Error fetching ugovori:', error);
+                return error?.message
             }
         },
     }
