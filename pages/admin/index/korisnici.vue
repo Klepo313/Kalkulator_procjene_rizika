@@ -1,2212 +1,405 @@
 <template>
-    <div class="body">
-        <Toast />
-        <ConfirmDialog group="mail">
-            <template #container="{ message, acceptCallback, rejectCallback }">
-                <div class="mail-container">
-                    <div class="mail-header">
-                        <font-awesome-icon icon="envelope" />
-                        <span>{{ message.title }}</span>
-                    </div>
-                    <div class="mail-body">
-                        <p>{{ message.message }}</p>
-                    </div>
-                    <div class="mail-footer">
-                        <Button label="Odustani" severity="secondary" class="p-button-text" @click="rejectCallback()" />
-                        <button class="dodaj-btn" @click="acceptCallback()">
-                            <font-awesome-icon icon="paper-plane" />    
-                            Pošalji
-                        </button>
-                    </div>
-                </div>
-            </template>
-            <!-- <template #footer="slotProps">
-                <button class="dodaj-btn" @click="slotProps.accept()">
-                    <font-awesome-icon icon="paper-plane" />
-                    Pošalji
-                </button>
-                <Button label="Odustani" severity="secondary" class="p-button-text" @click="slotProps.reject()" />
-            </template> -->
-        </ConfirmDialog>
-        <main>
-            <h1>Dodavanje korisnika</h1>
-            <div class="main-content">
-                <section>
-                    <div>
-                        <h2>Popis korisnika</h2>
-                        <p>
-                            Popis korisnika za pravne osobe koje su zabilježene u sustavu. <br>
-                            <!-- Tko je partner, a tko korisnik? <u style="font-style: italic; cursor: pointer;">Pročitaj
-                                ovdje</u>. -->
-                        </p>
-                    </div>
-                    <div>
-                        <Toolbar class="toolbar" style="display: flex; gap: 5px;">
-                            <template #start>
-                                <button class="dodaj-btn" @click="onOpenNewUserDialog()">
-                                    <font-awesome-icon icon="plus" />
-                                    Dodaj korisnički račun
-                                </button>
-                            </template>
-                            <template #end>
-                                <button class="dodaj-partnera-btn" @click="addPartner">
-                                    <font-awesome-icon icon="user-plus" /> Dodaj partnera
-                                </button>
-                            </template>
-                        </Toolbar>
-                    </div>
-                    <div class="datatable">
-
-                        <DataTable v-model:filters="filters" v-model:expanded-rows="expandedRows"
-                            :value="processedPRVpartneri" :rows="10" scrollable scroll-height="800px" :sort-order="1"
-                            :loading="loading" loadingMode="icon" size="small" removable-sort :global-filter-fields="[
-                                'epr_naziv',
-                                'epr_oib',
-                                'user_accounts_num',
-                                'epr_adresa',
-                                'epr_mjesto',
-                                'fizOsobeText'
-                            ]" table-style="min-width: 60rem" @row-expand="onRowExpand">
-                            <template #header>
-                                <div class="global-search-container">
-                                    <IconField class="global-search-iconfield input">
-                                        <InputIcon>
-                                            <font-awesome-icon icon="search" />
-                                        </InputIcon>
-                                        <InputText v-model="filters['global'].value"
-                                            placeholder="Pretraži tvrtke" />
-                                    </IconField>
-                                    <div class="global-search-iconfield refresh" @click="refreshData()">
-                                        <font-awesome-icon icon="rotate-right" class="refresh-icon" />
-                                    </div>
-                                </div>
-                            </template>
-                            <template #rowtoggleicon>
-                                <span>
-                                    <font-awesome-icon icon="chevron-down" />
-                                </span>
-                            </template>
-                            <template #empty> Nema pravnih osoba. </template>
-                            <template #loading> Učitavanje pravnih osoba. Molimo pričekajte. </template>
-                            <template #footer>
-                                <div class="total-emissions">
-                                    Ukupno pravnih osoba: <strong>{{ PRVpartneri.length }}</strong>
-                                </div>
-                            </template>
-
-                            <Column expander style="width: 5rem" />
-                            <Column field="epr_naziv" header="Naziv">
-                                <template #body="slotProps">
-                                    <strong style="text-decoration: none;">{{ slotProps.data.epr_naziv }}</strong>
-                                </template>
-                            </Column>
-                            <Column field="epr_oib" header="OIB" />
-                            <Column field="epr_adresa" header="Adresa" />
-                            <Column field="epr_mjesto" header="Mjesto" />
-                            <Column field="employees_num" header="Broj korisnika" />
-
-                            <template #expansion="slotProps">
-                                <div v-if="!(slotProps.data.users && slotProps.data.users.length > 0) && !userEmptyMessage" class="loading-container">
-                                    <font-awesome-icon icon="spinner" spin />
-                                    Učitavanje korisnika 
-                                    <!-- tvrtke {{ ' ' + slotProps.data?.epr_naziv || '' }}. -->
-                                </div>
-                                <div v-else class="inside-table">
-                                    <DataTable :value="slotProps.data.users">
-                                        <template #empty>
-                                            <span style="opacity: 0.6;">
-                                                Nema korisnika za ovaj pravni subjekt.
-                                            </span>
-                                        </template>
-                                        <template #loading> Učitavanje korisnika tvrtke{{ ' ' +
-                                            slotProps.data?.epr_naziv || '' }}. Molimo pričekajte. </template>
-                                        <template #footer>
-                                            <div style="margin: 5px 0px;">
-                                                <span 
-                                                    class="dodaj-korisnika" @click="onOpenNewUserDialog(slotProps.data)">
-                                                    <font-awesome-icon icon="plus" /> <!--v-tooltip.top="'Nije još u funkciji.'"-->
-                                                    Dodaj korisnički račun
-                                                </span>
-                                            </div>
-                                        </template>
-
-                                        <Column header="#" header-style="width:3rem">
-                                            <template #body="slotProps">
-                                                {{ slotProps.index + 1 }}
-                                            </template>
-                                        </Column>
-                                        <Column field="epr_ime" header="Ime"
-                                            header-style="width: 20%; min-width: 10rem" />
-                                        <Column field="epr_prezime" header="Prezime"
-                                            header-style="width: 20%; min-width: 10rem" />
-                                        <Column field="epr_email" header="Tvrtka usluge"
-                                            header-style="width: 25%; min-width: 10rem" />
-                                        <Column field="aktivan" header="Status" :show-filter-menu="false"
-                                            style="width: 3rem">
-                                            <template #body="{ data }">
-                                                <Tag :value="data?.aktivan ? 'Aktivan' : 'Neaktivan'"
-                                                    :severity="getSeverity(data?.aktivan)" />
-                                            </template>
-                                            <template #filter="{ filterModel, filterCallback }">
-                                                <Select v-model="filterModel.value" :options="statuses"
-                                                    placeholder="Odaberi status" style="min-width: 12rem"
-                                                    :show-clear="true" @change="filterCallback()">
-                                                    <template #option="slotProps">
-                                                        <Tag :value="slotProps.option"
-                                                            :severity="getSeverity(slotProps.option)" />
-                                                    </template>
-                                                </Select>
-                                            </template>
-                                        </Column>
-                                        <Column header-style="width: 5rem;">
-                                            <template #body="{ data }">
-                                                <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                                                    <span v-if="!data?.eko_inicijalno && data?.epr_email" v-tooltip.left="'Pošalji email korisniku'" class="edit-btn" @click="sendMail(data);"> <!--@click="showMailLogs(data)"-->
-                                                        <font-awesome-icon icon="envelope" />
-                                                    </span>
-                                                    <!-- <span v-else v-tooltip.top="'Korisnik nema spremljenu email adresu'" class="edit-btn no-email">
-                                                        <font-awesome-icon icon="envelope" /> 
-                                                    </span>-->
-                                                    <span class="edit-btn disabled"> <!--@click="editKorisnik(data)"-->
-                                                        <font-awesome-icon icon="user-pen" />
-                                                    </span>
-                                                </div>
-                                            </template>
-                                        </Column>
-                                    </DataTable>
-                                </div>
-                            </template>
-
-                        </DataTable>
-
-                        <Dialog v-model:visible="editKorisnikDialog" header="Uredi korisnika" :modal="true"
-                            :style="{ width: '1000px' }" @hide="resetOdabraniKorisnik">
-                            <template #header>
-                                <div class="dialog-header">
-                                    <font-awesome-icon icon="user-pen" />
-                                    <div class="dialog-header-text">
-                                        <strong>{{ odabraniKorisnik?.epr_ime + ' ' + odabraniKorisnik?.epr_prezime }}</strong>
-                                        <span>{{odabraniKorisnik?.epr_email || odabraniKorisnik?.epr_oib}}</span> 
-                                    </div>
-                                </div>
-                            </template>
-                            <Form v-slot="$form" :resolver="resolver" :initial-values="initialValues" class="p-fluid"
-                                @submit.prevent="saveKorisnik">
-                                <div class="left-form">
-                                    <div class="section">
-                                        <div class="field-heading">
-                                            <h2 class="p-text-bold">Postavke korisničkog računa</h2>
-                                            <p>Izmijeni raspon trajanja korisničkog računa</p>
-                                        </div>
-                                        <div class="field-split">
-                                            <div>
-                                                <div class="label-container">
-                                                    <font-awesome-icon icon="calendar-plus" />
-                                                    <label for="datod">Vrijedi od</label>
-                                                </div>
-                                                <DatePicker id="datod" v-model="odabraniKorisnik.vrijeme_od" show-icon
-                                                    fluid icon-display="input" input-id="odabraniKorisnik.vrijeme_od"
-                                                    date-format="dd.mm.yy" placeholder="Vrijedi od" required />
-                                            </div>
-                                            <div>
-                                                <div class="label-container">
-                                                    <font-awesome-icon icon="calendar-plus" />
-                                                    <label for="datdo">Vrijedi do</label>
-                                                </div>
-                                                <DatePicker id="datdo" v-model="odabraniKorisnik.vrijeme_do" show-icon
-                                                    fluid icon-display="input" input-id="odabraniKorisnik.vrijeme_do"
-                                                    date-format="dd.mm.yy" placeholder="Vrijedi do" />
-                                            </div>
-                                        </div>
-                                        <div class="field status-field">
-                                            <span>Status: </span>
-                                            <span>
-                                                <Tag :value="odabraniKorisnik.status"
-                                                    :severity="getSeverity(odabraniKorisnik.status)" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                </div>
-                                <!-- <hr> -->
-                                <div class="right-form">
-                                    <div class="section">
-                                        <div class="field-heading">
-                                            <h2 class="p-text-bold">Prava korisnika</h2>
-                                            <p>Izmjeni prava korisnika na korištenje aplikacija te prava unutar
-                                                aplikacija
-                                            </p>
-                                        </div>
-
-                                        <div class="section prava">
-                                            <div class="prava-field">
-                                                <Checkbox v-model="prava" input-id="kpkr" value="kpkr" />
-                                                <label for="kpkr" class="prava-field-label">
-                                                    <img src="/static/images/kpkr_logo_slim.svg" alt="kpkr_logo">
-                                                    Kalkulator procjene klimatskih rizika
-                                                </label>
-                                            </div>
-
-                                            <div class="prava-field">
-                                                <Checkbox v-model="prava" input-id="kesp" value="kesp" />
-                                                <label for="kesp" class="prava-field-label">
-                                                    <img src="../../../public/static/images/kesp_logo_slim.svg"
-                                                        alt="kesp_logo">
-                                                    Kalkulator emisija stakleničkih plinova
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <hr>
-                                        <Accordion :value="openedAccordionPanels" multiple>
-                                            <AccordionPanel v-if="prava.includes('kpkr')" value="kpkr" class="acc-kpkr">
-                                                <AccordionHeader class="acc-header">
-                                                    <!-- <Checkbox value="1" /> -->
-                                                    <span class="acc-header-title">
-                                                        <img src="../../../public/static/images/kpkr_logo_slim.svg"
-                                                            alt="kpkr_logo">
-                                                        <span class="acc-header-title-text">Kalkulator procjene
-                                                            klimatskih
-                                                            rizika</span>
-                                                    </span>
-                                                </AccordionHeader>
-                                                <AccordionContent :class="$style.acc_content" class="acc-content">
-                                                    <div class="content-field">
-                                                        <div class="field-head">
-                                                            <h2>Prava na vrstu izračuna</h2>
-                                                            <font-awesome-icon icon="info-circle"
-                                                                class="field-head-icon" />
-                                                        </div>
-                                                        <div class="field-content">
-                                                            <div class="hr-column">
-                                                                <hr>
-                                                            </div>
-                                                            <div class="data-column">
-                                                                <div class="checkbox-field">
-                                                                    <Checkbox v-model="vrsteIzracuna" input-id="IM"
-                                                                        value="IM" />
-                                                                    <label for="IM">
-                                                                        Imovina
-                                                                    </label>
-                                                                </div>
-                                                                <div class="checkbox-field">
-                                                                    <Checkbox v-model="vrsteIzracuna" input-id="DJ"
-                                                                        value="DJ" />
-                                                                    <label for="DJ">
-                                                                        Djelatnost
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="content-field">
-                                                        <div class="field-head">
-                                                            <h2>Prava na mogućnosti izračuna rizika</h2>
-                                                            <font-awesome-icon icon="info-circle"
-                                                                class="field-head-icon" />
-                                                        </div>
-                                                        <div class="field-content">
-                                                            <div class="hr-column">
-                                                                <hr>
-                                                            </div>
-                                                            <div class="data-column">
-                                                                <div class="checkbox-field">
-                                                                    <RadioButton v-model="vrsteRizika" input-id="KO"
-                                                                        value="KO"
-                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.vrstaRizika === 'KO'" />
-                                                                    <label for="KO">
-                                                                        Samo po katastarskim općinama
-                                                                    </label>
-                                                                </div>
-                                                                <div class="checkbox-field">
-                                                                    <RadioButton v-model="vrsteRizika" input-id="KOC"
-                                                                        value="KOC"
-                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.vrstaRizika === 'KOC'" />
-                                                                    <label for="KOC">
-                                                                        Po katastarskim općinama i česticama
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="content-field">
-                                                        <div class="field-head">
-                                                            <h2>Prava na vrstu imovine</h2>
-                                                            <font-awesome-icon icon="info-circle"
-                                                                class="field-head-icon" />
-                                                        </div>
-                                                        <div class="field-content">
-                                                            <div class="hr-column">
-                                                                <hr>
-                                                            </div>
-                                                            <div class="data-column">
-                                                                <div class="checkbox-field">
-                                                                    <Checkbox v-model="vrsteImovine" input-id="PO"
-                                                                        value="PO"
-                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.vrstaImovine.includes('PO')" />
-                                                                    <label for="PO">
-                                                                        Prostor ili objekt
-                                                                    </label>
-                                                                </div>
-                                                                <div class="checkbox-field">
-                                                                    <Checkbox v-model="vrsteImovine" input-id="GZ"
-                                                                        value="GZ"
-                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.vrstaImovine.includes('GZ')" />
-                                                                    <label for="GZ">
-                                                                        Građevinsko zemljište
-                                                                    </label>
-                                                                </div>
-                                                                <div class="checkbox-field">
-                                                                    <Checkbox v-model="vrsteImovine" input-id="PZ"
-                                                                        value="PZ"
-                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.vrstaImovine.includes('PZ')" />
-                                                                    <label for="PZ">
-                                                                        Poljoprivredno zemljište
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="content-field">
-                                                        <div class="field-head">
-                                                            <h2>Prava na odabir klimatskog scenarija</h2>
-                                                            <font-awesome-icon icon="info-circle"
-                                                                class="field-head-icon" />
-                                                        </div>
-                                                        <div class="field-content">
-                                                            <div class="hr-column">
-                                                                <hr>
-                                                            </div>
-                                                            <div class="data-column">
-                                                                <div class="checkbox-field">
-                                                                    <Checkbox v-model="scenariji" input-id="RCP"
-                                                                        value="RCP" name="scenariji"
-                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.scenariji.includes('RCP')" />
-                                                                    <label for="RCP">
-                                                                        RCP
-                                                                    </label>
-                                                                </div>
-                                                                <div class="checkbox-field">
-                                                                    <Checkbox v-model="scenariji" input-id="SSP"
-                                                                        value="SSP" name="scenariji"
-                                                                        :checked="odabraniKorisnik?.prava['kpkr']?.scenariji.includes('SSP')" />
-                                                                    <label for="SSP">
-                                                                        SSP
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </AccordionContent>
-                                            </AccordionPanel>
-
-                                            <AccordionPanel v-if="prava.includes('kesp')" value="kesp">
-                                                <AccordionHeader class="acc-header">
-                                                    <!-- <Checkbox value="2" /> -->
-                                                    <span class="acc-header-title">
-                                                        <img src="../../../public/static/images/kesp_logo_slim.svg"
-                                                            alt="kesp">
-                                                        <span class="acc-header-title-text">Kalkulator emisija
-                                                            stakleničkih
-                                                            plinova</span>
-                                                    </span>
-
-                                                </AccordionHeader>
-                                                <AccordionContent>
-                                                    <p class="m-0">
-                                                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-                                                        accusantium doloremque
-                                                        laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore
-                                                        veritatis et quasi
-                                                        architecto beatae vitae dicta sunt explicabo. Nemo enim
-                                                        ipsam voluptatem quia voluptas sit aspernatur aut odit aut
-                                                        fugit,
-                                                        sed quia consequuntur
-                                                        magni dolores eos qui ratione voluptatem sequi nesciunt.
-                                                        Consectetur, adipisci velit, sed
-                                                        quia non numquam eius modi.
-                                                    </p>
-                                                </AccordionContent>
-                                            </AccordionPanel>
-                                        </Accordion>
-                                    </div>
-                                </div>
-                                <div class="section footer">
-                                    <button class="p-button p-component p-button-secondary"
-                                        @click="editKorisnikDialog = false">
-                                        Odustani
-                                    </button>
-                                    <button class="submitBtn" type="submit">Spremi promjene</button>
-                                </div>
-                            </Form>
-                        </Dialog>
-
-                        <Dialog v-model:visible="deleteKorisnikaDialog" :style="{ width: '450px', padding: '26px' }"
-                            header="Ukloni korisnika" :modal="true">
-                            <div class="flex items-center gap-4">
-                                <i class="pi pi-exclamation-triangle !text-3xl" />
-                                <template v-if="odabraniKorisnik">
-                                    Ime korisnika: <b>{{ odabraniKorisnik.ime }} {{ odabraniKorisnik.prezime }}</b>
-                                </template>
-                            </div>
-                            <template #footer>
-                                <button class="p-button p-component p-button-secondary" @click="deleteKorisnika">
-                                    Ukloni
-                                </button>
-                                <button class="submitBtn" @click="deleteKorisnikaDialog = false">
-                                    Odustani
-                                </button>
-                            </template>
-                        </Dialog>
-
-                        <Dialog v-model:visible="mailLogsDialog" :style="{ width: '800px' }" maximizable modal
-                            :content-style="{ height: 'auto' }" removable-sort>
-                            <template #empty>
-                                Nema poslane pošte
-                            </template>
-                            <template #header>
-                                <span class="dialog-header-text-grid">
-                                    <font-awesome-icon icon="envelope" class="dialog-header-icon-grid" />
-                                    <span class="dialog-header-text-span span1">
-                                        Povijest poslane pošte
-                                    </span>
-                                    <span class="dialog-header-text-span span2">
-                                        {{ odabraniKorisnik?.epr_ime + ' ' + odabraniKorisnik?.epr_prezime }}
-                                    </span>
-                                </span>
-                            </template>
-                            <template #default>
-                                <DataTable data-key="id" :value="mailLogs" :rows="10"
-                                    :scrollable="true" scroll-height="200px">
-                                    <Column header="#" header-style="width:3rem">
-                                        <template #body="slotProps">
-                                            {{ slotProps.index + 1 }}
-                                        </template>
-                                    </Column>
-                                    <Column field="naziv" header="Naslov" sortable></Column>
-                                    <Column field="date" header="Datum" sortable></Column>
-                                </DataTable>
-                            </template>
-                            <template #footer>
-                                <div class="mail-dialog-footer">
-                                    <button type="button" class="p-button p-component p-button-secondary"
-                                        @click="mailLogsDialog = false">
-                                        Zatvori
-                                    </button>
-                                    <button class="submitBtn" type="submit">
-                                        <font-awesome-icon icon="paper-plane" />
-                                        Generiraj nove korisničke podatke
-                                    </button>
-                                </div>
-                            </template>
-                        </Dialog>
-
-                    </div>
-                </section>
-
-                <Dialog v-model:visible="openNewUserDialog" :modal="true" header="Dodaj korisnički račun"
-                    :style="{ width: '600px' }" @hide="resetNewUserDialog(); hideNewUserDialog()" @show="updateFIZosobe()">
-                    <div class="form-div">
-                        <Form v-slot="$formKorisnik" :initial-values="initialValuesAddKorisnik"
-                            :resolver="addKorisnikResolver" :validate-on-value-update="true" :validate-on-blur="true"
-                            class="form" @submit="addKorisnik">
-                            <div class="field">
-                                <div class="label-container">
-                                    <font-awesome-icon icon="building" />
-                                    <label for="tvrtka">Tvrtka</label>
-                                </div>
-                                <Select id="tvrtka" key="epr_id" v-model="tvrtka" name="tvrtka" filter
-                                    :options="PRVpartneri" option-label="epr_naziv"
-                                    placeholder="Odaberi tvrtku odabranog partnera" />
-
-                                <Message v-if="$formKorisnik.tvrtka?.invalid" severity="error" size="small"
-                                    variant="simple">{{
-                                        $formKorisnik.tvrtka.error.message }}</Message>
-                            </div>
-                            <div class="field">
-                                <div class="label-container">
-                                    <font-awesome-icon icon="user" />
-                                    <label for="osoba">Osoba</label>
-                                </div>
-                                <Select id="osoba" v-model="korisnik" name="osoba" filter :options="searchFIZosobe"
-                                    :option-label="(option) => option.epr_naziv + ' (' + (option?.epr_email || option?.epr_oib) + ')'"
-                                    placeholder="Odaberi osobu koju želiš dodati kao korisnika" />
-                                <Message v-if="$formKorisnik.osoba?.invalid" severity="error" size="small"
-                                    variant="simple">{{
-                                        $formKorisnik.osoba.error.message }}</Message>
-                            </div>
-                            <span v-if="korisnik && !korisnik?.epr_email">
-                                <p style="color: red; font-weight: bold;">
-                                    Korisnik {{ korisnik?.epr_naziv }} nema spremljen email. Molimo unesite email
-                                </p>
-                            </span>
-                            <hr>
-                            <div class="field-heading">
-                                <h2 class="p-text-bold">Postavke korisničkog računa</h2>
-                                <p>Izmijeni raspon trajanja korisničkog računa</p>
-                            </div>
-                            <div class="field-split" style="margin-top: 13px;">
-                                <div>
-                                    <div class="label-container">
-                                        <font-awesome-icon icon="calendar-plus" />
-                                        <label for="datumOd">Vrijedi od</label>
-                                    </div>
-                                    <DatePicker id="datumOd" v-model="razdoblje.vrijemeOd" name="datumOd" show-icon
-                                        fluid icon-display="input" input-id="odabraniKorisnik.vrijeme_od"
-                                        date-format="dd.mm.yy" placeholder="Vrijedi od" required />
-                                    <Message v-if="$formKorisnik.datumOd?.invalid" severity="error" size="small"
-                                        variant="simple">{{
-                                            $formKorisnik.datumOd.error.message }}</Message>
-                                </div>
-                                <div>
-                                    <div class="label-container">
-                                        <font-awesome-icon icon="calendar-plus" />
-                                        <label for="datumDo">Vrijedi do</label>
-                                    </div>
-                                    <DatePicker id="datumDo" v-model="razdoblje.vrijemeDo" name="datumDo" show-icon
-                                        fluid icon-display="input" input-id="odabraniKorisnik.vrijeme_do"
-                                        date-format="dd.mm.yy" placeholder="Vrijedi do" />
-                                    <Message v-if="$formKorisnik.datumDo?.invalid" severity="error" size="small"
-                                        variant="simple">{{
-                                            $formKorisnik.datumDo.error.message }}</Message>
-                                </div>
-                            </div>
-                            <div v-if="korisnik?.eko_id && korisnik?.epr_email" class="checkbox-container">
-                                <Checkbox v-model="slanjeMaila" input-id="slanjeMaila" value="true" name="slanjeMaila" /> 
-                                <label for="slanjeMaila">Dodavanjem ovog korisničkog računa želim da se automatski pošalje email korisniku sa njegovim pristupnim korisničkim podacima.</label>
-                            </div>
-                            <div class="btn-container">
-                                <button id="saveBtn" type="submit" style="margin-top: 20px;">
-                                    <font-awesome-icon icon="save" class="save-icon" />
-                                    Spremi
-                                </button>
-                            </div>
-
-                        </Form>
-                    </div>
-
-                </Dialog>
-
-                <Dialog v-model:visible="openPartnerDialog" header="Dodaj partnera" :modal="true" :style="{ width: '600px' }" @hide="resetPartnerDialog">
-                    <div class="field-heading">
-                        <h2 class="p-text-bold">Vrsta partnera</h2>
-                        <p>Odaberi fizičkog ili pravnog partnera</p>
-                        <div class="partnerSelect">
-                            <SelectButton v-model="addPartnerValue" :options="partneriOptions" option-label="naziv" />
-                        </div>
-                    </div>
-                    
-                    <!-- Forma za fizičkog partnera -->
-                    <template v-if="addPartnerValue.label === 'FIZ'">
-                        <Form
-                            v-slot="$formPartner"
-                            :initial-values="initialValueAddPartner.FIZ"
-                            :resolver="addPartnerResolverFIZ"
-                            :validate-on-value-update="true"
-                            :validate-on-blur="true"
-                            class="form"
-                            @submit="saveNewPartner"
-                        >
-                            <div class="section">
-                                <div class="field field-split">
-                                    <div class="field">
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="user" />
-                                            <label for="ime">Ime</label>
-                                        </div>
-                                        <InputText id="ime" v-model="tempPartner.epr_ime" name="epr_ime" placeholder="Ime korisnika" />
-                                        <Message v-if="$formPartner.epr_ime?.invalid" severity="error" size="small" variant="simple">
-                                        {{ $formPartner.epr_ime.error.message }}
-                                        </Message>
-                                    </div>
-                                    <div class="field">
-                                        <div class="label-container">
-                                            <font-awesome-icon icon="user" />
-                                            <label for="prezime">Prezime</label>
-                                        </div>
-                                        <InputText id="prezime" v-model="tempPartner.epr_prezime" name="epr_prezime" placeholder="Prezime korisnika" />
-                                        <Message v-if="$formPartner.epr_prezime?.invalid" severity="error" size="small" variant="simple">
-                                        {{ $formPartner.epr_prezime.error.message }}
-                                        </Message>
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <div class="label-container">
-                                        <font-awesome-icon icon="address-card" />
-                                        <label for="oib">OIB</label>
-                                    </div>
-                                    <InputOtp id="oib" v-model="tempPartner.epr_oib" name="epr_oib" :length="11" integer-only />
-                                    <Message v-if="$formPartner.epr_oib?.invalid" severity="error" size="small" variant="simple">
-                                    {{ $formPartner.epr_oib.error.message }}
-                                    </Message>
-                                </div>
-                                <div class="field">
-                                    <div class="label-container">
-                                        <font-awesome-icon icon="envelope" />
-                                        <label for="email">Email</label>
-                                    </div>
-                                    <InputText id="email" v-model="tempPartner.epr_email" name="epr_email" placeholder="Email partnera" />
-                                    <Message v-if="$formPartner.epr_email?.invalid" severity="error" size="small" variant="simple">
-                                    {{ $formPartner.epr_email.error.message }}
-                                    </Message>
-                                </div>
-                                <div class="field">
-                                    <div class="label-container">
-                                        <font-awesome-icon icon="map-location" />
-                                        <label for="adresa">Adresa</label>
-                                    </div>
-                                    <InputText id="adresa" v-model="tempPartner.epr_adresa" name="epr_adresa" placeholder="Adresa" />
-                                    <Message v-if="$formPartner.epr_adresa?.invalid" severity="error" size="small" variant="simple">
-                                    {{ $formPartner.epr_adresa.error.message }}
-                                    </Message>
-                                </div>
-                                <div class="field">
-                                    <div class="label-container">
-                                        <font-awesome-icon icon="city" />
-                                        <label for="mjesto">Mjesto</label>
-                                    </div>
-                                    <InputText id="mjesto" v-model="tempPartner.epr_mjesto" name="epr_mjesto" placeholder="Mjesto" />
-                                    <Message v-if="$formPartner.epr_mjesto?.invalid" severity="error" size="small" variant="simple">
-                                    {{ $formPartner.epr_mjesto.error.message }}
-                                    </Message>
-                                </div>
-                            </div>
-                            <div class="btn-container">
-                                <button class="p-button p-component p-button-secondary" @click="openPartnerDialog = false">
-                                    Odustani
-                                </button>
-                                <button class="submitBtn" type="submit">Dodaj partnera</button>
-                            </div>
-                        </Form>
-                    </template>
-
-                    <!-- Forma za pravnog partnera -->
-                    <template v-if="addPartnerValue.label === 'PRV'">
-                        <Form
-                            v-slot="$formPartner"
-                            :initial-values="initialValueAddPartner.PRV"
-                            :resolver="addPartnerResolverPRV"
-                            :validate-on-value-update="true"
-                            :validate-on-blur="true"
-                            class="form"
-                            @submit="saveNewPartner"
-                        >
-                            <div class="section">
-                                <div class="field">
-                                    <div class="label-container">
-                                        <font-awesome-icon icon="building" />
-                                        <label for="naziv">Naziv tvrtke</label>
-                                    </div>
-                                    <InputText id="naziv" v-model="tempPartner.epr_naziv" name="epr_naziv" placeholder="Naziv tvrtke" />
-                                    <Message v-if="$formPartner.epr_naziv?.invalid" severity="error" size="small" variant="simple">
-                                    {{ $formPartner.epr_naziv.error.message }}
-                                    </Message>
-                                </div>
-                                <div class="field">
-                                    <div class="label-container">
-                                        <font-awesome-icon icon="address-card" />
-                                        <label for="oib">OIB tvrtke</label>
-                                    </div>
-                                    <InputOtp id="oib" v-model="tempPartner.epr_oib" name="epr_oib" :length="11" integer-only />
-                                    <Message v-if="$formPartner.epr_oib?.invalid" severity="error" size="small" variant="simple">
-                                    {{ $formPartner.epr_oib.error.message }}
-                                    </Message>
-                                </div>
-                                <div class="field">
-                                    <div class="label-container">
-                                        <font-awesome-icon icon="map-location" />
-                                        <label for="adresa">Adresa tvrtke</label>
-                                    </div>
-                                    <InputText id="adresa" v-model="tempPartner.epr_adresa" name="epr_adresa" placeholder="Adresa tvrtke" />
-                                    <Message v-if="$formPartner.epr_adresa?.invalid" severity="error" size="small" variant="simple">
-                                    {{ $formPartner.epr_adresa.error.message }}
-                                    </Message>
-                                </div>
-                                <div class="field">
-                                    <div class="label-container">
-                                        <font-awesome-icon icon="city" />
-                                        <label for="mjesto">Mjesto</label>
-                                    </div>
-                                    <InputText id="mjesto" v-model="tempPartner.epr_mjesto" name="epr_mjesto" placeholder="Mjesto" />
-                                    <Message v-if="$formPartner.epr_mjesto?.invalid" severity="error" size="small" variant="simple">
-                                    {{ $formPartner.epr_mjesto.error.message }}
-                                    </Message>
-                                </div>
-                            </div>
-                            <div class="btn-container">
-                                <button class="p-button p-component p-button-secondary" @click="openPartnerDialog = false">
-                                    Odustani
-                                </button>
-                                <button class="submitBtn" type="submit">Dodaj partnera</button>
-                            </div>
-                        </Form>
-                    </template>
-                </Dialog>
-            </div>
-        </main>
-        <footer />
-    </div>
+  <div class="body">
+    <Toast />
+    <ConfirmDialog group="mail">
+      <template #container="{ message, acceptCallback, rejectCallback }">
+        <div class="mail-container">
+          <div class="mail-header">
+            <font-awesome-icon icon="envelope" />
+            <span>{{ message.title }}</span>
+          </div>
+          <div class="mail-body">
+            <p>{{ message.message }}</p>
+          </div>
+          <div class="mail-footer">
+            <Button
+              label="Odustani"
+              severity="secondary"
+              class="p-button-text"
+              @click="rejectCallback()"
+            />
+            <button class="dodaj-btn" @click="acceptCallback()">
+              <font-awesome-icon icon="paper-plane" />
+              Pošalji
+            </button>
+          </div>
+        </div>
+      </template>
+    </ConfirmDialog>
+    <main>
+      <h1>Dodavanje korisnika</h1>
+      <div class="main-content">
+        <section>
+          <div>
+            <h2>Popis korisnika</h2>
+            <p>
+              Popis korisnika za pravne osobe koje su zabilježene u sustavu.
+            </p>
+          </div>
+          <UserList
+            @open-new-user-dialog="openNewUserDialogHandler"
+            @open-partner-dialog="partnerDialog = true"
+            @send-mail="sendMail"
+            @edit-user="editUser"
+          />
+        </section>
+      </div>
+    </main>
+    <EditUserDialog
+      v-if="selectedUser"
+      :visible="editUserDialog"
+      :user="selectedUser"
+      @update:visible="editUserDialog = $event"
+      @save="handleSaveUser"
+    />
+    <NewUserDialog
+      :visible="newUserDialog"
+      :tvrtke="PRVpartneri"
+      :osobe="searchFIZosobe"
+      :tvrtka="selectedTvrtka"
+      @update:visible="newUserDialog = $event"
+      @submit="handleNewUser"
+    />
+    <PartnerDialog
+      :visible="partnerDialog"
+      @update:visible="partnerDialog = $event"
+      @submit="handleNewPartner"
+    />
+    <MailLogsDialog
+      :visible="mailLogsDialog"
+      :mailLogs="mailLogs"
+      :user="selectedUser"
+      @update:visible="mailLogsDialog = $event"
+    />
+    <footer />
+  </div>
 </template>
 
 <script setup>
-import { FilterMatchMode } from '@primevue/core/api';
-import { checkIfEmailIsSent, savePartner, saveUser } from '~/service/admin/users';
-import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { z } from 'zod';
+import { ref, computed } from "vue";
+import UserList from "~/components/admin/lists/UserList.vue";
+import EditUserDialog from "~/components/admin/dialogs/EditUserDialog.vue";
+import MailLogsDialog from "~/components/admin/dialogs/MailLogsDialog.vue";
+import NewUserDialog from "~/components/admin/dialogs/NewUserDialog.vue";
+import PartnerDialog from "~/components/admin/dialogs/PartnerDialog.vue";
+import { useKorisniciStore } from "#build/imports";
+import { checkIfEmailIsSent } from "~/service/admin/users";
+import { getPravaForUser, getUser } from "~/service/user/user";
 
-const toast = useToast()
-const confirm = useConfirm()
+const editUserDialog = ref(false);
+const newUserDialog = ref(false);
+const partnerDialog = ref(false);
+const mailLogsDialog = ref(false);
+const selectedUser = ref(null);
+const selectedTvrtka = ref(null);
+const prava = ref([]);
+const mailLogs = ref([
+  { id: 1, naziv: "Generirani korisnički podataci", date: "12/12/2024" },
+  { id: 2, naziv: "Uređivanje korisničkih podataka", date: "11/11/2024" },
+  { id: 3, naziv: "Generiranje e-pošte", date: "10/10/2024" },
+]);
+const confirm = useConfirm();
+const toast = useToast();
 
 const korisniciStore = useKorisniciStore();
+const PRVpartneri = computed(() => korisniciStore.pravneOsobe);
+const searchFIZosobe = computed(() => korisniciStore.searchFizickeOsobe);
 
-const odabraniKorisnik = ref(null);
-const odabraniPartner = ref(null);
-const editKorisnikDialog = ref(false);
-const openPartnerDialog = ref(false);
-const deleteKorisnikaDialog = ref(false);
-const openNewUserDialog = ref(false);
-const loading = ref();
-const expandedRows = ref([]);
+const openNewUserDialogHandler = (data) => {
+  // Ako se proslijedi podatak o pravnoj osobi, možete ga koristiti za popunjavanje forme
+  selectedTvrtka.value = null;
+  const isFilled = !!data;
 
-const tvrtka = ref(null);
-const korisnik = ref(null);
-const razdoblje = ref({
-    vrijemeOd: new Date(),
-    vrijemeDo: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate())
-})
+  if (isFilled) {
+    selectedTvrtka.value = findPRVpartner(data?.epr_id);
+    console.log("Popunjena tvrtka: ", selectedTvrtka.value);
+  }
 
-const slanjeMaila = ref(false);
-
-watch(tvrtka, () => {
-    // console.log("Odabrana tvrtka: ", tvrtka.value)
-})
-
-watch(korisnik, () => {
-    // console.log("Odabrani korisnik: ", korisnik.value)
-})
-
-const resetNewUserDialog = ref(() => {
-    tvrtka.value = null;
-    korisnik.value = null;
-    razdoblje.value = {
-        vrijemeOd: new Date(),
-        vrijemeDo: new Date(new Date().getFullYear() + 1, new Date().getMonth(), new Date().getDate())
-    }
-})
+  newUserDialog.value = true;
+};
 
 const findPRVpartner = (epr_id) => {
-    return PRVpartneri.value.find(partner => partner.epr_id === epr_id);
-}
+  return PRVpartneri.value.find((partner) => partner.epr_id === epr_id);
+};
 
-const onOpenNewUserDialog = (data) => {
-    const isFilled = !!data;
-
-    // console.log(data, isFilled)
-
-    if (isFilled) {
-        tvrtka.value = findPRVpartner(data?.epr_id)
-        initialValuesAddKorisnik.value.tvrtka = tvrtka.value;
-        // console.log("Popunjena tvrtka: ", tvrtka.value)
-    }
-
-    openNewUserDialog.value = true;
-}
-
-const hideNewUserDialog = () => {
-    odabraniKorisnik.value = null;
-    openNewUserDialog.value = false
-}
-
-const initialValues = ref({
-    username: '',
-    password: '',
-});
-
-const initialValuesAddKorisnik = ref({
-    osoba: {},
-    tvrtka: {},
-    datumOd: razdoblje.value.vrijemeOd,
-    datumDo: razdoblje.value.vrijemeDo
-});
-
-const initialValueAddPartner = ref({
-    FIZ: {
-        epr_ime: '',
-        epr_prezime: '',
-        epr_email: '',
-        epr_oib: '',
-        epr_adresa: '',
-        epr_mjesto: ''
+const sendMail = (eko_id) => {
+  confirm.require({
+    group: "mail",
+    title: "Želiš li poslati pristupne korisničke podatke korisniku?",
+    message:
+      "Poslat će se e-pošta korisniku sa njegovim pristupnim podacima za korištenje aplikacije.",
+    header: "Slanje e-pošte",
+    icon: "pi pi-envelope",
+    rejectProps: {
+      label: "Cancel",
+      severity: "secondary",
+      outlined: true,
     },
-    PRV: {
-        epr_naziv: '',
-        epr_oib: '',
-        epr_adresa: '',
-        epr_mjesto: ''
-    }
-})
-
-watch(
-    () => razdoblje.value,
-    (noviRazdoblje) => {
-        initialValuesAddKorisnik.value.datumOd = noviRazdoblje.vrijemeOd;
-        initialValuesAddKorisnik.value.datumDo = noviRazdoblje.vrijemeDo;
+    acceptProps: {
+      label: "Save",
     },
-    { deep: true }
-);
-
-const addKorisnikResolver = ref(zodResolver(
-    z.object({
-        osoba: z.object({
-            epr_ime: z.string().min(1, { message: 'Ime je obvezno' }),
-            epr_prezime: z.string().min(1, { message: 'Prezime je obvezno' }),
-            epr_email: z.string().email().min(1, { message: 'Email je obvezan' }),
-        }).refine((obj) => obj && obj.epr_ime && obj.epr_prezime && obj.epr_email, { message: 'Osoba je obvezna' }),
-        tvrtka: z.object({
-            epr_naziv: z.string().min(1, { message: 'Tvrtka je obvezna' }),
-        }).refine((obj) => obj && obj.epr_naziv, { message: 'Tvrtka je obvezna' }),
-        datumOd: z.date()
-            .refine(
-                (datum) => datum >= new Date(new Date().setHours(0, 0, 0, 0)), // Današnji datum ili kasnije
-                { message: 'Početni datum mora biti današnji ili budući.' }
-            ),
-        datumDo: z.date()
-            .refine(
-                (datum) => datum > razdoblje.value.vrijemeOd,
-                { message: 'Krajnji datum mora biti veći od početnog datuma.' }
-            ),
-    })
-));
-
-const addPartnerResolverFIZ = zodResolver(
-  z.object({
-    epr_ime: z.string().min(1, { message: 'Ime je obavezno' }),
-    epr_prezime: z.string().min(1, { message: 'Prezime je obavezno' }),
-    epr_oib: z.string().superRefine((_, ctx) => {
-      // Koristimo vrijednost iz tempPartner varijable kao cjelinu
-      const oibValue = tempPartner.value.epr_oib || ''
-      if (oibValue.length !== 11) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `OIB mora imati točno 11 znakova, trenutno ima ${oibValue.length} znakova`
-        })
+    accept: async () => {
+      console.log("Slanje e-pošte za korisnika: ", eko_id);
+      try {
+        await checkIfEmailIsSent(eko_id);
+        toast.add({
+          severity: "success",
+          summary: "Uspješno poslan email",
+          detail: "Poslan je email za željenog korisnika",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error(error);
+        toast.add({
+          severity: "error",
+          summary: "Greška pri slanju e-pošte",
+          detail: error.message,
+          life: 3000,
+        });
+      } finally {
+        //odabraniKorisnik = null;
       }
-    }),
-    epr_email: z
-      .string()
-      .min(1, { message: 'Email je obavezan' })
-      .email('Email nije ispravnog formata (primjer@tvrtka.com)'),
-    epr_adresa: z.string().min(1, { message: 'Adresa je obavezna' }),
-    epr_mjesto: z.string().min(1, { message: 'Mjesto je obavezno' })
-  })
-)
-
-
-const addPartnerResolverPRV = zodResolver(
-  z.object({
-    epr_naziv: z.string().min(1, { message: 'Tvrtka je obavezna' }),
-    epr_oib: z.string().superRefine((_, ctx) => {
-      // Koristimo vrijednost iz tempPartner varijable kao cjelinu
-      const oibValue = tempPartner.value.epr_oib || ''
-      if (oibValue.length !== 11) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `OIB mora imati točno 11 znakova, trenutno ima ${oibValue.length} znakova`
-        })
-      }
-    }),
-    epr_adresa: z.string().min(1, { message: 'Adresa je obavezna' }),
-    epr_mjesto: z.string().min(1, { message: 'Mjesto je obavezno' })
-  })
-)
-
-
-const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_ime: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_prezime: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_tvrtka: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_oib: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_adresa: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    epr_mjesto: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    employees_num: { value: null, matchMode: FilterMatchMode.EQUALS },
-    epr_aktivan: { value: null, matchMode: 'equals' },
-});
-
-const addPartnerValue = ref({
-    label: 'FIZ',
-    naziv: 'Fizički partner'
-});
-
-const partneriOptions = ref([
-    {
-        label: 'FIZ',
-        naziv: 'Fizički partner'
     },
-    {
-        label: 'PRV',
-        naziv: 'Pravni partner',
-    }
-]);
+    reject: () => {},
+  });
+};
 
-// write watch method to clear tempPartner on addPartnerValue change
-watch(addPartnerValue, () => {
-    resetPartner()
-})
+const editUser = async (data) => {
+  console.log("Korisnik za uređivanje: ", data?.eko_id);
 
-const searchFIZosobe = computed(() => korisniciStore.searchFizickeOsobe);
-const FIZpartneri = computed(() => korisniciStore.fizickeOsobe);
-const PRVpartneri = computed(() => korisniciStore.pravneOsobe);
-
-const processedPRVpartneri = computed(() => {
-  return PRVpartneri.value.map(partner => {
-    // Filtriramo fizičke osobe koje pripadaju partneru
-    // const povezaneOsobe = searchFIZosobe.value.filter(osoba => partner.epr_id === 7914)
-    const povezaneOsobe = searchFIZosobe.value.filter(osoba => osoba.eko_par_id_za === partner.epr_id)
-    // Spojite podatke, npr. ime i prezime, ili druge atribute po potrebi
-    const fizOsobeText = povezaneOsobe.map(osoba => `${osoba.epr_ime} ${osoba.epr_prezime}`).join(' ')
-    
-    // Vraćamo partnera s dodatnim atributom
-    return {
-      ...partner,
-      fizOsobeText,
-    }
-  })
-})
-
-const noneEmptyKorisnici = computed(() => {
-    return korisniciStore.pravneOsobe
-        .filter((po) => parseInt(po.employees_num) > 0)
-        .map((po) => ({
-            ...po,
-            usersFlat: po.users
-                .map((user) =>
-                    `${user.epr_ime} ${user.epr_prezime} ${user.tvrtka_usluge}`
-                )
-                .join(' '), // Kombinira sve korisnike u jedan string za lakše pretraživanje
-        }));
-});
-// const noneEmptyKorisnici = computed(() => korisniciStore.pravneOsobe.filter((po) => parseInt(po.employees_num) > 0));
-// const partneri = ref(populatePartneri());
-
-const updateFIZosobe = () => {
-    korisniciStore.fetchFizickeOsobe()
-}
-
-const userEmptyMessage = ref(null);
-const onRowExpand = async (event) => {
-    userEmptyMessage.value = null;
-
-    try {
-        const response = await korisniciStore.fetchKorisniciForLegalPartner(event.data.epr_id)
-        console.log("RES: ", response)
-        if(response?.message) {
-            userEmptyMessage.value = response.message
+  try {
+    const userData = await getUser(data?.eko_id);
+    if (userData) {
+      Object.keys(userData).forEach((key) => {
+        if (key === "eko_datod" || key === "eko_datdo") {
+          const originalDate = new Date(userData[key]);
+          // Postavljamo datum bez vremenskog dijela
+          data[key] = new Date(
+            originalDate.getFullYear(),
+            originalDate.getMonth(),
+            originalDate.getDate()
+          );
+        } else {
+          data[key] = userData[key];
         }
-    } catch (error) {
-        console.error("error: ", error.message)
-        console.error('Error fetching korisnici for legal partner:', event.data.epr_id);
+      });
     }
+    selectedUser.value = data;
+    editUserDialog.value = true;
+  } catch (error) {
+    console.error(error);
+  }
+
+  console.log("Popunjeni korisnik: ", data);
 };
 
-const refreshData = async () => {
-    expandedRows.value = null;
-    await korisniciStore.fetchPravneOsobe()
-    korisniciStore.fizickeOsobe = []
-}
-
-const tempPartner = ref({
-    epr_tip: '',
-    epr_oib: '',
-    epr_naziv: '',
-    epr_ime: '',
-    epr_prezime: '',
-    epr_mjesto: '',
-    epr_adresa: '',
-    epr_email: '',
-})
-
-const resetPartner = () => {
-    tempPartner.value = {
-        epr_tip: '',
-        epr_oib: '',
-        epr_naziv: '',
-        epr_ime: '',
-        epr_prezime: '',
-        epr_mjesto: '',
-        epr_adresa: '',
-        epr_email: '',
-    }
-}
-
-const prava = ref([]);
-const vrsteIzracuna = ref([]);
-const vrsteRizika = ref(null);
-const vrsteImovine = ref([]);
-const scenariji = ref([]);
-
-const openedAccordionPanels = ref(['0']); // Početno otvoren prvi panel
-
-onMounted(async () => {
-    // populateUsers();
-    // await korisniciStore.fetchOsobe();
-    await korisniciStore.fetchPravneOsobe()
-})
-
-const getSeverity = (status) => {
-    switch (status) {
-        case 1:
-            return 'success'
-        case false:
-            return 'danger';
-        default:
-            return 'info';
-    }
-}
-
-const showSuccessPartner = (osoba) => {
-    toast.add({ severity: 'success', summary: 'Uspješno dodan partner', detail: `Partner: ${osoba.epr_naziv || (osoba.epr_ime + ' ' + osoba.epr_prezime)}`, life: 3000 });
+const handleSaveUser = (user) => {
+  // Logika za spremanje promjena korisnika
+  editUserDialog.value = false;
 };
 
-const showErrorPartner = (osoba) => {
-    toast.add({ severity: 'error', summary: 'Greška dodavanja partnera', detail: `Partner: ${osoba.epr_naziv || (osoba.epr_ime + ' ' + osoba.epr_prezime)}`, life: 3000 });
+const handleNewUser = (userData) => {
+  // Logika za dodavanje novog korisnika
 };
 
-const showSuccesKorisnik = (osoba) => {
-    toast.add({ severity: 'success', summary: 'Uspješno dodan korisnik', detail: `Korisnik: ${osoba.epr_ime} ${osoba.epr_prezime}`, life: 3000 });
-}
-
-const showErrorKorisnik = (osoba) => {
-    toast.add({ severity: 'error', summary: 'Greška dodavanja korisnika', detail: `Korisnik: ${osoba.epr_ime} ${osoba.epr_prezime}`, life: 5000 });
-}
-
-const showSuccessEmail = () => {
-    toast.add({ severity:'success', summary: 'Uspješno poslan email', detail: 'Poslan je email za željenog korisnika', life: 3000 });
-}
-
-const resetOdabraniKorisnik = () => {
-    odabraniKorisnik.value = null; // Ako imate originalne podatke ili postavite prazne vrijednosti
+const handleNewPartner = (partnerData) => {
+  // Logika za dodavanje partnera
+  partnerDialog.value = false;
 };
-
-const resetPartnerDialog = () => {
-    odabraniPartner.value = null;
-}
-
-const saveKorisnik = () => {
-    // Spremite promjene u bazu podataka ili napravite potrebnu akciju
-    // Npr. apiCallToUpdateKorisnik(odabraniKorisnik.value);
-    editKorisnikDialog.value = false;
-};
-
-watch(odabraniPartner, () => {
-    // console.log("Odabrani partner: ", odabraniPartner.value)
-})
-
-const addKorisnik = async ({ valid }) => {
-    if (valid) {
-        // console.log("Dodajem korisnika...", korisnik.value)
-        openNewUserDialog.value = true
-
-        const userData = {
-            // eko_id: korisnik.value?.eko_id,
-            partnerId: korisnik.value?.epr_id,
-            partnerLegalId: tvrtka.value?.epr_id,
-            dateFrom: formatDateToDMY(razdoblje.value.vrijemeOd, '-'),
-            dateTo: formatDateToDMY(razdoblje.value.vrijemeDo, '-'),
-        }
-
-        // console.log("userData: ", userData)
-
-        try {
-            const response = await saveUser(userData);
-            // console.log("response: ", response)
-            if (response) {
-                showSuccesKorisnik(korisnik.value)
-                await korisniciStore.fetchPravneOsobe()
-                korisniciStore.fizickeOsobe = []
-                // console.log( korisniciStore.pravneOsobe , korisniciStore.fizickeOsobe)
-
-                if(slanjeMaila.value) {
-                    try {
-                        await checkIfEmailIsSent(korisnik.value?.eko_id)
-                        // const isSent = notifyData?.isNotified || notifyData?.message || undefined
-                        // // console.log("notifyData: ", notifyData, "isSent: ", isSent)
-                    } catch (e) {
-                        // console.log(e)
-                        showError("Greška pri slanju e-pošte korisniku!")
-                    }
-                }
-                refreshData();
-            }
-        } catch (error) {
-            showErrorKorisnik(korisnik.value)
-            // console.log("Greška pri spremanju korisnika: ", error)
-        } finally {
-            openNewUserDialog.value = false
-        }
-
-    } else {
-        console.error("Neispravno uneseni podaci!")
-    }
-}
-
-const editKorisnik = (korisnik) => {
-    if (korisnik) {
-        // console.log("Odabrani korisnik: ", korisnik);
-        odabraniKorisnik.value = korisnik;
-
-        // Pristup pravima iz korisnika
-        const pravaData = odabraniKorisnik.value.prava || [];
-
-        // Ekstrakcija podataka
-        prava.value = pravaData.map(kor => kor.naziv); // Lista naziva prava
-        // console.log("prava: ", prava.value.includes('kpkr'))
-        vrsteIzracuna.value = pravaData.find(kor => kor.naziv === 'kpkr')?.vrstaIzracuna || [];
-        vrsteRizika.value = pravaData.find(kor => kor.naziv === 'kpkr')?.vrstaRizika || null;
-        vrsteImovine.value = pravaData.find(kor => kor.naziv === 'kpkr')?.vrstaImovine || [];
-        scenariji.value = pravaData.find(kor => kor.naziv === 'kpkr')?.scenariji || [];
-
-        // Otvori dijalog za uređivanje korisnika
-        editKorisnikDialog.value = true;
-    }
-};
-
-const addPartner = () => {
-    openPartnerDialog.value = true;
-}
-
-const saveNewPartner = async ({ valid }) => {
-    // console.log("tempPartner: ", tempPartner.value)
-    if(valid) {
-        tempPartner.value.epr_tip = addPartnerValue.value.label === 'FIZ'
-            ? 'FO'
-            : addPartnerValue.value.label === 'PRV'
-                ? 'PO'
-                : null;
-
-        tempPartner.value.epr_naziv ||= tempPartner.value.epr_ime + ' ' + tempPartner.value.epr_prezime;
-
-        // UPPERCASE
-        tempPartner.value = Object.fromEntries(
-            Object.entries(tempPartner.value).map(([key, value]) => [
-                key,
-                key === 'epr_email' ? value : String(value).toUpperCase()
-            ])
-        );
-
-        // console.log("PARTNER: ", tempPartner.value)
-
-        try {
-            const response = await savePartner(tempPartner.value);
-            if (response.status == 200) {
-                const osoba = response.data;
-                // console.log("Osoba: ", osoba);
-                showSuccessPartner(tempPartner.value)
-
-                if (addPartnerValue.value.label === 'FIZ') {
-                    try {
-                        // console.log("Dohvaćanje fizickih osoba")
-                        await korisniciStore.fetchFizickeOsobe();
-                        // console.log(korisniciStore.fizickeOsobe)
-                    } catch (error) {
-                        console.error(error);
-                    }
-                } else {
-                    try {
-                        // console.log("Dohvaćanje pravnih osoba")
-                        await korisniciStore.fetchPravneOsobe();
-                        korisniciStore.fizickeOsobe = []
-                        // console.log(korisniciStore.pravneOsobe)
-                    } catch (error) {
-                        console.error(error);
-                    }
-                }
-                // await korisniciStore.fetchOsobe();
-            } else {
-                console.error("Greska pri dodavanju partnera")
-                showErrorPartner(tempPartner.value)
-            }
-        } catch (error) {
-            console.error(error)
-            showErrorPartner(tempPartner.value);
-        } finally {
-            resetPartner();
-            openPartnerDialog.value = false;
-        }
-    }
-}
-
-const mailLogs = ref([
-    { id: 1, naziv: 'Generirani korisnički podataci', date: '12/12/2024' },
-    { id: 2, naziv: 'Uređivanje korisničkih podataka', date: '11/11/2024' },
-    { id: 3, naziv: 'Generiranje e-pošte', date: '10/10/2024' },
-]);
-
-const mailLogsDialog = ref(false);
-const showMailLogs = (data) => {
-    odabraniKorisnik.value = data;
-    // console.log("Prikazivam dijalog za prikaz logova: ", odabraniKorisnik.value)
-    
-    mailLogsDialog.value = true;
-}
-
-const sendMail = (data) => {
-    confirm.require({
-        group: 'mail',
-        title: 'Želiš li poslati pristupne korisničke podatke korisniku?',
-        message: 'Poslat će se e-pošta korisniku sa njegovim pristupnim podacima za korištenje aplikacije.',
-        header: 'Slanje e-pošte',
-        icon: 'pi pi-envelope',
-        rejectProps: {
-            label: 'Cancel',
-            severity: 'secondary',
-            outlined: true
-        },
-        acceptProps: {
-            label: 'Save'
-        },
-        accept: async () => {
-            
-            odabraniKorisnik.value = data;
-            try {
-                await checkIfEmailIsSent(odabraniKorisnik.value?.eko_id)
-                showSuccessEmail();
-            } catch (error) {
-                console.error(error)
-                toast.add({ severity: 'error', summary: 'Greška pri slanju e-pošte', detail: error.message, life: 3000 });
-            } finally {
-                odabraniKorisnik.value = null
-            }
-            
-        },
-        reject: () => {}
-    });
-}
-
 </script>
-
-<style module>
-/* .acc_content {
-    background-color: var(--bg-color) !important;
-} */
-</style>
 
 <style scoped>
 * {
-    color: var(--text-color);
+  color: var(--text-color);
+  opacity: 1 !important;
 }
 
 .body {
-    position: relative;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 26px;
-    background-color: white !important;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 26px;
+  background-color: white !important;
 }
 
 h1 {
-    width: 100%;
-    text-align: left;
-    padding-bottom: 7px;
-    border-bottom: 2px solid var(--text-color);
-    grid-column: span 2;
+  width: 100%;
+  text-align: left;
+  padding-bottom: 7px;
+  border-bottom: 2px solid var(--text-color);
 }
 
 h2 {
-    font-size: 16px;
-    color: var(--text-color);
+  font-size: 16px;
+  color: var(--text-color);
 }
 
 main {
-    display: grid;
-    grid-template-columns: 1fr;
-    /** 0.2fr */
-    grid-template-rows: min-content auto;
-    gap: 34px;
-
-    height: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: min-content auto;
+  gap: 34px;
+  height: 100%;
 }
 
-
-main>div {
-    width: 100%;
-    height: 100%;
+main > div {
+  width: 100%;
+  height: 100%;
 }
 
-.main-content {
-    display: flex;
-    flex-direction: column;
-    gap: 26px;
-}
-
-.datatable,
-.toolbar {
-    max-width: 1100px;
-}
-
-.global-search-container {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-}
-
-.global-search-iconfield.input {
-    width: 100% !important;
-    /* max-width: 500px; */
-}
-
-.global-search-iconfield.refresh {
-    width: 26px;
-    height: 26px;
-    padding: 5px;
-    border-radius: 50%;
-    cursor: pointer;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.global-search-iconfield:hover{
-    background: rgb(236, 236, 236);
-}
-.global-search-iconfield:hover .refresh-icon{
-    transform: rotate(45deg);
-}
-.global-search-iconfield:active .refresh-icon{
-    transform: rotate(120deg);
+.main-content,
+section {
+  max-width: 1300px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
 }
 
 .mail-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 26px;
 }
 
 .mail-header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
 }
 
 .mail-body {
-    padding: 5px 0px;
-    /* border-left: 1px solid var(--text-color); */
+  padding: 5px 0px;
+  /* border-left: 1px solid var(--text-color); */
 }
 
 .mail-body p {
-    font-size: 1rem;
+  font-size: 1rem;
 }
 
 .mail-header * {
-    font-size: 1.2rem;
-    font-weight: bold;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
-.inside-table {
-    padding: 13px;
-}
-
-.loading-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 10px;
-    height: 100%;
-    opacity: 0.5;
-    padding: 8px;
-}
-
-/* .dodaj-korisnika {
-    font-weight: 500;
-    opacity: 0.8;
-    cursor: pointer;
-}
-
-.dodaj-korisnika:hover {
-    opacity: 1;
-    text-decoration: underline;
-} */
-
-.dodaj-korisnika {
-    font-weight: 500;
-    opacity: 0.8;
-    cursor: pointer;
-    /* opacity: 0.4;
-    cursor: not-allowed; */
-}
-
-.dodaj-korisnika:hover {
-    opacity: 1;
-    text-decoration: underline;
-}
-
-.dodaj-korisnika:active {
-    opacity: 0.8;
-}
-
-.dodaj-btn,
-.dodaj-partnera-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.dodaj-btn {
-    background-color: var(--text-color);
-    color: white;
-}
-
-.dodaj-btn * {
-    color: white;
-}
-
-.dodaj-btn:hover {
-    background-color: var(--text-color-hover);
-}
-
-.dodaj-btn:active {
-    background-color: var(--text-color-focus);
-}
-
-.dodaj-btn:disabled {
-    color: black;
-    background-color: #b0b0b0;
-    cursor: not-allowed;
-}
-
-.dodaj-btn:disabled * {
-    color: black;
-}
-
-.dodaj-partnera-btn {
-    background-color: white;
-    border: var(--border);
-    color: black;
-}
-
-.dodaj-partnera-btn * {
-    color: black;
-}
-
-.dodaj-partnera-btn:hover {
-    background-color: var(--text-color);
-    color: white;
-}
-
-
-.dodaj-partnera-btn:hover * {
-    color: white;
-}
-
-.dodaj-partnera-btn:active {
-    background-color: var(--text-color-focus);
-}
-
-
-.dodaj-partnera-btn:active * {
-    color: white;
-}
-
-
-.razdoblje {
-    max-width: 500px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.razdoblje>div,
-.razdoblje>div>div,
-.razdoblje>span {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.razdoblje>div {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-}
-
-.opisnap {
-    width: 100%;
-    grid-column: span 2;
-}
-
-textarea {
-    resize: vertical;
-    max-height: 100px;
-}
-
-.razdoblje>span {
-    width: auto;
-}
-
-hr {
-    margin: 13px 0px;
-    width: 100%;
-    border: none;
-    border-top: var(--border-line-sidebar);
-}
-
-h3 {
-    font-weight: 500;
-}
-
-.spremiBtn-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.spremiBtn-container span {
-    font-style: italic;
+.mail-dialog-footer,
+.mail-footer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 section {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-section>div {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-p {
-    opacity: 0.8;
-}
-
-sub,
-sup {
-    font-size: smaller;
-}
-
-.p-fluid {
-    display: grid;
-    grid-template-columns: 0.8fr 1fr;
-    grid-template-rows: repeat(2, auto);
-    gap: 26px;
-}
-
-.p-fluid-partner {
-    display: flex;
-    flex-direction: column;
-    gap: 26px;
-}
-
-.section {
-    display: flex;
-    flex-direction: column;
-    gap: 13px;
-}
-
-.section.prava {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.prava-field,
-.prava-field-label {
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-}
-
-
-.section.footer {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 10px;
-    grid-column: 1 / 3;
-}
-
-.acc-kpkr {
-    background-color: var(--bg-color);
-}
-
-.p-accordionpanel {
-    border-radius: 5px;
-}
-
-:deep(.p-accordioncontent-content) {
-    background: none !important;
-}
-
-.p-accordionheader,
-.p-accordionheader.acc-header,
-.p-accordioncontent-content {
-    background: none !important;
-}
-
-.acc-header,
-.acc-header-title {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-}
-
-.acc-content {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, auto);
-    gap: 13px;
-}
-
-.field-head {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.content-field {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.content-field+.content-field {
-    margin-top: 18px;
-}
-
-.field-head-icon {
-    opacity: 0.3;
-    cursor: pointer;
-}
-
-.field-head-icon:hover {
-    opacity: 0.8;
-}
-
-.field-head-icon:active {
-    opacity: 1;
-}
-
-.field-content {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 20px;
-    align-items: start;
-}
-
-.hr-column {
-    height: 100%;
-    border: 0.5px solid var(--text-color);
-    opacity: 0.1;
-}
-
-.checkbox-field {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    width: auto;
-}
-
-.data-column {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-
-.label-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-}
-
-.checkbox-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-:deep(.p-checkbox-checked .p-checkbox-box) {
-    border-color: var(--text-color) !important;
-    background: var(--text-color) !important;
-}
-
-.btn-container {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.p-inputotp {
-    width: 100% !important;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.custom-otp-input {
-    width: 48px;
-    height: 48px;
-    font-size: 24px;
-    appearance: none;
-    text-align: center;
-    transition: all 0.2s;
-    border-radius: 0;
-    border: 1px solid var(--p-inputtext-border-color);
-    background: transparent;
-    outline-offset: -2px;
-    outline-color: transparent;
-    border-right: 0 none;
-    transition: outline-color 0.3s;
-    color: var(--p-inputtext-color);
-}
-
-.custom-otp-input:focus {
-    outline: 2px solid var(--p-focus-ring-color);
-}
-
-.custom-otp-input:first-child,
-.custom-otp-input:nth-child(5) {
-    border-top-left-radius: 12px;
-    border-bottom-left-radius: 12px;
-}
-
-.custom-otp-input:nth-child(3),
-.custom-otp-input:last-child {
-    border-top-right-radius: 12px;
-    border-bottom-right-radius: 12px;
-    border-right-width: 1px;
-    border-right-style: solid;
-    border-color: var(--p-inputtext-border-color);
-}
-
-.dialog-header,
-.partnerSelect {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    opacity: 1;
-}
-
-.partnerSelect {
-    margin: 5px 0px 13px 0px;
-}
-
-.dialog-header-text {
-    display: flex;
-    flex-direction: column;
-    font-weight: 500;
-    /* gap: 1px; */
-}
-
-.dialog-header-text strong {
-    font-size: 20px;
-    font-weight: 700;
-    text-decoration: none;
-    opacity: 1 !important;
-}
-
-.dialog-header-text span {
-    opacity: 0.7;
-}
-
-/* .dialog-header * {
-    font-size: 20px;
-} */
-
-log-header * {
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.field-heading {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.field-split,
-.field-split>div {
-    display: flex;
-    flex-direction: row;
-    gap: 5px;
-}
-
-.field-split>div {
-    flex-direction: column;
-    flex: 1;
-}
-
-.field-buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-.resetBtn {
-    height: auto;
-    border-radius: 50%;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background-color: #D9D9D9;
-    color: var(--text-color);
-}
-
-.resetBtn:hover {
-    background-color: #c4c4c4;
-}
-
-.resetBtn:hover .button-icon {
-    transform: rotate(30deg);
-}
-
-.resetBtn:active {
-    background-color: #b3b3b3;
-}
-
-.resetBtn:active .button-icon {
-    transform: rotate(60deg);
-}
-
-.fieldSaveBtn {
-    border-radius: 5px;
-    padding: 6px 20px;
-}
-
-.status-field {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-}
-
-.dialog-footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 5px;
-}
-
-.total-emissions {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-strong {
-    text-decoration: underline;
-    font-size: 16px;
-}
-
-.required {
-    color: var(--red-soft);
-}
-
-/* .expand-icon:hover {
-    cursor: pointer;
-    background-color: #2ecc71;
-} */
-
-.mail-dialog-footer, .mail-footer {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.closeDialog,
-.closeDialog * {
-    font-size: 16px;
-}
-
-.ukloni-btn,
-.submitBtn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-
-    background-color: var(--text-color);
-    color: white;
-}
-
-.submitBtn * {
-    color: white;
-}
-
-.submitBtn:hover {
-    background-color: var(--text-color-hover);
-}
-
-.submitBtn:active {
-    background-color: var(--text-color-focus);
-}
-
-.ukloni-btn {
-    background-color: var(--red-soft);
-    color: white;
-}
-
-.ukloni-btn * {
-    color: white;
-}
-
-.ukloni-btn:hover {
-    background-color: var(--red-hover);
-}
-
-.ukloni-btn:active {
-    background-color: var(--red-focus);
-}
-
-.edit-btn {
-    color: var(--text-color);
-    border-radius: 50%;
-    padding: 5px;
-    cursor: pointer;
-}
-.edit-btn.no-email {
-    color: var(--red-soft);
-}
-.edit-btn.disabled {
-    opacity: 0.3;
-    cursor: default;
-}
-
-.edit-btn:hover {
-    background-color: rgb(236, 236, 236);
-}
-
-.edit-btn:active {
-    background-color: rgb(223, 223, 223);
-}
-
-.edit-btn.disabled:hover {
-    background-color: rgb(236, 236, 236);
-}
-
-.edit-btn.disabled:active {
-    background-color: rgb(223, 223, 223);
-}
-
-.ukloni-btn:disabled,
-.edit-btn:disabled {
-    color: var(--text-color);
-    background-color: #b0b0b0;
-    cursor: not-allowed;
-}
-
-.ukloni-btn:disabled *,
-.edit-btn:disabled * {
-    color: var(--text-color);
+  max-width: auto;
 }
 
 #saveBtn {
-    width: 150px;
-    background: none;
-    border: var(--border);
-    font-weight: 500;
+  width: 150px;
+  background: none;
+  border: var(--border);
+  font-weight: 500;
 
-    background-color: var(--text-color);
-    color: white;
+  background-color: var(--text-color);
+  color: white;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
 #saveBtn * {
-    color: white;
+  color: white;
 }
-
 
 #saveBtn:hover {
-    background-color: var(--text-color-hover);
-    color: white;
+  background-color: var(--text-color-hover);
+  color: white;
 }
 
-#saveBtn:hover>.save-icon {
-    color: white;
+#saveBtn:hover > .save-icon {
+  color: white;
 }
 
 #saveBtn:active {
-    background-color: var(--text-color-focus);
+  background-color: var(--text-color-focus);
 }
 
-
 #saveBtn:disabled {
-    background: rgb(216, 216, 216);
-    color: var(--text-color);
-    cursor: not-allowed;
-    pointer-events: none;
-    opacity: 0.6;
+  background: rgb(216, 216, 216);
+  color: var(--text-color);
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.6;
 }
 
 #saveBtn:disabled * {
-    color: var(--text-color);
+  color: var(--text-color);
 }
 
 #saveBtn:disabled:hover,
 #saveBtn:disabled:active,
-#saveBtn:disabled>.save-icon {
-    background-color: rgb(232, 232, 232);
-    color: var(--text-color);
+#saveBtn:disabled > .save-icon {
+  background-color: rgb(232, 232, 232);
+  color: var(--text-color);
 }
 
-footer {
-    justify-content: flex-end;
+.dodaj-btn,
+.dodaj-partnera-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-.fullscreen-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 26px;
-    z-index: 9999;
-    animation: fadeIn 0.3s ease;
+.dodaj-btn {
+  background-color: var(--text-color);
+  color: white;
 }
 
-.fullscreen-chart {
-    position: relative;
-
-    width: 100%;
-    height: 100%;
-    background-color: #fff;
-    padding: 26px;
-    border-radius: 5px;
-    animation: scaleUp 0.3s ease;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 10px;
+.dodaj-btn * {
+  color: white;
 }
 
-.fullscreen-chart-content {
-    margin: auto;
-    width: 100%;
-    height: 90%;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.dodaj-btn:hover {
+  background-color: var(--text-color-hover);
 }
 
-.fullscreen-chart-content>canvas {
-    margin: auto;
+.dodaj-btn:active {
+  background-color: var(--text-color-focus);
 }
 
-.status-tag {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.25rem 0.5rem;
-    border-radius: 5px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-transform: uppercase;
+.dodaj-btn:disabled {
+  color: black;
+  background-color: #b0b0b0;
+  cursor: not-allowed;
 }
 
-.status-aktivan {
-    background-color: #2ecc71;
-    /* zeleno */
-    color: #fff;
+.dodaj-btn:disabled * {
+  color: black;
 }
 
-.status-neaktivan {
-    background-color: var(--red-soft, rgb(192, 57, 43));
-    /* crveno */
-    color: #fff;
-}
-
-.dialog-header-text-grid {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-rows: 1fr 1fr;
-    justify-content: center;
-    align-items: center;
-    column-gap: 10px;
-    font-size: 1.2rem; 
-    font-weight: 600;
-}
-
-.dialog-header-icon-grid {
-    grid-column: 1;
-    grid-row: 1 / 3;
-    font-size: 1.2rem;
-}
-
-.dialog-header-text-span.span1 {
-    font-size: 1.2rem;
-}
-.dialog-header-text-span.span2 {
-    opacity: 0.6;
-}
-
-:deep(.p-datatable-row-toggle-button) {
-    width: auto !important;
-    height: 24px !important;
-}
-
+/* Ostali globalni stilovi, npr. tipografija, helper klase, keyframes itd. */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleUp {
-    from {
-        transform: scale(0.8);
-    }
-
-    to {
-        transform: scale(1);
-    }
+  from {
+    transform: scale(0.8);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 </style>
