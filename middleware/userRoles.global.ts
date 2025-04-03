@@ -1,9 +1,9 @@
 // /middleware/userRoles.global.ts
 import { defineNuxtRouteMiddleware, navigateTo, useRoute } from "#app";
-import { useAuthStore } from "~/stores/auth";
 
 export default defineNuxtRouteMiddleware((to, from) => {
-    const authStore = useAuthStore();
+    // const userStore = useuserStore();
+    const userStore = useUserStore();
 
     const excludedPaths = [
         "/login",
@@ -16,8 +16,8 @@ export default defineNuxtRouteMiddleware((to, from) => {
         return;
     }
 
-    const userRoles = authStore.userRoles;
-    //c// console.log("Roles middleware (klijent):", userRoles);
+    const userRoles = userStore.roles;
+    console.log("Roles middleware (klijent):", userRoles);
 
     // Definiramo pravila pristupa
     const accessRules = [
