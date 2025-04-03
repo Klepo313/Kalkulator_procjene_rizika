@@ -50,7 +50,8 @@
                             <li>Neizravne emisije zbog proizvodnje električne energije iz obnovljivih izvora</li>
                         </ul>
                     </div>
-                    <div class="data-item">
+                    <EnergyTable :editable="isEditable" :data="izracuni" @save="spremiPromjene" />
+                    <!-- <div class="data-item">
                         <DataTable :value="sortedIzracuni" show-gridlines edit-mode="cell" :rows="5" data-key="id"
                             :rowClass="getRowClass" @cell-edit-complete="onCellEditComplete">
                             <template #empty> Nema energija </template>
@@ -110,7 +111,15 @@
                                 <template #body="slotProps">
                                     <span :class="getCellClass(slotProps.data, 'emisije')"
                                         v-tooltip.top="getTooltip(slotProps.data)">
-                                        {{ formatNumber(slotProps.data.emisije.toFixed(2)) }}
+                                        {{ formatNumber(slotProps.data.emisije, 4) }}
+                                    </span>
+                                </template>
+                            </Column>
+                            <Column header="Emisija eCO2/kg" field="emisije_lok">
+                                <template #body="slotProps">
+                                    <span :class="getCellClass(slotProps.data, 'emisije')"
+                                        v-tooltip.top="getTooltip(slotProps.data)">
+                                        {{ formatNumber(slotProps.data.emisije_lok, 4) }}
                                     </span>
                                 </template>
                             </Column>
@@ -118,8 +127,12 @@
                             <template #footer>
                                 <div class="total-emissions">
                                     <div>
-                                        <span>Ukupno emisija CO<sub>2</sub>: </span>
-                                        <strong>{{ formatNumber(totalEmissions) }}</strong> kg
+                                        <span>Ukupna emisija eCO<sub>2</sub>: </span>
+                                        <strong>{{ formatNumber(totalEmissions, 4) }}</strong> kg
+                                    </div>
+                                    <div>
+                                        <span>Ukupna emisija po lokaciji eCO<sub>2</sub>: </span>
+                                        <strong>{{ formatNumber(totalLokEmissions, 4) }}</strong> kg
                                     </div>
                                 </div>
                             </template>
@@ -131,7 +144,7 @@
                                 Spremi promjene
                             </span>
                         </button>
-                    </div>
+                    </div> -->
 
                 </section>
             </div>
@@ -189,12 +202,14 @@
 import { ref, computed, watch } from 'vue';
 import { updateEnergyItem } from '~/service/kesp/postRequests';
 import { useOpseg2Store } from '~/stores/main-store';
+import EnergyTable from '~/components/kesp/EnergyTable.vue';
 
 const opseg2Store = useOpseg2Store(); // Inicijaliziraj store
 const kespStore = useKespStore();
 
 const toast = useToast();
 
+const isEditable = ref(true);
 const izracuni = computed(() => JSON.parse(JSON.stringify(opseg2Store.izracuni)));
 const datumOd = computed(() => formatDateToDMY(kespStore.datumOd, '.'));
 const datumDo = computed(() => formatDateToDMY(kespStore.datumDo, '.'));
@@ -283,6 +298,7 @@ onBeforeUnmount(() => {
 
 // Ukupne emisije
 const totalEmissions = computed(() => opseg2Store.totalEmissions); // Preuzmi ukupne emisije iz getter-a
+const totalLokEmissions = computed(() => opseg2Store.totalLokEmissions); // Preuzmi ukupne emisije iz getter-a
 
 const noviPodaci = ref([])
 
@@ -317,17 +333,16 @@ const onCellEditComplete = async (event) => {
 //     }
 // };
 
-const spremiPromjene = async () => {
-    // console.log("Dobiveni podaci: ", noviPodaci.value);
-    try {
-        await opseg2Store.updateEnergyItems(); // Čekamo završetak svih API poziva
-        await fetchData(); // Tek nakon što svi podaci budu ažurirani, dohvaćamo svježe podatke
-        imaPromjena.value = false;
-        showSuccess();
-    } catch (error) {
-        // console.error('Greška prilikom spremanja promjena:', error);
-        showError();
-    }
+const spremiPromjene = async (podaci) => {
+  console.log("podaci: ", podaci);
+  try {
+    opseg2Store.izracuni = podaci;
+    await opseg2Store.updateEnergyItems();
+    await fetchData();
+    toast.add({ severity: 'success', summary: 'Uspješno', detail: 'Podaci uspješno spremljeni.', life: 3000 });
+  } catch (error) {
+    toast.add({ severity: 'error', summary: 'Greška', detail: 'Došlo je do greške prilikom spremanja.', life: 3000 });
+  }
 };
 
 
@@ -409,13 +424,48 @@ h2 {
     color: var(--kesp-primary);
 }
 
+/* Osigurava da se sadržaj ne širi izvan viewporta */
 main {
-    display: grid;
-    grid-template-columns: 1fr 0.2fr;
-    grid-template-rows: min-content auto;
-    gap: 34px;
+  display: grid;
+  grid-template-columns: 1fr minmax(200px, 250px);
+  grid-template-rows: min-content auto;
+  gap: 34px;
+  width: 100%;
+  max-width: 100vw; /* main se ne širi izvan širine viewporta */
+  margin: 0;
+  height: 100%;
+  overflow: hidden; /* sprječava prelijevanje sadržaja */
+}
 
-    height: 100%;
+main > * {
+  overflow: hidden; /* sprječava prelijevanje sadržaja */
+}
+
+/* Ograniči širinu .main-content i centriraj sadržaj */
+.main-content {
+  width: 100%;
+  max-width: 1100px; /* maksimalna širina sadržaja */
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  margin: 0; /* centriranje unutar grid stupca */
+  box-sizing: border-box;
+}
+
+/* .stats-content ostaje isto, uz responzivno sužavanje */
+.stats-content {
+  width: clamp(200px, 100%, 300px);
+  padding-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.stats-content .chart-container,
+.stats-content .chart-container > * {
+  width: 100% !important;
+  max-width: 100%;
 }
 
 p,
@@ -435,17 +485,6 @@ ul ul {
     margin: 0;
     padding: 0 0 0 30px;
     opacity: 1;
-}
-
-main>div {
-    width: 100%;
-    height: 100%;
-}
-
-.main-content {
-    display: flex;
-    flex-direction: column;
-    gap: 26px;
 }
 
 section {
@@ -486,21 +525,6 @@ strong {
     gap: 10px;
 }
 
-
-
-.stats-content {
-    /* background-color: var(--bg-color); */
-    padding: 20px;
-    padding-top: 0px;
-    /* border-radius: var(--border-form-radius); */
-    /* border: var(--border); */
-    max-width: 300px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-}
 
 .stats-content>div {
     display: flex;
