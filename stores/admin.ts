@@ -16,7 +16,7 @@ export const useKorisniciStore = defineStore('korisnici', {
             try {
                 const partners: { epr_tip: string; epr_id?: number; eko_par_id_za?: number }[] = await getPartners() || [];
                 if (!partners || !Array.isArray(partners)) return;
-        
+
                 this.fizickeOsobe = partners.filter((partner) => partner?.epr_tip === 'FO');
                 this.pravneOsobe = partners.filter((partner) => partner?.epr_tip === 'PO');
 
@@ -26,7 +26,7 @@ export const useKorisniciStore = defineStore('korisnici', {
                         tvrtka_usluge: "ATD Solucije",
                     };
                 })
-        
+
                 // Povezivanje fizičkih osoba s pravnim osobama
                 this.pravneOsobe = this.pravneOsobe.map((pravnaOsoba) => {
                     return {
@@ -34,7 +34,7 @@ export const useKorisniciStore = defineStore('korisnici', {
                         users: this.fizickeOsobe.filter((fizickaOsoba) => fizickaOsoba.eko_par_id_za === pravnaOsoba.epr_id) as typeof this.fizickeOsobe || []
                     };
                 });
-        
+
                 // console.log("PRAVNE I FIZICKE OSOBE: ", this.pravneOsobe, this.fizickeOsobe);
             } catch (error) {
                 // console.error('Error fetching osobe:', error);
@@ -63,44 +63,37 @@ export const useKorisniciStore = defineStore('korisnici', {
         },
         async fetchKorisniciForLegalPartner(id: string | number): Promise<void> {
             try {
-                // Provjera postoji li već dohvaćeni korisnici za ovu pravnu osobu
-                if (this.fizickeOsobe[id]) {
-                    // console.log(`Korisnici za pravnu osobu ${id} već postoje, preskačem dohvaćanje.`);
-                    return;
-                }
-        
                 const data = await getUsersForLegalPartner(id);
-                console.log("data: ", data)
-                if(data?.status === 404) {
+                // console.log("data: ", data);
+
+                if (data?.status === 404) {
                     return {
                         message: data?.response?.data?.message || 'Not found'
-                    }
+                    };
                 }
                 if (!Array.isArray(data)) {
                     console.warn(`Neispravan format podataka za pravnu osobu ${id}.`);
                     return;
                 }
-        
+
                 // Mapiranje dohvaćenih korisnika na fizickeOsobe pod ključem id-ja pravne osobe
                 this.fizickeOsobe = {
                     ...this.fizickeOsobe,
                     [id]: data
                 };
 
-                // Ažuriranje pravneOsobe tako da se dodaju korisnici u postojeći users niz
+                // Ažuriranje pravneOsobe tako da se zamijeni postojeći users niz s novim podacima
                 this.pravneOsobe = this.pravneOsobe.map(pravnaOsoba => {
-                    if (pravnaOsoba.epr_id === id) {
+                    if (pravnaOsoba?.epr_id === id) {
                         return {
                             ...pravnaOsoba,
-                            users: [...(pravnaOsoba.users || []), ...data]
+                            users: data  // zamijenite umjesto spajanja nizova
                         };
                     }
                     return pravnaOsoba;
                 });
-        
-                // console.log(`Dohvaćeni korisnici za pravnu osobu ${id}:`, data);
             } catch (error) {
-                // console.error(`Error fetching korisnici for legal partner ${id}:`, error);
+                // Error handling
                 return;
             }
         },
