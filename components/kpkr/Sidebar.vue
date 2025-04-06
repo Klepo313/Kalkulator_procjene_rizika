@@ -3,76 +3,84 @@
     <div :class="['sidebar', isCollapsed ? 'collapsed' : '']">
         <div :class="['sidebar-main', isCollapsed ? 'collapsed' : '']">
             <div :class="['sidebar-header', isCollapsed ? 'collapsed' : '']">
-                <img
-                    :class="['logo-image', isCollapsed ? 'collapsed' : '']"
-                    src="../public/static/images/atd_solucije.png" alt="logo" style="cursor: pointer;"
-                    @click="navigateTo('/')">
-                <font-awesome-icon
-                    :class="['narrow-icon', isCollapsed ? 'collapsed' : '']" icon="angles-left"
+                <img :class="['logo-image', isCollapsed ? 'collapsed' : '']" src="../../images/KPKR_logo_sidebar.svg"
+                    alt="logo" style="cursor: pointer;" @click="navigateTo('/kpkr')">
+                <font-awesome-icon :class="['narrow-icon', isCollapsed ? 'collapsed' : '']" icon="angles-left"
                     @click="toggleSidebar" />
             </div>
             <div :class="['sidebar-content izracun-content', isCollapsed ? 'collapsed' : '']">
                 <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']" style="opacity: 1;">
-                    <h2
-                        :class="isCollapsed ? 'collapsed' : ''"
+                    <h2 :class="isCollapsed ? 'collapsed' : ''"
                         style="font-size: 14px; font-weight: 400; color: var(--text-color);">
-                        Korisnik:
+                        Broj izračuna:
                     </h2>
-                    <span class="broj-izracuna">{{ 'Admin' }}</span>
+                    <span class="broj-izracuna">{{ brojIzracuna || '/' }}</span>
                 </div>
             </div>
             <div :class="['sidebar-content', isCollapsed ? 'collapsed' : '']">
-                <div v-for="(section, index) in sections" :key="index"
-                    :class="['sidebar-section', isCollapsed ? 'collapsed' : '']">
-
-                    <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']" @click="toggleSection(index)">
-                        <font-awesome-icon v-if="section.icon" :class="['list-icon', isCollapsed ? 'collapsed' : '']"
-                            :icon="section.icon" />
-
-                        <h2 :class="isCollapsed ? 'collapsed' : ''">{{ section.title }}</h2>
-                        <span :class="['icon-container', isCollapsed ? 'collapsed' : '']">
-                            <font-awesome-icon :class="['icon', 'icon-down', section.collapsed ? 'collapsed' : '']"
-                                :icon="section.collapsed ? 'angle-down' : 'angle-up'" />
-                        </span>
-                    </div>
-
-                    <div v-if="!section.collapsed" :class="['navigation', isCollapsed ? 'collapsed' : '']">
-                        <nuxt-link v-for="(link, linkIndex) in section.links" :key="linkIndex"
-                            :class="['nuxtlink-form', 'opci', isActiveRoute(link.to) ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '', !link.available ? 'disabled' : '']" :to="link.available ? link.to : '#'">
-                            <font-awesome-icon v-if="link.icon" :class="['icon', isCollapsed ? 'collapsed' : '']"
-                                :icon="link.icon" />
-                            <img v-else-if="link.image" :src="link.image" :alt="link.label"
-                                :class="['icon', isCollapsed ? 'collapsed' : '']">
-                            <h3 :class="isCollapsed ? 'collapsed' : ''">{{ link.label }}</h3>
-                        </nuxt-link>
-                    </div>
+                <div :class="['sidebar-heading', isCollapsed ? 'collapsed' : '']">
+                    <font-awesome-icon :class="['list-icon', isCollapsed ? 'collapsed' : '']" icon="list" />
+                    <h2 :class="isCollapsed ? 'collapsed' : ''">Unos podataka za procjenu rizika</h2>
                 </div>
-
+                <div :class="['navigation', isCollapsed ? 'collapsed' : '']">
+                    <nuxt-link
+                        :class="['nuxtlink-form', 'opci', isActiveRoute('/kpkr/predlozak') ? 'active' : 'inactive', isCollapsed ? 'collapsed' : '']"
+                        :to="{ path: '/kpkr/predlozak', query: { id: cardStore.cardId } }">
+                        <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="map" />
+                        <h3 :class="isCollapsed ? 'collapsed' : ''">Opći podaci</h3>
+                    </nuxt-link>
+                    <nuxt-link :class="[
+                        'nuxtlink-form',
+                        'mjere',
+                        isActiveRoute('/kpkr/predlozak/mjere-prilagodbe') ? 'active' : 'inactive',
+                        isCollapsed ? 'collapsed' : '',
+                        isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je brojIzracuna '/'
+                    ]" :to="isDisabled
+                        ? '#'
+                        : { path: '/kpkr/predlozak/mjere-prilagodbe', query: { id: cardStore.cardId } }"
+                        :tabindex="isDisabled ? -1 : 0" :aria-disabled="isDisabled">
+                        <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="ruler-horizontal" />
+                        <h3 :class="isCollapsed ? 'collapsed' : ''">Mjere prilagodbe</h3>
+                    </nuxt-link>
+                </div>
+            </div>
+            <div :class="['sidebar-content', isCollapsed ? 'collapsed' : '']">
+                <nuxt-link :class="[
+                    'nuxtlink-form',
+                    'opci',
+                    isActiveRoute('/kpkr/predlozak/rizik-sazetak') ? 'active' : 'inactive',
+                    isCollapsed ? 'collapsed' : '',
+                    isDisabled ? 'disabled' : ''  // Dodana klasa 'disabled' ako je brojIzracuna '/'
+                ]" :to="isDisabled
+                    ? '#'
+                    : { path: '/kpkr/predlozak/rizik-sazetak', query: { id: cardStore.cardId } }"
+                    :tabindex="isDisabled ? -1 : 0" :aria-disabled="isDisabled">
+                    <font-awesome-icon :class="['icon', isCollapsed ? 'collapsed' : '']" icon="table-cells" />
+                    <h3 :class="isCollapsed ? 'collapsed' : ''">Rezultat izračuna</h3>
+                </nuxt-link>
             </div>
         </div>
         <div class="bottom-container">
-            <button :class="['back', isCollapsed ? 'collapsed' : '']" @click="navigateTo('/')">
+            <button :class="['back', isCollapsed ? 'collapsed' : '']" @click="navigateTo('/kpkr/predlosci')">
                 <font-awesome-icon icon="arrow-left-long" />
-                <span v-if="!isCollapsed">Početna stranica</span>
+                <span v-if="!isCollapsed">Prethodni izračuni</span>
             </button>
             <div :class="['profile-container', isCollapsed ? 'collapsed' : '']">
                 <div :class="['profile-content', isCollapsed ? 'collapsed' : '']">
                     <font-awesome-icon icon="circle-user" size="xl" />
                     <div :class="['profile-details', isCollapsed ? 'collapsed' : '']">
-                        <h4
-                            :class="isCollapsed ? 'collapsed' : ''"
+                        <h4 :class="isCollapsed ? 'collapsed' : ''"
                             :style="{ fontSize: (name + surname).length > 20 ? '14px' : 'initial' }"
                             class="responsive-text">
                             {{ capitalizeName(name + ' ' + surname) }}
                         </h4>
                         <span :class="isCollapsed ? 'collapsed' : ''" class="responsive-text">
-                            {{ email ? email : username.toLowerCase() }}
+                            {{ email == null ? username.toLowerCase() : email }}
                         </span>
                     </div>
                 </div>
                 <div :class="['logout-container', isCollapsed ? 'collapsed' : '']" @click="doLogout">
-                    <font-awesome-icon
-                        :class="['logout-icon', isCollapsed ? 'collapsed' : '']"
+                    <font-awesome-icon :class="['logout-icon', isCollapsed ? 'collapsed' : '']"
                         icon="arrow-right-from-bracket" />
                 </div>
             </div>
@@ -82,49 +90,22 @@
 
 
 <script setup>
+import { computed, defineEmits, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { navigateTo } from '#app';
-import { onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 import { logout } from '~/service/user/user';
-// import { decryptCookie } from '#imports';
+import { getCookie } from "~/service/user/cookies";
+import KPKR_logo_sidebar from '~/public/static/images/KPKR_logo_sidebar.svg';
 
-// Koristite useRoute za dobivanje trenutne rute
+const opciStore = useOpciStore();
+const cardStore = useCardStore();
 const route = useRoute();
-const router = useRouter();
 
-const idIzracuna = ref('/');
+const brojIzracuna = computed(() => cardStore.broj);
 const username = ref('');
 const name = ref('');
 const surname = ref('');
 const email = ref('');
-
-// Definiramo sections
-const sections = ref([
-    {
-        title: 'Glavni izbornik',
-        icon: 'bars-staggered',
-        collapsed: false,
-        links: [
-            { label: 'Početna stranica', to: '/admin', icon: 'house', isActive: false, available: true },
-            { label: 'Dodavanje korisnika', to: '/admin/korisnici', icon: 'user-plus', isActive: false, available: true },
-            { label: 'Ažuriranje podataka', to: '/admin/azuriranje', icon: 'code-compare', isActive: false, available: false },
-        ],
-    },
-    {
-        title: 'Aplikacije',
-        icon: 'shapes',
-        collapsed: false,
-        links: [
-            { label: 'Kalkulator procjene klimatskih rizika', to: '/admin/kpkr', image: '../static/images/kpkr_logo_slim.svg', isActive: false, available: false },
-            { label: 'Kalkulator emisija stakleničkih plinova', to: '/admin/kesp', image: '../static/images/kesp_logo_slim.svg', isActive: false, available: false },
-        ],
-    },
-]);
-
-// Toggle collapse state for each section
-const toggleSection = (index) => {
-    sections.value[index].collapsed = !sections.value[index].collapsed;
-};
 
 function capitalizeName(fullName) {
     return fullName
@@ -134,40 +115,53 @@ function capitalizeName(fullName) {
         .join(' ');
 }
 
+const isDisabled = computed(
+    () =>
+        brojIzracuna.value === '/' ||
+        brojIzracuna.value == 0 ||
+        brojIzracuna.value == undefined ||
+        brojIzracuna.value == null
+);
+
+watch(() => cardStore.broj, (newValue) => {
+    //cconsole.log('Broj izračuna updated: ', newValue);
+    brojIzracuna.value = parseInt(newValue);
+});
+// watch(() => izracunStore.idIzracuna, (newValue) => {
+//     console.log('idIzracuna updated:', newValue);
+//     idIzracuna.value = parseInt(newValue);
+// });
+
+const cookiesToGet = ['username', 'name', 'surname', 'email'];
+
+onMounted(async () => {
+    try {
+        const cookieData = await getCookie(cookiesToGet);
+        username.value = cookieData['username'] || '';
+        name.value = cookieData['name'] || '';
+        surname.value = cookieData['surname'] || '';
+        email.value = cookieData['email'] || null;
+        //cconsole.log("email sidebar: ", email.value)
+    } catch (error) {
+        // console.error("Error loading cookies: ", error);
+    }
+})
+
 // Prima prop za stanje bočne trake
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps(['isCollapsed'])
 
 // Emitira događaj za prebacivanje stanja bočne trake
-const emit = defineEmits(['toggle-sidebar', 'updateActiveSection'])
-
-// const activeHash = ref('');
-
+const emit = defineEmits(['toggle-sidebar'])
 const toggleSidebar = () => {
     emit('toggle-sidebar')
     // isCollapsed.value = !isCollapsed.value;
 }
 
-const isActiveRoute = (link) => {
-    return link === `${router.currentRoute.value.path}`;
+// Definirajte funkciju za provjeru aktivne rute
+const isActiveRoute = (path) => {
+    return computed(() => route.path === path).value;
 };
-
-
-const cookiesToGet = ['kesp-id', 'username', 'name', 'surname', 'email'];
-
-onMounted(async () => {
-    try {
-        const cookieData = await initializeCookie(cookiesToGet);
-        idIzracuna.value = cookieData['kesp-id'] || null;
-        username.value = cookieData['username'] || '';
-        name.value = cookieData['name'] || '';
-        surname.value = cookieData['surname'] || '';
-        email.value = cookieData['email'] || null;
-        // console.log(idIzracuna.value, username.value, name.value, surname.value, email.value);
-    } catch (error) {
-        // console.error("Error loading cookies: ", error);
-    }
-})
 
 const doLogout = async () => {
     await logout();
@@ -196,9 +190,9 @@ const doLogout = async () => {
     color: var(--text-color);
 }
 
-.sidebar-header img {
+/* .sidebar-header img {
     max-width: 180px;
-}
+} */
 
 .narrow-icon:hover {
     transform: translateX(-3px);
@@ -223,12 +217,11 @@ const doLogout = async () => {
 }
 
 .sidebar-heading {
-    position: relative;
     display: flex;
     align-items: center;
     gap: 10px;
     font-weight: bold;
-    color: var(--text-color);
+    color: var(--primary-color);
 }
 
 .broj-izracuna {
@@ -237,12 +230,12 @@ const doLogout = async () => {
 }
 
 .list-icon {
-    color: var(--text-color);
+    color: var(--primary-color);
     font-size: 16px;
 }
 
 h2 {
-    color: var(--text-color);
+    color: var(--primary-color);
     font-size: 16px;
 }
 
@@ -254,7 +247,6 @@ h3 {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    padding-top: 20px;
 }
 
 .nuxtlink-form {
@@ -266,7 +258,7 @@ h3 {
     display: flex;
     align-items: center;
     gap: 10px;
-    background-color: var(--admin-bg-color);
+    background-color: var(--bg-color);
     border-radius: var(--border-form-radius);
     padding-left: 20px;
     color: var(--text-color);
@@ -289,51 +281,28 @@ h3 {
     /* Ikonica je također zasivljena */
 }
 
-.icon-container {
-    position: absolute;
-    right: 0px;
-    padding: 5px;
-
-    border-radius: 50%;
-
-    cursor: pointer;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.icon-container:hover {
-    background-color: rgb(204, 204, 204);
-}
-
-.icon {
-    width: 14px;
-    height: 14px;
-    color: var(--text-color);
-}
-
 .active {
-    background-color: var(--text-color);
+    background-color: var(--primary-color);
     color: white;
     cursor: default;
 }
 
 .inactive {
-    background-color: var(--admin-bg-color);
+    background-color: var(--bg-color);
     color: var(--text-color);
 }
 
 .inactive:hover {
-    background-color: var(--admin-nuxtlink-hover);
+    background-color: var(--input-hover-color);
 }
 
-.active * {
+.active {
+    background-color: var(--primary-color);
     color: white;
 }
 
 .inactive {
-    background-color: var(--admin-bg-color);
+    background-color: var(--bg-color);
     color: var(--text-color);
 }
 
@@ -365,7 +334,7 @@ h3 {
 
 .back:hover {
     color: white;
-    background: var(--text-color);
+    background: var(--primary-color);
     opacity: 1;
     /* transform: translateX(-3px); */
 }
@@ -443,10 +412,6 @@ h3 {
     padding: 26px 0px;
 }
 
-.logo-image {
-    width: 140px;
-}
-
 .logo-image.collapsed {
     display: none;
 }
@@ -500,9 +465,5 @@ h3.collapsed,
 .profile-container.collapsed {
     justify-content: center;
     align-items: center;
-}
-
-.icon-container.collapsed {
-    display: none;
 }
 </style>

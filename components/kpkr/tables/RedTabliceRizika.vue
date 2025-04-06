@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { getColorClass } from '../utils/getColorClass';
+import { getColorClass } from "~/utils/getColorClass"
 
 const props = defineProps({
     // eslint-disable-next-line vue/require-default-prop

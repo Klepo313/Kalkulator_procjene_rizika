@@ -1,6 +1,6 @@
 // stores/main-store.ts
 import { defineStore } from 'pinia';
-import { getCookie, setCookie, deleteCookie } from '#imports';
+import { getCookie, setCookie, deleteCookie } from '~/service/user/cookies';
 
 // KPKR
 import {
@@ -23,10 +23,13 @@ import {
 
 // KESP
 import {
+    getCoolingLossesHeader,
     getHeader
 } from '~/service/kesp/fetchHeader';
 import {
+    getCoolingCalculation,
     getEmmisionGroups,
+    getFuel,
     getFuelTypes,
     getVehicles,
     getVehiclesForEmmisionGroups
@@ -41,10 +44,12 @@ import {
 import {
     getKespCalculations
 } from '~/service/kesp/fetchKespCalculations';
+import { mapByMatch } from '~/utils/dataFormatter';
 
 
 export const useUserStore = defineStore('user-store', {
     state: () => ({
+        isLoggedin: null,
         name: '',
         surname: '',
         username: '',
@@ -52,39 +57,44 @@ export const useUserStore = defineStore('user-store', {
         roles: []
     }),
     actions: {
-        updateName(newValue: string) {
+        async updateName(newValue: string) {
             this.name = newValue;
-            setCookie({ name: 'name', value: newValue });
+            await setCookie({ name: 'name', value: newValue });
         },
-        updateSurname(newValue: string) {
+        async updateSurname(newValue: string) {
             this.surname = newValue;
-            setCookie({ name: 'surname', value: newValue });
+            await setCookie({ name: 'surname', value: newValue });
         },
-        updateUsername(newValue: string) {
+        async updateUsername(newValue: string) {
             this.username = newValue;
-            setCookie({ name: 'username', value: newValue });
+            await setCookie({ name: 'username', value: newValue });
         },
-        updateEmail(newValue: string) {
+        async updateEmail(newValue: string) {
             this.email = newValue;
-            if (newValue) setCookie({ name: 'email', value: newValue });
+            if (newValue) await setCookie({ name: 'email', value: newValue });
         },
-        updateRoles(newValue: any) {
+        async updateRoles(newValue: any) {
             this.roles = newValue;
-            setCookie({ name: 'roles', value: newValue });
+            await setCookie({ name: 'roles', value: newValue });
         },
-        updateAll(newValue: { name: string, surname: string, username: string, roles: any }) {
+        async updateAll(newValue: { name: string, surname: string, username: string, email: string, roles: any }) {
             this.name = newValue.name;
             this.surname = newValue.surname;
             this.username = newValue.username;
+            // Ako je newValue.email valjani string (nije null i nije prazan) postavi email, inače postavi prazan string
+            this.email = newValue.email && newValue.email.trim() !== '' ? newValue.email : '';
             this.roles = newValue.roles;
-            // this.email = newValue.email;
-            setCookie([
+
+            // Pripremamo niz kolačića, a email dodajemo samo ako je valjani string
+            const cookies = [
                 { name: 'name', value: newValue.name },
                 { name: 'surname', value: newValue.surname },
                 { name: 'username', value: newValue.username },
+                ...(newValue.email && newValue.email.trim() !== '' ? [{ name: 'email', value: newValue.email }] : []),
                 { name: 'roles', value: newValue.roles },
-                // { name: 'email', value: newValue.email },
-            ])
+            ];
+
+            await setCookie(cookies);
         },
         async initializeUser() {
             const response = await getCookie(['name', 'surname', 'username', 'email', 'roles']);
@@ -94,8 +104,8 @@ export const useUserStore = defineStore('user-store', {
             this.email = response['email'] || null;
             this.roles = response['roles'] || [];
         },
-        clearStore() {
-            deleteCookie(['name', 'surname', 'username', 'email', 'roles']);
+        async clearStore() {
+            await deleteCookie(['name', 'surname', 'username', 'email', 'roles']);
             this.name = '';
             this.surname = '';
             this.username = '';
@@ -123,6 +133,11 @@ export const useUserStore = defineStore('user-store', {
             if (state.email) return state.email;
             const res = await getCookie('email');
             return res['email'] || null;
+        },
+        getRoles: async (state) => {
+            if (state.roles) return state.roles;
+            const res = await getCookie('roles');
+            return res['roles'] || [];
         },
         getAll: async (state) => {
             if (state.name && state.surname && state.username && state.roles) return {
@@ -250,7 +265,7 @@ export const useOpciStore = defineStore('opci-podaci', {
                 tvs_id: this.izracun.tvs_id === 0 ? null : this.izracun.tvs_id
             }
 
-            console.log("Prije savea: ", data);
+            // console.log("Prije savea: ", data);
 
             const response = await saveForm(data)
 
@@ -322,6 +337,7 @@ export const useKespStore = defineStore('kespStore', {
         kespId: null,
         kespBrojIzracuna: null,
         predlosci: [],
+        gwpPredlosci: [],
         naziv: '',
         napomena: '',
         godina: new Date(2022, 0, 1),
@@ -380,6 +396,31 @@ export const useKespStore = defineStore('kespStore', {
             } catch (error) {
                 // console.log("Greška pri dodavanju izračuna.", error);
                 return 0;
+            }
+        },
+        async fetchCoolingCalculation (id: number): Promise<void> {
+            try {
+                const data = await getCoolingLossesHeader(id);
+                if (data) {
+                    if (data?.message) {
+                        this.gwpPredlosci = [];
+                    } else {
+                        // console.log("gwpPredlosci: ", data);
+                        const fuels = await getFuel(data?.uir_uvg_id)
+                        // console.log("Fuel: ", fuels);
+                        if(fuels?.message) this.gwpPredlosci = [];
+                        else {
+                            this.gwpPredlosci = groupByMatchUvgNaziv(mapByMatch(data, fuels, 'uir_uvg_id', 'uvg_id'));
+                            // console.log("STORE gwpPredlosci: ", this.gwpPredlosci);
+                        }
+                    }
+                } else {
+                    this.gwpPredlosci = [];
+                    // console.log('Error fetching calculations:', data);
+                }
+            } catch (error) {
+                return error?.message;
+                // console.error('Error fetching calculations:', error);
             }
         },
         setKespId(id: any) {
@@ -704,7 +745,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                         obnovljivo: Number(source.use_obnovljivo) || null,
                         ukupno: Number(source.use_ukupno) || 0.00,
                         emisije: parseFloat(source.use_emisija) || 0.00,
-                        koeficijent: source.use_uvn_id == 76 ? 0.288 : 0.133
+                        emisije_lok: Number(source.use_emisija_lok) || 0.00
                     });
                 }
                 // console.log("IZRACUNI NAKON FETCHA: ", this.izracuni)
@@ -784,7 +825,8 @@ export const useOpseg2Store = defineStore('opseg2-store', {
             }
         },
         async updateEnergyItems() {
-            const updatePromises = this.izracuni.map(row => {
+            let i = 0;
+            const updatePromises = this.izracuni.map(async row => {
                 // console.log("Red u izračunima: ", row);
 
                 const energyItem = {
@@ -795,15 +837,15 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                     p_obnovljivo: row.obnovljivo || 0
                 };
 
-                // console.log("Primljeni energyItem: ", energyItem);
+                // console.log(`Primljeni energyItem (${i++}): `, energyItem);
 
                 if (!energyItem.p_uiz_id || !energyItem.p_uvn_id || !energyItem.p_use_id) {
                     return Promise.resolve(); // Ako podaci nisu ispravni, vraćamo resolved Promise kako ne bi blokirao Promise.all
                 }
 
-                return updateEnergyItem(energyItem).catch(error => {
-                    // console.error('Error updating energy item:', error);
-                });
+                try {
+                    return await updateEnergyItem(energyItem);
+                } catch (error) { }
             });
 
             // Čekaj da se svi API pozivi završe
@@ -828,9 +870,14 @@ export const useOpseg2Store = defineStore('opseg2-store', {
         },
 
         totalEmissions() {
-            return this.izracuni.reduce((total: number, row: { emisije: number; }) => total + row.emisije, 0).toFixed(2);
+            return this.izracuni.reduce((total: number, row: { emisije: number; }) => total + row.emisije, 0).toFixed(4);
         },
-
+        totalLokEmissions() {
+            return this.izracuni.reduce((total: number, row: { emisije_lok: number; }) => total + row.emisije_lok, 0).toFixed(4);
+        },
+        totalCO2Emissions() {
+            return Number(Number(this.totalEmissions) + Number(this.totalLokEmissions));
+        },
         combinedChartData() {
             const hasData = this.izracuni.some(row => row.neobnovljivo !== null || row.obnovljivo !== null);
             const labels = this.izracuni.map((row: { energija: number; }) => row.energija);

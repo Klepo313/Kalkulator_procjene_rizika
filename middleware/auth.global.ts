@@ -1,14 +1,13 @@
 // /middleware/auth.global.ts
-export default defineNuxtRouteMiddleware(async (to, from) => {
-    const user = useAuthStore();
+export default defineNuxtRouteMiddleware((to, from) => {
+    const authStore = useAuthStore();
+    const userStore = useUserStore();
 
-    if (to.path === "/login") {
-        // console.log("Na login stranici - preskačemo auth provjere.");
-        return;
-    }
+    // Preskačemo provjere ako je korisnik na login stranici
+    if (to.path === "/login") return;
 
-    if (!user.isLoggedin) {
+    // Ako korisnik nije autentificiran, preusmjeravamo na login
+    if (!userStore.isLoggedin) {
         return navigateTo(`/login?redirectTo=${encodeURIComponent(to.fullPath)}`);
     }
 });
-  

@@ -2,6 +2,7 @@ import Aura from '@primevue/themes/aura';
 
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
+  ssr: false,
   app: {
     pageTransition: { name: 'fade', mode: 'out-in' },
     layoutTransition: { name: 'layout', mode: 'out-in' },

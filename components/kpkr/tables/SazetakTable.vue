@@ -200,7 +200,7 @@
 
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { getColorClass } from '../utils/getColorClass'
+import { getColorClass } from '../../utils/getColorClass'
 
 const props = defineProps({
     // eslint-disable-next-line vue/require-default-prop

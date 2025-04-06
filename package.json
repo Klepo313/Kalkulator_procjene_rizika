@@ -43,6 +43,7 @@
     "pinia": "^2.2.8",
     "primeicons": "^7.0.0",
     "primevue": "^4.2.4",
+    "redis": "^4.7.0",
     "vue": "latest",
     "xlsx": "^0.18.5",
     "zod": "^3.23.8"

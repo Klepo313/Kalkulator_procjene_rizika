@@ -12,17 +12,47 @@
 </template>
 
 <script setup>
-const title = ref('Kalkulator procjene klimatskih rizika')
-const description = ref('ATD Solucije')
+const title = ref("ATD Solucije");
+const description = ref("ATD Solucije");
+const favicon = ref("/favicon-default.ico"); // Zadani favicon
+const route = useRoute();
+
+// Funkcija koja ažurira title i favicon na temelju rute
+const updateHead = () => {
+  const path = route.path;
+
+  if (path.startsWith("/kpkr")) {
+    title.value = "Kalkulator procjene klimatskih rizika";
+    favicon.value = "/favicon-kpkr.ico";
+  } else if (path.startsWith("/kesp")) {
+    title.value = "Kalkulator emisija stakleničkih plinova";
+    favicon.value = "/favicon-kesp.ico";
+  } 
+  // else if (path.startsWith("/admin")) {
+  //   title.value = "Administratorska ploča";
+  //   favicon.value = "/favicon-admin.ico";
+  // } 
+  else {
+    title.value = "ATD Solucije";
+    favicon.value = "/favicon-default.ico";
+  }
+};
+
+// Gledamo promjene rute i dinamički ažuriramo title i favicon
+watch(() => route.path, updateHead, { immediate: true });
 
 useHead({
   title,
-  meta: [{
-    name: 'description',
-    content: description
-  }]
-})
-
+  meta: [
+    {
+      name: "description",
+      content: description,
+    },
+  ],
+  link: [
+    { rel: "icon", href: favicon }, // Dinamički mijenjamo favicon
+  ],
+});
 </script>
 
 <style scoped>
@@ -32,7 +62,7 @@ h2 {
 }
 
 p {
-  font-size: 16px
+  font-size: 16px;
 }
 
 .extendSession {
@@ -110,7 +140,6 @@ p {
 }
 
 @media screen and (max-width: 1120px) {
-
   .indicator,
   .page {
     display: none;
@@ -119,6 +148,5 @@ p {
   .screen-size {
     display: flex;
   }
-
 }
 </style>

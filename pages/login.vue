@@ -85,11 +85,12 @@ const checkLogin = async () => {
                 name: response.name,
                 surname: response.surname,
                 username: response.username,
+                email: response.email,
                 roles: response.roles,
             });
 
-            authStore.isLoggedin = true;
-            authStore.userRoles = response.roles || [];
+            userStore.isLoggedin = true;
+            // authStore.userRoles = response.roles || [];
             authStore.exp = response.exp || 0;
 
             // ✅ Sada imamo sigurno učitane podatke i možemo raditi redirekciju
@@ -99,7 +100,7 @@ const checkLogin = async () => {
                 let redirectTo = route.query.redirectTo || '/';
                 // // console.log("redirectTo: ", redirectTo);
 
-                const userRoles = authStore.userRoles; // Sada je sigurno dohvaćen!
+                const userRoles = userStore.roles; // Sada je sigurno dohvaćen!
                 let hasAccess = true;
 
                 const accessRules = [

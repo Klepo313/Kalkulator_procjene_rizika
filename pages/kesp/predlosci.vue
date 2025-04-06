@@ -142,11 +142,7 @@ import { ref, onMounted } from 'vue';
 import { navigateTo } from '#app';
 import { logout } from '~/temp/logout';
 import { formatDateToDMY, getYearsRange } from '@/utils/dateFormatter';
-import { setCookie, deleteCookie } from '~/utils/cookieUtils';
-
-definePageMeta({
-    middleware: ['auth', 'kesp-access'],
-});
+import { setCookie, deleteCookie } from '~/service/user/cookies';
 
 const kespStore = useKespStore();
 
@@ -157,7 +153,6 @@ const filters = ref({
 });
 
 const izracuni = computed(() => (kespStore.predlosci || []).slice().reverse());
-
 const loading = ref(true);
 const isLocked = ref(false);
 

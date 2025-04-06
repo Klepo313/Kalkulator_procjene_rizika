@@ -5,7 +5,7 @@
                 @update-active-section="updateActiveSection" />
         </div>
         <main :style="mainStyles" style="background-color: var(--kesp-bg);">
-            <div class="main-content">
+            <div class="all-main-content">
                 <NuxtPage v-if="kespId" :section-title="activeSectionTitle" :uiz_id="kespId" />
             </div>
         </main>
@@ -15,13 +15,11 @@
 <script setup>
 
 import { ref, computed, watch } from 'vue'
-import KespSidebar from '~/components/KespSidebar.vue';
+import KespSidebar from '~/components/kesp/KespSidebar.vue';
 import { useKespStore } from '#imports';
 
 definePageMeta({
     middleware: [
-        'auth',
-        'kesp-access',
         'kesp'
     ],
 });
@@ -123,7 +121,7 @@ main {
     background-color: white;
 }
 
-.main-content {
+.all-main-content {
     height: 100%;
     width: 100%;
     background-color: var(--bg-layout-color);
