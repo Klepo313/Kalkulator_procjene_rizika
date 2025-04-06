@@ -255,6 +255,7 @@ import { ref, onMounted } from 'vue';
 import { getPropertyGridData } from '~/service/kpkr/grid_data';
 import { restructureData } from '~/utils/dataFormatter';
 import { useStructuredGridDataStore } from '~/stores/main-store';
+import RedTabliceRizika from '~/components/kpkr/tables/RedTabliceRizika.vue';
 
 const structuredDataStore = useStructuredGridDataStore();
 

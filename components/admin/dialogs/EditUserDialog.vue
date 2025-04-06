@@ -105,11 +105,19 @@
                   <span>Status: </span>
                   <span>
                     <Tag
-                      :value="user.aktivan ? 'Aktivan' : 'Neaktivan'"
-                      :severity="getSeverity(user.aktivan)"
+                    :value="user.aktivan ? 'Aktivan' : 'Neaktivan'"
+                    :severity="getSeverity(user.aktivan)"
                     />
                   </span>
+                  <span style="font-style: italic; opacity: 0.8;">
+                    ({{ getTimeLeft(user.eko_datdo) }})
+                  </span>
                 </div>
+                <!-- <div v-if="user.aktivan" class="field status-field">
+                  <span>
+                    Račun aktivan još: {{ getTimeLeft(user.eko_datdo) }}.
+                  </span>
+                </div> -->
               </div>
               <hr />
               <div class="section">
@@ -169,11 +177,11 @@ const modelVisible = computed({
   },
 });
 
-const activeTab = ref('0')
+const activeTab = ref("0");
 
 // Koristi computed property da uvijek radiš s najnovijim korisničkim podacima
 const localUser = ref(props.user);
-console.log("localUser: ", localUser.value);
+// console.log("localUser: ", localUser.value);
 
 // Inicijaliziraj initialValues na temelju user-a
 const initialValues = ref({
@@ -226,35 +234,6 @@ const resolver = zodResolver(
     ),
   })
 );
-
-// Funkcija koja se poziva kada se otvori dijalog (asinkrono dohvaćanje dodatnih podataka)
-// const onOpenEditUserDialog = async () => {
-//   const userData = await getUser(localUser.value?.eko_id);
-//   if (userData) {
-//     Object.keys(userData).forEach((key) => {
-//       if (key === "eko_datod" || key === "eko_datdo") {
-//         const originalDate = new Date(userData[key]);
-//         // Postavljamo datum bez vremenskog dijela
-//         localUser.value[key] = new Date(
-//           originalDate.getFullYear(),
-//           originalDate.getMonth(),
-//           originalDate.getDate()
-//         );
-//       } else {
-//         localUser.value[key] = userData[key];
-//       }
-//     });
-//     // Ažuriramo initialValues s novim datumima
-//     initialValues.value.eko_datod = localUser.value?.eko_datod;
-//     initialValues.value.eko_datdo = localUser.value?.eko_datdo;
-
-//     console.log(
-//       "initialValues nakon usklađivanja: ",
-//       initialValues.value.eko_datod,
-//       initialValues.value.eko_datdo
-//     );
-//   }
-// };
 
 const close = () => {
   emits("update:visible", false);

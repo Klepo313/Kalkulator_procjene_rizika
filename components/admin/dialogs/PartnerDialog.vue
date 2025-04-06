@@ -1,5 +1,5 @@
 <template>
-    <Toast />
+  <Toast />
   <Dialog
     v-model:visible="modelVisible"
     header="Dodaj partnera"
@@ -263,12 +263,12 @@
           </div>
         </div>
         <div class="btn-container">
-          <button
+          <Button
             class="p-button p-component p-button-secondary"
             @click="modelVisible = false"
           >
             Odustani
-          </button>
+          </Button>
           <button id="saveBtn" type="submit">Dodaj partnera</button>
         </div>
       </Form>
@@ -288,7 +288,7 @@ const props = defineProps({
 });
 const emits = defineEmits(["update:visible", "submit"]);
 
-const toast = useToast()
+const toast = useToast();
 
 const korisniciStore = useKorisniciStore();
 
@@ -302,31 +302,31 @@ const modelVisible = computed({
 });
 
 const addPartnerValue = ref({
-    label: 'FIZ',
-    naziv: 'Fizički partner'
+  label: "FIZ",
+  naziv: "Fizički partner",
 });
 
 // write watch method to clear tempPartner on addPartnerValue change
 watch(addPartnerValue, () => {
-    reset()
-})
+  reset();
+});
 
 const initialValueAddPartner = ref({
-    FIZ: {
-        epr_ime: '',
-        epr_prezime: '',
-        epr_email: '',
-        epr_oib: '',
-        epr_adresa: '',
-        epr_mjesto: ''
-    },
-    PRV: {
-        epr_naziv: '',
-        epr_oib: '',
-        epr_adresa: '',
-        epr_mjesto: ''
-    }
-})
+  FIZ: {
+    epr_ime: "",
+    epr_prezime: "",
+    epr_email: "",
+    epr_oib: "",
+    epr_adresa: "",
+    epr_mjesto: "",
+  },
+  PRV: {
+    epr_naziv: "",
+    epr_oib: "",
+    epr_adresa: "",
+    epr_mjesto: "",
+  },
+});
 
 const partneriOptions = ref([
   { label: "FIZ", naziv: "Fizički partner" },
@@ -335,114 +335,129 @@ const partneriOptions = ref([
 
 const addPartnerResolverFIZ = zodResolver(
   z.object({
-    epr_ime: z.string().min(1, { message: 'Ime je obavezno' }),
-    epr_prezime: z.string().min(1, { message: 'Prezime je obavezno' }),
+    epr_ime: z.string().min(1, { message: "Ime je obavezno" }),
+    epr_prezime: z.string().min(1, { message: "Prezime je obavezno" }),
     epr_oib: z.string().superRefine((_, ctx) => {
       // Koristimo vrijednost iz tempPartner varijable kao cjelinu
-      const oibValue = tempPartner.value.epr_oib || ''
+      const oibValue = tempPartner.value.epr_oib || "";
       if (oibValue.length !== 11) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `OIB mora imati točno 11 znakova, trenutno ima ${oibValue.length} znakova`
-        })
+          message: `OIB mora imati točno 11 znakova, trenutno ima ${oibValue.length} znakova`,
+        });
       }
     }),
     epr_email: z
       .string()
-      .min(1, { message: 'Email je obavezan' })
-      .email('Email nije ispravnog formata (primjer@tvrtka.com)'),
-    epr_adresa: z.string().min(1, { message: 'Adresa je obavezna' }),
-    epr_mjesto: z.string().min(1, { message: 'Mjesto je obavezno' })
+      .min(1, { message: "Email je obavezan" })
+      .email("Email nije ispravnog formata (primjer@tvrtka.com)"),
+    epr_adresa: z.string().min(1, { message: "Adresa je obavezna" }),
+    epr_mjesto: z.string().min(1, { message: "Mjesto je obavezno" }),
   })
-)
-
+);
 
 const addPartnerResolverPRV = zodResolver(
   z.object({
-    epr_naziv: z.string().min(1, { message: 'Tvrtka je obavezna' }),
+    epr_naziv: z.string().min(1, { message: "Tvrtka je obavezna" }),
     epr_oib: z.string().superRefine((_, ctx) => {
       // Koristimo vrijednost iz tempPartner varijable kao cjelinu
-      const oibValue = tempPartner.value.epr_oib || ''
+      const oibValue = tempPartner.value.epr_oib || "";
       if (oibValue.length !== 11) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `OIB mora imati točno 11 znakova, trenutno ima ${oibValue.length} znakova`
-        })
+          message: `OIB mora imati točno 11 znakova, trenutno ima ${oibValue.length} znakova`,
+        });
       }
     }),
-    epr_adresa: z.string().min(1, { message: 'Adresa je obavezna' }),
-    epr_mjesto: z.string().min(1, { message: 'Mjesto je obavezno' })
+    epr_adresa: z.string().min(1, { message: "Adresa je obavezna" }),
+    epr_mjesto: z.string().min(1, { message: "Mjesto je obavezno" }),
   })
-)
+);
 
 const showSuccessPartner = (osoba) => {
-    toast.add({ severity: 'success', summary: 'Uspješno dodan partner', detail: `Partner: ${osoba.epr_naziv || (osoba.epr_ime + ' ' + osoba.epr_prezime)}`, life: 3000 });
+  toast.add({
+    severity: "success",
+    summary: "Uspješno dodan partner",
+    detail: `Partner: ${
+      osoba.epr_naziv || osoba.epr_ime + " " + osoba.epr_prezime
+    }`,
+    life: 3000,
+  });
 };
 
 const showErrorPartner = (osoba) => {
-    toast.add({ severity: 'error', summary: 'Greška dodavanja partnera', detail: `Partner: ${osoba.epr_naziv || (osoba.epr_ime + ' ' + osoba.epr_prezime)}`, life: 3000 });
+  toast.add({
+    severity: "error",
+    summary: "Greška dodavanja partnera",
+    detail: `Partner: ${
+      osoba.epr_naziv || osoba.epr_ime + " " + osoba.epr_prezime
+    }`,
+    life: 3000,
+  });
 };
 
 const saveNewPartner = async ({ valid }) => {
-    // console.log("tempPartner: ", tempPartner.value)
-    if(valid) {
-        tempPartner.value.epr_tip = addPartnerValue.value.label === 'FIZ'
-            ? 'FO'
-            : addPartnerValue.value.label === 'PRV'
-                ? 'PO'
-                : null;
+  // console.log("tempPartner: ", tempPartner.value)
+  if (valid) {
+    tempPartner.value.epr_tip =
+      addPartnerValue.value.label === "FIZ"
+        ? "FO"
+        : addPartnerValue.value.label === "PRV"
+        ? "PO"
+        : null;
 
-        tempPartner.value.epr_naziv ||= tempPartner.value.epr_ime + ' ' + tempPartner.value.epr_prezime;
+    tempPartner.value.epr_naziv ||=
+      tempPartner.value.epr_prezime + " " + tempPartner.value.epr_ime;
 
-        // UPPERCASE
-        tempPartner.value = Object.fromEntries(
-            Object.entries(tempPartner.value).map(([key, value]) => [
-                key,
-                key === 'epr_email' ? value : String(value).toUpperCase()
-            ])
-        );
+    // UPPERCASE
+    tempPartner.value = Object.fromEntries(
+      Object.entries(tempPartner.value).map(([key, value]) => [
+        key,
+        key === "epr_email" ? value : String(value).toUpperCase(),
+      ])
+    );
 
-        // console.log("PARTNER: ", tempPartner.value)
+    // console.log("PARTNER: ", tempPartner.value)
 
-        try {
-            const response = await savePartner(tempPartner.value);
-            if (response.status == 200) {
-                const osoba = response.data;
-                // console.log("Osoba: ", osoba);
-                showSuccessPartner(tempPartner.value)
+    try {
+      const response = await savePartner(tempPartner.value);
+      if (response.status == 200) {
+        const osoba = response.data;
+        // console.log("Osoba: ", osoba);
+        showSuccessPartner(tempPartner.value);
 
-                if (addPartnerValue.value.label === 'FIZ') {
-                    try {
-                        // console.log("Dohvaćanje fizickih osoba")
-                        await korisniciStore.fetchFizickeOsobe();
-                        // console.log(korisniciStore.fizickeOsobe)
-                    } catch (error) {
-                        console.error(error);
-                    }
-                } else {
-                    try {
-                        // console.log("Dohvaćanje pravnih osoba")
-                        await korisniciStore.fetchPravneOsobe();
-                        korisniciStore.fizickeOsobe = []
-                        // console.log(korisniciStore.pravneOsobe)
-                    } catch (error) {
-                        console.error(error);
-                    }
-                }
-                // await korisniciStore.fetchOsobe();
-            } else {
-                console.error("Greska pri dodavanju partnera")
-                showErrorPartner(tempPartner.value)
-            }
-        } catch (error) {
-            console.error(error)
-            showErrorPartner(tempPartner.value);
-        } finally {
-            resetPartnerDialog();
-            modelVisible.value = false;
+        if (addPartnerValue.value.label === "FIZ") {
+          try {
+            // console.log("Dohvaćanje fizickih osoba")
+            await korisniciStore.fetchFizickeOsobe();
+            // console.log(korisniciStore.fizickeOsobe)
+          } catch (error) {
+            // console.error(error);
+          }
+        } else {
+          try {
+            // console.log("Dohvaćanje pravnih osoba")
+            await korisniciStore.fetchPravneOsobe();
+            korisniciStore.fizickeOsobe = [];
+            // console.log(korisniciStore.pravneOsobe)
+          } catch (error) {
+            // console.error(error);
+          }
         }
+        // await korisniciStore.fetchOsobe();
+      } else {
+        // console.error("Greska pri dodavanju partnera");
+        showErrorPartner(tempPartner.value);
+      }
+    } catch (error) {
+      // console.error(error);
+      showErrorPartner(tempPartner.value);
+    } finally {
+      resetPartnerDialog();
+      modelVisible.value = false;
     }
-}
+  }
+};
 
 const tempPartner = ref({
   epr_tip: "",
@@ -576,7 +591,8 @@ const resetPartnerDialog = () => {
   flex-direction: column;
   flex: 1;
 }
-.label-container, .section {
+.label-container,
+.section {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -590,75 +606,73 @@ const resetPartnerDialog = () => {
 }
 
 .section {
-    width: 100%;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 13px;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 13px;
 }
 
 .section > * {
-    width: 100%;
+  width: 100%;
 }
 
 #oib {
-    justify-content: space-between;
+  justify-content: space-between;
 }
 
 #saveBtn {
-    background: none;
-    border: var(--border);
-    font-weight: 500;
+  background: none;
+  border: var(--border);
+  font-weight: 500;
 
-    background-color: var(--text-color);
-    color: white;
+  background-color: var(--text-color);
+  color: white;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
 #saveBtn * {
-    color: white;
+  color: white;
 }
-
 
 #saveBtn:hover {
-    background-color: var(--text-color-hover);
-    color: white;
+  background-color: var(--text-color-hover);
+  color: white;
 }
 
-#saveBtn:hover>.save-icon {
-    color: white;
+#saveBtn:hover > .save-icon {
+  color: white;
 }
 
 #saveBtn:active {
-    background-color: var(--text-color-focus);
+  background-color: var(--text-color-focus);
 }
 
-
 #saveBtn:disabled {
-    background: rgb(216, 216, 216);
-    color: var(--text-color);
-    cursor: not-allowed;
-    pointer-events: none;
-    opacity: 0.6;
+  background: rgb(216, 216, 216);
+  color: var(--text-color);
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.6;
 }
 
 #saveBtn:disabled * {
-    color: var(--text-color);
+  color: var(--text-color);
 }
 
 #saveBtn:disabled:hover,
 #saveBtn:disabled:active,
-#saveBtn:disabled>.save-icon {
-    background-color: rgb(232, 232, 232);
-    color: var(--text-color);
+#saveBtn:disabled > .save-icon {
+  background-color: rgb(232, 232, 232);
+  color: var(--text-color);
 }
 
-
-.dodaj-btn, .dodaj-partnera-btn {
+.dodaj-btn,
+.dodaj-partnera-btn {
   display: flex;
   align-items: center;
   justify-content: center;

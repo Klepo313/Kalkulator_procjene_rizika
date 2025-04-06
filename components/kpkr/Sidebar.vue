@@ -93,7 +93,8 @@
 import { computed, defineEmits, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { navigateTo } from '#app';
-import { logout } from '~/temp/logout';
+import { logout } from '~/service/user/user';
+import { getCookie } from "~/service/user/cookies";
 import KPKR_logo_sidebar from '~/public/static/images/KPKR_logo_sidebar.svg';
 
 const opciStore = useOpciStore();
@@ -135,7 +136,7 @@ const cookiesToGet = ['username', 'name', 'surname', 'email'];
 
 onMounted(async () => {
     try {
-        const cookieData = await initializeCookie(cookiesToGet);
+        const cookieData = await getCookie(cookiesToGet);
         username.value = cookieData['username'] || '';
         name.value = cookieData['name'] || '';
         surname.value = cookieData['surname'] || '';

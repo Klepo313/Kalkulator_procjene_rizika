@@ -93,7 +93,10 @@
             >
             <Message
               v-if="
-                areDatesInvalid(initialValues.ugv_datod, initialValues.ugv_datdo)
+                areDatesInvalid(
+                  initialValues.ugv_datod,
+                  initialValues.ugv_datdo
+                )
               "
               severity="error"
               size="small"
@@ -336,10 +339,13 @@ const onHide = () => {
 const saveUgovor = async ({ valid }) => {
   if (
     valid &&
-    !areDatesInvalid(initialValues.value.ugv_datod, initialValues.value.ugv_datdo)
+    !areDatesInvalid(
+      initialValues.value.ugv_datod,
+      initialValues.value.ugv_datdo
+    )
   ) {
     // Save ugovor to the database
-    console.log("Spremanje ugovora:", initialValues.value);
+    // console.log("Spremanje ugovora:", initialValues.value);
     const data = {
       contractId: null,
       legalPersonId: initialValues.value.epr_naziv?.epr_id,
@@ -351,34 +357,40 @@ const saveUgovor = async ({ valid }) => {
       maxKespNumber: initialValues.value.ugv_kesp_max,
     };
 
-    console.log("Prije spremanja ugovora: ", data);
+    // console.log("Prije spremanja ugovora: ", data);
 
     try {
       const response = await saveContract(data);
       if (response.status === 200) {
-        console.log("Ugovor spremljen:", response);
+        // console.log("Ugovor spremljen:", response);
         toast.add({
           severity: "success",
           summary: "Uspješno spremljen ugovor",
           detail: `${initialValues.value.epr_naziv?.epr_naziv}.`,
           life: 3000,
-        })
+        });
         await korisniciStore.fetchUgovori();
       }
     } catch (error) {
-      console.error("Greska pri spremanju ugovora:", error);
+      // console.error("Greska pri spremanju ugovora:", error?.message);
       toast.add({
         severity: "error",
         summary: "Greska pri spremanju ugovora",
         detail: `${initialValues.value.epr_naziv?.epr_naziv}.`,
         life: 3000,
-      })
+      });
     } finally {
       onHide();
     }
   } else {
+    toast.add({
+      severity: "error",
+      summary: "Podaci sa forme nisu validni",
+      detail: `Provjerite podatke sa forme.`,
+      life: 3000,
+    });
     // Display validation errors
-    console.error("Validacija nije prošla:");
+    // console.error("Validacija nije prošla:");
   }
 };
 </script>

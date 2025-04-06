@@ -191,7 +191,9 @@
                       v-if="!data?.eko_inicijalno && data?.epr_email"
                       v-tooltip.left="'Pošalji email korisniku'"
                       class="edit-btn"
-                      @click="$emit('send-mail', data?.eko_id)"
+                      @click="
+                        $emit('send-mail', data?.eko_id, data?.eko_par_id_za)
+                      "
                     >
                       <font-awesome-icon icon="envelope" />
                     </span>
@@ -254,15 +256,16 @@ const processedPRVpartneri = computed(() => {
 const onRowExpand = async (event) => {
   userEmptyMessage.value = null;
   try {
-    const response = await korisniciStore.fetchKorisniciForLegalPartner(event.data.epr_id);
-    if(response?.message)
-      userEmptyMessage.value = response.message
-     } catch (error) {
-    console.error(
-      "Error fetching korisnici for legal partner:",
-      event.data.epr_id,
-      error
+    const response = await korisniciStore.fetchKorisniciForLegalPartner(
+      event.data.epr_id
     );
+    if (response?.message) userEmptyMessage.value = response.message;
+  } catch (error) {
+    // console.error(
+    //   "Error fetching korisnici for legal partner:",
+    //   event.data.epr_id,
+    //   error
+    // );
   }
 };
 

@@ -89,7 +89,7 @@ const checkLogin = async () => {
                 roles: response.roles,
             });
 
-            authStore.isLoggedin = true;
+            userStore.isLoggedin = true;
             // authStore.userRoles = response.roles || [];
             authStore.exp = response.exp || 0;
 

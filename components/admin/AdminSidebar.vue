@@ -146,6 +146,7 @@ import { navigateTo } from "#app";
 import { onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { logout } from "~/service/user/user";
+import { getCookie } from "~/service/user/cookies";
 // import { decryptCookie } from '#imports';
 
 // Koristite useRoute za dobivanje trenutne rute
@@ -234,7 +235,7 @@ function capitalizeName(fullName) {
 // Prima prop za stanje bočne trake
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps(["isCollapsed"]);
-console.log("Primljeni collapsed", props.isCollapsed);
+// console.log("Primljeni collapsed", props.isCollapsed);
 // Emitira događaj za prebacivanje stanja bočne trake
 const emit = defineEmits(["toggle-sidebar", "updateActiveSection"]);
 
@@ -252,12 +253,12 @@ const isActiveRoute = (link) => {
 const cookiesToGet = ["username", "name", "surname", "email"];
 onMounted(async () => {
   try {
-    const cookieData = await initializeCookie(cookiesToGet);
+    const cookieData = await getCookie(cookiesToGet);
     username.value = cookieData["username"] || "";
     name.value = cookieData["name"] || "";
     surname.value = cookieData["surname"] || "";
     email.value = cookieData["email"] || null;
-    console.log(username.value, name.value, surname.value, email.value);
+    // console.log(username.value, name.value, surname.value, email.value);
   } catch (error) {
     // console.error("Error loading cookies: ", error);
   }

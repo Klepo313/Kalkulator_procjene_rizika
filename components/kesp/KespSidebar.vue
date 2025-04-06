@@ -76,7 +76,8 @@
 import { compile, computed, defineEmits, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { navigateTo } from '#app';
-import { logout } from '~/temp/logout';
+import { logout } from '~/service/user/user';
+import { getCookie } from "~/service/user/cookies";
 import { useKespStore } from '~/stores/main-store';
 // import { decryptCookie } from '#imports';
 
@@ -161,7 +162,7 @@ const cookiesToGet = ['username', 'name', 'surname', 'email'];
 
 onMounted(async () => {
     try {
-        const cookieData = await initializeCookie(cookiesToGet);
+        const cookieData = await getCookie(cookiesToGet);
         // idIzracuna.value = cookieData['kesp-id'] || null;
         username.value = cookieData['username'] || '';
         name.value = cookieData['name'] || '';

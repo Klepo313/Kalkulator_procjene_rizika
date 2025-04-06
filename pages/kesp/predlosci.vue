@@ -142,7 +142,7 @@ import { ref, onMounted } from 'vue';
 import { navigateTo } from '#app';
 import { logout } from '~/temp/logout';
 import { formatDateToDMY, getYearsRange } from '@/utils/dateFormatter';
-import { setCookie, deleteCookie } from '~/utils/cookieUtils';
+import { setCookie, deleteCookie } from '~/service/user/cookies';
 
 const kespStore = useKespStore();
 

@@ -108,7 +108,7 @@ const gwpIzracuni = computed(() => kespStore.gwpPredlosci);
 watch(
   () => kespStore.gwpPredlosci,
   () => {
-    console.log("Da: ", kespStore.gwpPredlosci);
+    // console.log("Da: ", kespStore.gwpPredlosci);
   }
 );
 

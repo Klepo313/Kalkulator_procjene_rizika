@@ -413,20 +413,6 @@
               >
                 <template #empty> Nema prethodnih izračuna </template>
                 <Column
-                  field="uir_brjed"
-                  header="Broj jedinica"
-                  style="width: 10%; min-width: 8rem"
-                >
-                  <template #editor="{ data, field }">
-                    <InputNumber
-                      v-model="data[field]"
-                      placeholder="0"
-                      min="1"
-                      fluid
-                    />
-                  </template>
-                </Column>
-                <Column
                   field="ugr_naziv"
                   header="Vrsta rashladnog uređaja"
                   style="min-width: 12rem; max-width: 14rem"
@@ -438,6 +424,20 @@
                       option-label="ugr_naziv"
                       option-value="ugr_naziv"
                       placeholder="Vrsta rashladnog uređaja"
+                      fluid
+                    />
+                  </template>
+                </Column>
+                <Column
+                  field="uir_brjed"
+                  header="Broj jedinica"
+                  style="width: 10%; min-width: 8rem"
+                >
+                  <template #editor="{ data, field }">
+                    <InputNumber
+                      v-model="data[field]"
+                      placeholder="0"
+                      min="1"
                       fluid
                     />
                   </template>
@@ -926,7 +926,7 @@ const gwpDialogHide = async () => {
 
 const invalidRows = ref([]);
 const isGwpDataValid = (data) => {
-  console.log("Data: ", data);
+  // console.log("Data: ", data);
   invalidRows.value = [];
 
   let valid = true;
@@ -966,9 +966,9 @@ const isGwpDataValid = (data) => {
  */
 async function onGwpIzracunSave(event) {
   let { newData, index } = event;
-  console.log("event: ", event);
-  console.log("newData: ", newData);
-  console.log("index: ", index);
+  // console.log("event: ", event);
+  // console.log("newData: ", newData);
+  // console.log("index: ", index);
 
   if (isGwpDataValid(newData)) {
     const getUsiId = async () => {
@@ -1075,37 +1075,13 @@ async function onGwpIzracunSave(event) {
       gwpIzracuni.value[index] = null;
     }
   } else {
-    console.error("Polja nisu validna.");
+    // console.error("Polja nisu validna.");
 
-    console.log(event.data);
+    // console.log(event.data);
 
     gwpRed.value = [...gwpRed.value, event.data];
 
-    console.log(gwpRed.value);
-
-    // gwpRed.value = [];
-
-    // // Pronalazi indeks reda sa `uir_id === null`
-    // const index = gwpIzracuni.value.findIndex((row) => row.uir_id === null);
-
-    // // Uklanja red na pronađenom indeksu
-    // if (index !== -1) {
-    //   gwpIzracuni.value = gwpIzracuni.value.filter((_, i) => i !== index);
-    // }
-    // needUpdate.value = false;
-
-    // const newRow = {
-    //     uir_brjed: newData?.uir_brjed,
-    //     ugr_naziv: newData?.ugr_naziv,
-    //     uir_kapacitet: newData?.uir_kapacitet,
-    //     uir_ugradnja: newData?.uir_ugradnja,
-    //     uir_rad: newData?.uir_rad,
-    //     uir_kraj: newData?.uir_kraj,
-    //     uir_emisija: 0,
-    // };
-
-    // gwpIzracuni.value.push(newRow);
-    // gwpRed.value = [...gwpRed.value, newRow];
+    // console.log(gwpRed.value);
   }
 }
 
@@ -1512,6 +1488,7 @@ const deleteVozilo = async () => {
         vozila.value.splice(index, 1);
       }
       showDeleteVozilo();
+      kespStore.fetchCoolingCalculation(kespId.value);
     } else {
       // console.log("Greska pri brisanju stavke.");
       showError();

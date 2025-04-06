@@ -155,13 +155,15 @@
           >
         </div>
         <div class="btn-container">
-          <Button
-            severity="secondary"
-            @click="modelVisible = false"
-          >
+          <Button severity="secondary" @click="modelVisible = false">
             Odustani
           </Button>
-          <button id="saveBtn" type="submit" style="margin-top: 20px" :disabled="!$formKorisnik.valid || btnAlreadySubmitted">
+          <button
+            id="saveBtn"
+            type="submit"
+            style="margin-top: 20px"
+            :disabled="!$formKorisnik.valid || btnAlreadySubmitted"
+          >
             <font-awesome-icon icon="save" class="save-icon" />
             Spremi
           </button>
@@ -199,7 +201,7 @@ const modelVisible = computed({
   },
 });
 
-console.log("tt: ", props.tvrtka);
+// console.log("tt: ", props.tvrtka);
 
 const tvrtka = ref(null);
 const osoba = ref(null);
@@ -259,11 +261,11 @@ const updateFIZosobe = () => {
   korisniciStore.fetchFizickeOsobe();
   tvrtka.value = props.tvrtka || {};
   initialValuesAddKorisnik.value.tvrtka = props.tvrtka || {};
-  console.log("tvrtka: ", tvrtka.value);
-  console.log(
-    "initialValuesAddKorisnik.value.tvrtka: ",
-    initialValuesAddKorisnik.value.tvrtka
-  );
+  // console.log("tvrtka: ", tvrtka.value);
+  // console.log(
+  //   "initialValuesAddKorisnik.value.tvrtka: ",
+  //   initialValuesAddKorisnik.value.tvrtka
+  // );
 };
 
 const optionLabel = (option) =>
@@ -309,8 +311,8 @@ watch(
 
 watch(tvrtka, (newVal) => {
   // tvrtka.value = newVal;
-  console.log("tvrtka: ", tvrtka.value);
-})
+  // console.log("tvrtka: ", tvrtka.value);
+});
 
 const onHide = () => {
   tvrtka.value = null;
@@ -351,7 +353,7 @@ const showErrorKorisnik = (osoba) => {
   });
 };
 
-const btnAlreadySubmitted = ref(false)
+const btnAlreadySubmitted = ref(false);
 const addKorisnik = async ({ valid }) => {
   if (valid) {
     // console.log("Dodajem korisnika...", korisnik.value)
@@ -367,7 +369,7 @@ const addKorisnik = async ({ valid }) => {
     // console.log("userData: ", userData)
 
     try {
-      btnAlreadySubmitted.value = true
+      btnAlreadySubmitted.value = true;
       const response = await saveUser(userData);
       // console.log("response: ", response)
       if (response) {
@@ -376,7 +378,7 @@ const addKorisnik = async ({ valid }) => {
         korisniciStore.fizickeOsobe = [];
 
         const newUserId = response?.userId;
-        console.log(newUserId);
+        // console.log(newUserId);
         // console.log( korisniciStore.pravneOsobe , korisniciStore.fizickeOsobe)
 
         // if(newUserId) {
@@ -384,10 +386,10 @@ const addKorisnik = async ({ valid }) => {
         //     const fetchedUser = await getUser(newUserId)
         //     dohvaceniKorisnik.value = newUserId;
         //   } catch (error) {
-            
+
         //   }
         // }
-        console.log("slanjemaila: ", slanjeMaila.value);
+        // console.log("slanjemaila: ", slanjeMaila.value);
         if (slanjeMaila.value) {
           try {
             await checkIfEmailIsSent(newUserId);
@@ -407,11 +409,16 @@ const addKorisnik = async ({ valid }) => {
       showErrorKorisnik(osoba.value);
       // console.log("Greška pri spremanju korisnika: ", error)
     } finally {
-      btnAlreadySubmitted.value = false
+      btnAlreadySubmitted.value = false;
       modelVisible.value = false;
     }
   } else {
-    console.error("Neispravno uneseni podaci!");
+    toast.add({
+      severity: "error",
+      summary: "Podaci sa forme nisu validni",
+      detail: `Provjerite podatke sa forme.`,
+      life: 3000,
+    });
   }
 };
 </script>

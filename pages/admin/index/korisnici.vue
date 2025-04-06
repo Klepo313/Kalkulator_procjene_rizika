@@ -112,7 +112,7 @@ const openNewUserDialogHandler = (data) => {
 
   if (isFilled) {
     selectedTvrtka.value = findPRVpartner(data?.epr_id);
-    console.log("Popunjena tvrtka: ", selectedTvrtka.value);
+    // console.log("Popunjena tvrtka: ", selectedTvrtka.value);
   }
 
   newUserDialog.value = true;
@@ -122,7 +122,7 @@ const findPRVpartner = (epr_id) => {
   return PRVpartneri.value.find((partner) => partner.epr_id === epr_id);
 };
 
-const sendMail = (eko_id) => {
+const sendMail = (eko_id, eko_par_id_za) => {
   confirm.require({
     group: "mail",
     title: "Želiš li poslati pristupne korisničke podatke korisniku?",
@@ -139,7 +139,7 @@ const sendMail = (eko_id) => {
       label: "Save",
     },
     accept: async () => {
-      console.log("Slanje e-pošte za korisnika: ", eko_id);
+      // console.log("Slanje e-pošte za korisnika: ", eko_id);
       try {
         await checkIfEmailIsSent(eko_id);
         toast.add({
@@ -149,7 +149,7 @@ const sendMail = (eko_id) => {
           life: 3000,
         });
       } catch (error) {
-        console.error(error);
+        // console.error(error);
         toast.add({
           severity: "error",
           summary: "Greška pri slanju e-pošte",
@@ -157,7 +157,7 @@ const sendMail = (eko_id) => {
           life: 3000,
         });
       } finally {
-        //odabraniKorisnik = null;
+        await korisniciStore.fetchKorisniciForLegalPartner(eko_par_id_za);
       }
     },
     reject: () => {},
@@ -165,7 +165,7 @@ const sendMail = (eko_id) => {
 };
 
 const editUser = async (data) => {
-  console.log("Korisnik za uređivanje: ", data?.eko_id);
+  // console.log("Korisnik za uređivanje: ", data?.eko_id);
 
   try {
     const userData = await getUser(data?.eko_id);
@@ -187,10 +187,10 @@ const editUser = async (data) => {
     selectedUser.value = data;
     editUserDialog.value = true;
   } catch (error) {
-    console.error(error);
+    // console.error(error);
   }
 
-  console.log("Popunjeni korisnik: ", data);
+  // console.log("Popunjeni korisnik: ", data);
 };
 
 const handleSaveUser = (user) => {

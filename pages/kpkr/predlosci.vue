@@ -85,7 +85,7 @@ import { navigateTo } from '#app';
 import { logout } from '~/service/user/user';
 import { getCalculations } from '~/service/kpkr/calculations';
 import { formatDateToDMY } from '@/utils/dateFormatter';
-import { setCookie, deleteCookie } from '~/utils/cookieUtils';
+import { setCookie, deleteCookie } from '~/service/user/cookies';
 
 const toast = useToast();
 
@@ -141,7 +141,7 @@ const onRowSelect = async () => {
 
 onMounted(async () => {
 
-    deleteCookie(cookiesToDelete);
+    await deleteCookie(cookiesToDelete);
     cardStore.cardId = null;
     const data = await getCalculations();
     if (data.data) {

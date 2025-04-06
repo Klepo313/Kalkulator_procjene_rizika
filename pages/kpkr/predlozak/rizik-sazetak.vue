@@ -129,6 +129,8 @@
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import TablicaRizika from '~/components/kpkr/tables/TablicaRizika.vue';
+import Djelatnost from '~/components/kpkr/tables/Djelatnost.vue';
+import LegendaBoja from '~/components/kpkr/tables/LegendaBoja.vue';
 import { useOpciStore, useStructuredGridDataStore, useAdaptStore, formatDateToDMY } from '#imports';
 import { djelatnostCellRanges, imovinaCellRanges } from '~/composables/arrays';
 import ExcelJS from 'exceljs';
