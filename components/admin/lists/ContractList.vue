@@ -60,18 +60,18 @@
         </div>
       </template>
 
-      <!-- <Column header="#" headerStyle="width:3rem">
+      <Column header="#" headerStyle="width:3rem">
         <template #body="slotProps">
           {{ slotProps.index + 1 }}
         </template>
-      </Column> -->
+      </Column>
 
-      <Column field="ugv_broj" header="Broj ugovora" headerStyle="width:3rem"/>
-      <Column field="epr_naziv" header="Tvrtka">
+      <Column field="epr_naziv" header="Tvrtka" headerStyle="width:15rem" width="15rem">
         <template #body="slotProps">
           <strong>{{ slotProps.data.epr_naziv }}</strong>
         </template>
       </Column>
+      <Column field="ugv_broj" header="Broj ugovora" headerStyle="width:3rem"/>
       <!-- <Column field="epr_nazv_tv" header="Tvrtka ugovaratelja" /> -->
       <Column field="ugv_datugv" header="Datum ugovaranja" sortable>
         <template #body="slotProps">
@@ -114,35 +114,7 @@ const filters = ref({
 
 const korisniciStore = useKorisniciStore();
 
-// const ugovori = [
-//   {
-//     ugv_id: 88101,
-//     ugv_epr_id: 8035,
-//     epr_naziv: "INFINIA",
-//     ugv_epr_id_tv: 7929,
-//     epr_nazv_tv: "ATD SOLUCIJE D.O.O.",
-//     ugv_broj: "1",
-//     ugv_aneks: 0,
-//     ugv_vru_id: 1,
-//     ugv_datugv: "2025-03-20",
-//     ugv_datod: "2025-03-20",
-//     ugv_datdo: "2026-03-20",
-//     ugv_kpkr_max: 50,
-//     ugv_kesp_max: 100,
-//     eko_korime: "SBIGEC",
-//     ugv_eko_kreirao: 7957,
-//     ugv_kreirano: "2025-03-20T14:56:00.735Z",
-//     ugv_eko_mijenjao: null,
-//     ugv_mijenjano: null,
-//   },
-// ];
 const ugovori = computed(() => korisniciStore.ugovori);
-
-const refreshData = async () => {
-  korisniciStore.expandedRows = [];
-  await korisniciStore.fetchPravneOsobe();
-  korisniciStore.fizickeOsobe = [];
-};
 
 onMounted(async () => {
   await korisniciStore.fetchPravneOsobe();
