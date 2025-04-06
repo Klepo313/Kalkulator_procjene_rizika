@@ -1,46 +1,37 @@
 <template>
   <div class="section">
     <div class="section prava">
+      <!-- Prikaz loading state-a dok se prava učitavaju -->
       <div v-if="loadingPrava">
         <font-awesome-icon icon="spinner" spin />
         <span style="margin-left: 8px">Učitavanje prava...</span>
       </div>
+      <!-- Prikaz prava (checkbox za svako pravo) -->
       <div v-else v-for="p in prava" :key="p.vpr_sif" class="prava-field">
         <div class="prava-field-checkbox">
           <Checkbox
             v-model="selectedPrava"
             :input-id="p.vpr_sif"
             :value="p.vpr_sif"
-            @change="handleParentSelection(p)"
+            @change="onCheckboxChange(p)"
           />
           <label :for="p.vpr_sif" class="prava-field-label">
             <strong>{{ p.vpr_naziv }}</strong>
           </label>
-          <span
-            v-if="selectedPrava.includes(p.vpr_sif)"
-            class="popover-trigger"
-            @click="openPopover($event, p)"
-          >
-            <font-awesome-icon icon="calendar-plus" class="icon" />
-          </span>
         </div>
-
-        <!-- Podprava (samo ako je roditeljsko pravo odabrano) -->
-        <div v-if="selectedPrava.includes(p.vpr_sif)" class="podprava">
-          <!-- Loading za ovo roditeljsko pravo -->
+        <!-- Ako postoje podprava za odabrano roditeljsko pravo, prikazujemo ih -->
+        <div
+          v-if="
+            selectedPrava.includes(p.vpr_sif) &&
+            podPrava[p.vpr_sif] &&
+            podPrava[p.vpr_sif].length > 0
+          "
+          class="podprava"
+        >
           <div v-if="loadingPodprava[p.vpr_sif]">
             <font-awesome-icon icon="spinner" spin />
             <span style="margin-left: 8px">Učitavanje podprava...</span>
           </div>
-
-          <!-- Ako API vrati message, prikaz poruke -->
-          <!-- <div v-else-if="podPrava[p.vpr_sif] && podPrava[p.vpr_sif].message">
-            <span style="opacity: 0.7; font-style: italic">
-              {{ podPrava[p.vpr_sif].message }}
-            </span>
-          </div> -->
-
-          <!-- Ako postoje podprava, prikaz checkboxova -->
           <div
             v-else-if="podPrava[p.vpr_sif] && podPrava[p.vpr_sif].length > 0"
             class="podprava-container"
@@ -54,154 +45,93 @@
                 v-model="selectedPrava"
                 :input-id="sub.vpr_sif"
                 :value="sub.vpr_sif"
+                @change="onCheckboxChange(sub)"
               />
               <label :for="sub.vpr_sif">{{ sub.vpr_naziv }}</label>
             </div>
           </div>
-
-          <!-- Ako nema ni podprava ni poruke -->
-          <div v-else>
-            <span>Nema podprava.</span>
-          </div>
         </div>
       </div>
     </div>
-    <Popover ref="popover" v-on:hide="onPopOverHide">
-      <div class="field-split">
-        <div>
-          <div class="label-container">
-            <font-awesome-icon icon="calendar-plus" />
-            <label for="datod">Vrijedi od</label>
-          </div>
-          <DatePicker
-            id="datod"
-            name="eko_datod_"
-            v-model="selectedPravo.eko_datod"
-            icon-display="input"
-            input-id="eko_datod"
-            show-icon
-            date-format="dd.mm.yy"
-            placeholder="Vrijedi od"
-            required
-          />
-        </div>
-        <div>
-          <div class="label-container">
-            <font-awesome-icon icon="calendar-plus" />
-            <label for="datdo">Vrijedi do</label>
-          </div>
-          <DatePicker
-            id="datdo"
-            name="eko_datdo_"
-            v-model="selectedPravo.eko_datdo"
-            icon-display="input"
-            show-icon
-            input-id="eko_datdo"
-            date-format="dd.mm.yy"
-            placeholder="Vrijedi do"
-          />
-        </div>
-      </div>
-    </Popover>
   </div>
 </template>
 
 <script setup>
-import { isVisible } from "@primevue/core";
 import { ref, watch, onMounted } from "vue";
-import { getPravaForUser, getUser, savePravaForUser } from "~/service/user/user";
+import { getPravaForUser, savePravaForUser } from "~/service/user/user";
+import Checkbox from "primevue/checkbox";
+import { useKorisniciStore } from "#build/imports";
+// Pretpostavljamo da su font-awesome ikone globalno registrirane
 
+// Props – korisnički podaci (npr. s eko_id)
 const props = defineProps({
   user: { type: Object, required: true },
 });
 
 const korisniciStore = useKorisniciStore();
 
-const prava = ref([]);
-const selectedPrava = ref([]);
+// Reactive varijable
+const prava = ref([]); // Sva prava dohvaćena sa API-ja
+const selectedPrava = ref([]); // Niz s vpr_sif odabranih prava
 const loadingPrava = ref(false);
 const loadingPodprava = ref({});
 const podPrava = ref({});
 
-const selectedPravo = ref({});
-const popover = ref();
-
-// Funkcija koja se poziva klikom na ikonu
-const openPopover = (event, pravo) => {
-  selectedPravo.value = { ...pravo };
-  console.log("pravo: ", selectedPravo.value);
-  popover.value.toggle(event);
-};
-
-const onPopOverHide = async () => {
-  const savingData = {
-    userId: props.user?.eko_id,
-    rightTypeId: selectedPravo.value?.vpr_id,
-    dateFrom: formatDateToDMY(selectedPravo.value?.eko_datod, "-"),
-    dateTo: formatDateToDMY(selectedPravo.value?.eko_datdo, "-"),
-    status: 1,
-  };
-
-  console.log("savingData: ", savingData);
-
-  const response = await savePravaForUser(savingData);
-  if (response.status === 200) {
-    console.log(response.data);
-  }
-
-  selectedPravo.value = {};
-};
-
+// Dohvaćanje prava sa API-ja
 const loadPrava = async () => {
   loadingPrava.value = true;
-  if (props.user && props.user?.eko_id) {
+  if (props.user && props.user.eko_id) {
     try {
       // Dohvat glavnih prava (tip "APP")
-      prava.value = await getPravaForUser(props.user?.eko_id, "APP");
-      prava.value = prava.value.map((p) => ({
-        ...p,
-        eko_datod: props.user?.eko_datod,
-        eko_datdo: props.user?.eko_datdo, // pretpostavljamo da je ispravan naziv polja
-      }));
+      let fetchedPrava = await getPravaForUser(props.user.eko_id, "APP");
+      prava.value = fetchedPrava;
 
-      // Ako korisnik već ima prava, postavimo ih
-      if (props.user?.prava && props.user?.prava.length) {
-        selectedPrava.value = props.user?.prava.map((item) => item.vpr_sif);
-        // Učitavamo podprava za svako roditeljsko pravo
-        for (const vprSif of selectedPrava.value) {
-          const parentRight = prava.value.find((p) => p.vpr_sif === vprSif);
-          if (parentRight) {
-            await handleParentSelection(parentRight);
-          }
+      // Automatski odaberi prava gdje je prk_status === 1
+      selectedPrava.value = prava.value
+        .filter((p) => p.prk_status === 1)
+        .map((p) => p.vpr_sif);
+
+      // Za svako odabrano roditeljsko pravo učitaj podprava, ako ih ima
+      for (const p of prava.value) {
+        if (selectedPrava.value.includes(p.vpr_sif)) {
+          await handleParentSelection(p);
         }
       }
     } catch (error) {
-      console.error("Greška prilikom dohvata prava:", error);
+      // console.error("Greška prilikom dohvata prava:", error);
     } finally {
       loadingPrava.value = false;
     }
   }
 };
 
+// Funkcija za dohvat podprava (podređenih prava)
 const handleParentSelection = async (pravo) => {
   if (selectedPrava.value.includes(pravo.vpr_sif)) {
     loadingPodprava.value = { ...loadingPodprava.value, [pravo.vpr_sif]: true };
     try {
       const subRights = await getPravaForUser(
-        props.user?.eko_id,
+        props.user.eko_id,
         "FNC",
         pravo.vpr_id
       );
       if (subRights && subRights.message) {
-        podPrava.value = {
-          ...podPrava.value,
-          [pravo.vpr_sif]: { message: subRights.message },
-        };
+        // Ako API vrati poruku, postavljamo prazan niz
+        podPrava.value = { ...podPrava.value, [pravo.vpr_sif]: [] };
       } else {
         podPrava.value = { ...podPrava.value, [pravo.vpr_sif]: subRights };
+        // NOVO: Automatski odaberi podprava čiji je prk_status === 1
+        subRights.forEach((sub) => {
+          if (
+            sub.prk_status === 1 &&
+            !selectedPrava.value.includes(sub.vpr_sif)
+          ) {
+            selectedPrava.value.push(sub.vpr_sif);
+          }
+        });
       }
     } catch (error) {
-      console.error("Greška prilikom dohvata podprava:", error);
+      // console.error("Greška prilikom dohvata podprava:", error);
     } finally {
       loadingPodprava.value = {
         ...loadingPodprava.value,
@@ -210,17 +140,6 @@ const handleParentSelection = async (pravo) => {
     }
   } else {
     delete podPrava.value[pravo.vpr_sif];
-    if (
-      podPrava.value[pravo.vpr_sif] &&
-      Array.isArray(podPrava.value[pravo.vpr_sif])
-    ) {
-      podPrava.value[pravo.vpr_sif].forEach((sub) => {
-        const index = selectedPrava.value.indexOf(sub.vpr_sif);
-        if (index > -1) {
-          selectedPrava.value.splice(index, 1);
-        }
-      });
-    }
     if (loadingPodprava.value[pravo.vpr_sif] !== undefined) {
       const { [pravo.vpr_sif]: removed, ...rest } = loadingPodprava.value;
       loadingPodprava.value = rest;
@@ -228,47 +147,50 @@ const handleParentSelection = async (pravo) => {
   }
 };
 
-// Učitavanje prava pri montiranju
-onMounted(() => {
-  loadPrava();
-});
-
-// Deep watch za props.user.prava da se ažuriraju checkboxi
-watch(
-  () => props.user?.prava,
-  (newPrava) => {
-    if (newPrava && newPrava.length) {
-      selectedPrava.value = newPrava.map((item) => item?.vpr_sif);
-      newPrava.forEach((pravo) => {
-        const parentRight = prava.value.find(
-          (p) => p?.vpr_sif === pravo?.vpr_sif
-        );
-        if (parentRight) {
-          handleParentSelection(parentRight);
-        }
-      });
-    } else {
-      selectedPrava.value = [];
+// Funkcija koja se poziva pri promjeni checkboxa (odabiru/deselekciji)
+const onCheckboxChange = async (pravo) => {
+  // Ako je pravo uključeno, status je 1, inače 0
+  const status = selectedPrava.value.includes(pravo.vpr_sif) ? 1 : 0;
+  const savingData = {
+    userId: props.user.eko_id,
+    rightTypeId: pravo.vpr_id,
+    status: status,
+  };
+  // console.log("Saving data: ", savingData);
+  try {
+    const response = await savePravaForUser(savingData);
+    if (response.status === 200) {
+      // console.log("Right saved:", response.data);
     }
-  },
-  { immediate: true, deep: true }
-);
+  } catch (error) {
+    // console.error("Error saving right:", error);
+  }
+  // Ako je pravo upravo odabrano, pokušaj dohvatiti podprava
+  if (status === 1) {
+    await handleParentSelection(pravo);
+  } else {
+    // Ako je pravo deselectano, izbriši podprava
+    delete podPrava.value[pravo.vpr_sif];
+  }
+};
 
+// Opcionalno: ažuriraj korisnički store s odabranim pravima
 watch(selectedPrava, (newValue) => {
-  // Iz glavnih prava (prava.value)
+  // Filtriraj glavna prava
   const parentRights = prava.value.filter((item) =>
-    newValue.includes(item?.vpr_sif)
+    newValue.includes(item.vpr_sif)
   );
-
-  // Iz podprava - prolazimo kroz sve vrijednosti objekta podPrava.value,
-  // ako je vrijednost niz, spajamo sve elemente, a zatim filtriramo prema selectedPrava
+  // Prikupi podprava (ako su nizovi)
   const subRights = Object.values(podPrava.value)
     .flatMap((item) => (Array.isArray(item) ? item : []))
     .filter((item) => newValue.includes(item.vpr_sif));
+  korisniciStore.selectedPrava = [...parentRights, ...subRights];
+  // console.log("Objekti odabranih prava:", korisniciStore.selectedPrava);
+});
 
-  const selectedRightsObjects = [...parentRights, ...subRights];
-  korisniciStore.selectedPrava = selectedRightsObjects;
-  console.log("Objekti odabranih prava :", selectedRightsObjects);
+// Učitavanje prava pri montiranju
+onMounted(() => {
+  loadPrava();
 });
 </script>
 
