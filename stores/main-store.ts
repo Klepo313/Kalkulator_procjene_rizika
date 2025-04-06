@@ -1,6 +1,6 @@
 // stores/main-store.ts
 import { defineStore } from 'pinia';
-import { getCookie, setCookie, deleteCookie } from '#imports';
+import { getCookie, setCookie, deleteCookie } from '~/service/user/cookies';
 
 // KPKR
 import {
@@ -49,6 +49,7 @@ import { mapByMatch } from '~/utils/dataFormatter';
 
 export const useUserStore = defineStore('user-store', {
     state: () => ({
+        isLoggedin: null,
         name: '',
         surname: '',
         username: '',
@@ -56,27 +57,27 @@ export const useUserStore = defineStore('user-store', {
         roles: []
     }),
     actions: {
-        updateName(newValue: string) {
+        async updateName(newValue: string) {
             this.name = newValue;
-            setCookie({ name: 'name', value: newValue });
+            await setCookie({ name: 'name', value: newValue });
         },
-        updateSurname(newValue: string) {
+        async updateSurname(newValue: string) {
             this.surname = newValue;
-            setCookie({ name: 'surname', value: newValue });
+            await setCookie({ name: 'surname', value: newValue });
         },
-        updateUsername(newValue: string) {
+        async updateUsername(newValue: string) {
             this.username = newValue;
-            setCookie({ name: 'username', value: newValue });
+            await setCookie({ name: 'username', value: newValue });
         },
-        updateEmail(newValue: string) {
+        async updateEmail(newValue: string) {
             this.email = newValue;
-            if (newValue) setCookie({ name: 'email', value: newValue });
+            if (newValue) await setCookie({ name: 'email', value: newValue });
         },
-        updateRoles(newValue: any) {
+        async updateRoles(newValue: any) {
             this.roles = newValue;
-            setCookie({ name: 'roles', value: newValue });
+            await setCookie({ name: 'roles', value: newValue });
         },
-        updateAll(newValue: { name: string, surname: string, username: string, email: string, roles: any }) {
+        async updateAll(newValue: { name: string, surname: string, username: string, email: string, roles: any }) {
             this.name = newValue.name;
             this.surname = newValue.surname;
             this.username = newValue.username;
@@ -93,7 +94,7 @@ export const useUserStore = defineStore('user-store', {
                 { name: 'roles', value: newValue.roles },
             ];
 
-            setCookie(cookies);
+            await setCookie(cookies);
         },
         async initializeUser() {
             const response = await getCookie(['name', 'surname', 'username', 'email', 'roles']);
@@ -103,8 +104,8 @@ export const useUserStore = defineStore('user-store', {
             this.email = response['email'] || null;
             this.roles = response['roles'] || [];
         },
-        clearStore() {
-            deleteCookie(['name', 'surname', 'username', 'email', 'roles']);
+        async clearStore() {
+            await deleteCookie(['name', 'surname', 'username', 'email', 'roles']);
             this.name = '';
             this.surname = '';
             this.username = '';
@@ -264,7 +265,7 @@ export const useOpciStore = defineStore('opci-podaci', {
                 tvs_id: this.izracun.tvs_id === 0 ? null : this.izracun.tvs_id
             }
 
-            console.log("Prije savea: ", data);
+            // console.log("Prije savea: ", data);
 
             const response = await saveForm(data)
 
@@ -404,13 +405,13 @@ export const useKespStore = defineStore('kespStore', {
                     if (data?.message) {
                         this.gwpPredlosci = [];
                     } else {
-                        console.log("gwpPredlosci: ", data);
+                        // console.log("gwpPredlosci: ", data);
                         const fuels = await getFuel(data?.uir_uvg_id)
-                        console.log("Fuel: ", fuels);
+                        // console.log("Fuel: ", fuels);
                         if(fuels?.message) this.gwpPredlosci = [];
                         else {
                             this.gwpPredlosci = groupByMatchUvgNaziv(mapByMatch(data, fuels, 'uir_uvg_id', 'uvg_id'));
-                            console.log("STORE gwpPredlosci: ", this.gwpPredlosci);
+                            // console.log("STORE gwpPredlosci: ", this.gwpPredlosci);
                         }
                     }
                 } else {
@@ -836,7 +837,7 @@ export const useOpseg2Store = defineStore('opseg2-store', {
                     p_obnovljivo: row.obnovljivo || 0
                 };
 
-                console.log(`Primljeni energyItem (${i++}): `, energyItem);
+                // console.log(`Primljeni energyItem (${i++}): `, energyItem);
 
                 if (!energyItem.p_uiz_id || !energyItem.p_uvn_id || !energyItem.p_use_id) {
                     return Promise.resolve(); // Ako podaci nisu ispravni, vraćamo resolved Promise kako ne bi blokirao Promise.all
