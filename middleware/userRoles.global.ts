@@ -17,7 +17,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
     }
 
     const userRoles = userStore.roles;
-    console.log("Roles middleware (klijent):", userRoles);
+    // console.log("Roles middleware (klijent):", userRoles);
 
     // Definiramo pravila pristupa
     const accessRules = [

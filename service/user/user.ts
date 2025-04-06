@@ -104,7 +104,7 @@ export const getPravaForUser = async (userId: string | number, groupCode: string
         ...(groupCode !== 'APP' ? { appId: appId } : {})
       }
     });
-    console.log("Response prava: ", response?.data);
+    // console.log("Response prava: ", response?.data);
     return response?.data;
   } catch (error) {
     // console.error('Greška pri dohvaćanju podataka o korisniku: ', error);
@@ -115,8 +115,6 @@ export const getPravaForUser = async (userId: string | number, groupCode: string
 export const savePravaForUser = async (data: {
   userId: string | number,
   rightTypeId: string | number,
-  dateFrom: string,
-  dateTo: string,
   status: number
 }): Promise<unknown> => {
   // if (!(data.userId && data.rightTypeId && data.dateFrom && data.dateTo && data.status)) {

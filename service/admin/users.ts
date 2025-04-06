@@ -68,7 +68,7 @@ export const getUsersForLegalPartner = async (id: number | string): Promise<unkn
         const response = await $api.get(url);
         return response.data;
     } catch (error) {
-        console.error('Greška pri dohvaćanju korisnika za pravnu osobu: ', error);
+        // console.error('Greška pri dohvaćanju korisnika za pravnu osobu: ', error);
         return error;
     }
 };
@@ -78,10 +78,10 @@ export const getContracts = async (id: number | string): Promise<unknown> => {
     try {
         const url = id ? `/CO2/contract/${id}` : '/CO2/contract';
         const response = await $api.get(url);
-        console.log("Ugovori: ", response.data);
+        // console.log("Ugovori: ", response.data);
         return response.data;
     } catch (error) {
-        console.error('Greška pri dohvaćanju korisnika za pravnu osobu: ', error);
+        // console.error('Greška pri dohvaćanju korisnika za pravnu osobu: ', error);
         return error;
     }
 };
@@ -104,14 +104,14 @@ export const saveContract = async (data: {
         });
         return response;
     } catch (error) {
-        console.error('Greška pri spremanju ugovora: ', error);
+        // console.error('Greška pri spremanju ugovora: ', error);
         return error;
     }
 }
 
 export const checkIfEmailIsSent = async (id: string | number): Promise<unknown> => {
     if (!id) {
-        console.error("Nije prosljeđen ID partnera!");
+        // console.error("Nije prosljeđen ID partnera!");
         return null;
     }
     const { $api } = useNuxtApp();
@@ -121,7 +121,7 @@ export const checkIfEmailIsSent = async (id: string | number): Promise<unknown> 
             headers: { 'Content-Type': 'application/json' }
         }
     );
-    console.log("Poslano obavijesti: ", response.data);
+    // console.log("Poslano obavijesti: ", response.data);
     return response.data;
 }
 
