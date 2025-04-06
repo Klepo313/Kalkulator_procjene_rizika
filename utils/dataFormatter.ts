@@ -281,13 +281,6 @@ export const formatNumber = (value: number, maxDigitNumber?: number): string => 
 };
 
 /**
- * Uklanja sve znakove koji nisu brojevi iz stringa.
- */
-export const formatDateString = (dateString: string): string => {
-    return dateString.replace(/[^0-9]/g, '');
-};
-
-/**
  * Skraćuje tekst na zadanu duljinu i dodaje "..." ako je duži.
  */
 export const truncateText = (text: string, length: number): string => {
