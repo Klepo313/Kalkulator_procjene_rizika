@@ -6,7 +6,7 @@
     :modal="true"
     :closable="false"
     :style="{ width: '1000px' }"
-    @hide="resetOdabraniKorisnik"
+    @hide="close"
     @show="onOpenEditUserDialog"
   >
     <template #header>
@@ -101,23 +101,25 @@
                     </Message>
                   </div>
                 </div>
-                <div class="field status-field">
-                  <span>Status: </span>
-                  <span>
-                    <Tag
-                    :value="user.aktivan ? 'Aktivan' : 'Neaktivan'"
-                    :severity="getSeverity(user.aktivan)"
-                    />
-                  </span>
-                  <span style="font-style: italic; opacity: 0.8;">
-                    ({{ getTimeLeft(user.eko_datdo) }})
-                  </span>
+                <div class="field">
+                  <div class="field status-field">
+                    <span>Status: </span>
+                    <span>
+                      <Tag
+                        :value="user.aktivan ? 'Aktivan' : 'Neaktivan'"
+                        :severity="getSeverity(user.aktivan)"
+                      />
+                    </span>
+                  </div>
+                  <div v-if="user.aktivan" class="field status-field">
+                    <span style="display: flex; align-items: center; gap: 5px">
+                      Vrijeme trajanja korisničkog računa:
+                      <p style="font-style: italic">
+                        {{ getTimeLeft(user.eko_datdo) }}.
+                      </p>
+                    </span>
+                  </div>
                 </div>
-                <!-- <div v-if="user.aktivan" class="field status-field">
-                  <span>
-                    Račun aktivan još: {{ getTimeLeft(user.eko_datdo) }}.
-                  </span>
-                </div> -->
               </div>
               <hr />
               <div class="section">
@@ -140,9 +142,7 @@
           <div v-else>Učitavanje podataka...</div>
         </TabPanel>
         <TabPanel value="1">
-          <p class="m-0">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
-          </p>
+          <p class="m-0">Nije u funkciji.</p>
         </TabPanel>
       </TabPanels>
     </Tabs>
@@ -182,6 +182,13 @@ const activeTab = ref("0");
 // Koristi computed property da uvijek radiš s najnovijim korisničkim podacima
 const localUser = ref(props.user);
 // console.log("localUser: ", localUser.value);
+
+watch(
+  () => props.user,
+  (newUser) => {
+    localUser.value = newUser;
+  }
+);
 
 // Inicijaliziraj initialValues na temelju user-a
 const initialValues = ref({
@@ -234,6 +241,10 @@ const resolver = zodResolver(
     ),
   })
 );
+
+onMounted(() => {
+  console.log("Učitani korisnik: ", localUser.value);
+});
 
 const close = () => {
   emits("update:visible", false);

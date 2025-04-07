@@ -39,13 +39,13 @@
       <Column
       field="ugr_naziv"
       header="Vrsta rashladnog uređaja"
-      style="min-width: 12rem; max-width: 14rem"
+      style="min-width: 15rem; max-width: 20rem"
       >
     </Column>
     <Column
       field="uir_brjed"
       header="Broj jedinica"
-      style="width: 10%; min-width: 8rem"
+      style=""
     >
     </Column>
       <Column
