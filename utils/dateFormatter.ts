@@ -109,7 +109,9 @@ export const getTimeLeft = (date: Date | string): string => {
     const timeDiff = endDate.getTime() - today.getTime();
     const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-    if (daysLeft >= 365) {
+    if (daysLeft >= 3650) {
+        return 'Trajno';
+    } else if (daysLeft >= 365) {
         const years = Math.floor(daysLeft / 365);
         const remainingDays = daysLeft % 365;
         const months = Math.floor(remainingDays / 30);
