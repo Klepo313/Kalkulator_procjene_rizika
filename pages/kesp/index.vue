@@ -149,7 +149,6 @@ import { logout } from "~/service/user/user";
 const kespStore = useKespStore();
 
 definePageMeta({
-  middleware: ["kesp"],
   pageTransition: { name: "slide", mode: "out-in" },
 });
 
