@@ -48,11 +48,18 @@
                     :class="card.buttonClass"
                     @mouseover="card.showTooltip = true"
                     @mouseleave="card.showTooltip = false"
-                    @click="navigateTo(card.navigation)"
+                    @click="handleButtonClick(card)"
+                    :disabled="card.clicked"
                   >
-                    Nastavi
-                    <font-awesome-icon icon="arrow-right" />
+                    <template v-if="card.clicked">
+                      <font-awesome-icon icon="spinner" spin />
+                    </template>
+                    <template v-else>
+                      Nastavi
+                      <font-awesome-icon icon="arrow-right" />
+                    </template>
                   </button>
+
                   <div
                     v-if="card.tooltip.status === 1 && card.showTooltip"
                     class="tooltip"
@@ -110,6 +117,7 @@ const cards = ref([
     textLogoId: "kpkr_logo_text",
     miniLogo: "",
     textLogo: "",
+    clicked: false,
     buttonClass: "kpkrBtn",
     navigation: "/kpkr",
     isLoaded: false,
@@ -130,6 +138,7 @@ const cards = ref([
     textLogoId: "kesp_logo_text",
     miniLogo: "",
     textLogo: "",
+    clicked: false,
     buttonClass: "kespBtn",
     navigation: "/kesp",
     isLoaded: false,
@@ -150,6 +159,7 @@ const cards = ref([
     textLogoId: "admin_logo_text",
     miniLogo: "",
     textLogo: "",
+    clicked: false,
     buttonClass: "adminBtn",
     navigation: "/admin",
     isLoaded: false,
@@ -178,6 +188,12 @@ const filteredCards = computed(() => {
     return roles.value.includes(card.role);
   });
 });
+
+const handleButtonClick = (card) => {
+  if (card.clicked) return;
+  card.clicked = true;
+  navigateTo(card.navigation);
+};
 
 onMounted(async () => {
   res.value = await userStore.getAll;
