@@ -162,6 +162,19 @@
             >
           </div>
         </div>
+        <Message
+          v-if="
+            areIzracuniInvalid(
+              initialValues.ugv_kesp_max,
+              initialValues.ugv_kpkr_max
+            )
+          "
+          severity="error"
+          size="small"
+          variant="simple"
+          >Barem jedna vrijednost broja izračuna mora biti veća od
+          nule.</Message
+        >
         <div class="btn-container">
           <Button
             class="p-button p-component p-button-secondary"
@@ -207,8 +220,8 @@ const initialValues = ref({
   ugv_datugv: "",
   ugv_datod: "",
   ugv_datdo: "",
-  ugv_kpkr_max: "",
-  ugv_kesp_max: "",
+  ugv_kpkr_max: 0,
+  ugv_kesp_max: 0,
 });
 
 // const today = new Date();
@@ -258,10 +271,14 @@ const resolver = ref(
               invalid_type_error: "Datum od nije valjan.",
             })
             .refine(
-              (date) =>
-                date.getTime() >=
-                new Date(new Date().setHours(0, 0, 0, 0)).getTime(),
-              { message: "Datum od mora biti danas ili kasnije." }
+              (date) => {
+                const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
+                // 15 dana u milisekundama
+                const fifteenDaysInMs = 15 * 24 * 60 * 60 * 1000;
+                const allowedPastDate = todayStart.getTime() - fifteenDaysInMs;
+                return date.getTime() >= allowedPastDate;
+              },
+              { message: "Početni datum ne može biti stariji od 15 dana." }
             )
         ),
         ugv_datdo: z.preprocess(
@@ -285,17 +302,17 @@ const resolver = ref(
         ),
         ugv_kpkr_max: z.coerce
           .number({
-            invalid_type_error: "Broj mora biti veći od nula.",
+            invalid_type_error: "Broj mora biti veći ili jednak nuli.",
           })
-          .refine((num) => num > 0, {
-            message: "Broj mora biti veći od nula.",
+          .refine((num) => num >= 0, {
+            message: "Broj mora biti veći ili jednak nuli.",
           }),
         ugv_kesp_max: z.coerce
           .number({
-            invalid_type_error: "Broj mora biti veći od nula.",
+            invalid_type_error: "Broj mora biti veći ili jednak nuli.",
           })
-          .refine((num) => num > 0, {
-            message: "Broj mora biti veći od nula.",
+          .refine((num) => num >= 0, {
+            message: "Broj mora biti veći ili jednak nuli.",
           }),
       })
       .refine((data) => data.ugv_datdo.getTime() > data.ugv_datod.getTime(), {
@@ -315,6 +332,8 @@ const areDatesInvalid = (date1, date2) => {
   return false;
 };
 
+const areIzracuniInvalid = (izracun1, izracun2) => parseInt(izracun1) === 0 && parseInt(izracun2) === 0;
+
 const selectInputText = (event) => {
   const target = event.target;
   if (target && typeof target.select === "function") {
@@ -329,8 +348,8 @@ const onHide = () => {
     ugv_datugv: "",
     ugv_datod: "",
     ugv_datdo: "",
-    ugv_kpkr_max: "",
-    ugv_kesp_max: "",
+    ugv_kpkr_max: 0,
+    ugv_kesp_max: 0,
   };
   modelVisible.value = false;
   emits("update:visible", false);
@@ -342,6 +361,10 @@ const saveUgovor = async ({ valid }) => {
     !areDatesInvalid(
       initialValues.value.ugv_datod,
       initialValues.value.ugv_datdo
+    ) &&
+    !areIzracuniInvalid(
+      initialValues.value.ugv_kpkr_max,
+      initialValues.value.ugv_kesp_max
     )
   ) {
     // Save ugovor to the database
