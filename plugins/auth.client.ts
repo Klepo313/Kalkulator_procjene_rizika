@@ -1,4 +1,4 @@
-// /plugins/auth.client.ts
+// /plugins/auth.ts
 import { useAuthStore } from "~/stores/auth";
 
 export default defineNuxtPlugin(async () => {
@@ -24,13 +24,35 @@ export default defineNuxtPlugin(async () => {
       const userData = await userStore.getAll;
       // console.log("userData", userData);
 
-      userStore.updateAll({
-        name: userData?.name,
-        surname: userData?.surname,
-        username: userData?.username,
-        email: userData?.email,
-        roles: userData?.roles,
-    });
+      // userStore.updateAll({
+      //   name: userData?.name,
+      //   surname: userData?.surname,
+      //   username: userData?.username,
+      //   email: userData?.email,
+      //   roles: userData?.roles,
+      // });
+
+      const cookieArray = [
+        { name: "name", value: userData?.name },
+        { name: "surname", value: userData?.surname },
+        { name: "username", value: userData?.username },
+        ...(userData?.email && userData?.email.trim() !== '' ? [{ name: 'email', value: userData?.email }] : []),
+        { name: "roles", value: userData?.roles },
+      ];
+
+      console.log(cookieArray)
+
+      try {
+        const res = await $fetch(`${baseUrl}/user/set-cookie`, {
+          method: "POST",
+          credentials: "include",
+          body: cookieArray
+        });
+        console.log(res)
+        
+      } catch (error) {
+        console.log(error?.message)
+      }
 
     } else {
       userStore.isLoggedin = false;
