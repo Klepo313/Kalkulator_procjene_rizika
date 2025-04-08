@@ -19,6 +19,7 @@ import KespSidebar from '~/components/kesp/KespSidebar.vue';
 import { useKespStore } from '#imports';
 
 definePageMeta({
+    requiredRole: "AP002",
     middleware: [
         'kesp'
     ],

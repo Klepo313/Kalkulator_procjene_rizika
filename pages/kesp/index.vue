@@ -149,6 +149,7 @@ import { logout } from "~/service/user/user";
 const kespStore = useKespStore();
 
 definePageMeta({
+  requiredRole: "AP002",
   pageTransition: { name: "slide", mode: "out-in" },
 });
 

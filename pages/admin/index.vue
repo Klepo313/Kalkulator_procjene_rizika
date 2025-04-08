@@ -18,6 +18,10 @@
 import { ref, computed, watch, onMounted } from "vue";
 import AdminSidebar from "~/components/admin/AdminSidebar.vue";
 
+definePageMeta({
+  requiredRolePrefix: "AD",
+});
+
 // Inicijalno postavljamo default vrijednost
 const isCollapsed = ref(false);
 const sidebarWidth = ref("275px");

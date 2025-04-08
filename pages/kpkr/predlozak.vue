@@ -24,6 +24,7 @@ import { getCalculations } from '~/service/kpkr/calculations';
 
 
 definePageMeta({
+    requiredRole: "AP001",
     middleware: [
         'izracun'
     ],

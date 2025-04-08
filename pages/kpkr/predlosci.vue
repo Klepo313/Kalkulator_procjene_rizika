@@ -153,6 +153,10 @@ import { formatDateToDMY } from "@/utils/dateFormatter";
 import { setCookie, deleteCookie } from "~/service/user/cookies";
 import LoadingSpremanje from "~/components/ostalo/LoadingSpremanje.vue";
 
+definePageMeta({
+  requiredRole: "AP001",
+})
+
 const toast = useToast();
 
 const cardStore = useCardStore();

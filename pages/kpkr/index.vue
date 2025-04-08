@@ -67,9 +67,7 @@ const opciStore = useOpciStore();
 const cardStore = useCardStore();
 
 definePageMeta({
-  middleware: [
-    // 'kpkr-access'
-  ],
+  requiredRole: "AP001",
   pageTransition: { name: "slide", mode: "out-in" },
 });
 

@@ -221,6 +221,10 @@ import { formatDateToDMY, getYearsRange } from "@/utils/dateFormatter";
 import { setCookie, deleteCookie } from "~/service/user/cookies";
 import LoadingSpremanje from "~/components/ostalo/LoadingSpremanje.vue";
 
+definePageMeta({
+  requiredRole: "AP002",
+})
+
 const kespStore = useKespStore();
 
 const toast = useToast();
