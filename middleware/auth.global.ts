@@ -25,6 +25,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     // Opcionalno: ako korisnik nije autentificiran, možeš preusmjeriti na login
     const userStore = useUserStore();
     if (!userStore.isLoggedin) {
-        return navigateTo('/login');
+        return navigateTo(`/login?redirectTo=${encodeURIComponent(to.fullPath)}`);
     }
 });
