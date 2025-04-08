@@ -3,42 +3,42 @@ import { defineNuxtRouteMiddleware, navigateTo, useRoute } from "#app";
 
 export default defineNuxtRouteMiddleware((to, from) => {
     // const userStore = useuserStore();
-    const userStore = useUserStore();
+    // const userStore = useUserStore();
 
-    const excludedPaths = [
-        "/login",
-        "/user/change-password",
-    ];
+    // const excludedPaths = [
+    //     "/login",
+    //     "/user/change-password",
+    // ];
 
-    // Ako je korisnik već na toj ruti ili ide na isključenu rutu, preskoči provjeru
-    if (from.path === to.path || excludedPaths.includes(to.path)) {
-        // console.info(`'${to.path}' - preskačemo auth provjere.`);
-        return;
-    }
+    // // Ako je korisnik već na toj ruti ili ide na isključenu rutu, preskoči provjeru
+    // if (from.path === to.path || excludedPaths.includes(to.path)) {
+    //     // console.info(`'${to.path}' - preskačemo auth provjere.`);
+    //     return;
+    // }
 
-    const userRoles = userStore.roles;
-    // console.log("Roles middleware (klijent):", userRoles);
+    // const userRoles = userStore.roles;
+    // // console.log("Roles middleware (klijent):", userRoles);
 
-    // Definiramo pravila pristupa
-    const accessRules = [
-        { path: "/kpkr", requiredRole: "AP001" },
-        { path: "/kesp", requiredRole: "AP002" },
-        { path: "/admin", requiredRolePrefix: "AD" }
-    ];
+    // // Definiramo pravila pristupa
+    // const accessRules = [
+    //     { path: "/kpkr", requiredRole: "AP001" },
+    //     { path: "/kesp", requiredRole: "AP002" },
+    //     { path: "/admin", requiredRolePrefix: "AD" }
+    // ];
 
-    // Provjera uloga prema pravilima
-    for (const rule of accessRules) {
-        if (to.path.startsWith(rule.path)) {
-            const hasAccess = rule.requiredRole
-                ? userRoles.includes(rule.requiredRole)
-                : userRoles.some(role => role.startsWith(rule.requiredRolePrefix || ""));
+    // // Provjera uloga prema pravilima
+    // for (const rule of accessRules) {
+    //     if (to.path.startsWith(rule.path)) {
+    //         const hasAccess = rule.requiredRole
+    //             ? userRoles.includes(rule.requiredRole)
+    //             : userRoles.some(role => role.startsWith(rule.requiredRolePrefix || ""));
 
-            if (!hasAccess) {
-                console.warn(`Pristup odbijen za ${to.path} zbog nedostatka potrebne uloge.`);
-                return navigateTo("/");
-            }
-        }
-    }
+    //         if (!hasAccess) {
+    //             console.warn(`Pristup odbijen za ${to.path} zbog nedostatka potrebne uloge.`);
+    //             return navigateTo("/");
+    //         }
+    //     }
+    // }
 
-    //c// console.log(`Pristup odobren za ${to.path} s ulogama:`, userRoles);
+    // console.log(`Pristup odobren za ${to.path} s ulogama:`, userRoles);
 });
