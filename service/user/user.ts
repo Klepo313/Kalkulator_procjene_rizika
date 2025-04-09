@@ -18,7 +18,7 @@ export const login = async (username: string, password: string) => {
     }
   } catch (error) {
     // console.error('Login error: ', error)
-    return 0
+    return error;
   }
 }
 
