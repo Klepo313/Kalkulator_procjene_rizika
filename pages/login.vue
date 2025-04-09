@@ -217,9 +217,9 @@ const handleLogin = async ({ valid }) => {
                 );
           }
           if (!hasAccess) {
-            console.warn(
-              `Korisnik nema pravo pristupa: ${redirectTo}, preusmjeravam na /`
-            );
+            // console.warn(
+            //   `Korisnik nema pravo pristupa: ${redirectTo}, preusmjeravam na /`
+            // );
             redirectTo = "/";
           }
           navigateTo(redirectTo);
