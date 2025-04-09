@@ -216,7 +216,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { navigateTo } from "#app";
-import { logout } from "~/temp/logout";
+import { logout } from "~/service/user/user";
 import { formatDateToDMY, getYearsRange } from "@/utils/dateFormatter";
 import { setCookie, deleteCookie } from "~/service/user/cookies";
 import LoadingSpremanje from "~/components/ostalo/LoadingSpremanje.vue";
