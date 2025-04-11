@@ -51,6 +51,7 @@
       :user="selectedUser"
       @update:visible="editUserDialog = $event"
       @save="handleSaveUser"
+      @send-mail="sendMail"
     />
     <NewUserDialog
       :visible="newUserDialog"
@@ -123,6 +124,19 @@ const findPRVpartner = (epr_id) => {
 };
 
 const sendMail = (eko_id, eko_par_id_za) => {
+  console.log("eko_id: ", eko_id);
+  console.log("eko_par_id_za: ", eko_par_id_za);
+
+  let infoToastId = null;
+
+  infoToastId = toast.add({
+    severity: "info",
+    summary: "Slanje e-pošte...",
+    detail: "Molimo pričekajte dok se e-pošta ne pošalje korisniku.",
+    life: Infinity,
+    closable: false,
+  });
+
   confirm.require({
     group: "mail",
     title: "Želiš li poslati pristupne korisničke podatke korisniku?",
@@ -139,9 +153,12 @@ const sendMail = (eko_id, eko_par_id_za) => {
       label: "Save",
     },
     accept: async () => {
-      // console.log("Slanje e-pošte za korisnika: ", eko_id);
       try {
         await checkIfEmailIsSent(eko_id);
+
+        // Uklanjanje info toasta
+        toast.remove(infoToastId);
+
         toast.add({
           severity: "success",
           summary: "Uspješno poslan email",
@@ -149,7 +166,8 @@ const sendMail = (eko_id, eko_par_id_za) => {
           life: 3000,
         });
       } catch (error) {
-        // console.error(error);
+        toast.remove(infoToastId);
+
         toast.add({
           severity: "error",
           summary: "Greška pri slanju e-pošte",
@@ -160,7 +178,9 @@ const sendMail = (eko_id, eko_par_id_za) => {
         await korisniciStore.fetchKorisniciForLegalPartner(eko_par_id_za);
       }
     },
-    reject: () => {},
+    reject: () => {
+      toast.remove(infoToastId); // U slučaju da korisnik odbije slanje
+    },
   });
 };
 

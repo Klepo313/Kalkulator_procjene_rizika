@@ -124,6 +124,26 @@
               <hr />
               <div class="section">
                 <div class="field-heading">
+                  <h2 class="p-text-bold">Pošalji mail korisniku</h2>
+                  <p>
+                    Pošalji mail korisniku sa njegovim novim pristupnim
+                    podacima. <br>
+                    Email: <span style="font-style: italic; text-decoration: underline;">{{ user?.epr_email }}</span>
+                  </p>
+                  <button
+                    type="button"
+                    class="send-mail-btn"
+                    @click="
+                      $emit('send-mail', user?.eko_id, user?.eko_par_id_za)
+                    "
+                  >
+                    <font-awesome-icon icon="paper-plane" /> Pošalji mail
+                  </button>
+                </div>
+              </div>
+              <hr>
+              <div class="section">
+                <div class="field-heading">
                   <h2 class="p-text-bold">Prava korisnika</h2>
                   <p>
                     Izmjeni prava korisnika na korištenje aplikacija te prava
@@ -404,6 +424,32 @@ hr {
 :deep(.p-checkbox-checked .p-checkbox-box) {
   border-color: var(--text-color) !important;
   background: var(--text-color) !important;
+}
+
+.send-mail-btn {
+  margin-top: 10px;
+  width: 200px;
+  color: var(--text-color);
+  border: var(--border);
+  background: none;
+  
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.send-mail-btn:hover {
+  color: white;
+  background-color: var(--text-color-hover);
+  border-color: var(--text-color-hover);
+}
+
+.send-mail-btn:active {
+  color: white;
+  background-color: var(--text-color-focus);
+  border-color: var(--text-color-focus);
 }
 
 .btn-container {
