@@ -76,7 +76,7 @@ export const getUsersForLegalPartner = async (id: number | string): Promise<unkn
 export const getContracts = async (id: number | string): Promise<unknown> => {
     const { $api } = useNuxtApp();
     try {
-        const url = id ? `/contract/${id}` : '/contract';
+        const url = id ? `/CO2/contract/${id}` : '/CO2/contract';
         const response = await $api.get(url);
         // console.log("Ugovori: ", response.data);
         return response.data;
@@ -98,7 +98,7 @@ export const saveContract = async (data: {
 }) => {
     const { $api } = useNuxtApp();
     try {
-        const url = `/contract`;
+        const url = `/CO2/contract`;
         const response = await $api.post(url, data, {
             headers: { 'Content-Type': 'application/json' }
         });
