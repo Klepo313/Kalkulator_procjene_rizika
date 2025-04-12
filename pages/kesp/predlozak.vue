@@ -1,5 +1,5 @@
 <template>
-    <div class="body">
+    <div class="body-container">
         <div ref="sidebar" :class="['sidebar', { 'collapsed': isCollapsed }]">
             <KespSidebar v-if="kespId" :isCollapsed="isCollapsed" :uiz_id="kespId" @toggle-sidebar="toggleSidebar"
                 @update-active-section="updateActiveSection" />
@@ -86,11 +86,11 @@ const mainStyles = computed(() => ({
 </script>
 
 <style scoped>
-.body {
+.body-container {
     display: flex;
     gap: 25px;
     overflow: visible;
-
+    background-color: var(--kesp-bg);
 }
 
 .sidebar {

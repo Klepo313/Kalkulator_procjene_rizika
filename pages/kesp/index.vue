@@ -47,7 +47,7 @@
                 </span>
               </div>
             </div>
-            <div class="download-container" @click="downloadPDF">
+            <div class="download-container" @click="" v-tooltip.top="'U pripremi...'">
               <font-awesome-icon icon="download" />
               Upute za korištenje
             </div>

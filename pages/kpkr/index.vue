@@ -113,6 +113,7 @@ onMounted(async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-color: var(--bg-color);
 }
 
 header {

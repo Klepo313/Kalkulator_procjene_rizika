@@ -263,7 +263,7 @@ const resolver = zodResolver(
 );
 
 onMounted(() => {
-  console.log("Učitani korisnik: ", localUser.value);
+  // console.log("Učitani korisnik: ", localUser.value);
 });
 
 const close = () => {

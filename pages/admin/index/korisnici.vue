@@ -124,8 +124,8 @@ const findPRVpartner = (epr_id) => {
 };
 
 const sendMail = (eko_id, eko_par_id_za) => {
-  console.log("eko_id: ", eko_id);
-  console.log("eko_par_id_za: ", eko_par_id_za);
+  // console.log("eko_id: ", eko_id);
+  // console.log("eko_par_id_za: ", eko_par_id_za);
 
   let infoToastId = null;
 

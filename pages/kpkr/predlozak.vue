@@ -1,5 +1,5 @@
 <template>
-    <div class="body">
+    <div class="body-container">
         <div ref="sidebar" :class="['sidebar', { 'collapsed': isCollapsed }]">
             <Sidebar :is-collapsed="isCollapsed" @toggle-sidebar="toggleSidebar" />
         </div>
@@ -115,10 +115,11 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.body {
+.body-container {
     display: flex;
     gap: 25px;
     overflow: visible;
+    background-color: var(--bg-color);
 }
 
 .sidebar {

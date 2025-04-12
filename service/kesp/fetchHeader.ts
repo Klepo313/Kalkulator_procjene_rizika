@@ -27,7 +27,7 @@ export const getCoolingLossesHeader = async (id: number | string): Promise<unkno
 
     try {
         const response = await $api.get(url);
-        console.log(response.data);
+        // console.log(response.data);
 
         if (response.status === 200) {
             return response.data;
