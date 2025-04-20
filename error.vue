@@ -10,18 +10,30 @@
       <p>Žao nam je, ali stranica koju tražite ne postoji.</p>
     </div>
     <div class="error-btn">
-      <nuxt-link to="/">
+      <button type="button" @click="goBack">
+        <font-awesome-icon icon="arrow-left-long" />
+        Prethodna stranica
+      </button>
+
+      <!-- <nuxt-link :to="history.back()">
         <button type="button">
           <font-awesome-icon icon="arrow-left-long" />
-          Početna
+          Prethodna stranica
         </button>
-      </nuxt-link>
+      </nuxt-link> -->
     </div>
   </div>
 </template>
 
 <script setup>
 // Script setup dio je trenutno prazan, možeš ga koristiti po potrebi.
+const goBack = () => {
+  try {
+    history.back();
+  } catch (error) {
+    navigateTo("/");
+  }
+};
 </script>
 
 <style>
@@ -32,7 +44,7 @@
   align-items: center;
   min-height: 100vh;
   background-color: #fff;
-  margin: 0;    
+  margin: 0;
 }
 
 .error-code {
