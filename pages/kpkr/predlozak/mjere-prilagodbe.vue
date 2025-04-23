@@ -112,7 +112,7 @@ import Checkbox from 'primevue/checkbox';
 
 definePageMeta({
     middleware: [
-        'izracun'
+        
     ],
 });
 

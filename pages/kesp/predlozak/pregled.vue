@@ -77,7 +77,7 @@
               :value="groupedData"
               scrollable
               scroll-height="400px"
-              table-style="min-width: 50rem"
+              table-style="min-width: 35rem"
               show-gridlines
               @row-select="dialogEmisijaVisible = true"
             >
@@ -101,7 +101,7 @@
                 </template>
               </Column>
 
-              <Column field="totalEmissions" header="Ukupne emisije eCO2 t/god">
+              <Column field="totalEmissions" header="Ukupne emisije eCO2 t/god" >
                 <template #body="slotProps">
                   <span>{{
                     formatNumber(

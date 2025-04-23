@@ -11,14 +11,9 @@ export const getCalculations = async (id?: number | string): Promise<unknown> =>
         const response = await $api.get(url);
         // console.log(response.data);
 
-        if (response.status === 200) {
-            return response;
-        } else {
-            // console.error('Došlo je do pogreške na serveru!');
-            return null;
-        }
+        return response;
     } catch (error) {
         // console.error('Greška pri dohvaćanju vrste izračuna: ', error);
-        return null;
+        return error;
     }
 };

@@ -139,7 +139,7 @@ import { saveAs } from 'file-saver';
 
 definePageMeta({
     middleware: [
-        'izracun'
+        
     ],
 });
 

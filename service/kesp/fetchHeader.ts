@@ -13,11 +13,11 @@ export const getHeader = async (id: number | string): Promise<unknown> => {
             return response.data[0];
         } else {
             // console.error('Došlo je do pogreške na serveru!');
-            return null;
+            return response;
         }
     } catch (error) {
         // console.error('Greška pri dohvaćanju izračuna: ', error);
-        return null;
+        return error;
     }
 };
 
@@ -27,7 +27,7 @@ export const getCoolingLossesHeader = async (id: number | string): Promise<unkno
 
     try {
         const response = await $api.get(url);
-        console.log(response.data);
+        // console.log(response.data);
 
         if (response.status === 200) {
             return response.data;

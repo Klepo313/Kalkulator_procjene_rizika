@@ -19,15 +19,11 @@
 
 import { ref, computed, watch } from 'vue'
 import Sidebar from '~/components/kpkr/Sidebar.vue'
-import izracun from '~/middleware/izracun';
 import { getCalculations } from '~/service/kpkr/calculations';
 
 
 definePageMeta({
     requiredRole: "AP001",
-    middleware: [
-        'izracun'
-    ],
 });
 
 const opciStore = useOpciStore();

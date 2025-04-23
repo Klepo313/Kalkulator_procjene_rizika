@@ -6,8 +6,7 @@
         src="../../public/static/images/KPKR_logo_sidebar.svg"
         style="height: 100%; cursor: pointer"
         alt="logo"
-        @click="navigateTo('/kpkr')"
-      />
+        @click="navigateTo('/kpkr')" />
       <div class="header-buttons">
         <button class="novi-predlozak" @click="noviIzracun">
           <font-awesome-icon icon="plus" class="plus-icon" />
@@ -16,8 +15,7 @@
         <button class="logout" @click="doLogout">
           <font-awesome-icon
             icon="arrow-right-from-bracket"
-            class="logout-icon"
-          />
+            class="logout-icon" />
           Odjava
         </button>
       </div>
@@ -49,8 +47,7 @@
               'puk_naziv',
               'objekt_djel',
             ]"
-            @row-select="onRowSelect"
-          >
+            @row-select="onRowSelect">
             <template #header>
               <div class="flex justify-end">
                 <IconField>
@@ -60,8 +57,7 @@
                   <InputText
                     v-model="filters['global'].value"
                     placeholder="Pretraži prethodne izračune"
-                    class="search-field max"
-                  />
+                    class="search-field max" />
                 </IconField>
               </div>
             </template>
@@ -89,26 +85,22 @@
               field="tvz_naziv"
               header="Vrsta izračuna"
               sortable
-              style="width: 6%"
-            />
+              style="width: 6%" />
             <Column
               field="kop_sif"
               header="Katastarska općina (šifra)"
               sortable
-              style="width: 6%"
-            />
+              style="width: 6%" />
             <Column
               field="kop_naziv"
               header="Katastarska općina (naziv)"
               sortable
-              style="width: 8%"
-            />
+              style="width: 8%" />
             <Column
               field="kcs_sif"
               header="Katastarska čestica"
               sortable
-              style="width: 6%"
-            >
+              style="width: 6%">
               <template #body="slotProps">
                 {{ slotProps.data.kcs_sif || "--" }}
               </template>
@@ -117,14 +109,12 @@
               field="puk_naziv"
               header="Područni ured"
               sortable
-              style="width: 6%"
-            />
+              style="width: 6%" />
             <Column
               field="objekt_djel"
               header="Imovina/Djelatnost"
               sortable
-              style="width: 20%"
-            />
+              style="width: 20%" />
           </DataTable>
         </div>
       </div>
@@ -139,8 +129,7 @@
       v-if="loadingDalje"
       :message="'Učitavanje izračuna...'"
       :loader="'UI'"
-      class="loading-popup"
-    />
+      class="loading-popup" />
   </div>
 </template>
 
@@ -155,7 +144,7 @@ import LoadingSpremanje from "~/components/ostalo/LoadingSpremanje.vue";
 
 definePageMeta({
   requiredRole: "AP001",
-})
+});
 
 const toast = useToast();
 
@@ -171,6 +160,7 @@ const loading = ref(true);
 const loadingDalje = ref(false);
 
 const odabraniIzracun = ref();
+const toastMessage = useState("toastMessage");
 
 const cookiesToDelete = ["scenarij", "id-izracuna", "vrsta-izracuna"];
 
@@ -198,7 +188,7 @@ const onRowSelect = async () => {
     // Spremanje šifrovanog ID-a u store
     cardStore.setCardId(odabraniIzracun.value.aiz_id.toString());
   } catch (error) {
-    // console.error("Greška prilikom postavljanja kolačića:", error);
+    console.error("Greška prilikom postavljanja kolačića:", error);
     showError();
   }
   // finally {
@@ -207,6 +197,16 @@ const onRowSelect = async () => {
 };
 
 onMounted(async () => {
+  if (toastMessage.value) {
+    toast.add({
+      severity: "error",
+      summary: "Neispravan ID",
+      detail: toastMessage.value,
+      life: 4000,
+    });
+    toastMessage.value = null;
+  }
+
   await deleteCookie(cookiesToDelete);
   cardStore.cardId = null;
   const data = await getCalculations();

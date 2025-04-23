@@ -22,8 +22,7 @@
             v-if="isReadonly"
             v-tooltip.top="'Predložak je zaključan.'"
             icon="lock"
-            class="lock-icon"
-          />
+            class="lock-icon" />
         </h1>
 
         <Form
@@ -34,8 +33,7 @@
           :validateOnValueUpdate="true"
           class="main-grid"
           @submit="onFormSubmit"
-          @change="someThingChanged"
-        >
+          @change="someThingChanged">
           <div class="grid-item">
             <label for="naziv" class="header">Naziv predloška:</label>
             <InputText
@@ -46,8 +44,7 @@
               placeholder="Unesi naziv predloška"
               fluid
               :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'"
-            />
+              :tabindex="isReadonly ? '-1' : '0'" />
             <div class="info-div">
               <font-awesome-icon :icon="'info-circle'" style="display: none" />
             </div>
@@ -67,8 +64,7 @@
               fluid
               readonly
               :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'"
-            />
+              :tabindex="isReadonly ? '-1' : '0'" />
             <div class="info-div">
               <font-awesome-icon :icon="'info-circle'" style="display: none" />
             </div>
@@ -86,15 +82,13 @@
               option-label="tvz_naziv"
               placeholder="Odaberi vrstu izračuna"
               :tabindex="isReadonly ? '-1' : '0'"
-              @change="handleVrstaIzracunaChange(1)"
-            />
+              @change="handleVrstaIzracunaChange(1)" />
             <div class="info-div">
               <Message
                 v-if="$form.vrstaIzracuna?.invalid && vrstaIzracuna?.tvz_naziv"
                 severity="error"
                 size="small"
-                variant="simple"
-              >
+                variant="simple">
                 {{ $form.vrstaIzracuna.error.message }}
               </Message>
             </div>
@@ -119,8 +113,7 @@
               placeholder="Odaberi katastarsku općinu"
               :disabled="!vrstaIzracuna"
               :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'"
-            >
+              :tabindex="isReadonly ? '-1' : '0'">
               <template #option="slotProps">
                 <span>{{
                   slotProps.option.kop_sif + " - " + slotProps.option.kop_naziv
@@ -144,8 +137,7 @@
               placeholder="Odaberi katastarsku česticu (opcionalno)"
               :disabled="!katastarskaOpcina"
               :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'"
-            />
+              :tabindex="isReadonly ? '-1' : '0'" />
             <div class="info-div">
               <font-awesome-icon :icon="'info-circle'" style="display: none" />
             </div>
@@ -164,8 +156,7 @@
               "
               :disabled="!vrstaIzracuna || isDjelatnost"
               :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'"
-            />
+              :tabindex="isReadonly ? '-1' : '0'" />
             <!-- </Select> -->
             <div class="info-div">
               <font-awesome-icon :icon="'info-circle'" style="display: none" />
@@ -189,8 +180,7 @@
               "
               :disabled="!vrstaIzracuna || isImovina"
               :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'"
-            >
+              :tabindex="isReadonly ? '-1' : '0'">
               <template #option="slotProps">
                 <span>{{
                   slotProps.option.djl_sif + " - " + slotProps.option.djl_naziv
@@ -216,8 +206,7 @@
               fluid
               :disabled="!vrstaIzracuna || isImovina"
               :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'"
-            />
+              :tabindex="isReadonly ? '-1' : '0'" />
             <div class="info-div">
               <font-awesome-icon :icon="'info-circle'" style="display: none" />
             </div>
@@ -228,22 +217,19 @@
             <div
               class="radio-button-container"
               :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'"
-            >
+              :tabindex="isReadonly ? '-1' : '0'">
               <div
                 v-for="s in scenariji"
                 :key="s.tvs_id"
                 :title="s.tvs_naziv"
-                class="radio-button"
-              >
+                class="radio-button">
                 <RadioButton
                   v-model="scenarij"
                   :input-id="s.tvs_sif"
                   :value="s.tvs_sif"
                   name="scenarij"
                   :class="{ readonly: isReadonly }"
-                  :tabindex="isReadonly ? '-1' : '0'"
-                />
+                  :tabindex="isReadonly ? '-1' : '0'" />
                 <label :for="s.tvs_sif">{{ s.tvs_sif }}</label>
               </div>
             </div>
@@ -260,8 +246,7 @@
               readonly
               :disabled="!vrstaIzracuna"
               :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'"
-            />
+              :tabindex="isReadonly ? '-1' : '0'" />
             <div class="info-div">
               <font-awesome-icon :icon="'info-circle'" style="display: none" />
             </div>
@@ -278,8 +263,7 @@
               readonly
               :disabled="!vrstaIzracuna"
               :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'"
-            />
+              :tabindex="isReadonly ? '-1' : '0'" />
             <div class="info-div">
               <font-awesome-icon :icon="'info-circle'" style="display: none" />
             </div>
@@ -296,8 +280,7 @@
               placeholder="Napomena"
               fluid
               :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'"
-            />
+              :tabindex="isReadonly ? '-1' : '0'" />
             <div class="info-div">
               <font-awesome-icon :icon="'info-circle'" style="display: none" />
             </div>
@@ -308,8 +291,7 @@
               <!--@click="visibleSaveDialog = true"-->
               <font-awesome-icon
                 :icon="idIzracuna ? 'lock' : 'save'"
-                class="save-icon"
-              />
+                class="save-icon" />
               Spremi i zaključaj
             </button>
 
@@ -340,8 +322,7 @@
               'id',
               cardStore.cardId
             )
-          "
-        >
+          ">
           <span>Mjere prilagodbe</span>
           <font-awesome-icon icon="arrow-right-long" />
         </button>
@@ -357,8 +338,7 @@
             flex-direction: column;
             gap: 5px;
             max-width: 600px;
-          "
-        >
+          ">
           <span v-for="n in 11" :key="n" style="display: flex; gap: 5px">
             <Skeleton width="7rem" height="2rem" />
             <Skeleton width="100%" height="2rem" />
@@ -372,15 +352,13 @@
       class="alert-popup"
       :visible="isNespremljenePromjenePopupVisible"
       @confirm="confirmLeave"
-      @cancel="cancelLeave"
-    />
+      @cancel="cancelLeave" />
     <LoadingSpremanje
       v-if="isLoadingPopupVisible"
       :message="'Spremanje promjena...'"
       :description="'Ovo može potrajati 10-ak sekundi.'"
       :loader="'SI'"
-      class="loading-popup"
-    />
+      class="loading-popup" />
   </div>
 </template>
 
@@ -402,10 +380,6 @@ import { saveForm } from "~/service/kpkr/form";
 import { getCalculations } from "~/service/kpkr/calculations";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css"; // Stilovi za traku učitavanja
-
-definePageMeta({
-  middleware: ["izracun"],
-});
 
 const toast = useToast();
 const confirm = useConfirm();

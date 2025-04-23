@@ -20,9 +20,6 @@ import { useKespStore } from '#imports';
 
 definePageMeta({
     requiredRole: "AP002",
-    middleware: [
-        'kesp'
-    ],
 });
 
 const vehicleStore = useVehicleStore();

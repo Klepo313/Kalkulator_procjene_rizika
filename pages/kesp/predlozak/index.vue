@@ -21,8 +21,7 @@
                   fluid
                   icon-display="input"
                   placeholder="Početni datum"
-                  readonly
-                />
+                  readonly />
               </div>
               <div>
                 <label for="endDate"> Kraj razdoblja: </label>
@@ -34,8 +33,7 @@
                   fluid
                   icon-display="input"
                   placeholder="Krajnji datum"
-                  readonly
-                />
+                  readonly />
               </div>
             </div>
           </div>
@@ -84,8 +82,7 @@
                 <button
                   class="ukloni-btn"
                   :disabled="!selectedVozilo"
-                  @click="openVoziloDeleteDialog"
-                >
+                  @click="openVoziloDeleteDialog">
                   <font-awesome-icon icon="minus" />
                   Ukloni emisiju
                 </button>
@@ -107,8 +104,7 @@
               :rows="5"
               data-key="usi_id"
               striped-rows
-              class="datatable"
-            >
+              class="datatable">
               <template #empty> Nema spremljenih emisija </template>
               <template #loading>
                 Učitavanje emisija. Molimo pričekajte.
@@ -118,8 +114,7 @@
                 <div style="display: flex; align-items: center; gap: 5px">
                   <font-awesome-icon
                     :icon="getVehicleIcon(slotProps.data.uge_naziv)"
-                    style="margin-right: 5px"
-                  />
+                    style="margin-right: 5px" />
                   <span>
                     {{ slotProps.data.uge_naziv }}
                   </span>
@@ -132,8 +127,7 @@
                     text-align: right;
                     display: flex;
                     justify-content: space-between;
-                  "
-                >
+                  ">
                   <!-- <font-awesome-icon :icon="getVehicleIcon(slotProps.data.uge_naziv)"
                                         style="margin-right: 5px;" /> -->
                   Ukupno
@@ -203,20 +197,17 @@
                           slotProps.data.uvg_knaziv.charAt(0) === 'R',
                       },
                       { 'cng-tag': slotProps.data.uvg_knaziv === 'CNG' },
-                    ]"
-                  />
+                    ]" />
                 </template>
               </Column>
               <Column
                 field="potrosnjaGoriva"
                 header="Potrošnja energenata"
-                sortable
-              >
+                sortable>
                 <template #body="slotProps">
                   <span
                     v-if="Number(slotProps.data.usi_kolicina) == 0"
-                    style="opacity: 0.6"
-                  >
+                    style="opacity: 0.6">
                     {{ "/" }}
                   </span>
                   <span v-else>
@@ -254,8 +245,7 @@
               header="Dodaj emisiju"
               :modal="true"
               :style="{ width: '500px' }"
-              @hide="resetTempVozilo"
-            >
+              @hide="resetTempVozilo">
               <form class="p-fluid" @submit.prevent="saveVozilo">
                 <div class="field">
                   <label for="skupinaVozila">Izvor emisija</label>
@@ -265,8 +255,7 @@
                     :options="vrsteSkupina"
                     option-label="uge_naziv"
                     placeholder="Odaberi izvor emisije"
-                    required
-                  />
+                    required />
                   <!--@change="onSkupinaChange"-->
                 </div>
 
@@ -276,8 +265,7 @@
                     <font-awesome-icon
                       v-if="odabranaSkupina?.br_vozila && !vrsteEmisija"
                       icon="spinner"
-                      spin
-                    />
+                      spin />
                   </label>
                   <Select
                     v-if="parseInt(odabranaSkupina?.br_vozila)"
@@ -289,8 +277,7 @@
                       odabranaSkupina?.uge_plh_uvv || 'Vrsta emisije'
                     "
                     :disabled="!vrsteEmisija"
-                    required
-                  />
+                    required />
                   <!--@change="onVrstaChange"-->
                   <InputText
                     v-else
@@ -300,8 +287,7 @@
                       odabranaSkupina?.uge_plh_uvv || 'Vrsta emisije'
                     "
                     :disabled="!odabranaSkupina"
-                    required
-                  />
+                    required />
                 </div>
 
                 <div class="field">
@@ -313,8 +299,7 @@
                         (!vrsteEnergenata || !vrsteEnergenata.length)
                       "
                       icon="spinner"
-                      spin
-                    />
+                      spin />
                   </label>
                   <Select
                     id="gorivo"
@@ -323,8 +308,7 @@
                     option-label="uvg_knaziv"
                     :placeholder="odabranaSkupina?.uge_plh_uvg || 'Energent'"
                     required
-                    :disabled="!vrsteEnergenata || !vrsteEnergenata.length"
-                  >
+                    :disabled="!vrsteEnergenata || !vrsteEnergenata.length">
                     <!--@change="onGorivoChange"-->
                     <template #option="slotProps">
                       {{ slotProps.option?.uvg_knaziv }}/{{
@@ -352,8 +336,7 @@
                       !odabraniEnergent ||
                       Object.keys(odabraniEnergent).length == 0
                     "
-                    onfocus="this.select()"
-                  />
+                    onfocus="this.select()" />
                 </div>
 
                 <template v-if="odabraniEnergent?.uvg_oznaka">
@@ -369,15 +352,13 @@
                   <button
                     type="button"
                     class="p-button p-component p-button-secondary"
-                    @click="voziloDialogVisible = false"
-                  >
+                    @click="voziloDialogVisible = false">
                     Odustani
                   </button>
                   <button
                     class="submitBtn"
                     type="submit"
-                    :disabled="!isFormDirty"
-                  >
+                    :disabled="!isFormDirty">
                     Spremi
                   </button>
                 </div>
@@ -390,8 +371,7 @@
               :style="{ minWidth: '1000px', maxWidth: '1400px' }"
               header="Izračun emisija iz rashladnih uređaja"
               :modal="true"
-              @hide="gwpDialogHide"
-            >
+              @hide="gwpDialogHide">
               <span class="field">
                 <label for="vrstaSredstva">Vrsta rashladnog sredstva</label>
                 <InputText
@@ -400,8 +380,7 @@
                   style="width: min-content"
                   :value="odabraniEnergent?.uvg_naziv"
                   required
-                  readonly
-                />
+                  readonly />
               </span>
               <DataTable
                 v-model:editing-rows="gwpRed"
@@ -409,14 +388,12 @@
                 :value="gwpIzracuni"
                 edit-mode="row"
                 @row-edit-save="onGwpIzracunSave"
-                @row-edit-cancel="onGwpIzracunCancel"
-              >
+                @row-edit-cancel="onGwpIzracunCancel">
                 <template #empty> Nema prethodnih izračuna </template>
                 <Column
                   field="ugr_naziv"
                   header="Vrsta rashladnog uređaja"
-                  style="min-width: 12rem; max-width: 14rem"
-                >
+                  style="min-width: 12rem; max-width: 14rem">
                   <template #editor="{ data, field }">
                     <Select
                       v-model="data[field]"
@@ -424,42 +401,36 @@
                       option-label="ugr_naziv"
                       option-value="ugr_naziv"
                       placeholder="Vrsta rashladnog uređaja"
-                      fluid
-                    />
+                      fluid />
                   </template>
                 </Column>
                 <Column
                   field="uir_brjed"
                   header="Broj jedinica"
-                  style="width: 10%; min-width: 8rem"
-                >
+                  style="width: 10%; min-width: 8rem">
                   <template #editor="{ data, field }">
                     <InputNumber
                       v-model="data[field]"
                       placeholder="0"
                       min="1"
-                      fluid
-                    />
+                      fluid />
                   </template>
                 </Column>
                 <Column
                   field="uir_kapacitet"
                   header="Količina rashladnog sredstva u sustavu (kg)"
-                  style="min-width: 8rem"
-                >
+                  style="min-width: 8rem">
                   <template #editor="{ data, field }">
                     <InputNumber
                       v-model="data[field]"
                       placeholder="0"
                       min="1"
-                      fluid
-                    />
+                      fluid />
                   </template>
                 </Column>
                 <Column
                   field="uir_ugradnja"
-                  header="Izvještajna godina bila je godina ugradnje rashladnih uređaja"
-                >
+                  header="Izvještajna godina bila je godina ugradnje rashladnih uređaja">
                   <!--style="min-width: 8rem"-->
                   <template #editor="{ data, field }">
                     <Select
@@ -468,27 +439,23 @@
                       option-label="value"
                       option-value="label"
                       placeholder="Da/Ne"
-                      fluid
-                    >
+                      fluid>
                       <template #option="slotProps">
                         <Tag
                           :value="slotProps.option.value"
-                          :severity="getStatusLabel(slotProps.option.label)"
-                        />
+                          :severity="getStatusLabel(slotProps.option.label)" />
                       </template>
                     </Select>
                   </template>
                   <template #body="slotProps">
                     <Tag
                       :value="returnStatus(slotProps.data.uir_ugradnja)"
-                      :severity="getStatusLabel(slotProps.data.uir_ugradnja)"
-                    />
+                      :severity="getStatusLabel(slotProps.data.uir_ugradnja)" />
                   </template>
                 </Column>
                 <Column
                   field="uir_rad"
-                  header="Izvještajna godina bila je godina normalnog rada rashladnih uređaja"
-                >
+                  header="Izvještajna godina bila je godina normalnog rada rashladnih uređaja">
                   <template #editor="{ data, field }">
                     <Select
                       v-model="data[field]"
@@ -496,27 +463,23 @@
                       option-label="value"
                       option-value="label"
                       placeholder="Da/Ne"
-                      fluid
-                    >
+                      fluid>
                       <template #option="slotProps">
                         <Tag
                           :value="slotProps.option.value"
-                          :severity="getStatusLabel(slotProps.option.label)"
-                        />
+                          :severity="getStatusLabel(slotProps.option.label)" />
                       </template>
                     </Select>
                   </template>
                   <template #body="slotProps">
                     <Tag
                       :value="returnStatus(slotProps.data.uir_rad)"
-                      :severity="getStatusLabel(slotProps.data.uir_rad)"
-                    />
+                      :severity="getStatusLabel(slotProps.data.uir_rad)" />
                   </template>
                 </Column>
                 <Column
                   field="uir_kraj"
-                  header="Izvještajna godina bile je godina u kojoj se oprema demontirala/zbrinula"
-                >
+                  header="Izvještajna godina bile je godina u kojoj se oprema demontirala/zbrinula">
                   <template #editor="{ data, field }">
                     <Select
                       v-model="data[field]"
@@ -524,21 +487,18 @@
                       option-label="value"
                       option-value="label"
                       placeholder="Da/Ne"
-                      fluid
-                    >
+                      fluid>
                       <template #option="slotProps">
                         <Tag
                           :value="slotProps.option.value"
-                          :severity="getStatusLabel(slotProps.option.label)"
-                        />
+                          :severity="getStatusLabel(slotProps.option.label)" />
                       </template>
                     </Select>
                   </template>
                   <template #body="slotProps">
                     <Tag
                       :value="returnStatus(slotProps.data.uir_kraj)"
-                      :severity="getStatusLabel(slotProps.data.uir_kraj)"
-                    />
+                      :severity="getStatusLabel(slotProps.data.uir_kraj)" />
                   </template>
                 </Column>
                 <Column field="uir_emisija" header="Emisija eCO2/kg">
@@ -561,8 +521,7 @@
                     // pcRowEditorInit: { class: 'custom-icon-class' },
                     // pcRowEditorSave: { class: 'custom-icon-class' },
                     // pcRowEditorCancel: { class: 'custom-icon-class' }
-                  }"
-                >
+                  }">
                   <template #roweditoriniticon> Uredi </template>
                   <template #roweditorsaveicon> Dodaj </template>
                   <template #roweditorcancelicon> Izbriši </template>
@@ -572,8 +531,7 @@
                   <span
                     class="gwp-calc"
                     style="margin-top: 20px"
-                    @click="addNewRow"
-                  >
+                    @click="addNewRow">
                     <font-awesome-icon icon="plus" class="calc-icon" />
                     <span>Dodaj izračun</span>
                   </span>
@@ -585,26 +543,22 @@
                 severity="error"
                 size="small"
                 variant="simple"
-                style="margin-top: 10px"
-              >
+                style="margin-top: 10px">
                 <font-awesome-icon
                   icon="exclamation-triangle"
-                  style="color: red"
-                />
+                  style="color: red" />
                 {{ row.message }}
               </Message>
               <template #footer>
                 <button
                   class="p-button p-component p-button-secondary"
-                  @click="gwpDialogVisible = false"
-                >
+                  @click="gwpDialogVisible = false">
                   Odustani
                 </button>
                 <button
                   class="submitBtn"
                   :disabled="!needUpdate"
-                  @click="saveGwpIzracun"
-                >
+                  @click="saveGwpIzracun">
                   Spremi
                 </button>
               </template>
@@ -615,8 +569,7 @@
               v-model:visible="deleteVoziloDialog"
               :style="{ width: '450px' }"
               header="Ukloni emisiju"
-              :modal="true"
-            >
+              :modal="true">
               <div class="flex items-center gap-4">
                 <template v-if="selectedVozilo">
                   Izvor emisija: <b>{{ selectedVozilo.uge_naziv }}</b> <br />
@@ -643,8 +596,7 @@
               <template #footer>
                 <button
                   class="p-button p-component p-button-secondary"
-                  @click="deleteVozilo"
-                >
+                  @click="deleteVozilo">
                   Ukloni
                 </button>
                 <button class="submitBtn" @click="deleteVoziloDialog = false">
@@ -665,51 +617,44 @@
               <font-awesome-icon
                 icon="expand"
                 class="expand-icon"
-                @click="openFullscreen('pie')"
-              />
+                @click="openFullscreen('pie')" />
             </span>
             <Chart
               type="pie"
               :data="chartData"
               :options="chartOptions"
-              class="w-full md:w-[30rem]"
-            />
+              class="w-full md:w-[30rem]" />
           </div>
 
           <!-- Energy Consumption Chart -->
           <div
             v-if="vozila.length"
             class="chart-container"
-            style="margin-top: 20px"
-          >
+            style="margin-top: 20px">
             <span>
               <p>Potrošnja energenata (%)</p>
               <font-awesome-icon
                 icon="expand"
                 class="expand-icon"
-                @click="openFullscreen('polar')"
-              />
+                @click="openFullscreen('polar')" />
             </span>
             <Chart
               type="pie"
               :data="polarChartData"
               :options="chartOptions"
-              class="w-full md:w-[30rem]"
-            />
+              class="w-full md:w-[30rem]" />
           </div>
 
           <!-- Fullscreen Chart Modal -->
           <div
             v-if="fullscreenChart"
             class="fullscreen-overlay"
-            @click="closeFullscreen"
-          >
+            @click="closeFullscreen">
             <div class="fullscreen-chart" @click.stop>
               <font-awesome-icon
                 icon="times"
                 class="close-icon"
-                @click="closeFullscreen"
-              />
+                @click="closeFullscreen" />
               <span v-if="fullscreenChart === 'pie'">
                 <h2>Emisije eCO<sub>2</sub>/kg (%)</h2>
               </span>
@@ -721,15 +666,13 @@
                 type="pie"
                 :data="chartData"
                 :options="chartOptions"
-                class="fullscreen-chart-content"
-              />
+                class="fullscreen-chart-content" />
               <Chart
                 v-if="fullscreenChart === 'polar'"
                 type="pie"
                 :data="polarChartData"
                 :options="chartOptions"
-                class="fullscreen-chart-content"
-              />
+                class="fullscreen-chart-content" />
             </div>
           </div>
         </div>
@@ -761,10 +704,6 @@ import {
 import InputNumber from "primevue/inputnumber";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
-
-definePageMeta({
-  middleware: ["kesp"],
-});
 
 const props = defineProps({
   sectionTitle: String,

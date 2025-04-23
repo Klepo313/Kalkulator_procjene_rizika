@@ -6,8 +6,7 @@
         src="../../public/static/images/KESP_logo_sidebar.svg"
         style="height: 100%; cursor: pointer"
         alt="logo"
-        @click="navigateTo('/')"
-      />
+        @click="navigateTo('/')" />
       <div class="header-buttons">
         <button class="novi-predlozak" @click="noviDialogVisible = true">
           <font-awesome-icon icon="plus" class="plus-icon" />
@@ -16,8 +15,7 @@
         <button class="logout" @click="doLogout">
           <font-awesome-icon
             icon="arrow-right-from-bracket"
-            class="logout-icon"
-          />
+            class="logout-icon" />
           Odjava
         </button>
       </div>
@@ -48,8 +46,7 @@
               'uiz_godina',
               'uiz_razdoblje',
             ]"
-            @row-select="onRowSelect"
-          >
+            @row-select="onRowSelect">
             <template #header>
               <div class="flex justify-end">
                 <IconField>
@@ -59,8 +56,7 @@
                   <InputText
                     v-model="filters['global'].value"
                     placeholder="Pretraži prethodne izračune"
-                    class="search-field max"
-                  />
+                    class="search-field max" />
                 </IconField>
               </div>
             </template>
@@ -73,8 +69,7 @@
               field="uiz_broj"
               header="Broj"
               sortable
-              style="width: 100px"
-            >
+              style="width: 100px">
               <template #body="slotProps">
                 {{ slotProps.data.uiz_broj || "--" }}
               </template>
@@ -83,8 +78,7 @@
               field="uiz_opis"
               header="Naziv"
               sortable
-              style="width: auto"
-            >
+              style="width: auto">
               <template #body="slotProps">
                 {{ slotProps.data.uiz_opis || "--" }}
               </template>
@@ -129,8 +123,7 @@
       header="Novi predložak"
       :modal="true"
       :style="{ width: '450px' }"
-      @hide="resetForm"
-    >
+      @hide="resetForm">
       <form class="pop-up-novo" @submit.prevent="addIzracun">
         <div class="opisnap">
           <label for="opis"> Naziv<span class="required">*</span> </label>
@@ -139,8 +132,7 @@
             v-model="opis"
             type="text"
             placeholder="Unesi naziv"
-            required
-          />
+            required />
         </div>
         <div>
           <label for="startDate">
@@ -155,8 +147,7 @@
             icon-display="input"
             placeholder="Unesi datum"
             required
-            show-button-bar
-          />
+            show-button-bar />
           <!--@blur="setEndDate"-->
         </div>
         <div>
@@ -172,22 +163,19 @@
             fluid
             icon-display="input"
             placeholder="Unesi datum"
-            required
-          />
+            required />
         </div>
         <div class="opisnap">
           <label for="napomena"> Napomena </label>
           <Textarea
             id="napomena"
             v-model="napomena"
-            placeholder="Unesi napomenu"
-          />
+            placeholder="Unesi napomenu" />
         </div>
         <div class="dialog-footer">
           <span
             class="p-button p-component p-button-secondary"
-            @click="noviDialogVisible = false"
-          >
+            @click="noviDialogVisible = false">
             Odustani
           </span>
           <button
@@ -196,8 +184,7 @@
               ((!opis || !datumOd || !datumDo) && isLocked) || blockButton
             "
             class="submitBtn"
-            :click="isLocked == true"
-          >
+            :click="isLocked == true">
             <font-awesome-icon icon="save" class="dialog-plus-icom" />
             Spremi predložak
           </button>
@@ -208,8 +195,7 @@
       v-if="loadingDalje"
       :message="'Učitavanje izračuna...'"
       :loader="'UI'"
-      class="loading-popup"
-    />
+      class="loading-popup" />
   </div>
 </template>
 
@@ -223,11 +209,12 @@ import LoadingSpremanje from "~/components/ostalo/LoadingSpremanje.vue";
 
 definePageMeta({
   requiredRole: "AP002",
-})
+});
 
 const kespStore = useKespStore();
 
 const toast = useToast();
+const toastMessage = useState("toastMessage");
 
 const filters = ref({
   global: { value: "", matchMode: "contains" },
@@ -261,15 +248,9 @@ watch(datumOd, () => {
 });
 
 const onRowSelect = async () => {
-  // console.log("Uspješno dohvaćen izračun.", odabraniIzracun.value);
   loadingDalje.value = true;
   try {
-    // Dodavanje šifrovane vrednosti u URL
     const url = `/kesp/predlozak?id=${odabraniIzracun.value.uiz_id.toString()}`;
-    // console.log("url: " + url);
-    // console.log('id: ', odabraniIzracun.value.uiz_id.toString()); // Spremanje ID-a u cookie
-
-    // Navigacija sa 'replace' kako bi se izbeglo dupliranje rute u istoriji
     await navigateTo(url, { replace: true });
     kespStore.setKespId(odabraniIzracun.value.uiz_id);
   } catch (error) {
@@ -291,6 +272,16 @@ const resetForm = () => {
 // const chartOptions = ref();
 
 onMounted(async () => {
+  if (toastMessage.value) {
+    toast.add({
+      severity: "error",
+      summary: "Neispravan ID",
+      detail: toastMessage.value,
+      life: 4000,
+    });
+    toastMessage.value = null;
+  }
+
   kespStore.clearData();
   await kespStore.fetchPredlosci();
   // console.log(izracuni.value)
