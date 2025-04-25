@@ -14,7 +14,7 @@
           {{ userName }}
         </span>
         <span class="dialog-header-text-span span2">
-          {{ user?.epr_email || user?.epr_oib }}
+          {{ user?.epr_email || '(Nema spremljen email)' }}
         </span>
       </span>
     </template>
@@ -38,7 +38,11 @@
         <Column field="naslov" header="Naslov" sortable />
         <Column field="datum" header="Datum" sortable>
           <template #body="slotProps">
-            {{ parseIsoToDate(slotProps.data.datum).toLocaleString("en-GB", { timeZone: "UTC" }) }}
+            {{
+              parseIsoToDate(slotProps.data.datum).toLocaleString("en-GB", {
+                timeZone: "UTC",
+              })
+            }}
           </template>
         </Column>
       </DataTable>
@@ -51,6 +55,7 @@
         <button
           id="saveBtn"
           type="button"
+          :disabled="!user?.epr_email || !user?.eko_id || !user?.eko_par_id_za"
           @click="$emit('send-mail', user?.eko_id, user?.eko_par_id_za)">
           <font-awesome-icon icon="paper-plane" />
           Pošalji nove pristupne podatke korisniku
