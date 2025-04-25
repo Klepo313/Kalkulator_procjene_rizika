@@ -10,8 +10,7 @@
       <template #end>
         <button
           class="dodaj-partnera-btn"
-          @click="$emit('open-partner-dialog')"
-        >
+          @click="$emit('open-partner-dialog')">
           <font-awesome-icon icon="user-plus" />
           Dodaj partnera
         </button>
@@ -39,8 +38,7 @@
         'fizOsobeText',
       ]"
       table-style="min-width: 60rem"
-      @row-expand="onRowExpand"
-    >
+      @row-expand="onRowExpand">
       <template #header>
         <div class="global-search-container">
           <IconField class="global-search-iconfield input">
@@ -49,8 +47,7 @@
             </InputIcon>
             <InputText
               v-model="filters.global.value"
-              placeholder="Pretraži tvrtke"
-            />
+              placeholder="Pretraži tvrtke" />
           </IconField>
           <div class="global-search-iconfield refresh" @click="refreshData">
             <font-awesome-icon icon="rotate-right" class="refresh-icon" />
@@ -94,8 +91,7 @@
               !(slotProps.data.users && slotProps.data.users.length > 0) &&
               !userEmptyMessage
             "
-            class="loading-container"
-          >
+            class="loading-container">
             <font-awesome-icon icon="spinner" spin />
             Učitavanje korisnika
           </div>
@@ -115,8 +111,7 @@
                 <div style="margin: 5px 0px">
                   <span
                     class="dodaj-korisnika"
-                    @click="$emit('open-new-user-dialog', slotProps.data)"
-                  >
+                    @click="$emit('open-new-user-dialog', slotProps.data)">
                     <font-awesome-icon icon="plus" />
                     Dodaj korisnički račun
                   </span>
@@ -130,25 +125,22 @@
               <Column
                 field="epr_ime"
                 header="Ime"
-                header-style="width: 20%; min-width: 10rem"
-              />
+                header-style="width: 20%; min-width: 10rem" />
               <Column
                 field="epr_prezime"
                 header="Prezime"
-                header-style="width: 20%; min-width: 10rem"
-              />
+                header-style="width: 20%; min-width: 10rem" />
               <Column
                 field="epr_email"
                 header="Email"
-                header-style="width: 25%; min-width: 10rem"
-              >
+                header-style="width: 25%; min-width: 10rem">
                 <template #body="{ data }">
                   <a
                     v-if="data?.epr_email"
                     target="_blank"
                     :href="'mailto:' + data?.epr_email"
-                    >{{ data?.epr_email }}</a
-                  >
+                    >{{ data?.epr_email }}
+                  </a>
                   <span v-else style="font-style: italic; opacity: 0.6">/</span>
                 </template>
               </Column>
@@ -156,13 +148,11 @@
                 field="aktivan"
                 header="Status"
                 :show-filter-menu="false"
-                style="width: 3rem"
-              >
+                style="width: 3rem">
                 <template #body="{ data }">
                   <Tag
                     :value="data?.aktivan ? 'Aktivan' : 'Neaktivan'"
-                    :severity="getSeverity(data?.aktivan)"
-                  />
+                    :severity="getSeverity(data?.aktivan)" />
                 </template>
                 <template #filter="{ filterModel, filterCallback }">
                   <Select
@@ -171,13 +161,11 @@
                     placeholder="Odaberi status"
                     style="min-width: 12rem"
                     :show-clear="true"
-                    @change="filterCallback"
-                  >
+                    @change="filterCallback">
                     <template #option="slotProps">
                       <Tag
                         :value="slotProps.option"
-                        :severity="getSeverity(slotProps.option)"
-                      />
+                        :severity="getSeverity(slotProps.option)" />
                     </template>
                   </Select>
                 </template>
@@ -185,23 +173,49 @@
               <Column header-style="width: 5rem;">
                 <template #body="{ data }">
                   <div
-                    style="display: flex; justify-content: flex-end; gap: 10px"
-                  >
-                    <span
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: flex-end;
+                      gap: 10px;
+                    ">
+                    <!-- <span
+                      v-tooltip.left="'Povijest slanja e-pošte'"
+                      class="edit-btn"
+                      @click="$emit('mail-log', data)">
+                      <font-awesome-icon icon="list-ul" />
+                    </span> -->
+                    <OverlayBadge
+                      :severity="
+                        !data?.eko_inicijalno && data?.epr_email
+                          ? 'warn'
+                          : 'success'
+                      ">
+                      <span
+                        v-tooltip.top="
+                          'Povijest slanja e-pošte' +
+                          (!data?.eko_inicijalno && data?.epr_email
+                            ? ' (račun nije aktiviran)'
+                            : ' (račun aktiviran)')
+                        "
+                        class="edit-btn"
+                        @click="$emit('mail-log', data)">
+                        <font-awesome-icon icon="envelope" />
+                      </span>
+                    </OverlayBadge>
+                    <!-- <span
                       v-if="!data?.eko_inicijalno && data?.epr_email"
-                      v-tooltip.left="'Pošalji email korisniku'"
+                      v-tooltip.top="'Pošalji email korisniku'"
                       class="edit-btn"
                       @click="
                         $emit('send-mail', data?.eko_id, data?.eko_par_id_za)
-                      "
-                    >
+                      ">
                       <font-awesome-icon icon="envelope" />
-                    </span>
+                    </span> -->
                     <span
                       class="edit-btn"
                       @click="$emit('edit-user', data)"
-                      v-tooltip.left="'Uredi korisnika'"
-                    >
+                      v-tooltip.top="'Uredi korisnika'">
                       <font-awesome-icon icon="user-pen" />
                     </span>
                   </div>
@@ -343,6 +357,10 @@ onMounted(async () => {
 
 :deep(.p-datatable-row-toggle-button) {
   width: auto !important;
+  height: auto !important;
+}
+
+:deep(.p-overlaybadge) {
   height: auto !important;
 }
 
