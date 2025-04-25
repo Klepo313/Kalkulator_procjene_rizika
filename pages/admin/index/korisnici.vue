@@ -16,8 +16,7 @@
               label="Odustani"
               severity="secondary"
               class="p-button-text"
-              @click="rejectCallback()"
-            />
+              @click="rejectCallback()" />
             <button class="dodaj-btn" @click="acceptCallback()">
               <font-awesome-icon icon="paper-plane" />
               Pošalji
@@ -40,8 +39,8 @@
             @open-new-user-dialog="openNewUserDialogHandler"
             @open-partner-dialog="partnerDialog = true"
             @send-mail="sendMail"
-            @edit-user="editUser"
-          />
+            @mail-log="mailLog"
+            @edit-user="editUser" />
         </section>
       </div>
     </main>
@@ -51,27 +50,24 @@
       :user="selectedUser"
       @update:visible="editUserDialog = $event"
       @save="handleSaveUser"
-      @send-mail="sendMail"
-    />
+      @send-mail="sendMail" />
     <NewUserDialog
       :visible="newUserDialog"
       :tvrtke="PRVpartneri"
       :osobe="searchFIZosobe"
       :tvrtka="selectedTvrtka"
       @update:visible="newUserDialog = $event"
-      @submit="handleNewUser"
-    />
+      @submit="handleNewUser" />
     <PartnerDialog
       :visible="partnerDialog"
       @update:visible="partnerDialog = $event"
-      @submit="handleNewPartner"
-    />
+      @submit="handleNewPartner" />
     <MailLogsDialog
       :visible="mailLogsDialog"
       :mailLogs="mailLogs"
       :user="selectedUser"
       @update:visible="mailLogsDialog = $event"
-    />
+      @send-mail="sendMail" />
     <footer />
   </div>
 </template>
@@ -84,7 +80,7 @@ import MailLogsDialog from "~/components/admin/dialogs/MailLogsDialog.vue";
 import NewUserDialog from "~/components/admin/dialogs/NewUserDialog.vue";
 import PartnerDialog from "~/components/admin/dialogs/PartnerDialog.vue";
 import { useKorisniciStore } from "#build/imports";
-import { checkIfEmailIsSent } from "~/service/admin/users";
+import { checkIfEmailIsSent, getMailLog } from "~/service/admin/users";
 import { getPravaForUser, getUser } from "~/service/user/user";
 
 const editUserDialog = ref(false);
@@ -95,9 +91,9 @@ const selectedUser = ref(null);
 const selectedTvrtka = ref(null);
 const prava = ref([]);
 const mailLogs = ref([
-  { id: 1, naziv: "Generirani korisnički podataci", date: "12/12/2024" },
-  { id: 2, naziv: "Uređivanje korisničkih podataka", date: "11/11/2024" },
-  { id: 3, naziv: "Generiranje e-pošte", date: "10/10/2024" },
+  // { id: 1, naziv: "Generirani korisnički podataci", date: "12/12/2024" },
+  // { id: 2, naziv: "Uređivanje korisničkih podataka", date: "11/11/2024" },
+  // { id: 3, naziv: "Generiranje e-pošte", date: "10/10/2024" },
 ]);
 const confirm = useConfirm();
 const toast = useToast();
@@ -123,9 +119,29 @@ const findPRVpartner = (epr_id) => {
   return PRVpartneri.value.find((partner) => partner.epr_id === epr_id);
 };
 
+const fetchMailLogs = async (eko_id) => {
+  try {
+    const response = await getMailLog(eko_id);
+    mailLogs.value = response?.message ? [] : response;
+    console.log("Mail logs: ", mailLogs.value);
+  } catch (error) {
+    console.error("Error fetching mail logs:", error);
+  }
+};
+
+const mailLog = async (data) => {
+  selectedUser.value = data;
+  try {
+    await fetchMailLogs(data?.eko_id);
+  } catch (error) {
+    console.error("Error fetching mail logs on show:", error);
+  }
+  mailLogsDialog.value = true;
+};
+
 const sendMail = (eko_id, eko_par_id_za) => {
-  console.log("eko_id: ", eko_id);
-  console.log("eko_par_id_za: ", eko_par_id_za);
+  // console.log("eko_id: ", eko_id);
+  // console.log("eko_par_id_za: ", eko_par_id_za);
 
   let infoToastId = null;
 

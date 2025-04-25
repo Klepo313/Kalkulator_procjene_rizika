@@ -122,7 +122,7 @@
                 </div>
               </div>
               <hr />
-              <div class="section">
+              <!-- <div class="section">
                 <div class="field-heading">
                   <h2 class="p-text-bold">Pošalji mail korisniku</h2>
                   <p>
@@ -141,7 +141,7 @@
                   </button>
                 </div>
               </div>
-              <hr>
+              <hr> -->
               <div class="section">
                 <div class="field-heading">
                   <h2 class="p-text-bold">Prava korisnika</h2>

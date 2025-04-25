@@ -141,7 +141,7 @@ p {
 
 @media screen and (max-width: 1120px) {
   .indicator,
-  .page {
+  .body.page {
     display: none;
   }
 

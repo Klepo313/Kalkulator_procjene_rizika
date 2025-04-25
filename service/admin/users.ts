@@ -178,3 +178,15 @@ export const saveUser = async (data: unknown): Promise<unknown> => {
         return null;
     }
 };
+
+export const getMailLog = async (id: string | number): Promise<unknown> => {
+    const { $api } = useNuxtApp();
+    try {    
+        const response = await $api.get(`/user/${id}/email`);
+        // console.log("Mail log: ", response.data);
+        return response.data;
+    } catch (error) {
+        // console.error('Greška pri dohvaćanju mail loga: ', error);
+        return null;
+    }
+}
