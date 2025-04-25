@@ -90,11 +90,7 @@ const mailLogsDialog = ref(false);
 const selectedUser = ref(null);
 const selectedTvrtka = ref(null);
 const prava = ref([]);
-const mailLogs = ref([
-  // { id: 1, naziv: "Generirani korisnički podataci", date: "12/12/2024" },
-  // { id: 2, naziv: "Uređivanje korisničkih podataka", date: "11/11/2024" },
-  // { id: 3, naziv: "Generiranje e-pošte", date: "10/10/2024" },
-]);
+const mailLogs = ref([]);
 const confirm = useConfirm();
 const toast = useToast();
 
@@ -120,10 +116,20 @@ const findPRVpartner = (epr_id) => {
 };
 
 const fetchMailLogs = async (eko_id) => {
+  mailLogs.value = [];
+
   try {
     const response = await getMailLog(eko_id);
-    mailLogs.value = response?.message ? [] : response;
-    console.log("Mail logs: ", mailLogs.value);
+
+    if (response?.message) {
+      mailLogs.value = [];
+    } else {
+      mailLogs.value = response.sort((a, b) => {
+        return new Date(b.datum).getTime() - new Date(a.datum).getTime();
+      });
+    }
+
+    console.log("Mail logs:", mailLogs.value);
   } catch (error) {
     console.error("Error fetching mail logs:", error);
   }
@@ -192,6 +198,7 @@ const sendMail = (eko_id, eko_par_id_za) => {
         });
       } finally {
         await korisniciStore.fetchKorisniciForLegalPartner(eko_par_id_za);
+        await fetchMailLogs(eko_id);
       }
     },
     reject: () => {

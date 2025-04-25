@@ -18,6 +18,16 @@ export function formatDateToDMY(dateString: string, delimiter: string): string {
 }
 
 /**
+ * Pretvara ISO timestamp u JavaScript Date objekt.
+ * @param isoString ISO 8601 string, npr. "2025-04-22T16:51:33.634Z"
+ * @returns Date objekt s ispravnim vremenom
+ */
+export const parseIsoToDate = (isoString: string): Date => {
+    return new Date(isoString);
+};
+
+
+/**
  * Vraća formatirani datum u formatu dd.mm.yyyy.
  * @param dateString Datum u formatu yyyy-mm-dd.
  * @returns Datum u formatu dd.mm.yyyy.

@@ -36,9 +36,9 @@
           </template>
         </Column>
         <Column field="naslov" header="Naslov" sortable />
-        <Column field="datum" header="Datum" sortable >
+        <Column field="datum" header="Datum" sortable>
           <template #body="slotProps">
-            {{ formatDateToDMY(slotProps.data.datum, '.') }}
+            {{ parseIsoToDate(slotProps.data.datum).toLocaleString("en-GB", { timeZone: "UTC" }) }}
           </template>
         </Column>
       </DataTable>
@@ -53,7 +53,7 @@
           type="button"
           @click="$emit('send-mail', user?.eko_id, user?.eko_par_id_za)">
           <font-awesome-icon icon="paper-plane" />
-          Pošalji novi mail korisniku
+          Pošalji nove pristupne podatke korisniku
         </button>
       </div>
     </template>
