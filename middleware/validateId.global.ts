@@ -1,75 +1,44 @@
-import { getIdFromUrl } from '~/utils/navigationHandler';
-import { useToast } from 'primevue/usetoast';
+// ~/middleware/validate-predlozak.global.ts
+import { useToast } from 'primevue/usetoast'
 
-// export default defineNuxtRouteMiddleware(async (to) => {
-//     const { $validateId } = useNuxtApp();
-//     const toast = useToast();
+export default defineNuxtRouteMiddleware(async (to, from) => {
+    const { $validateId } = useNuxtApp()
+    const toast = useToast()
 
-//     // Čitamo id iz URL parametra (client-only!)
-//     const id = getIdFromUrl();
-//     const path = to.path;
+    const path = to.path
+    const id = typeof to.query.id === 'string' ? to.query.id : null
+    console.log('ID:', id)
 
-//     const isKesp = path.startsWith('/kesp/predlozak');
-//     const isKpkr = path.startsWith('/kpkr/predlozak');
+    const isKespPredlozak = path.startsWith('/kesp/predlozak')
+    const isKpkrRoot = path === '/kpkr/predlozak'
+    const isKpkrMjere = path.startsWith('/kpkr/predlozak/mjere-prilagodbe')
+    const isKpkrRizik = path.startsWith('/kpkr/predlozak/rizik-sazetak')
+    const isKpkrChild = path.startsWith('/kpkr/predlozak')
 
-//     const shouldCheck = (isKpkr || isKesp) && id;
-
-//     const redirectBase = isKpkr
-//         ? '/kpkr/predlosci'
-//         : '/kesp/predlosci';
-
-//     console.log("shouldCheck: ", shouldCheck);
-//     console.log("id: ", id);
-//     console.log("path: ", path);
-
-//     if (!id && isKesp) {
-//         const toastMessage = useState('toastMessage', () => '');
-//         toastMessage.value = 'Nije predan id izračuna.';
-//         return navigateTo(redirectBase);
-//     }
-
-//     if (!shouldCheck) return;
-
-//     const isValid = await $validateId(id, path);
-
-//     if (!isValid) {
-//         const toastMessage = useState('toastMessage', () => '');
-//         toastMessage.value = 'Izračun nije moguće dohvatiti jer id nije valjan.';
-
-//         return navigateTo(redirectBase);
-//     }
-// });
-
-export default defineNuxtRouteMiddleware(async (to) => {
-    const { $validateId } = useNuxtApp();
-    const toast = useToast();
-
-    const path = to.path;
-    const id = typeof to.query.id === 'string' ? to.query.id : null;
-
-    const isKesp = path.startsWith('/kesp/predlozak');
-    const isKpkr = path.startsWith('/kpkr/predlozak');
-
-    const needsValidation = isKesp || isKpkr;
-
-    // Provjera: ruta zahtijeva ID, ali ga nema
-    if (needsValidation && !id) {
-        const redirectBase = isKesp ? '/kesp/predlosci' : '/kpkr/predlosci';
-        const toastMessage = useState('toastMessage', () => '');
-        toastMessage.value = 'ID parametar nedostaje u URL-u.';
-        return navigateTo(redirectBase);
+    // 1) KESP: svaki /kesp/predlozak* zahtijeva ID
+    if (isKespPredlozak && !id) {
+        useState('toastMessage', () => 'ID parametar nedostaje u URL-u.')
+        return navigateTo('/kesp/predlosci')
     }
 
-    if (!needsValidation || !id) return;
-
-    // Provjera validnosti ID-a
-    const isValid = await $validateId(id, path);
-
-    if (!isValid) {
-        const redirectBase = isKesp ? '/kesp/predlosci' : '/kpkr/predlosci';
-        const toastMessage = useState('toastMessage', () => '');
-        toastMessage.value = 'Predani ID parametar nije valjan.';
-        return navigateTo(redirectBase);
+    // 2) KPKR: mjere-prilagodbe i rizik-sazetak zahtijevaju ID
+    if ((isKpkrMjere || isKpkrRizik) && !id) {
+        useState('toastMessage', () => 'ID parametar nedostaje u URL-u.')
+        return navigateTo('/kpkr/predlosci')
     }
-});
 
+    // 3) Ako ima ID i radi se o nekoj predlozak-ruti (KESP ili KPKR bilo koji),
+    //    validiraj ID
+    if (id && (isKespPredlozak || isKpkrChild)) {
+        console.log('Validating ID...')
+        const valid = await $validateId(id, path)
+        console.log('Valid ID:', valid)
+        if (!valid) {
+            useState('toastMessage', () => 'Predani ID parametar nije valjan.')
+            const redirectBase = isKespPredlozak ? '/kesp/predlosci' : '/kpkr/predlosci'
+            return navigateTo(redirectBase)
+        }
+    }
+
+    // Otherwise, allow navigation
+})
