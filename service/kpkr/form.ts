@@ -1,9 +1,9 @@
 // formService.ts
 import { useNuxtApp } from '#app';
 
-export const getCalculationTypes = async (id?: number | string): Promise<unknown> => {
+export const getCalculationTypes = async (id?: number | string | null): Promise<unknown> => {
   const { $api } = useNuxtApp();
-  const url = id !== undefined ? `/form/calculation_types/${id}` : `/form/calculation_types`;
+  const url = id ? `/form/calculation_types/${id}` : `/form/calculation_types`;
 
   try {
     const response = await $api.get(url);
@@ -20,9 +20,9 @@ export const getCalculationTypes = async (id?: number | string): Promise<unknown
   }
 };
 
-export const getActivities = async (id?: number | string): Promise<unknown> => {
+export const getActivities = async (id?: number | string | null): Promise<unknown> => {
   const { $api } = useNuxtApp();
-  const url = id !== undefined ? `/form/activities/${id}` : `/form/activities`;
+  const url = id ? `/form/activities/${id}` : `/form/activities`;
 
   try {
     const response = await $api.get(url);
@@ -39,9 +39,9 @@ export const getActivities = async (id?: number | string): Promise<unknown> => {
   }
 };
 
-export const getMunicipalities = async (id?: number | string): Promise<unknown> => {
+export const getMunicipalities = async (id?: number | string | null): Promise<unknown> => {
   const { $api } = useNuxtApp();
-  const url = id !== undefined ? `/cadastre/municipality/${id}` : `/cadastre/municipality`;
+  const url = id ? `/cadastre/municipality/${id}` : `/cadastre/municipality`;
 
   try {
     const response = await $api.get(url);
@@ -58,9 +58,9 @@ export const getMunicipalities = async (id?: number | string): Promise<unknown> 
   }
 };
 
-export const getObjectTypes = async (id?: number | string): Promise<unknown> => {
+export const getObjectTypes = async (id?: number | string | null): Promise<unknown> => {
   const { $api } = useNuxtApp();
-  const url = id !== undefined ? `/form/object_types/${id}` : `/form/object_types`;
+  const url = id ? `/form/object_types/${id}` : `/form/object_types`;
 
   try {
     const response = await $api.get(url);
@@ -151,6 +151,6 @@ export const saveForm = async (data: any): Promise<unknown> => {
     };
   } catch (error) {
     // console.error('Saving error: ', error);
-    return 0;
+    return error;
   }
 };

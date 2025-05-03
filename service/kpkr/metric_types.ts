@@ -3,7 +3,7 @@ import { useNuxtApp } from '#app';
 
 export const getMetricTypes = async (id?: number | string): Promise<unknown> => {
     const { $api } = useNuxtApp();
-    const url = id !== undefined
+    const url = id
         ? `/calculation/${id}/metric_types`
         : `/form/metric_types`;
 
@@ -34,8 +34,8 @@ export const addMetricType = async (
             { metricTypeId: parseInt(metricTypeId.toString(), 10) },
             { headers: { 'Content-Type': 'application/json' } }
         );
-        // console.log(response.status);
-        return response.status;
+        // console.log("response dodavanja mjere: ", response);
+        return response;
     } catch (error) {
         // console.error('Saving error: ', error);
         return 0;
@@ -56,7 +56,7 @@ export const removeMetricType = async (
             }
         );
         // console.log(response.status);
-        return response.status;
+        return response;
     } catch (error: any) {
         // console.error('Error response:', error.response);
         // console.error('Saving error: ', error);

@@ -46,6 +46,15 @@ import {
 } from '~/service/kesp/fetchKespCalculations';
 import { mapByMatch } from '~/utils/dataFormatter';
 
+export interface Mjera {
+    tva_id: number    // internal ID
+    tva_sif: string    // šifra mjere
+    tva_naziv: string    // naziv mjere
+    tgr_naziv: string    // grupa mjere (npr. “Temperatura”)
+    tva_rbr?: number    // redni broj, ako ga koristite za sortiranje
+    tva_opis?: string    // opis mjere, ako ga imate
+}
+
 
 export const useUserStore = defineStore('user-store', {
     state: () => ({
@@ -171,8 +180,8 @@ export const useOpciStore = defineStore('opci-podaci', {
         scenariji: [],
     }),
     actions: {
-        async fetchCalculationTypes() {
-            const items = await getCalculationTypes();
+        async fetchCalculationTypes(id: string | null) {
+            const items = await getCalculationTypes(id);
 
             if (items?.status == 200) {
                 this.vrste_izracuna = items.data;
@@ -190,8 +199,8 @@ export const useOpciStore = defineStore('opci-podaci', {
             }
             // console.log("EKV: ", this.opci_podaci)
         },
-        async fetchObjectTypes() {
-            const items = await getObjectTypes();
+        async fetchObjectTypes(id: string | null) {
+            const items = await getObjectTypes(id);
 
             if (items?.status == 200) {
                 this.vrste_objekta = items.data;
@@ -199,8 +208,8 @@ export const useOpciStore = defineStore('opci-podaci', {
                 // console.error('Error fetching calculation types:', items?.status);
             }
         },
-        async fetchActivities() {
-            const items = await getActivities();
+        async fetchActivities(id: string | null) {
+            const items = await getActivities(id);
 
             if (items?.status == 200) {
                 this.djelatnosti = items.data;
@@ -208,8 +217,8 @@ export const useOpciStore = defineStore('opci-podaci', {
                 // console.error('Error fetching calculation types:', items?.status);
             }
         },
-        async fetchMunicipalities() {
-            const items = await getMunicipalities();
+        async fetchMunicipalities(id: string | null) {
+            const items = await getMunicipalities(id);
 
             if (items?.status == 200) {
                 this.katastarske_opcine = items.data;
@@ -279,36 +288,90 @@ export const useOpciStore = defineStore('opci-podaci', {
 
 export const useAdaptStore = defineStore('adaptacijske-mjere', {
     state: () => ({
-        odabrane_mjere: [],
-        adaptacijske_mjere: []
+        odabrane_mjere: [] as Mjera[],
+        adaptacijske_mjere: [] as Mjera[]
     }),
     actions: {
-        async fetchMetrictypes(id: string) {
-            const items = await getMetricTypes(id);
-
-            if (items?.status == 200) {
-                if (id) {
-                    if (!items.data.message) {
-                        this.odabrane_mjere = items.data
-                        // console.log("odabrane: ", this.odabrane_mjere)
-                    }
-                } else {
-                    // console.log("sve: ", items.data)
-                    this.adaptacijske_mjere = items.data
+        async fetchMetrictypes(id: string | null) {
+            try {
+                const response = await getMetricTypes(id)
+                if (response?.status !== 200) {
+                    console.error(`fetchMetrictypes error: ${response?.status}`)
+                    return
                 }
-            } else {
-                // console.error('Error fetching calculation types:', items?.status);
+
+                const data = response.data
+                // If server signals “no measures” via message
+                const list: Mjera[] = Array.isArray(data)
+                    ? // sort numeric ascending by tva_sif
+                    data.slice().sort((a, b) => a.tva_sif - b.tva_sif)
+                    : []
+
+                if (id) {
+                    // selected measures
+                    this.odabrane_mjere =
+                        typeof data === 'object' && 'message' in data
+                            ? []
+                            : list
+                } else {
+                    // all measures
+                    this.adaptacijske_mjere = list
+                }
+            } catch (err) {
+                console.error('fetchMetrictypes exception:', err)
             }
         },
         async addMetrictype(calculationId: string, metricTypeId: number) {
-            const status = await addMetricType(calculationId, metricTypeId);
-            return status;
+            try {
+                const response = await addMetricType(calculationId, metricTypeId)
+                if (response.status === 201) {
+                    await this.fetchMetrictypes(calculationId)
+
+                    return response.data
+                } else {
+                    console.error('addMetrictype failed:', response.status)
+                    throw new Error(`Server returned ${response.status}`)
+                }
+            } catch (err) {
+                console.error('addMetrictype error:', err)
+                throw err
+            }
         },
+
+        /**
+         * Ukloni jednu mjeru, s try/catch i osvježavanjem statea 
+         */
         async deleteMetrictype(calculationId: string, metricTypeId: number) {
-            const status = await removeMetricType(calculationId, metricTypeId);
-            return status;
-        }
+            try {
+                const response = await removeMetricType(calculationId, metricTypeId)
+                if (response.status === 200) {
+                    // optimistično uklanjanje iz lokalnog niza
+                    this.odabrane_mjere = this.odabrane_mjere.filter(
+                        (m) => m.tva_id !== metricTypeId
+                    )
+
+                    // ili:
+                    // await this.fetchMetrictypes(calculationId)
+
+                    return response.data
+                } else {
+                    console.error('deleteMetrictype failed:', response.status)
+                    throw new Error(`Server returned ${response.status}`)
+                }
+            } catch (err) {
+                console.error('deleteMetrictype error:', err)
+                throw err
+            }
+        },
     },
+    // async addMetrictype(calculationId: string, metricTypeId: number) {
+    //     const status = await addMetricType(calculationId, metricTypeId);
+    //     return status;
+    // },
+    // async deleteMetrictype(calculationId: string, metricTypeId: number) {
+    //     const status = await removeMetricType(calculationId, metricTypeId);
+    //     return status;
+    // }
 });
 
 export const useStructuredGridDataStore = defineStore('structured-grid-data', {
@@ -398,7 +461,7 @@ export const useKespStore = defineStore('kespStore', {
                 return 0;
             }
         },
-        async fetchCoolingCalculation (id: number): Promise<void> {
+        async fetchCoolingCalculation(id: number): Promise<void> {
             try {
                 const data = await getCoolingLossesHeader(id);
                 if (data) {
@@ -408,7 +471,7 @@ export const useKespStore = defineStore('kespStore', {
                         // console.log("gwpPredlosci: ", data);
                         const fuels = await getFuel(data?.uir_uvg_id)
                         // console.log("Fuel: ", fuels);
-                        if(fuels?.message) this.gwpPredlosci = [];
+                        if (fuels?.message) this.gwpPredlosci = [];
                         else {
                             this.gwpPredlosci = groupByMatchUvgNaziv(mapByMatch(data, fuels, 'uir_uvg_id', 'uvg_id'));
                             // console.log("STORE gwpPredlosci: ", this.gwpPredlosci);

@@ -5,20 +5,20 @@ export const useCardStore = defineStore('card', {
     state: () => ({
         cardId: null,
         broj: null,
-        vrstaIzracuna: '',
+        vrstaIzracuna: {},
         scenarij: ''
     }),
     actions: {
-        setCardId(cardId) {
+        setCardId(cardId: string | null) {
             this.cardId = cardId;
         },
-        setBroj(broj) {
+        setBroj(broj: null) {
             this.broj = broj;
         },
-        setVrstaIzracuna(vrsta) {
+        setVrstaIzracuna(vrsta: {}) {
             this.vrstaIzracuna = vrsta;
         },
-        setScenarij(scenarij) {
+        setScenarij(scenarij: string) {
             this.scenarij = scenarij;
         },
         resetCardStore() {
