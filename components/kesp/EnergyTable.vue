@@ -1,14 +1,15 @@
 <template>
   <div class="data-item">
     <DataTable
+      ref="dataTableRef"
       :value="sortedIzracuni"
       show-gridlines
       edit-mode="cell"
       :rows="5"
       data-key="id"
       :rowClass="getRowClass"
-      @cell-edit-complete="onCellEditComplete"
-    >
+      @cell-edit-init="onCellEditInit"
+      @cell-edit-complete="onCellEditComplete">
       <template #empty> Nema energija </template>
 
       <Column header="Broj">
@@ -22,13 +23,11 @@
           <template v-if="slotProps.data.energija === 'Električna energija'">
             <font-awesome-icon
               icon="bolt-lightning"
-              style="margin-right: 5px"
-            />
+              style="margin-right: 5px" />
             {{ slotProps.data.energija }}
           </template>
           <template
-            v-else-if="slotProps.data.energija === 'Toplinska energija'"
-          >
+            v-else-if="slotProps.data.energija === 'Toplinska energija'">
             <font-awesome-icon icon="mug-hot" style="margin-right: 5px" />
             {{ slotProps.data.energija }}
           </template>
@@ -41,8 +40,7 @@
             v-model="slotProps.data.neobnovljivo"
             :show-buttons="true"
             mode="decimal"
-            min="0"
-          />
+            min="0" />
         </template>
         <template #body="slotProps">
           <span :class="getCellClass(slotProps.data, 'neobnovljivo')">
@@ -53,15 +51,13 @@
 
       <Column
         header="Obnovljiva energija predana u mrežu (kWh)"
-        field="obnovljivo"
-      >
+        field="obnovljivo">
         <template v-if="editable" #editor="slotProps">
           <InputNumber
             v-model="slotProps.data.obnovljivo"
             :show-buttons="true"
             mode="decimal"
-            min="0"
-          />
+            min="0" />
         </template>
         <template #body="slotProps">
           <span :class="getCellClass(slotProps.data, 'obnovljivo')">
@@ -76,13 +72,11 @@
       </Column>
       <Column
         :header="`Emisija eCO2/${editable ? 'kg' : 't'} (prema tržištu)`"
-        field="emisije"
-      >
+        field="emisije">
         <template #body="slotProps">
           <span
             :class="getCellClass(slotProps.data, 'emisije')"
-            v-tooltip.top="getTooltip(slotProps.data)"
-          >
+            v-tooltip.top="getTooltip(slotProps.data)">
             {{
               editable
                 ? formatNumber(slotProps.data.emisije, 2)
@@ -93,13 +87,11 @@
       </Column>
       <Column
         :header="`Emisija eCO2/${editable ? 'kg' : 't'} (prema lokaciji)`"
-        field="emisije_lok"
-      >
+        field="emisije_lok">
         <template #body="slotProps">
           <span
             :class="getCellClass(slotProps.data, 'emisije')"
-            v-tooltip.top="getTooltip(slotProps.data)"
-          >
+            v-tooltip.top="getTooltip(slotProps.data)">
             {{
               editable
                 ? formatNumber(slotProps.data.emisije_lok, 2)
@@ -145,8 +137,7 @@
       v-if="editable"
       class="dodaj-btn spremi-promjene"
       @click="spremiPromjene"
-      :disabled="!imaPromjena || !isValidData"
-    >
+      :disabled="!imaPromjena">
       <font-awesome-icon icon="floppy-disk" />
       Spremi promjene
     </button>
@@ -154,8 +145,10 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, nextTick } from "vue";
 import { useToast } from "primevue/usetoast";
+
+const dataTableRef = ref(null);
 
 const props = defineProps({
   editable: Boolean,
@@ -170,11 +163,11 @@ const toast = useToast();
 const originalData = ref(JSON.parse(JSON.stringify(props.data)));
 const izracuni = ref(JSON.parse(JSON.stringify(props.data)));
 const imaPromjena = ref(false);
+const isEditing = ref(false);
 
 // Ukupne emisije
 const totalEmissions = computed(() => opseg2Store.totalEmissions); // Preuzmi ukupne emisije iz getter-a
 const totalLokEmissions = computed(() => opseg2Store.totalLokEmissions); // Preuzmi ukupne emisije iz getter-a
-const totalCO2Emissions = computed(() => opseg2Store.totalCO2Emissions);
 
 const sortedIzracuni = computed(() =>
   [...izracuni.value].sort((a, b) =>
@@ -203,6 +196,10 @@ const getTooltip = (row) => {
     : "";
 };
 
+const onCellEditInit = (event) => {
+  isEditing.value = true;
+};
+
 const onCellEditComplete = (event) => {
   const { data, newValue, field } = event;
   data[field] = newValue;
@@ -219,22 +216,35 @@ const checkForChanges = () => {
 };
 
 const spremiPromjene = () => {
-  if (!isValidData.value) {
-    toast.add({
-      severity: "error",
-      summary: "Greška",
-      detail: "Podaci ne smiju imati negativne vrijednosti.",
-      life: 3000,
-    });
-    return;
-  }
-  imaPromjena.value = false;
-  emit("save", izracuni.value);
-};
+  // Forsira zatvaranje aktivne ćelije (ako postoji)
+  console.log("Editing cell:", dataTableRef.value?.editMode);
+  // if (dataTableRef.value?.editingCell) {
+  //   const { rowIndex, column } = dataTableRef.value.editingCell;
+  //   dataTableRef.value.onCellEditComplete({
+  //     originalEvent: null,
+  //     data: izracuni.value[rowIndex],
+  //     newValue: izracuni.value[rowIndex][column.props.field],
+  //     field: column.props.field,
+  //     index: rowIndex,
+  //   });
+  //   dataTableRef.value.editingCell = null;
+  // }
 
-const vratiOriginalno = () => {
-  izracuni.value = JSON.parse(JSON.stringify(originalData.value));
-  imaPromjena.value = false;
+  // // Nastavi spremanje nakon što se DOM sinka
+  // nextTick(() => {
+  //   if (!isValidData.value) {
+  //     toast.add({
+  //       severity: "error",
+  //       summary: "Greška",
+  //       detail: "Podaci ne smiju imati negativne vrijednosti.",
+  //       life: 3000,
+  //     });
+  //     return;
+  //   }
+
+  //   imaPromjena.value = false;
+  //   emit("save", izracuni.value);
+  // });
 };
 
 const getCellClass = (row, field) => {
@@ -244,9 +254,10 @@ const getCellClass = (row, field) => {
 };
 
 const isValidData = computed(() => {
-  return izracuni.value.every(
-    (row) => row.neobnovljivo >= 0 && row.obnovljivo >= 0
-  );
+  return 1;
+  // return izracuni.value.every(
+  //   (row) => row.neobnovljivo >= 0 && row.obnovljivo >= 0
+  // );
 });
 </script>
 
