@@ -130,6 +130,8 @@
       :message="'Učitavanje izračuna...'"
       :loader="'UI'"
       class="loading-popup" />
+      <NewPredlozakDialog
+        v-model:visible="noviDialogVisible" />
   </div>
 </template>
 
@@ -141,6 +143,7 @@ import { getCalculations } from "~/service/kpkr/calculations";
 import { formatDateToDMY } from "@/utils/dateFormatter";
 import { setCookie, deleteCookie } from "~/service/user/cookies";
 import LoadingSpremanje from "~/components/ostalo/LoadingSpremanje.vue";
+import NewPredlozakDialog from "~/components/kpkr/NewPredlozakDialog.vue";
 
 definePageMeta({
   requiredRole: "AP001",
@@ -150,6 +153,8 @@ const toast = useToast();
 
 const cardStore = useCardStore();
 const opciStore = useOpciStore();
+
+const noviDialogVisible = ref(false);
 
 const filters = ref({
   global: { value: "", matchMode: "contains" },
@@ -195,6 +200,10 @@ const onRowSelect = async () => {
   //     loadingDalje.value = false;
   // }
 };
+const vrstaCookie = useCookie("vrstaIzracuna", {
+  encode: JSON.stringify,
+  decode: JSON.parse,
+});
 
 onMounted(async () => {
   if (toastMessage.value) {
@@ -206,7 +215,7 @@ onMounted(async () => {
     });
     toastMessage.value = null;
   }
-
+  vrstaCookie.value = null;
   await deleteCookie(cookiesToDelete);
   cardStore.cardId = null;
   const data = await getCalculations();
@@ -226,9 +235,10 @@ const doLogout = async () => {
   navigateTo("/login");
 };
 
-const noviIzracun = async () => {
-  cardStore.resetCardStore();
-  navigateWithParameter("/kpkr/predlozak", "id", "null");
+const noviIzracun = () => {
+  noviDialogVisible.value = true;
+  // cardStore.resetCardStore();
+  // navigateWithParameter("/kpkr/predlozak", "id", "null");
 };
 </script>
 

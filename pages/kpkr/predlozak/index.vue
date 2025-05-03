@@ -1,358 +1,90 @@
 <template>
-  <div class="body">
+  <div class="page-container">
     <Toast />
-    <Toast position="top-right" group="tc" />
-    <ConfirmDialog :style="{ width: '500px' }">
-      <template #message="slotProps">
-        <div class="confirm-dialog">
-          <div class="confirm-header">
-            <h2>{{ slotProps.message.title }}</h2>
+    <ConfirmDialog group="headless" :style="{ width: '600px' }">
+      <template #container="{ message, acceptCallback, rejectCallback }">
+        <div class="confirm-dialog-container">
+          <div class="icon-wrapper">
+            <div class="icon-circle">
+              <font-awesome-icon icon="exclamation-triangle" size="1x" />
+            </div>
           </div>
-          <div class="confirm-desc">
-            <p>{{ slotProps.message.message }}</p>
+
+          <div class="content">
+            <h2 class="confirm-dialog-header">{{ message.header }}</h2>
+            <p class="confirm-desc">{{ message.message }}</p>
+            <!-- <p class="confirm-desc">*{{ message.ffact }}</p> -->
+            <div class="button-container">
+              <Button
+                label="Odustani"
+                severity="secondary"
+                @click="rejectCallback"
+                class="w-32" />
+              <Button
+                id="submitBtn"
+                class="filled"
+                icon="pi pi-save"
+                label="Spremi i zaključaj"
+                @click="acceptCallback" />
+            </div>
           </div>
         </div>
       </template>
     </ConfirmDialog>
-    <template v-if="!loading">
-      <main>
+
+    <!-- glavni sadržaj koji rasteže prostor između headera i footera -->
+    <div class="main-container">
+      <template v-if="!loading">
         <h1>
           Opći podaci
           <font-awesome-icon
-            v-if="isReadonly"
+            v-if="idIzracuna"
             v-tooltip.top="'Predložak je zaključan.'"
             icon="lock"
             class="lock-icon" />
         </h1>
 
-        <Form
-          v-slot="$form"
-          ref="formRef"
-          :initial-values="initialValues"
-          :resolver="resolver"
-          :validateOnValueUpdate="true"
-          class="main-grid"
-          @submit="onFormSubmit"
-          @change="someThingChanged">
-          <div class="grid-item">
-            <label for="naziv" class="header">Naziv predloška:</label>
-            <InputText
-              v-model="naziv"
-              id="naziv"
-              class="form-input"
-              name="naziv"
-              placeholder="Unesi naziv predloška"
-              fluid
-              :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'" />
-            <div class="info-div">
-              <font-awesome-icon :icon="'info-circle'" style="display: none" />
-            </div>
-          </div>
+        <OpciPodaciForm
+          :aiz-id="aizId"
+          :izracun="izracunData"
+          :vrsta-izracuna-query="vrstaIzracunaFromCookie"
+          :vrste-izracuna="vrsteIzracuna"
+          :vrste-imovine="vrsteImovine"
+          :djelatnosti="djelatnosti"
+          :scenariji="scenariji"
+          :katastarske-opcine="katastarskeOpcine"
+          :is-save-success="isSaveSuccess"
+          @save="submitForm" />
 
-          <div class="grid-item">
-            <label for="datum" class="header">Datum</label>
-            <DatePicker
-              v-model="datum"
-              id="datum"
-              class="form-input"
-              name="datum"
-              show-icon
-              icon-display="input"
-              date-format="dd.mm.yy"
-              placeholder="Unesi datum"
-              fluid
-              readonly
-              :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'" />
-            <div class="info-div">
-              <font-awesome-icon :icon="'info-circle'" style="display: none" />
-            </div>
-          </div>
-
-          <div class="grid-item">
-            <label for="vrstaIzracuna" class="header">Vrsta izračuna</label>
-            <Select
-              v-model="vrstaIzracuna"
-              id="vrstaIzracuna"
-              class="form-input"
-              :class="{ readonly: isReadonly }"
-              name="vrstaIzracuna"
-              :options="vrsteIzracuna"
-              option-label="tvz_naziv"
-              placeholder="Odaberi vrstu izračuna"
-              :tabindex="isReadonly ? '-1' : '0'"
-              @change="handleVrstaIzracunaChange(1)" />
-            <div class="info-div">
-              <Message
-                v-if="$form.vrstaIzracuna?.invalid && vrstaIzracuna?.tvz_naziv"
-                severity="error"
-                size="small"
-                variant="simple">
-                {{ $form.vrstaIzracuna.error.message }}
-              </Message>
-            </div>
-          </div>
-
-          <div class="grid-item">
-            <label for="katastarskaOpcina" class="header"
-              >Katastarska općina</label
-            >
-            <AutoComplete
-              v-model="katastarskaOpcina"
-              id="katastarskaOpcina"
-              name="katastarskaOpcina"
-              class="form-input autocomplete"
-              :option-label="
-                (option) => formatOption(option, 'kop_sif', 'kop_naziv')
-              "
-              :suggestions="filteredOpcine"
-              @input="onInputChange"
-              @complete="updateOpcina"
-              @item-select="fetchCestice"
-              placeholder="Odaberi katastarsku općinu"
-              :disabled="!vrstaIzracuna"
-              :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'">
-              <template #option="slotProps">
-                <span>{{
-                  slotProps.option.kop_sif + " - " + slotProps.option.kop_naziv
-                }}</span>
-              </template>
-            </AutoComplete>
-            <div class="info-div"></div>
-          </div>
-          <div class="grid-item">
-            <label for="katastarskaCestica" class="header"
-              >Katastarska čestica</label
-            >
-            <AutoComplete
-              v-model="katastarskaCestica"
-              id="katastarskaCestica"
-              name="katastarskaCestica"
-              class="form-input autocomplete"
-              option-label="kcs_sif"
-              :suggestions="filteredCestice"
-              @complete="updateCestica"
-              placeholder="Odaberi katastarsku česticu (opcionalno)"
-              :disabled="!katastarskaOpcina"
-              :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'" />
-            <div class="info-div">
-              <font-awesome-icon :icon="'info-circle'" style="display: none" />
-            </div>
-          </div>
-          <div class="grid-item">
-            <label for="vrstaImovine" class="header">Vrsta imovine</label>
-            <Select
-              v-model="vrstaImovine"
-              id="vrstaImovine"
-              class="form-input"
-              name="vrstaImovine"
-              :options="vrsteImovine"
-              option-label="tvo_naziv"
-              :placeholder="
-                !vrstaIzracuna || isDjelatnost ? '' : 'Odaberi vrstu imovine'
-              "
-              :disabled="!vrstaIzracuna || isDjelatnost"
-              :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'" />
-            <!-- </Select> -->
-            <div class="info-div">
-              <font-awesome-icon :icon="'info-circle'" style="display: none" />
-            </div>
-          </div>
-          <div class="grid-item">
-            <label for="djelatnost" class="header">Djelatnost</label>
-            <AutoComplete
-              v-model="djelatnost"
-              id="djelatnost"
-              name="djelatnost"
-              class="form-input autocomplete"
-              :option-label="
-                (option) => formatOption(option, 'djl_sif', 'djl_naziv')
-              "
-              :suggestions="filteredDjelatnost"
-              @complete="updateDjelatnost"
-              @item-select="fetchSkupinuDjelatnosti"
-              :placeholder="
-                !vrstaIzracuna || isImovina ? '' : 'Odaberi djelatnost'
-              "
-              :disabled="!vrstaIzracuna || isImovina"
-              :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'">
-              <template #option="slotProps">
-                <span>{{
-                  slotProps.option.djl_sif + " - " + slotProps.option.djl_naziv
-                }}</span>
-              </template>
-            </AutoComplete>
-            <!--:disabled="!katastarskaOpcina" -->
-            <div class="info-div">
-              <font-awesome-icon :icon="'info-circle'" style="display: none" />
-            </div>
-          </div>
-          <div class="grid-item">
-            <label for="skupina" class="header">Skupina djelatnosti:</label>
-            <InputText
-              :value="skupinaDjelatnosti.djl_skp_naziv"
-              id="skupina"
-              readonly
-              class="form-input dataInput"
-              name="skupina"
-              :placeholder="
-                !vrstaIzracuna || isImovina ? '' : 'Prikaz skupine djelatnosti'
-              "
-              fluid
-              :disabled="!vrstaIzracuna || isImovina"
-              :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'" />
-            <div class="info-div">
-              <font-awesome-icon :icon="'info-circle'" style="display: none" />
-            </div>
-          </div>
-
-          <div class="grid-item">
-            <label for="scenariji" class="header">Klimatski scenarij:</label>
-            <div
-              class="radio-button-container"
-              :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'">
-              <div
-                v-for="s in scenariji"
-                :key="s.tvs_id"
-                :title="s.tvs_naziv"
-                class="radio-button">
-                <RadioButton
-                  v-model="scenarij"
-                  :input-id="s.tvs_sif"
-                  :value="s.tvs_sif"
-                  name="scenarij"
-                  :class="{ readonly: isReadonly }"
-                  :tabindex="isReadonly ? '-1' : '0'" />
-                <label :for="s.tvs_sif">{{ s.tvs_sif }}</label>
-              </div>
-            </div>
-          </div>
-          <div class="grid-item">
-            <label for="ispostava" class="header">Ispostava:</label>
-            <InputText
-              :value="ispostava.isp_naziv"
-              id="ispostava"
-              class="form-input dataInput"
-              name="ispostava"
-              placeholder="Prikaz ispostave"
-              fluid
-              readonly
-              :disabled="!vrstaIzracuna"
-              :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'" />
-            <div class="info-div">
-              <font-awesome-icon :icon="'info-circle'" style="display: none" />
-            </div>
-          </div>
-          <div class="grid-item">
-            <label for="podrucniUred" class="header">Područni ured:</label>
-            <InputText
-              :value="podrucniUred.puk_naziv"
-              id="podrucniUred"
-              class="form-input"
-              name="podrucniUred"
-              placeholder="Prikaz područnog ureda"
-              fluid
-              readonly
-              :disabled="!vrstaIzracuna"
-              :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'" />
-            <div class="info-div">
-              <font-awesome-icon :icon="'info-circle'" style="display: none" />
-            </div>
-          </div>
-          <div class="grid-item napomena">
-            <label for="napomena" class="header">Napomena:</label>
-            <Textarea
-              v-model="napomena"
-              id="napomena"
-              rows="5"
-              cols="30"
-              class="form-input"
-              name="napomena"
-              placeholder="Napomena"
-              fluid
-              :class="{ readonly: isReadonly }"
-              :tabindex="isReadonly ? '-1' : '0'" />
-            <div class="info-div">
-              <font-awesome-icon :icon="'info-circle'" style="display: none" />
-            </div>
-          </div>
-
-          <template v-if="!isReadonly">
-            <button id="saveBtn" type="submit">
-              <!--@click="visibleSaveDialog = true"-->
-              <font-awesome-icon
-                :icon="idIzracuna ? 'lock' : 'save'"
-                class="save-icon" />
-              Spremi i zaključaj
-            </button>
-
-            <span>
-              *Potrebno je popuniti sva obvezna polja (<span class="required"
-                >*</span
-              >) kako bi se predložak mogao spremiti i kako biste mogli
-              nastaviti u sljedeći korak.
-            </span>
-          </template>
-          <template v-else>
-            <span style="margin-top: 8px"
-              >Status: <strong class="zakljucanoText">Zaključano</strong></span
-            >
-          </template>
-        </Form>
-        <div id="map" class="map">
-          <Map />
-        </div>
-      </main>
-      <footer>
-        <button
-          class="footer-button"
-          :disabled="!idIzracuna || idIzracuna == 0 || idIzracuna == 'null'"
-          @click="
-            navigateWithParameter(
-              '/kpkr/predlozak/mjere-prilagodbe',
-              'id',
-              cardStore.cardId
-            )
-          ">
-          <span>Mjere prilagodbe</span>
-          <font-awesome-icon icon="arrow-right-long" />
-        </button>
-      </footer>
-    </template>
-    <template v-else>
-      <main>
-        <h1>Opći podaci</h1>
-        <span
-          style="
-            font-style: italic;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            max-width: 600px;
-          ">
+        <Map />
+      </template>
+      <template v-else>
+        <div class="loading-template">
           <span v-for="n in 11" :key="n" style="display: flex; gap: 5px">
             <Skeleton width="7rem" height="2rem" />
             <Skeleton width="100%" height="2rem" />
           </span>
           <Skeleton width="100%" height="6rem" />
-        </span>
-      </main>
-    </template>
+        </div>
+      </template>
+    </div>
 
-    <NespremljenePromjenePopup
-      class="alert-popup"
-      :visible="isNespremljenePromjenePopupVisible"
-      @confirm="confirmLeave"
-      @cancel="cancelLeave" />
+    <!-- footer koji je uvijek na dnu -->
+    <footer class="page-footer">
+      <button
+        class="footer-button"
+        :disabled="!idIzracuna"
+        @click="
+          navigateWithParameter(
+            '/kpkr/predlozak/mjere-prilagodbe',
+            'id',
+            idIzracuna
+          )
+        ">
+        <span>Mjere prilagodbe</span>
+        <font-awesome-icon icon="arrow-right-long" />
+      </button>
+    </footer>
     <LoadingSpremanje
       v-if="isLoadingPopupVisible"
       :message="'Spremanje promjena...'"
@@ -362,722 +94,94 @@
   </div>
 </template>
 
-<script setup>
-import InputText from "primevue/inputtext";
-import Textarea from "primevue/textarea";
-import { ref, onMounted, onBeforeUnmount } from "vue"; //onBeforeMount
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
+import OpciPodaciForm from "~/components/kpkr/OpciPodaciForm.vue";
+import LoadingSpremanje from "~/components/ostalo/LoadingSpremanje.vue";
+import Map from "~/components/kpkr/Map.vue";
 import { useOpciStore } from "~/stores/main-store";
 import { useCardStore } from "~/stores/index";
-import { formatDateToDMY } from "~/utils/dateFormatter";
-import { useRouter } from "vue-router";
-import NespremljenePromjenePopup from "~/components/kpkr/NespremljenePromjenePopup.vue";
-import Map from "~/components/kpkr/Map.vue";
-import LoadingSpremanje from "~/components/ostalo/LoadingSpremanje.vue";
-
-import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { z } from "zod";
-import { saveForm } from "~/service/kpkr/form";
 import { getCalculations } from "~/service/kpkr/calculations";
-import NProgress from "nprogress";
-import "nprogress/nprogress.css"; // Stilovi za traku učitavanja
+import { getIdFromUrl } from "~/utils/navigationHandler";
+import { useToast } from "primevue/usetoast";
+import { saveForm } from "~/service/kpkr/form";
 
+const router = useRouter();
+const route = useRoute();
 const toast = useToast();
 const confirm = useConfirm();
-
 const opciStore = useOpciStore();
 const cardStore = useCardStore();
 
-const props = defineProps({
-  aiz_id: String,
-  data: Object,
-});
-
-const idIzracuna = ref(props.aiz_id || null);
-const izracun = ref(props.data || null);
-
-const isReadonly = computed(() => !!idIzracuna.value);
-
-const naziv = ref("");
-const datum = ref(new Date());
-const vrstaIzracuna = ref(null);
-const katastarskaOpcina = ref(null);
-const katastarskaCestica = ref(null);
-const vrstaImovine = ref(null);
-const djelatnost = ref(null);
-const skupinaDjelatnosti = ref({
-  djl_skp: "",
-  djl_skp_naziv: "",
-});
-const scenarij = ref("");
-
-const ispostava = ref({
-  isp_sif: "",
-  isp_naziv: "",
-});
-const podrucniUred = ref({
-  puk_sif: "",
-  puk_naziv: "",
-});
-const napomena = ref("");
-
-const isImovina = computed(() => vrstaIzracuna.value?.tvz_naziv === "Imovina");
-const isDjelatnost = computed(
-  () => vrstaIzracuna.value?.tvz_naziv === "Djelatnost"
-);
-
 const isLoadingPopupVisible = ref(false);
-const isNespremljenePromjenePopupVisible = ref(false);
 
-const visibleSaveDialog = ref(false);
+// 1) Definiraj sve što dolazi iz parenta
+const props = defineProps<{
+  aizId: string | null;
+  izracun: any; // parent šalje single object
+  vrsteIzracuna: Array<{ tvz_id: string; tvz_naziv: string }>;
+  vrsteImovine: any[];
+  djelatnosti: any[];
+  scenariji: any[];
+  katastarskeOpcine: any[];
+  isSaveSuccess: boolean;
+  loading: boolean;
+}>();
 
-const vrsteIzracuna = computed(() => {
-  const niz = opciStore.vrste_izracuna;
-  return niz;
-});
-const katastarskeOpcine = computed(() => {
-  return opciStore.katastarske_opcine;
-});
-const katastarskeCestice = computed(() => {
-  const niz = opciStore.katastarske_cestice;
-  return niz;
-});
-const vrsteImovine = computed(() => {
-  const niz = opciStore.vrste_objekta;
-  return niz;
-});
-const djelatnosti = computed(() => {
-  const niz = opciStore.djelatnosti;
-  return niz;
-});
-const scenariji = computed(() => {
-  const niz = opciStore.scenariji;
-  return niz;
+// 2) Cookie za vrstu izračuna
+const vrstaCookie = useCookie("vrstaIzracuna", {
+  encode: JSON.stringify,
+  decode: JSON.parse,
 });
 
-const dataLoader = computed(
-  () =>
-    vrsteIzracuna.value.length > 0 &&
-    katastarskeOpcine.value.length > 0 &&
-    vrsteImovine.value.length > 0 &&
-    djelatnosti.value.length > 0 &&
-    scenariji.value.length > 0
-);
-
-// console.log("inicijalni dataLoader:", dataLoader.value);
-
-const loading = ref(false);
-const formRef = ref();
-
-const initialValues = ref({
-  naziv: "",
-  datum: "",
-  vrstaIzracuna: null,
-  katastarskaOpcina: null,
-  katastarskaCestica: null,
-  vrstaImovine: null,
-  djelatnost: null,
-  skupinaDjelatnosti: null,
-  scenarij: "",
-  ispostava: null,
-  podrucniUred: null,
-  napomena: "",
+// 3) Iz cookie-ja složi objekt ili null
+const vrstaIzracunaFromCookie = computed<null | {
+  tvz_id: string;
+  tvz_naziv: string;
+}>(() => {
+  const c = vrstaCookie.value;
+  if (c && typeof c === "object" && "tvz_id" in c && "tvz_naziv" in c) {
+    return { tvz_id: c.tvz_id, tvz_naziv: c.tvz_naziv };
+  }
+  return null;
 });
 
-const formValues = ref({
-  ...initialValues.value,
-});
+// 4) mapa propsa u lokale computede
+const idIzracuna = computed(() => props.aizId);
+const izracunData = computed(() => props.izracun);
+const loading = computed(() => props.loading);
+const vrsteIzracuna = computed(() => props.vrsteIzracuna);
+const vrsteImovine = computed(() => props.vrsteImovine);
+const djelatnosti = computed(() => props.djelatnosti);
+const scenariji = computed(() => props.scenariji);
+const katOpcine = computed(() => props.katastarskeOpcine);
+const isSaveSuccess = computed(() => props.isSaveSuccess);
 
-// Praćenje nespremljenih promjena
-const hasUnsavedChanges = computed(() => {
-  return (
-    JSON.stringify(initialValues.value) !==
-    JSON.stringify({
-      naziv: naziv.value,
-      datum: datum.value,
-      vrstaIzracuna: vrstaIzracuna.value,
-      katastarskaOpcina: katastarskaOpcina.value,
-      katastarskaCestica: katastarskaCestica.value,
-      vrstaImovine: vrstaImovine.value,
-      djelatnost: djelatnost.value,
-      skupinaDjelatnosti: skupinaDjelatnosti.value,
-      scenarij: scenarij.value,
-      ispostava: ispostava.value,
-      podrucniUred: podrucniUred.value,
-      napomena: napomena.value,
-    })
-  );
-});
-const isDirty = ref(false);
-
-function someThingChanged() {
-  isDirty.value = true;
-}
-
-// Guard koji presreće promjenu rute
-onBeforeRouteLeave((to, from, next) => {
-  if (isDirty.value) {
-    // Provjera da li je window.confirm dostupan
-    let answer = true;
-    if (typeof window !== "undefined" && typeof window.confirm === "function") {
-      answer = window.confirm(
-        "Imate nespremljene promjene. Jeste li sigurni da želite napustiti stranicu?"
+watch(
+  () => vrsteIzracuna.value,
+  (lista) => {
+    if (vrstaIzracunaFromCookie.value) {
+      const found = lista.find(
+        (i) =>
+          i.tvz_id === vrstaIzracunaFromCookie.value!.tvz_id &&
+          i.tvz_naziv === vrstaIzracunaFromCookie.value!.tvz_naziv
       );
+      if (!found) {
+        const q = { ...route.query };
+        delete q.tvz_id;
+        delete q.tvz_naziv;
+        router.replace({ path: route.path, query: q });
+      }
     }
-    answer ? next() : next(false);
-  } else {
-    next();
-  }
-});
-
-// Sprječavanje slučajnog osvježenja ili zatvaranja stranice
-const handleBeforeUnload = (event) => {
-  if (isDirty.value) {
-    event.preventDefault();
-    event.returnValue = "";
-  }
-};
-
-const pendingNavigation = ref(null);
-
-// watch(isNespremljenePromjenePopupVisible, (newValue) => {
-//   if (newValue) {
-//     // Onemogući scrollanje
-//     document.body.style.overflow = "hidden";
-//   } else {
-//     // Omogući scrollanje
-//     document.body.style.overflow = "";
-//   }
-// });
-
-// watch(isLoadingPopupVisible, (newValue) => {
-//   if (newValue) {
-//     // Onemogući scrollanje
-//     document.body.style.overflow = "hidden";
-//   } else {
-//     // Omogući scrollanje
-//     document.body.style.overflow = "";
-//   }
-// });
-
-// const confirmLeave = () => {
-//   isNespremljenePromjenePopupVisible.value = false; // Sakrij popup
-
-//   if (pendingNavigation.value) {
-//     pendingNavigation.value(true); // Nastavi navigaciju
-//     pendingNavigation.value = null; // Resetiraj pending navigaciju
-//   }
-
-//   // Resetiraj prije osvježavanja
-//   window.removeEventListener("beforeunload", beforeWindowUnload);
-
-//   // Resetiraj promjene
-//   initialValues.value = {
-//     naziv: naziv.value,
-//     datum: datum.value,
-//     vrstaIzracuna: vrstaIzracuna.value,
-//     katastarskaOpcina: katastarskaOpcina.value,
-//     katastarskaCestica: katastarskaCestica.value,
-//     vrstaImovine: vrstaImovine.value,
-//     djelatnost: djelatnost.value,
-//     skupinaDjelatnosti: skupinaDjelatnosti.value,
-//     scenarij: scenarij.value,
-//     ispostava: ispostava.value,
-//     podrucniUred: podrucniUred.value,
-//     napomena: napomena.value,
-//   };
-// };
-
-// const cancelLeave = () => {
-//   isNespremljenePromjenePopupVisible.value = false; // Sakrij popup
-
-//   if (pendingNavigation.value) {
-//     pendingNavigation.value(false); // Zaustavi navigaciju
-//     pendingNavigation.value = null; // Resetiraj pending navigaciju
-//   }
-// };
-
-// // Upozorenje prilikom refreša stranice
-// const beforeWindowUnload = (event) => {
-//   if (hasUnsavedChanges.value) {
-//     // isNespremljenePromjenePopupVisible.value = false;
-//     event.preventDefault();
-//     event.returnValue = ""; // ili ""
-//   }
-// };
-
-const router = useRouter();
-
-// router.beforeEach((to, from, next) => {
-//   // console.log('Navigacija počinje:', to.fullPath);
-//   NProgress.start(); // Pokreni traku učitavanja
-//   if (hasUnsavedChanges.value) {
-//     // Pokaži popup i spremi referencu na `next`
-//     isNespremljenePromjenePopupVisible.value = true;
-//     // Spremljena funkcija za nastavak ili prekid navigacije
-//     pendingNavigation.value = (proceed) => {
-//       if (proceed === false) {
-//         // console.log('Navigacija otkazana.');
-//         NProgress.done(); // Zaustavi traku učitavanja ako je navigacija otkazana
-//         next(false); // Spriječi navigaciju
-//       } else {
-//         // console.log('Navigacija bez promjena, nastavljam.');
-//         next(); // Nastavi navigaciju
-//       }
-//       pendingNavigation.value = null; // Resetiraj pending navigaciju
-//     };
-//   } else {
-//     next(); // Ako nema promjena, odmah nastavi navigaciju
-//   }
-// });
-
-// router.afterEach(() => {
-//   NProgress.done(); // Zaustavi traku učitavanja kad je navigacija završena
-// });
-
-// onBeforeUnmount(() => {
-//   window.removeEventListener("beforeunload", beforeWindowUnload);
-// });
-
-onBeforeUnmount(() => {
-  window.removeEventListener("beforeunload", handleBeforeUnload);
-});
-
-onMounted(async () => {
-  window.addEventListener("beforeunload", handleBeforeUnload);
-  //   window.addEventListener("beforeunload", beforeWindowUnload);
-
-  // console.log("Preuzeti id izračuna iz predloška: ", idIzracuna.value);
-  // console.log("Preuzeti izračun iz predloška: ", izracun.value);
-
-  if (!idIzracuna.value || idIzracuna.value == "null") {
-    idIzracuna.value = getIdFromUrl();
-  }
-
-  loading.value = true;
-  if (idIzracuna.value) {
-    try {
-      const response = await getCalculations(idIzracuna.value);
-      izracun.value = response.data[0];
-      // console.log("index izračun: ", izracun.value);
-    } catch (error) {
-      // console.log(error);
-      navigateTo("/kpkr/predlosci");
-    }
-  }
-
-  if (idIzracuna.value && izracun.value) {
-    const stopWatcher = watch(
-      dataLoader,
-      async (loaded) => {
-        if (loaded) {
-          // console.log("Svi podaci su učitani!");
-
-          // Postavite potrebne vrednosti
-
-          naziv.value = izracun.value?.aiz_opis;
-          datum.value = new Date(izracun.value?.aiz_datum);
-          napomena.value = izracun.value?.aiz_napomena;
-
-          vrstaIzracuna.value = vrsteIzracuna.value.find(
-            (tvz) => tvz.tvz_id === izracun.value?.aiz_tvz_id
-          ) || { tvz_naziv: "" };
-          // console.log("vrvrv: ", vrstaIzracuna.value)
-          handleVrstaIzracunaChange(0);
-
-          katastarskaOpcina.value = katastarskeOpcine.value.find(
-            (ko) => ko.kop_id === izracun.value?.aiz_kop_id
-          );
-          const cestice = await opciStore.fetchParticlesForMunicipalities(
-            katastarskaOpcina.value?.kop_id
-          );
-          // console.log("Učitane čestice: ", cestice?.particles)
-
-          katastarskaCestica.value = izracun.value?.aiz_kcs_id
-            ? cestice?.particles.find(
-                (kc) => kc.kcs_id === izracun.value?.aiz_kcs_id
-              )
-            : null;
-          vrstaImovine.value = izracun.value?.aiz_tvo_id
-            ? vrsteImovine.value.find(
-                (vi) => vi.tvo_id === izracun.value?.aiz_tvo_id
-              )
-            : null;
-
-          djelatnost.value = izracun.value?.aiz_djl_id
-            ? djelatnosti.value.find(
-                (djl) => djl.djl_id == izracun.value?.aiz_djl_id
-              )
-            : null;
-          fetchSkupinuDjelatnosti();
-
-          const trazeniScenarij = scenariji.value.find(
-            (s) => s.tvs_id == izracun.value?.tvs_id
-          );
-          if (!trazeniScenarij) {
-            // console.error("Scenarij nije nađen");
-            return null;
-          }
-          // console.log("Scenarij: ", trazeniScenarij);
-          scenarij.value = trazeniScenarij?.tvs_sif;
-
-          const noviData = {
-            naziv: naziv.value,
-            datum: datum.value,
-            vrstaIzracuna: vrstaIzracuna.value,
-            katastarskaOpcina: katastarskaOpcina.value,
-            katastarskaCestica: katastarskaCestica.value,
-            vrstaImovine: vrstaImovine.value,
-            djelatnost: djelatnost.value,
-            skupinaDjelatnosti: skupinaDjelatnosti.value,
-            scenarij: scenarij.value,
-            ispostava: ispostava.value,
-            podrucniUred: podrucniUred.value,
-            napomena: napomena.value,
-          };
-
-          Object.assign(initialValues.value, noviData);
-          Object.assign(formValues.value, noviData);
-
-          // Prekinite praćenje nakon što su svi podaci učitani
-          stopWatcher();
-          loading.value = false;
-        }
-      },
-      { immediate: true }
-    );
-  } else {
-    loading.value = false;
-  }
-  isDirty.value = false;
-});
-
-const resolver = ref(
-  zodResolver(
-    z.object({
-      vrstaIzracuna: z
-        .object({
-          tvz_naziv: z
-            .string()
-            .min(1, { message: "Vrsta izračuna je obvezna" }),
-        })
-        .refine((obj) => obj && obj.tvz_naziv, {
-          message: "Vrsta izračuna je obvezna",
-        }),
-    })
-  )
+  },
+  { immediate: true }
 );
-
-const filteredOpcine = ref([]);
-const filteredCestice = ref([]);
-const filteredDjelatnost = ref([]);
-
-const updateOpcina = (event) => {
-  const query = event.query.toLowerCase();
-  const _filteredItems = katastarskeOpcine.value.filter((item) => {
-    if (query === "-" || query === " - ") {
-      return false;
-    }
-    const combined = `${item.kop_sif} - ${item.kop_naziv}`.toLowerCase();
-    return combined.includes(query.toLowerCase());
-  });
-  filteredOpcine.value = _filteredItems;
-};
-const updateDjelatnost = (event) => {
-  const query = event.query.toLowerCase();
-  const _filteredItems = djelatnosti.value.filter((item) => {
-    if (query === "-" || query === " - " || query === ".") {
-      return false;
-    }
-    const combined = `${item.djl_sif} - ${item.djl_naziv}`.toLowerCase();
-    return combined.includes(query.toLowerCase());
-  });
-  filteredDjelatnost.value = _filteredItems;
-};
-
-function fetchSkupinuDjelatnosti() {
-  // console.log("Djelatnost: ", djelatnost.value);
-  if (djelatnost.value?.djl_id) {
-    skupinaDjelatnosti.value.djl_skp = djelatnost.value?.djl_skp;
-    skupinaDjelatnosti.value.djl_skp_naziv = djelatnost.value?.djl_skp_naziv;
-  }
-}
-
-const updateCestica = (event) => {
-  if (!event.query.trim().length) {
-    filteredCestice.value = [...katastarskeCestice.value];
-  } else {
-    filteredCestice.value = katastarskeCestice.value.filter((kcs) => {
-      return kcs.kcs_sif.toLowerCase().startsWith(event.query.toLowerCase());
-    });
-  }
-};
-
-const onInputChange = (event) => {
-  // Pretvori unos u velika slova
-  katastarskaOpcina.value = event.target.value.toUpperCase();
-};
-
-const schemaImovina = z.object({
-  vrstaIzracuna: z
-    .object({
-      tvz_naziv: z.string().min(1, { message: "Vrsta izračuna je obvezna" }),
-    })
-    .refine((obj) => obj && obj.tvz_naziv, {
-      message: "Vrsta izračuna je obvezna",
-    }),
-  katastarskaOpcina: z
-    .object({
-      kop_naziv: z
-        .string()
-        .min(1, { message: "Katastarska općina je obvezna" }),
-    })
-    .refine((obj) => obj && obj.kop_naziv, {
-      message: "Katastarska općina je obvezna",
-    }),
-  katastarskaCestica: z.union([
-    z
-      .object({
-        kcs_sif: z.string().min(1, { message: "Katastarska cesta je obvezna" }),
-      })
-      .refine((obj) => obj && obj.kcs_sif, {
-        message: "Katastarska cesta je obvezna",
-      }),
-    z.null(), // Dozvoljava null vrednost
-    z.literal(""), // Dozvoljava praznu vrednost
-  ]),
-  vrstaImovine: z
-    .object({
-      tvo_naziv: z.string().min(1, { message: "Vrsta imovine je obvezna" }),
-    })
-    .refine((obj) => obj && obj.tvo_naziv, {
-      message: "Vrsta imovine je obvezna",
-    }),
-  scenarij: z
-    .string({ required_error: "Scenarij je obvezan" })
-    .min(1, "Scenarij mora biti odabran"),
-});
-
-const schemaDefault = z.object({
-  vrstaIzracuna: z
-    .object({
-      tvz_naziv: z.string().min(1, { message: "Vrsta izračuna je obvezna" }),
-    })
-    .refine((obj) => obj && obj.tvz_naziv, {
-      message: "Vrsta izračuna je obvezna",
-    }),
-  katastarskaOpcina: z
-    .object({
-      kop_naziv: z
-        .string()
-        .min(1, { message: "Katastarska općina je obvezna" }),
-    })
-    .refine((obj) => obj && obj.kop_naziv, {
-      message: "Katastarska općina je obvezna",
-    }),
-  katastarskaCestica: z.union([
-    z
-      .object({
-        kcs_sif: z.string().min(1, { message: "Katastarska cesta je obvezna" }),
-      })
-      .refine((obj) => obj && obj.kcs_sif, {
-        message: "Katastarska cesta je obvezna",
-      }),
-    z.null(), // Dozvoljava null vrednost
-    z.literal(""), // Dozvoljava praznu vrednost
-  ]),
-  djelatnost: z
-    .object({
-      djl_naziv: z.string().min(1, { message: "Djelatnost je obvezna" }),
-    })
-    .refine((obj) => obj && obj.djl_naziv, {
-      message: "Djelatnost je obvezna",
-    }),
-  scenarij: z
-    .string({ required_error: "Scenarij je obvezan" })
-    .min(1, "Scenarij mora biti odabran"),
-});
-
-function resetdivs(fields) {
-  fields.forEach((field) => (field.value = null));
-}
-function handleVrstaIzracunaChange(isForm) {
-  if (isForm) {
-    // console.log("Sa forme promjena")
-    resetdivs([vrstaImovine, djelatnost, skupinaDjelatnosti]);
-    skupinaDjelatnosti.value = { djl_skp: "", djl_skp_naziv: "" };
-  }
-
-  resolver.value = zodResolver(
-    vrstaIzracuna.value?.tvz_naziv === "Imovina"
-      ? schemaImovina
-      : schemaDefault,
-    { mode: "lazy" }
-  );
-}
-
-watch(katastarskaOpcina, async (newValue) => {
-  // console.log('Odabrana katastarska općina:', newValue);
-  if (newValue === (null, undefined, "") || newValue.length == 0) {
-    katastarskaCestica.value = null;
-  }
-  if (newValue?.kop_id) {
-    ispostava.value.isp_sif = katastarskaOpcina.value?.isp_sif;
-    ispostava.value.isp_naziv = katastarskaOpcina.value?.isp_naziv;
-    podrucniUred.value.puk_sif = katastarskaOpcina.value?.isp_sif;
-    podrucniUred.value.puk_naziv = katastarskaOpcina.value?.isp_naziv;
-    await opciStore.fetchParticlesForMunicipalities(
-      katastarskaOpcina.value?.kop_id
-    );
-  }
-});
-
-const onFormSubmit = async ({ valid }) => {
-  if (valid) {
-    confirm.require({
-      title: "Jeste li sigurni da želite zaključati predložak?",
-      message: `
-                Zaključavanjem ovog predloška ne možete
-                više izmjenjivati opće podatke sa forme 
-                (mjere prilagodbe se mogu naknadno izmjenjivati).
-            `,
-      header: "Spremi i zaključaj",
-      icon: "pi pi-exclamation-triangle",
-      rejectProps: {
-        label: "Odustani",
-        severity: "secondary",
-        outlined: true,
-      },
-      acceptProps: {
-        icon: "pi pi-save",
-        label: "Spremi i zaključaj",
-        severity: "secondary",
-      },
-      accept: async () => {
-        // toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
-        if (valid) {
-          // console.log("Forma je validna i podaci su spremljeni.");
-          isLoadingPopupVisible.value = true;
-
-          const trazeniScenarij = scenariji.value.find(
-            (s) => s.tvs_sif == scenarij.value
-          );
-          if (!trazeniScenarij) {
-            // console.error("Scenarij nije nađen")
-            return null;
-          }
-          // console.log("Scenarij: ", trazeniScenarij)
-
-          const formData = {
-            calculationId: idIzracuna.value || null,
-            date: formatDateToDMY(datum.value, "-"),
-            calculationTypeId: vrstaIzracuna.value?.tvz_id,
-            cadastreMunicipalityId: katastarskaOpcina.value?.kop_id,
-            cadastreParticleId: katastarskaCestica.value?.kcs_id || null,
-            objectTypeId: vrstaImovine.value?.tvo_id || null,
-            activityId: djelatnost.value?.djl_id || null,
-            scenarioTypeId: trazeniScenarij?.tvs_id,
-            description: naziv.value || null,
-            remark: napomena.value || null,
-          };
-          // console.log("spremanje data: ", formData)
-          let mainMessage;
-          try {
-            const { data, status } = await saveForm(formData);
-            const resId = data.calculationId;
-            // console.log("resID: ", resId)
-            if (status === 200) {
-              cardStore.setVrstaIzracuna(vrstaIzracuna.value?.tvz_naziv);
-              cardStore.setScenarij(scenarij.value);
-              showSuccess();
-
-              Object.assign(initialValues.value, {
-                naziv: naziv.value,
-                datum: datum.value,
-                vrstaIzracuna: vrstaIzracuna.value,
-                katastarskaOpcina: katastarskaOpcina.value,
-                katastarskaCestica: katastarskaCestica.value,
-                vrstaImovine: vrstaImovine.value,
-                djelatnost: djelatnost.value,
-                skupinaDjelatnosti: skupinaDjelatnosti.value,
-                scenarij: scenarij.value,
-                ispostava: ispostava.value,
-                podrucniUred: podrucniUred.value,
-                napomena: napomena.value,
-              });
-              Object.assign(formValues.value, initialValues.value);
-            } else {
-              mainMessage = data.message;
-              showErrorSave(mainMessage.value);
-            }
-
-            if (!idIzracuna.value) {
-              // console.log("Ušlo")
-              idIzracuna.value = resId;
-              // console.log("novi id: ", idIzracuna.value)
-
-              const url = `/kpkr/predlozak?id=${idIzracuna.value.toString()}`;
-              // console.log("url: " + url);
-              // console.log('id: ', idIzracuna.value.toString());
-
-              cardStore.setCardId(idIzracuna.value);
-
-              const queryParams = { ...router.currentRoute.value.query };
-              queryParams.id =
-                idIzracuna.value !== "null" ? idIzracuna.value : undefined;
-
-              // console.log("path: ", router.currentRoute.value.path, "queryParams: ", queryParams.id);
-              // Ažuriraj URL
-              router.replace({
-                path: router.currentRoute.value.path,
-                query: queryParams,
-              });
-              // .then(() => {
-              //   // Ako je potrebno osvježiti cijelu aplikaciju
-              //   window.location.reload();
-              // });
-
-              if (resId) {
-                try {
-                  const izracunRes = await getCalculations(resId);
-                  const broj = izracunRes.data[0]?.aiz_broj;
-                  cardStore.setBroj(broj);
-                  cardStore.setVrstaIzracuna(izracunRes.data[0]?.tvz_naziv);
-                  cardStore.setScenarij(
-                    izracunRes.data[0]?.tvs_id == 1 ? "RCP" : "SSP"
-                  );
-                } catch (error) {
-                  // console.error('Greška prilikom dohvaćanja izračuna: ', error);
-                  return null;
-                }
-              }
-            }
-          } catch (error) {
-            showError();
-            // console.error('Greška prilikom spremanja podataka: ', error);
-            return null;
-          } finally {
-            isLoadingPopupVisible.value = false;
-          }
-        } else {
-          // console.error('Validacija nije prošla.');
-        }
-        isDirty.value = false;
-      },
-      reject: () => {
-        // toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
-      },
-    });
-  }
-};
-
-const formSubmitFunction = ref(null);
 
 const showSuccess = () => {
   toast.add({
     severity: "success",
     summary: "Uspješno spremljeno",
     detail: "Promjene na formi su spremljene",
-    group: "tc",
     life: 5000,
   });
 };
@@ -1090,43 +194,167 @@ const showError = () => {
     life: 5000,
   });
 };
-const showErrorSave = (message) => {
-  toast.add({
-    severity: "error",
-    summary: "Došlo je do greške",
-    detail: `${message}`,
-    group: "tc",
-    life: 8000,
-  });
-};
 
-const formatOption = (option, sifKey, nazivKey) => {
-  return `${option[sifKey]} - ${option[nazivKey]}`;
+const submitForm = async (formDataRaw: {
+  scenarij: any;
+  datum: string;
+  vrstaIzracuna: { tvz_id: any; tvz_naziv: any };
+  katastarskaOpcina: { kop_id: any };
+  katastarskaCestica: { kcs_id: any };
+  vrstaImovine: { tvo_id: any };
+  djelatnost: { djl_id: any };
+  naziv: any;
+  napomena: any;
+}) => {
+  confirm.require({
+    group: "headless",
+    header: "Jeste li sigurni da želite zaključati predložak?",
+    message: `
+      Zaključavanjem ovog predloška ne možete
+      više izmjenjivati opće podatke sa forme
+      (mjere prilagodbe se mogu naknadno izmjenjivati).
+    `,
+    ffact: "Stranica će se osvježiti nakon uspješnog spremanja forme.",
+    icon: "pi pi-exclamation-triangle",
+    rejectProps: {
+      label: "Odustani",
+      severity: "secondary",
+      outlined: true,
+    },
+    acceptProps: {
+      icon: "pi pi-save",
+      label: "Spremi i zaključaj",
+      severity: "primary",
+      class: "acceptBtn",
+    },
+    accept: async () => {
+      isLoadingPopupVisible.value = true;
+
+      try {
+        const trazeniScenarij = scenariji.value.find(
+          (s: any) => s.tvs_sif === formDataRaw.scenarij
+        );
+
+        if (!trazeniScenarij) {
+          throw new Error("Scenarij nije pronađen.");
+        }
+
+        const formData = {
+          calculationId: null,
+          date: formatDateToDMY(formDataRaw.datum, "-"),
+          calculationTypeId: formDataRaw.vrstaIzracuna?.tvz_id || null,
+          cadastreMunicipalityId: formDataRaw.katastarskaOpcina?.kop_id || null,
+          cadastreParticleId: formDataRaw.katastarskaCestica?.kcs_id || null,
+          objectTypeId: formDataRaw.vrstaImovine?.tvo_id || null,
+          activityId: formDataRaw.djelatnost?.djl_id || null,
+          scenarioTypeId: trazeniScenarij.tvs_id,
+          description: formDataRaw.naziv || null,
+          remark: formDataRaw.napomena || null,
+        };
+
+        console.log("FormData za slanje:", formData);
+
+        const response = await saveForm(formData);
+
+        if (response.status === 200) {
+          isSaveSuccess.value = true;
+          const responseData = response.data;
+          if (!responseData || !responseData.calculationId) {
+            throw new Error("Nepotpuni odgovor sa servera.");
+          }
+          if (responseData?.calculationId) {
+            const queryParams: Record<string, any> = {
+              ...router.currentRoute.value.query,
+            };
+
+            delete queryParams.tvz_id;
+            delete queryParams.tvz_naziv;
+
+            queryParams.id = responseData.calculationId;
+
+            await fetchData(responseData.calculationId);
+
+            await router.replace({
+              path: router.currentRoute.value.path,
+              query: queryParams,
+            });
+
+            // // ➔ Kad router.replace završi, napravi hard refresh stranice
+            // setTimeout(() => {
+            //   window.location.reload();
+            // }, 300); // 100ms delay da bude skroz safe
+          }
+
+          showSuccess();
+        } else {
+          const message =
+            response?.response?.data?.message || "Greška kod spremanja.";
+          console.error("Greška prilikom spremanja:", message);
+          toast.add({
+            severity: "error",
+            summary: "Došlo je do greške",
+            detail: `${message}`,
+            life: 8000,
+          });
+          // showErrorSave(response.data?.message || "Greška kod spremanja.");
+        }
+      } catch (error) {
+        console.error("Greška prilikom spremanja:", error);
+        showError();
+      } finally {
+        isLoadingPopupVisible.value = false;
+      }
+    },
+    reject: () => {
+      console.log("Spremanje otkazano od strane korisnika.");
+    },
+  });
 };
 </script>
 
 <style scoped>
-* {
-  color: var(--text-color);
-}
+.page-container {
+  width: 100%;
+  min-height: 100%;
 
-.body {
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 26px;
 }
 
-.lock-icon {
-  margin-left: 10px;
+.main-container {
+  flex: 1;
+  overflow-y: auto;
+  gap: 26px;
+  display: flex;
+  flex-direction: column;
 }
 
-h1 {
+.page-footer {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+.lock-icon {
+  margin-left: 8px;
+}
+
+.loading-template {
+  font-style: italic;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-width: 700px;
+}
+.loading-popup {
+  z-index: 99;
+  position: fixed;
   width: 100%;
-  text-align: left;
-  padding-bottom: 7px;
-  border-bottom: 2px solid var(--text-color);
+  height: 100dvh;
+  top: 0;
+  left: 0;
+  overflow: hidden;
 }
 
 .confirm-dialog {
@@ -1143,311 +371,126 @@ h1 {
 }
 
 .confirm-desc p {
-  text-align: center;
+  text-align: justify;
   /* font-size: 1.1rem; */
 }
 
-.main-grid {
-  max-width: 800px;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: repeat(11, 38px) auto;
-  gap: 5px;
-}
-
-.grid-item {
-  height: 100%;
-  width: 100%;
-  /* grid-column: 1 / 4; */
-
-  display: grid;
-  grid-template-columns: 200px 1fr auto;
-}
-
-.grid-item > *,
-.radio-button-container {
-  width: 100%;
-}
-
-.readonly {
-  pointer-events: none;
-  /* Blokira klikove i promjene */
-  opacity: 1;
-  /* Ostavlja isti izgled */
-}
-
-.header {
-  max-width: 200px;
-  min-width: 120px;
-}
-
-.header-grid {
-  width: 50%;
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  grid-template-rows: 38px auto;
-  gap: 5px;
-}
-
-.radio-button-container,
-.radio-button {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.radio-button {
-  gap: 10px;
-}
-
-.action-div {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-:deep(.p-autocomplete-dropdown) {
-  width: auto !important;
-  border-radius: 0 5px 5px 0 !important;
-  padding: 12px;
-}
-:deep(.p-autocomplete-list-container) {
-  width: 600px !important;
-}
-
-.info-div {
-  width: auto;
+.confirm-dialog-container {
   position: relative;
-  /* Potrebno za pozicioniranje apsolutnog elementa unutar ove div-e */
-  margin-left: 5px;
+  background: white;
+  padding: 60px 20px 20px 20px; /* Gore više da ima mjesta za ikonu */
+  border-radius: 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.info-icon {
-  color: var(--red-soft);
-}
-
-.info-icon:hover {
-  color: var(--red);
-}
-
-.info-text {
+.icon-wrapper {
   position: absolute;
-  top: -25px;
-  left: 25%;
-  transform: translateX(-30%);
-
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
-
-  padding: 5px;
-  border-radius: 3px;
-
-  white-space: nowrap;
-  visibility: hidden;
-
-  transform: translateY(-10px);
-  opacity: 0;
-  transition: visibility 0s, opacity 0.2s ease-in-out;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.info-div:hover .info-text {
-  visibility: visible;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-main {
-  display: flex;
-  flex-direction: column;
-  gap: 34px;
-}
-
-.map-link {
-  outline: none;
-  text-decoration: none;
-  color: var(--primary-color);
-}
-
-.map-link > * {
-  color: var(--primary-color);
-}
-
-.map-link > span {
-  margin-left: 5px;
-  text-decoration: underline;
-}
-
-.spremiBtn-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.spremiBtn-container span {
-  font-style: italic;
-}
-
-#saveBtn {
-  margin-top: 8px;
-  width: 230px;
-  background: none;
+.icon-circle {
+  font-size: 2rem;
+  background: white;
   border: var(--border);
-  font-weight: 500;
-
-  background-color: var(--primary-color);
-  color: white;
-
+  border-radius: 50%;
+  padding: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
-#saveBtn * {
-  color: white;
+.icon-circle i {
+  font-size: 3rem;
 }
 
-#saveBtn:hover {
-  background-color: var(--primary-color-hover);
-  color: white;
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 }
 
-#saveBtn:hover > .save-icon {
-  color: white;
+h2.confirm-dialog-header {
+  font-size: 1.5rem;
+  margin: 0;
 }
 
-#saveBtn:active {
-  background-color: var(--primary-color-focus);
+.confirm-desc {
+  /* opacity: 0.8; */
 }
 
-#saveBtn:disabled {
-  background: rgb(216, 216, 216);
-  /* Svijetlo siva pozadina */
-  color: var(--text-color);
-  /* border: none; */
-  /* Boja teksta */
-  cursor: not-allowed;
-  /* Pokazivač miša pokazuje da nije moguće kliknuti */
-  pointer-events: none;
-  /* Onemogućava sve interakcije miša */
-  opacity: 0.6;
-  /* Smanjena vidljivost */
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-#saveBtn:disabled * {
-  color: var(--text-color);
+/* .confirm-dialog-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px;
+  padding: 20px;
 }
 
-#saveBtn:disabled:hover,
-#saveBtn:disabled:active,
-#saveBtn:disabled > .save-icon {
-  background-color: rgb(232, 232, 232);
-  /* Uklanja hover i active efekte */
-  color: var(--text-color);
-  /* Zadržava boju teksta */
-}
-
-.zakljucanoBtn {
-  background: none;
-  border: var(--primary-color) 1px solid !important;
-  border: 1px solid var(--text-color) !important;
-  /* border: var(--border) !important; */
-  font-weight: 500;
-
-  background: none !important;
-  color: var(--text-color) !important;
-  /* color: var(--primary-color) !important; */
-  cursor: not-allowed !important;
-}
-
-.zakljucanoBtn * {
-  color: var(--text-color) !important;
-  /* color: var(--primary-color) !important; */
-}
-
-.form-input-div {
-  width: 100%;
-}
-
-.grid-item {
+.left {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
-.autocomplete {
-  text-transform: uppercase;
+.right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.form-input,
-.p-inputtext {
-  width: 100% !important;
-  height: 100% !important;
+.button-container {
+  grid-column: 1 / span 2;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
 }
 
-input[readonly] {
-  background-color: rgb(247, 247, 247);
-  /* background-color: #eef1f6;
-    border: 1px solid #e0e6ed; */
+h2.confirm-dialog-header {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+} */
+
+.confirm-desc {
+  font-size: 1rem;
 }
 
-.dataInput {
-  cursor: default;
-  background-color: rgba(20, 82, 28, 0.03);
+.acceptBtn {
+  background-color: var(--primary-color) !important;
+  border: none !important;
 }
 
-.dataInput:disabled,
-.form-input:disabled {
-  background-color: #eef1f6;
-  border: 1px solid #e0e6ed;
+#submitBtn {
+  padding: 0px 26px;
+  color: var(--text-color);
+  border: none;
+  width: fit-content; /* ← Ovo! */
+  min-width: unset;
+  max-width: unset;
+  justify-self: start; /* Ili center/end ovisno gdje želiš */
+}
+#submitBtn:hover,
+#submitBtn:active {
+  background-color: rgb(240, 240, 240);
 }
 
-input {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.input-opcina {
-  text-transform: uppercase !important;
-}
-
-.p-select:active {
-  border: var(--border) !important;
-}
-
-.p-select-label {
-  display: flex !important;
-  align-items: center !important;
-}
-
-.p-select.p-component.p-inputwrapper.form-input {
-  padding: 2px 0px !important;
-}
-
-.napomena {
-  /* margin-top: 34px; */
-  align-items: flex-start;
-  padding-top: 12px;
-}
-
-textarea {
-  /* margin-top: 34px; */
-  padding: 12px;
-  height: auto !important;
-  width: 100%;
-  box-sizing: border-box;
-  resize: none;
-}
-
-.alert-popup,
-.loading-popup {
-  z-index: 99;
-  position: fixed;
-  width: 100%;
-  height: 100dvh;
-  top: 0;
-  left: 0;
-  overflow: hidden;
+#submitBtn.filled {
+  background-color: var(--primary-color);
+  color: white;
 }
 
 footer {
@@ -1477,98 +520,5 @@ footer {
   background-color: var(--primary-color);
   cursor: not-allowed;
   pointer-events: none;
-}
-
-.prethodni {
-  color: var(--primary-color);
-  font-weight: bold;
-}
-
-.prethodni * {
-  color: var(--primary-color);
-}
-
-.required {
-  color: var(--red-soft);
-}
-
-.zakljucanoText {
-  text-transform: uppercase;
-  text-decoration: underline;
-  font-weight: bolder;
-  color: var(--primary-color);
-}
-
-@media screen and (max-width: 1500px) {
-  .main-grid,
-  .header-grid {
-    width: 70%;
-  }
-}
-
-@media screen and (max-width: 1350px) {
-  .info-text {
-    left: auto;
-    right: 0;
-    transform: translateX(0);
-  }
-}
-
-@media screen and (max-width: 1280px) {
-  .main-grid,
-  .header-grid {
-    width: 100%;
-  }
-}
-
-.success-popup {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  padding: 12px 40px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  font-size: 16px;
-  font-weight: 600;
-  background-color: rgb(43, 133, 43);
-  /* Zelena boja za uspjeh */
-  border-radius: 5px;
-  overflow: hidden;
-  /* Osigurava da progress bar bude unutar popup-a */
-  transition: all 0.5s ease-in-out;
-  /* Animacija za pojavu i nestajanje */
-}
-
-.success-popup.error {
-  background-color: var(--red-soft);
-  /* Crvena boja za grešku */
-}
-
-.success-popup * {
-  color: white;
-}
-
-.progress-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background-color: rgba(255, 255, 255, 0.6);
-  /* Bijela boja progress bara */
-  animation: progress 3s linear forwards;
-  /* 3 sekunde trajanje */
-}
-
-@keyframes progress {
-  from {
-    width: 100%;
-  }
-
-  to {
-    width: 0;
-  }
 }
 </style>

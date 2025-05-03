@@ -53,7 +53,7 @@
           </div>
         </div>
       </main>
-
+      <NewPredlozakDialog v-model:visible="noviDialogVisible" :visible="noviDialogVisible" />
       <FooterText class="footer-text" />
     </div>
   </div>
@@ -61,17 +61,25 @@
 
 <script setup>
 import FooterText from "~/components/ostalo/FooterText.vue";
+import NewPredlozakDialog from "~/components/kpkr/NewPredlozakDialog.vue";
 import { logout } from "~/service/user/user";
 
 const opciStore = useOpciStore();
 const cardStore = useCardStore();
+
+const noviDialogVisible = ref(false);
 
 definePageMeta({
   requiredRole: "AP001",
   pageTransition: { name: "slide", mode: "out-in" },
 });
 
-const cookiesToDelete = ["scenarij", "id-izracuna", "vrsta-izracuna"];
+const vrstaCookie = useCookie('vrstaIzracuna', {
+  encode: JSON.stringify,
+  decode: JSON.parse
+})
+
+// const cookiesToDelete = ["scenarij", "id-izracuna", "vrsta-izracuna"];
 
 function downloadPDF() {
   // Putanja do PDF datoteke u /static/blobs
@@ -87,8 +95,9 @@ function downloadPDF() {
 }
 
 const noviIzracun = () => {
+  noviDialogVisible.value = true;
   cardStore.resetCardStore();
-  navigateWithParameter("/kpkr/predlozak", "id", "null");
+  // navigateWithParameter("/kpkr/predlozak", "id", "null");
 };
 
 const doLogout = async () => {
@@ -97,9 +106,7 @@ const doLogout = async () => {
 };
 
 onMounted(async () => {
-  // const res = await initializeCookie(['username', 'surname']);
-  // // console.log("username: ", res['username'], "surname: ", res.surname);
-  // izracunStore.clearStore();
+  vrstaCookie.value = null;
 });
 </script>
 
