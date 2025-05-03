@@ -35,8 +35,8 @@
             {{ slotProps.index + 1 }}
           </template>
         </Column>
-        <Column field="naslov" header="Naslov" sortable />
-        <Column field="datum" header="Datum" sortable>
+        <Column field="naslov" header="Vrsta emaila" sortable />
+        <Column field="datum" header="Datum slanja" sortable>
           <template #body="slotProps">
             {{
               parseIsoToDate(slotProps.data.datum).toLocaleString("en-GB", {

@@ -27,11 +27,11 @@ const updateHead = () => {
   } else if (path.startsWith("/kesp")) {
     title.value = "Kalkulator emisija stakleničkih plinova";
     favicon.value = "/favicon-kesp.ico";
-  } 
+  }
   // else if (path.startsWith("/admin")) {
   //   title.value = "Administratorska ploča";
   //   favicon.value = "/favicon-admin.ico";
-  // } 
+  // }
   else {
     title.value = "ATD Solucije";
     favicon.value = "/favicon-default.ico";
