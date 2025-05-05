@@ -1,6 +1,7 @@
 // /plugins/auth.ts
 export default defineNuxtPlugin(async () => {
     const userStore = useUserStore();
+    const logoStore = useLogoStore();
     const route = useRoute();
 
     // Na login stranici preskačemo provjere
@@ -28,6 +29,20 @@ export default defineNuxtPlugin(async () => {
                 email: userData?.email,
                 roles: userData?.roles,
             });
+
+            // unutar plugin funkcije
+            await Promise.all(
+                ['logo'].map(async (key) => {
+                    const blob = await $fetch(`${baseUrl}/user/logo/${key.toUpperCase()}`, {
+                        responseType: 'blob',
+                        credentials: 'include',
+                    });
+                    if (blob) {
+                        logoStore.logos[key] = URL.createObjectURL(blob as Blob);
+                    }
+                })
+            );
+
 
         } else {
             userStore.isLoggedin = false;

@@ -5,11 +5,10 @@
       <header>
         <div class="image-container">
           <img
-            src="../../public/static/images/atd_solucije_iz.png"
-            alt="logo"
+            :src="logoStore.getLogo('logo')"
+            alt="Main logo"
             class="header-image"
-            @click="navigateTo('/')"
-          />
+            @click="navigateTo('/')" />
         </div>
         <button
           v-if="$route.path !== '/login'"
@@ -147,6 +146,7 @@ import FooterText from "~/components/ostalo/FooterText.vue";
 import { logout } from "~/service/user/user";
 
 const kespStore = useKespStore();
+const logoStore = useLogoStore();
 
 definePageMeta({
   requiredRole: "AP002",

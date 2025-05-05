@@ -4,21 +4,20 @@
       <header>
         <div class="image-container">
           <img
-            src="../public/static/images/atd_solucije_iz.png"
-            alt="logo"
+            :src="logoStore.getLogo('logo')"
+            alt="Main logo"
             class="header-image"
-            @click="navigateTo('/')"
-          />
+            @click="navigateTo('/')" />
+
+          <!-- <p v-else>Učitavanje loga...</p> -->
         </div>
         <button
           v-if="$route.path !== '/login'"
           class="logout"
-          @click="doLogout"
-        >
+          @click="doLogout">
           <font-awesome-icon
             icon="arrow-right-from-bracket"
-            class="logout-icon"
-          />
+            class="logout-icon" />
           Odjava
         </button>
       </header>
@@ -34,8 +33,7 @@
               v-for="(card, index) in filteredCards"
               v-else-if="roles.length"
               :key="index"
-              class="card"
-            >
+              class="card">
               <div class="image-container">
                 <font-awesome-icon v-if="!card.isLoaded" icon="spinner" spin />
                 <img v-else :src="card.miniLogo" alt="logo" />
@@ -49,8 +47,7 @@
                     @mouseover="card.showTooltip = true"
                     @mouseleave="card.showTooltip = false"
                     @click="handleButtonClick(card)"
-                    :disabled="card.clicked"
-                  >
+                    :disabled="card.clicked">
                     <template v-if="card.clicked">
                       <font-awesome-icon icon="spinner" spin />
                     </template>
@@ -62,8 +59,7 @@
 
                   <div
                     v-if="card.tooltip.status === 1 && card.showTooltip"
-                    class="tooltip"
-                  >
+                    class="tooltip">
                     {{ card.tooltip.text }}
                   </div>
                 </div>
@@ -92,6 +88,7 @@ import { ref } from "vue";
 import { logout } from "~/service/user/user";
 import { useUserStore } from "~/stores/main-store";
 import FooterText from "~/components/ostalo/FooterText.vue";
+import { getLogo } from "~/service/user/blobs";
 
 definePageMeta({
   pageTransition: { name: "slide", mode: "out-in" },
@@ -99,6 +96,7 @@ definePageMeta({
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
+const logoStore = useLogoStore();
 
 const roles = ref([null]);
 const res = ref(null);
@@ -195,7 +193,14 @@ const handleButtonClick = (card) => {
   navigateTo(card.navigation);
 };
 
+const logoUrl = ref(null);
+
 onMounted(async () => {
+  // logoStore.fetchLogos();
+  // const blob = await getLogo("logo");
+  // if (blob) {
+  //   logoUrl.value = URL.createObjectURL(blob);
+  // }
   res.value = await userStore.getAll;
   roles.value = res.value.roles || { message: "Nemate dopuštenih prava." };
   for (const card of cards.value) {
@@ -205,6 +210,12 @@ onMounted(async () => {
   }
   loading.value = false;
 });
+
+// watch(logoUrl, (newVal, oldVal) => {
+//   if (oldVal) {
+//     URL.revokeObjectURL(oldVal);
+//   }
+// });
 
 const doLogout = async () => {
   await logout();

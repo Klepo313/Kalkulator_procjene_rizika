@@ -70,7 +70,7 @@ const mainStyles = computed(() => ({
   left: 0;
   overflow-y: auto;
   transition: width 0.3s ease;
-  background: none;
+  background: transparent;
   /* Glatka animacija promjene širine */
 }
 

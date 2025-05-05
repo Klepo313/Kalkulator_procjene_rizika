@@ -4,21 +4,18 @@
       <header>
         <div class="image-container">
           <img
-            src="../../public/static/images/atd_solucije_iz.png"
-            alt="logo"
+            :src="logoStore.getLogo('logo')"
+            alt="Main logo"
             class="header-image"
-            @click="navigateTo('/')"
-          />
+            @click="navigateTo('/')" />
         </div>
         <button
           v-if="$route.path !== '/login'"
           class="logout"
-          @click="doLogout"
-        >
+          @click="doLogout">
           <font-awesome-icon
             icon="arrow-right-from-bracket"
-            class="logout-icon"
-          />
+            class="logout-icon" />
           Odjava
         </button>
       </header>
@@ -53,7 +50,9 @@
           </div>
         </div>
       </main>
-      <NewPredlozakDialog v-model:visible="noviDialogVisible" :visible="noviDialogVisible" />
+      <NewPredlozakDialog
+        v-model:visible="noviDialogVisible"
+        :visible="noviDialogVisible" />
       <FooterText class="footer-text" />
     </div>
   </div>
@@ -66,6 +65,7 @@ import { logout } from "~/service/user/user";
 
 const opciStore = useOpciStore();
 const cardStore = useCardStore();
+const logoStore = useLogoStore();
 
 const noviDialogVisible = ref(false);
 
@@ -74,10 +74,10 @@ definePageMeta({
   pageTransition: { name: "slide", mode: "out-in" },
 });
 
-const vrstaCookie = useCookie('vrstaIzracuna', {
+const vrstaCookie = useCookie("vrstaIzracuna", {
   encode: JSON.stringify,
-  decode: JSON.parse
-})
+  decode: JSON.parse,
+});
 
 // const cookiesToDelete = ["scenarij", "id-izracuna", "vrsta-izracuna"];
 

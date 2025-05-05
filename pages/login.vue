@@ -4,62 +4,21 @@
     <div class="body">
       <main>
         <div class="image-container">
-          <img
-            src="../public/static/images/atd_solucije_iz.png"
-            alt="atd_solucije_logo"
-          />
+          <img src="../public/static/images/atd_solucije_iz.png" alt="logo" />
         </div>
-        <!-- <form
-          name="login-form"
-          method="post"
-          @submit.prevent="checkLogin"
-          action=""
-        >
-          <div class="input-container">
-            <label for="username">Korisničko ime</label>
-            <input
-              type="text"
-              name="username"
-              id="username"
-              ref="usernameInput"
-              placeholder="Unesi korisničko ime"
-              required
-            />
-          </div>
-          <div class="input-container">
-            <label for="password">Lozinka</label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              ref="passwordInput"
-              placeholder="Unesi lozinku"
-              required
-            />
-          </div>
-          <button type="submit" id="loginBtn">
-            <span class="login-btn-text" ref="loginBtnText">Prijava</span>
-            <span ref="spinnerIcon" class="spin-icon">
-              <font-awesome-icon id="spin-icon" icon="spinner" spin />
-            </span>
-          </button>
-        </form> -->
-
         <Form
           v-slot="$form"
           :resolver="resolver"
           :initial-values="initialValues"
           class="p-fluid"
-          @submit="handleLogin"
-        >
+          @submit="handleLogin">
           <div class="input-container">
             <label for="username">Korisničko ime</label>
             <InputText
               v-model="username"
               name="username"
               id="username"
-              placeholder="Unesi korisničko ime"
-            />
+              placeholder="Unesi korisničko ime" />
             <Message
               v-if="$form.username?.invalid"
               severity="error"
@@ -76,16 +35,7 @@
               name="password"
               id="password"
               placeholder="Unesi lozinku"
-              :feedback="false"
-            />
-            <!-- <InputText
-              v-model="password"
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Unesi lozinku"
-              required
-            /> -->
+              :feedback="false" />
             <Message
               v-if="$form.password?.invalid"
               severity="error"
@@ -97,35 +47,20 @@
           <Button
             type="submit"
             class="p-button p-component p-login"
-            :disabled="disableLoginButton"
-          >
-            <!-- Prikazuje se tekst "Prijava" ako se ne učitava, a spinner ako se učitava -->
+            :disabled="disableLoginButton">
             <span v-if="!loading" class="login-btn-text">Prijava</span>
             <span v-if="loading" class="spin-icon">
               <font-awesome-icon icon="spinner" spin />
             </span>
           </Button>
         </Form>
-
-        <!-- <transition name="alert">
-          <div class="alert" v-if="showAlert" ref="alert">
-            <font-awesome-icon icon="info-circle" />
-            <span>Pogrešno korisničko ime ili lozinka</span>
-            <font-awesome-icon
-              icon="xmark"
-              size="xl"
-              class="close-icon"
-              @click="hideAlert"
-            />
-          </div>
-        </transition> -->
       </main>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from "vue";
+<script setup lang="ts">
+import { ref } from "vue";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
 import { navigateTo } from "#app";
@@ -139,13 +74,15 @@ definePageMeta({
 });
 
 const route = useRoute();
+const router = useRouter();
 const toast = useToast();
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
+const logoStore = useLogoStore();
 
-const username = ref("");
-const password = ref("");
+const username = ref<string>("");
+const password = ref<string>("");
 const initialValues = ref({
   username: "",
   password: "",
@@ -163,7 +100,7 @@ const resolver = ref(
 const loading = ref(false);
 const disableLoginButton = ref(false);
 
-const handleLogin = async ({ valid }) => {
+const handleLogin = async ({ valid }: { valid: boolean }) => {
   // Provjeravamo da su uneseni username i password
   if (valid) {
     loading.value = true;
@@ -193,6 +130,7 @@ const handleLogin = async ({ valid }) => {
         });
 
         disableLoginButton.value = true;
+        logoStore.fetchLogos();
 
         if (response.isFirstLogin) {
           navigateTo("/user/change-password");
@@ -225,6 +163,7 @@ const handleLogin = async ({ valid }) => {
           navigateTo(redirectTo);
         }
       } else {
+        console.log(response);
         const message = response?.response?.data?.message;
         // Ako prijava nije uspješna, prikaži toast s porukom iz response-a
         toast.add({
@@ -258,23 +197,6 @@ const handleLogin = async ({ valid }) => {
     });
   }
 };
-
-// const highlightBorders = () => {
-//   // Provjerite da su `ref` objekti inicijalizirani prije nego što pristupite njihovim stilovima
-//   showAlert.value = true;
-//   usernameInput.value.style.border = "3px solid var(--red) !important";
-//   passwordInput.value.style.border = "3px solid red";
-
-//   setTimeout(() => {
-//     if (usernameInput.value && passwordInput.value && alert.value) {
-//       usernameInput.value.style.border = ""; // Revert to default
-//       passwordInput.value.style.border = ""; // Revert to default
-//       loginBtnText.value.style.display = "inline";
-//       spinnerIcon.value.style.display = "none";
-//     }
-//     // showAlert.value = false;
-//   }, 3000); // 3000 milliseconds = 3 seconds
-// };
 </script>
 
 <style scoped>

@@ -276,6 +276,7 @@ const doLogout = async () => {
   width: 100%;
   height: 100%;
   padding: 26px;
+  background: transparent;
 
   display: flex;
   flex-direction: column;
