@@ -248,21 +248,21 @@ h2 {
 input {
   height: 38px;
   width: 100%;
-  background-color: var(--input-color) !important;
+  background-color: var(--input-admin-color);
   border: var(--border);
   padding: 0px 20px;
   border-radius: var(--border-form-radius);
 }
 
 input:hover {
-  background-color: var(--input-hover-color);
-  border-color: var(--primary-color);
+  background-color: var(--input-admin-hover-color);
+  border-color: var(--input-admin-color);
   outline: none;
 }
 
 input:focus {
-  background-color: var(--input-focus-color) !important;
-  border-color: var(--primary-color) !important;
+  background-color: var(--input-admin-focus-color) !important;
+  border-color: var(--border) !important;
   outline: none;
 }
 

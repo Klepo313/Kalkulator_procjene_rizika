@@ -237,6 +237,7 @@ const doLogout = async () => {
   justify-content: flex-start;
   width: 100%;
   height: 100dvh;
+  background-color: var(--admin-bg-color);
 }
 
 header {

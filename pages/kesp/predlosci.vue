@@ -437,6 +437,7 @@ const addIzracun = async () => {
   width: 100%;
   min-height: 100dvh;
   padding: 26px;
+  background-color: var(--kesp-bg);
 }
 
 header {
