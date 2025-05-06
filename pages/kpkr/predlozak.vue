@@ -1,5 +1,5 @@
 <template>
-  <div class="body">
+  <div class="predlozak-body">
     <div ref="sidebar" :class="['sidebar', { collapsed: isCollapsed }]">
       <Sidebar :is-collapsed="isCollapsed" @toggle-sidebar="toggleSidebar" />
     </div>
@@ -24,6 +24,10 @@
 import { ref, computed, watch, onMounted } from "vue";
 import Sidebar from "~/components/kpkr/Sidebar.vue";
 import { getCalculations } from "~/service/kpkr/calculations";
+
+definePageMeta({
+  roles: ['AP001']
+})
 
 const toast = useToast();
 const opciStore = useOpciStore();
@@ -114,6 +118,7 @@ onMounted(fetchData);
   display: flex;
   gap: 25px;
   overflow: visible;
+  background-color: var(--bg-color);
 }
 
 .sidebar {

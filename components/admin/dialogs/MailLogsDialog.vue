@@ -58,7 +58,7 @@
           :disabled="!user?.epr_email || !user?.eko_id || !user?.eko_par_id_za"
           @click="$emit('send-mail', user?.eko_id, user?.eko_par_id_za)">
           <font-awesome-icon icon="paper-plane" />
-          Pošalji nove pristupne podatke korisniku
+            {{ user?.epr_email ? 'Pošalji nove pristupne podatke korisniku' : 'Korisnik nema spremljen email' }}
         </button>
       </div>
     </template>

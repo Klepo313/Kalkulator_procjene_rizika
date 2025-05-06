@@ -222,7 +222,7 @@ onMounted(async () => {
 });
 
 const doLogout = async () => {
-  await logout();
+  await logout(); reloadNuxtApp();
   navigateTo("/login");
 };
 

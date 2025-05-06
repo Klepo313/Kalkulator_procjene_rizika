@@ -101,8 +101,8 @@ const noviIzracun = () => {
 };
 
 const doLogout = async () => {
-  await logout();
-  navigateTo("/login");
+  await logout(); reloadNuxtApp();
+  // navigateTo("/login");
 };
 
 onMounted(async () => {

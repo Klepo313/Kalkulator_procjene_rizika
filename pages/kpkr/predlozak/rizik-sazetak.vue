@@ -183,7 +183,7 @@ import { saveAs } from "file-saver";
 import { navigateTo } from "#app";
 import Djelatnost from "~/components/kpkr/tables/Djelatnost.vue";
 import TablicaRizika from "~/components/kpkr/tables/TablicaRizika.vue";
-
+import LegendaBoja from "~/components/kpkr/tables/LegendaBoja.vue";
 //
 // 1) Props
 //

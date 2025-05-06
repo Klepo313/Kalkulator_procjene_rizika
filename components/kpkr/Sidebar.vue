@@ -164,7 +164,7 @@ const isActiveRoute = (path) => {
 };
 
 const doLogout = async () => {
-    await logout();
+    await logout(); reloadNuxtApp();
     navigateTo('/login')
 }
 </script>
@@ -258,7 +258,8 @@ h3 {
     display: flex;
     align-items: center;
     gap: 10px;
-    background-color: var(--bg-color);
+    background-color: none;
+    /* background-color: var(--bg-color); */
     border-radius: var(--border-form-radius);
     padding-left: 20px;
     color: var(--text-color);

@@ -157,7 +157,7 @@ const onFormSubmit = async ({ valid }) => {
 }
 
 const doLogout = async () => {
-    await logout();
+    await logout(); reloadNuxtApp();
     navigateTo('/login');
 };
 </script>

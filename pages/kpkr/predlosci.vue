@@ -130,12 +130,144 @@
       :message="'Učitavanje izračuna...'"
       :loader="'UI'"
       class="loading-popup" />
-      <NewPredlozakDialog
-        v-model:visible="noviDialogVisible" />
+    <NewPredlozakDialog v-model:visible="noviDialogVisible" />
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ref } from "vue";
+import { navigateTo, useAsyncData } from "#app";
+import LoadingSpremanje from "~/components/ostalo/LoadingSpremanje.vue";
+import NewPredlozakDialog from "~/components/kpkr/NewPredlozakDialog.vue";
+import { getCalculations } from "~/service/kpkr/calculations";
+import { useCardStore } from "~/stores/index";
+import { logout } from "~/service/user/user";
+
+definePageMeta({
+  requiredRole: "AP001",
+  roles: ['AP001']
+})
+
+interface Calculation {
+  aiz_id: string;
+  aiz_broj: string;
+  aiz_opis: string;
+  aiz_datum: string;
+  aiz_napomena?: string;
+
+  aiz_tvz_id: number;
+  tvz_naziv: string;
+
+  aiz_kop_id: number;
+  kop_sif: string;
+  kop_naziv: string;
+
+  aiz_kcs_id?: number | null;
+  kcs_sif?: string;
+
+  aiz_tvo_id?: number | null;
+  tvo_naziv?: string;
+
+  aiz_djl_id?: number | null;
+  djl_sif?: string;
+  djl_naziv?: string;
+  djl_naziv_sk?: string;
+
+  isp_naziv?: string;
+  puk_naziv?: string;
+
+  tvs_id: number;
+  tvs_sif: string;
+  tvs_naziv?: string;
+}
+
+const toast = useToast();
+const cardStore = useCardStore();
+
+// Controls the "New Template" dialog
+const noviDialogVisible = ref(false);
+// Shows the full‐screen spinner only on row select
+const loadingDalje = ref(false);
+
+const filters = ref({
+  global: { value: "", matchMode: "contains" },
+});
+
+const loading = ref(true);
+const odabraniIzracun = ref();
+const toastMessage = useState("toastMessage");
+
+// Fetch all calculations once on page load
+const { data: izracuni = [] } = await useAsyncData<Calculation[]>(
+  "calculations",
+  async () => {
+    try {
+      const res = await getCalculations();
+      return Array.isArray(res.data) ? res.data : [];
+    } catch (err) {
+      toast.add({
+        severity: "error",
+        summary: "Greška",
+        detail: "Ne mogu dohvatiti izračune",
+        life: 3000,
+      });
+      return [];
+    }
+  }
+);
+
+const vrstaCookie = useCookie("vrstaIzracuna", {
+  encode: JSON.stringify,
+  decode: JSON.parse,
+});
+
+onMounted(async () => {
+  if (toastMessage.value) {
+    toast.add({
+      severity: "error",
+      summary: "Neispravan ID",
+      detail: toastMessage.value,
+      life: 4000,
+    });
+    toastMessage.value = null;
+  }
+  vrstaCookie.value = null;
+  loading.value = false;
+});
+
+// Navigate to the template page when a row is selected,
+// and show LoadingSpremanje during that navigation
+async function onRowSelect(event: { data: Calculation }) {
+  loadingDalje.value = true;
+  const id = event.data.aiz_id.toString();
+  try {
+    await navigateTo(`/kpkr/predlozak?id=${id}`, { replace: true });
+    cardStore.setCardId(id);
+  } catch (e) {
+    toast.add({
+      severity: "error",
+      summary: "Greška",
+      detail: "Neuspješna navigacija na predložak",
+      life: 3000,
+    });
+  } finally {
+    loadingDalje.value = false;
+  }
+}
+
+// Handler for "New Template" dialog's continue event
+function noviIzracun(vrstaIzracuna: any) {
+  noviDialogVisible.value = false;
+  // e.g. set store or navigate to a fresh form...
+}
+
+const doLogout = async () => {
+  await logout(); reloadNuxtApp();
+  navigateTo("/login");
+};
+</script>
+
+<!-- <script setup>
 import { ref, onMounted } from "vue";
 import { navigateTo } from "#app";
 import { logout } from "~/service/user/user";
@@ -231,7 +363,7 @@ onMounted(async () => {
 });
 
 const doLogout = async () => {
-  await logout();
+  await logout(); reloadNuxtApp();
   navigateTo("/login");
 };
 
@@ -240,7 +372,7 @@ const noviIzracun = () => {
   // cardStore.resetCardStore();
   // navigateWithParameter("/kpkr/predlozak", "id", "null");
 };
-</script>
+</script> -->
 
 <style scoped>
 .pop-up {

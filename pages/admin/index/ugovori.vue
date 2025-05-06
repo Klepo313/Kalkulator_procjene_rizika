@@ -9,8 +9,6 @@
             <p>
               Popis ugovora koje su sklopljeni između pravnih osoba i tvrtke
               'ATD Solucije'. <br />
-              <!-- 'KPKR' - Kalkulator procjene klimatskih rizika <br>
-              'KESP' - Kalkulator emisija stakleničkih plinova -->
             </p>
           </div>
           <ContractList

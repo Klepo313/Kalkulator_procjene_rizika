@@ -20,6 +20,7 @@ import AdminSidebar from "~/components/admin/AdminSidebar.vue";
 
 definePageMeta({
   requiredRolePrefix: "AD",
+  roles: ["AD001", "AD002"],
 });
 
 // Inicijalno postavljamo default vrijednost
