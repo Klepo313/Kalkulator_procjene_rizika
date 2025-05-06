@@ -1,37 +1,61 @@
-import { useRuntimeConfig, useRoute, useUserStore } from "#imports";
+// /composables/useAuth.ts
+import { ref } from 'vue'
 
-export const checkAuth = async () => {
-    const userStore = useUserStore();
-    const route = useRoute();
+export const useAuth = () => {
+    const userStore = useUserStore()
+    const logoStore = useLogoStore()
+    const isAuthReady = ref(false)
+    const authPromise = ref<Promise<void> | null>(null)
 
-    // Ako je ruta /login, nema potrebe za provjerom
-    if (route.path === "/login") return;
+    async function initAuth() {
+        if (authPromise.value) return authPromise.value
+        authPromise.value = (async () => {
+            try {
+                // const { isLoggedin } = await $fetch('/user/is_loggedin', {
+                //     credentials: 'include'
+                // })
+                const config = useRuntimeConfig();
+                const baseUrl = config.public.baseURL;
+                const response = await $fetch(`${baseUrl}/user/is_loggedin`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+                const isLoggedin = response?.isLoggedin;
+                console.log('isLoggedin', isLoggedin)
+                if (isLoggedin) {
+                    userStore.isLoggedin = true
+                    const userData = await userStore.getAll;
 
-    try {
-        const config = useRuntimeConfig();
-        const baseUrl = config.public.baseURL;
-        // API poziv za provjeru statusa autentifikacije
-        const response = await $fetch(`${baseUrl}/user/is_loggedin`, {
-            method: "GET",
-            credentials: "include",
-        });
+                    userStore.updateAll({
+                        name: userData?.name,
+                        surname: userData?.surname,
+                        username: userData?.username,
+                        email: userData?.email,
+                        roles: userData?.roles,
+                    });
 
-        if (response?.isLoggedin) {
-            userStore.isLoggedin = true;
-            const userData = await userStore.getAll;
-            await userStore.updateAll({
-                name: userData?.name,
-                surname: userData?.surname,
-                username: userData?.username,
-                email: userData?.email,
-                roles: userData?.roles,
-            });
-        } else {
-            userStore.isLoggedin = false;
-        }
-    } catch (error: any) {
-        if (error?.response?.status === 401) {
-            userStore.isLoggedin = false;
-        }
+                    await Promise.all(
+                        ['logo'].map(async (key) => {
+                            const blob = await $fetch(`${baseUrl}/user/logo/${key.toUpperCase()}`, {
+                                responseType: 'blob',
+                                credentials: 'include',
+                            });
+                            if (blob) {
+                                logoStore.logos[key] = URL.createObjectURL(blob as Blob);
+                            }
+                        })
+                    );
+                } else {
+                    userStore.$reset()
+                }
+            } catch {
+                userStore.$reset()
+            } finally {
+                isAuthReady.value = true
+            }
+        })()
+        return authPromise.value
     }
-};
+
+    return { initAuth, isAuthReady }
+}

@@ -135,7 +135,28 @@ const handleLogin = async ({ valid }: { valid: boolean }) => {
         if (response.isFirstLogin) {
           navigateTo("/user/change-password");
         } else {
-          let redirectTo = route.query.redirectTo || "/";
+          let redirectTo = (route.query.redirectTo as string) || "/";
+          // // 1) Umjesto ručnog accessRules niza, resolvaj ciljani route
+          // const resolved = router.resolve(redirectTo);
+          // const meta = resolved.meta as Record<string, string | undefined>;
+          // const { requiredRole, requiredRolePrefix } = meta;
+
+          // // 2) Čitaj role iz store-a (već si postavio userStore.roles nakon login-a)
+          // const userRoles = userStore.roles;
+
+          // let hasAccess = true;
+          // if (requiredRole) {
+          //   hasAccess = userRoles.includes(requiredRole);
+          // } else if (requiredRolePrefix) {
+          //   hasAccess = userRoles.some((r) => r.startsWith(requiredRolePrefix));
+          // }
+
+          // // 3) Ako nemaš pristup, padaš na /
+          // if (!hasAccess) {
+          //   redirectTo = "/";
+          // }
+
+          // navigateTo(redirectTo);
           const userRoles = userStore.roles;
           let hasAccess = true;
           const accessRules = [
