@@ -11,7 +11,6 @@ export default defineNuxtPlugin(() => {
                 const res = await getHeader(id);
                 if ((res as any)?.message) return false;
             } else {
-                console.log("path: ", path);
                 return true; // ne diraj ako nije /kesp ili /kpkr
             }
 

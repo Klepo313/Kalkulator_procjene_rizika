@@ -306,3 +306,9 @@ textarea {
     background-color: lightslategray;
     color: white;
 }
+
+@media screen and (max-width: 1500px) {
+    * {
+        font-size: 14px;
+    }
+}

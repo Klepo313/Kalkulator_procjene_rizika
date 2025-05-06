@@ -30,9 +30,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     // 3) Ako ima ID i radi se o nekoj predlozak-ruti (KESP ili KPKR bilo koji),
     //    validiraj ID
     if (id && (isKespPredlozak || isKpkrChild)) {
-        console.log('Validating ID...')
         const valid = await $validateId(id, path)
-        console.log('Valid ID:', valid)
         if (!valid) {
             useState('toastMessage', () => 'Predani ID parametar nije valjan.')
             const redirectBase = isKespPredlozak ? '/kesp/predlosci' : '/kpkr/predlosci'

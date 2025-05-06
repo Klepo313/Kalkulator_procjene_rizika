@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Toast />
     <div class="body">
       <header>
         <div class="image-container">
@@ -93,6 +94,8 @@ import { getLogo } from "~/service/user/blobs";
 definePageMeta({
   pageTransition: { name: "slide", mode: "out-in" },
 });
+
+const toast = useToast();
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -193,16 +196,21 @@ const handleButtonClick = (card) => {
   navigateTo(card.navigation);
 };
 
-const logoUrl = ref(null);
+const toastMessage = useState("toastCallBackMessage");
 
+// toastCallBackMessage
 onMounted(async () => {
-  // logoStore.fetchLogos();
-  // const blob = await getLogo("logo");
-  // if (blob) {
-  //   logoUrl.value = URL.createObjectURL(blob);
-  // }
-  res.value = await userStore.getAll;
-  roles.value = res.value.roles || { message: "Nemate dopuštenih prava." };
+  if (toastMessage.value) {
+    toast.add({
+      severity: "error",
+      summary: "Zabranjen pristup",
+      detail: toastMessage.value,
+      life: 4000,
+    });
+    toastMessage.value = null;
+  }
+  // res.value = await userStore.getAll;
+  roles.value = userStore.roles || { message: "Nemate dopuštenih prava." };
   for (const card of cards.value) {
     card.miniLogo = await fetchImageAsBlob(card.miniLogoId);
     card.textLogo = await fetchImageAsBlob(card.textLogoId);
@@ -211,14 +219,8 @@ onMounted(async () => {
   loading.value = false;
 });
 
-// watch(logoUrl, (newVal, oldVal) => {
-//   if (oldVal) {
-//     URL.revokeObjectURL(oldVal);
-//   }
-// });
-
 const doLogout = async () => {
-  await logout();
+  await logout(); reloadNuxtApp();
   navigateTo("/login");
 };
 </script>
